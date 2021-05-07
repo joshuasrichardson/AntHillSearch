@@ -7,6 +7,7 @@ from World import *
 import pygame as pyg
 import sys
 from myPygameUtils import *
+import threading
 
 
 class ColonySimulation:
@@ -26,6 +27,8 @@ class ColonySimulation:
         self.screen = create_screen()
         self.world = World(numSites, self.screen)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
+        self.chosenHome = None
+        self.timeRanOut = False
 
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 1 and 200", numAgents)
@@ -45,7 +48,11 @@ class ColonySimulation:
 
         white = 255, 255, 255
 
-        while True:
+        foundNewHome = False
+        timer = threading.Timer(self.simulationDuration, self.timeOut)
+        timer.start()
+
+        while not foundNewHome and not self.timeRanOut:
 
             for event in pyg.event.get():
                 if event.type == pyg.QUIT:
@@ -78,6 +85,10 @@ class ColonySimulation:
                     agentNeighbors.append(self.agentList[i])
                 agent.changeState(agentNeighbors)
 
+                if agent.assignedSite is not None and agent.assignedSite.agentCount == NUM_AGENTS:
+                    foundNewHome = True
+                    self.chosenHome = agent.assignedSite
+
                 # if state == OBSERVE_HUB: #or state == PIPE or state == REST:
                 #     agentRect = agent.getAgentRect()
                 #     possibleNeighborList = agentRect.collidelistall(agentRectList)
@@ -92,3 +103,22 @@ class ColonySimulation:
                 #     agent.changeState(None)
             self.world.drawWorldObjects()
             pygame.display.flip()
+
+        pygame.quit()
+        if not self.timeRanOut:
+            print("The agents found their new home!")
+        print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
+        if self.chosenHome.getQuality() > (255 / 2):
+            print("You won!")
+        else:
+            print("You lost!")
+        exit(0)
+
+    def timeOut(self):
+        print("The simulation time has run out.")
+        self.chosenHome = self.world.siteList[0]
+        for home in self.world.siteList:
+            if home.agentCount > self.chosenHome.agentCount:
+                self.chosenHome = home
+        print(str(self.chosenHome.agentCount) + " agents made it to the new home.")
+        self.timeRanOut = True

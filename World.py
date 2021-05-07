@@ -16,7 +16,7 @@ class World:
         """randomly places agent at a 2D location and assigns it
         a random state"""
         self.hubLocation = HUB_LOCATION
-        self.hubHandle = pyg.image.load("hexagon-48.png")
+        self.hubHandle = pyg.image.load("Anthill.png")
         self.hubRect = self.hubHandle.get_rect()
         self.hubRect.centerx = self.hubLocation[0]
         self.hubRect.centery = self.hubLocation[1]
@@ -79,3 +79,17 @@ class World:
 
     def getSiteList(self):
         return self.siteList
+
+    def getClosestSite(self, position):
+        # closest site is first one in the list by default
+        closest = self.siteList[0]
+        min = np.abs(position[0] - self.siteList[0].pos[0]) + np.abs(position[1] - self.siteList[0].pos[1])
+
+        for site in self.siteList:
+            # if the site is closer than the current closest site
+            if np.abs(position[0] - site.pos[0]) + np.abs(position[1] - site.pos[1]) < min:
+                closest = site
+
+        return closest
+
+    # def getSite(self, ):

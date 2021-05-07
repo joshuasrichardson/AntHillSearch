@@ -10,6 +10,7 @@ class Site:
     def __init__(self, surface):
         """randomly places site at a 2D location and assigns it
         a random state"""
+        self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # """JOSHUA"""
         self.screen = surface
         self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality
         self.color = 255 - self.quality, self.quality, 0
@@ -21,6 +22,7 @@ class Site:
         # print(f"pos = {self.pos}")
         self.radius = SITE_SIZE
         self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
+        self.agentCount = 0
         self.observeRadius = SITE_OBSERVED_RANGE
         self.siteObserveRect = pyg.draw.circle(self.screen, self.color, self.pos, self.observeRadius, 0)
 
@@ -32,6 +34,8 @@ class Site:
 
     def drawSite(self):
         self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
+        img = self.myfont.render(str(self.agentCount), True, self.color)
+        self.screen.blit(img, (self.pos[0] - 5, self.pos[1] - 40, 15, 10))     # """JOSHUA"""
 
     def getQuality(self):
         return self.quality
@@ -57,3 +61,9 @@ class Site:
 
     def getAgentRect(self):
         return self.siteRect
+
+    def incrementCount(self):
+        self.agentCount += 1
+
+    def decrementCount(self):
+        self.agentCount -= 1

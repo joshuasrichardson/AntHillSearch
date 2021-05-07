@@ -13,17 +13,17 @@ MAX_N = 30          # Maximum number of possible sites
 MAX_M = 10          # Maximum number of "best" sites
 
 """ Define world size, hub location, and distribution parameters for sites """
-WORLD_DIM = 1000    # Number of pixels in the square world
-HUB_LOCATION = [500, 500]  # Location of the hub
+WORLD_DIM = 700    # Number of pixels in the square world
+HUB_LOCATION = [500, 350]  # Location of the hub
 HUB_SCALE = 0.01    # Percentage of world dimension that determines size of hub
 SITE_SIZE = 20  # How big is the radius of a site?
 SITE_OBSERVED_RANGE = int(round(1.25 * float(SITE_SIZE)))  # How close does and agent have to be to "see" a site
 SITE_NO_CLOSER_THAN = 200  # How close to hub can a site be?
-SITE_NO_FARTHER_THAN = 400  # How far away from hub can a site be?
+SITE_NO_FARTHER_THAN = 350  # How far away from hub can a site be?
 QUALITY_STD = 255.0*.20  # Standard deviation of the quality of the site assessed by agent
                         # Set to 20% of maximum quality
 
-GRAPH_LOCATION = [800, 800]
+GRAPH_LOCATION = [120, 80]
 
 # Agent parameters
 AGENT_SPEED = 20  # Actual speed is AGENT_SPEED * TIME_STEP
@@ -85,7 +85,7 @@ RTF2REST_THRESHOLD = 30
 EXPLORE = 0         # Explore agent state
 EXPLORE_COLOR = 255, 0, 0   # Red is color of Explorer
 
-REST = 1            # Rest agent state
+AT_NEST = 1            # Rest agent state
 REST_COLOR = 0, 0, 0  # Blue
 
 RTFX = 2  # Are we flying?
@@ -108,6 +108,25 @@ PIPE_COLOR = 0, 0, 255  # Blue
 COMMIT = 9           # Commit agent state
 COMMIT_COLOR = 0, 255, 0  # Green
 
-NUM_POSSIBLE_STATES = COMMIT + 1  # Last state plus 1
-COLORS = [EXPLORE_COLOR, REST_COLOR, RTFX_COLOR, ASSESS_COLOR, ASSESS_COLOR, OBSERVE_COLOR, DANCE_COLOR, DANCE_COLOR, PIPE_COLOR, COMMIT_COLOR]
-STATES_LIST = ['EXPLORE', 'REST', 'RTFX', 'ASSESS_HOME', 'ASSESS_SITE', 'OBSERVE', 'DANCE_HUB', 'DANCE_SITE', 'PIPE', 'COMMIT']
+"""Joshua Ant States"""
+FOLLOW = 10          # Following another ant to a nest
+FOLLOW_COLOR = 255, 165, 0  # Orange
+"""End Joshua Ant States"""
+
+# NUM_POSSIBLE_STATES = COMMIT + 1  # Last state plus 1
+NUM_POSSIBLE_STATES = FOLLOW + 1  # Last state plus 1          # """JOSHUA"""
+COLORS = [EXPLORE_COLOR, REST_COLOR, RTFX_COLOR, ASSESS_COLOR, ASSESS_COLOR, OBSERVE_COLOR, DANCE_COLOR, DANCE_COLOR, PIPE_COLOR, COMMIT_COLOR, FOLLOW_COLOR]
+STATES_LIST = ['EXPLORE', 'REST', 'RTFX', 'ASSESS_HOME', 'ASSESS_SITE', 'OBSERVE', 'DANCE_HUB', 'DANCE_SITE', 'PIPE', 'COMMIT', 'FOLLOW']
+
+"""Phases"""
+EXPLORE_PHASE = 0
+EXPLORE_PHASE_COLOR = 0, 0, 255  # Blue
+
+ASSESS_PHASE = 1
+ASSESS_PHASE_COLOR = 255, 0, 0   # Red
+
+CANVAS_PHASE = 2
+CANVAS_PHASE_COLOR = 204, 204, 0  # Yellow
+
+COMMIT_PHASE = 3
+COMMIT_PHASE_COLOR = 0, 255, 0  # Green
