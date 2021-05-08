@@ -39,6 +39,10 @@ class Agent:
         self.phase = EXPLORE_PHASE             # """JOSHUA"""
         self.phaseColor = EXPLORE_PHASE_COLOR  # """JOSHUA"""
         self.knownSites = []                   # """JOSHUA"""
+        self.siteToRecruitFrom = None
+        self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
+        self.goingToRecruit = False  # Whether the agent is in the process of flying toward a site to recruit or not.
+        self.comingWithFollowers = False  # Whether the agent is coming back toward a new site with followers or not.
 
     def setState(self, state, color, target):
         self.target = target
@@ -51,7 +55,7 @@ class Agent:
                 # If changing state, set angle randomly
                 self.state = EXPLORE
                 self.color = EXPLORE_COLOR
-                self.target = target
+                self.target = target  # TODO: may be redundant.
                 # Random direction
                 self.angle = np.random.uniform(0, np.pi*2, 1)
                 self.angularVelocity = 0
@@ -63,6 +67,11 @@ class Agent:
             self.color = color
 
     def changeState(self, neighborList):
+
+        # if self.phase == CANVAS_PHASE:
+            # print("Canvas x: " + str(self.pos[0]) + " y: " + str(self.pos[1]))
+            # print("Canvas target: " + str(self.target))
+
         # TODO: define events and parameters that change states
         if self.state == AT_NEST:
             self.setState(AT_NEST, REST_COLOR, self.hubLocation)
@@ -76,9 +85,21 @@ class Agent:
             #    print('rest to follow')                                       # """JOSHUA"""
             #    return                                                        # """JOSHUA"""
 
+            if self.phase == CANVAS_PHASE:
+                if np.random.randint(0, 1) == 1:  # np.random.exponential(RECRUIT_EXPONENTIAL) > RECRUIT_THRESHOLD*RECRUIT_EXPONENTIAL:
+                    self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
+                    return
+
             for i in range(0, len(neighborList)):
                 if neighborList[i].getState() == PIPE:
                     self.piping_agents += 1
+
+                if neighborList[i].getState() == LEAD_FORWARD:  # TODO: maybe add some randomness so they don't all follow
+                    if np.random.exponential(FOLLOW_EXPONENTIAL) > FOLLOW_THRESHOLD*FOLLOW_EXPONENTIAL:
+                        self.leadAgent = neighborList[i]
+                        self.setState(FOLLOW, FOLLOW_COLOR, self.leadAgent.pos)
+                        self.piping_agents = 0  # JOSHUA TODO: Delete later
+                        return
 
                 if np.random.exponential(self.piping_agents*PIPE_EXPONENTIAL) > PIPE_THRESHOLD*PIPE_EXPONENTIAL and self.piping_agents != 0:  # TODO
                     print('rest to observe')
@@ -91,6 +112,56 @@ class Agent:
                 #     self.assignedSite = neighborList[i].assignedSite
                 #     return
 
+        if self.state == FOLLOW:
+            if self.leadAgent.state == LEAD_FORWARD:
+                if np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD*GET_LOST_EXPONENTIAL:
+                    self.leadAgent = None
+                    self.setState(EXPLORE, EXPLORE_COLOR, None)
+                else:
+                    self.updateFollowPosition()
+
+            else:  # elif self.leadAgent.state == AT_NEST or self.leadAgent.state == ASSESS_SITE:
+                self.leadAgent = None
+                # if they arrived at a nest: TODO: Maybe need to add something to make sure they start assessing if they arrived at a nest
+                self.setState(EXPLORE, EXPLORE_COLOR, None)
+
+        if self.state == LEAD_FORWARD:
+            # choose a site to recruit from
+            if self.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there. TODO: Can they get lost here? for now, no.
+                # print("Leader is going to recruit")
+                siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
+                if self.closeToSite(self.siteToRecruitFrom):  # len(neighborList) > 0 and siteWithinRange != self.assignedSite:  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
+                    print("Leader is close to recruit site")
+                    self.goingToRecruit = False  # The agent is now going to head back to the new site
+                    self.comingWithFollowers = True
+                    # TODO: Make sure they are actually close enough for followers to see them before they head back.
+                return
+
+            if self.comingWithFollowers:
+                # print("Leader is coming with followers")
+                self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())  # Go back to the new site with the new follower(s).
+                if self.closeToSite(self.assignedSite):
+                    print("Leader is going to assess")
+                    self.comingWithFollowers = False
+                    self.setState(ASSESS_SITE, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())  # TODO: Set at nest when I have changed that state
+                return
+
+            # print("Leader is found a site")
+            self.siteToRecruitFrom = None
+            if len(self.knownSites) > 1 and np.random.randint(0, 2) != 0:  # if they know some sites, they can choose from them or the hub. If they only know the one they are at, they just go recruit from the hub.
+                self.siteToRecruitFrom = self.knownSites[np.random.randint(0, len(self.knownSites) - 1)]
+                while self.siteToRecruitFrom == self.assignedSite:
+                    self.siteToRecruitFrom = self.knownSites[np.random.randint(0, len(self.knownSites) - 1)]
+            # go to the site and find someone to recruit
+            self.goingToRecruit = True
+            if self.siteToRecruitFrom is None:  # Go to the hub to recruit.
+                print("Canvas siteToRecruitFrom is None")
+                self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.hubLocation)
+            else:  # Go to their randomly chosen site to recruit.
+                print("Canvas siteToRecruitFrom is something")
+                self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.siteToRecruitFrom.getPosition())
+            # TODO: Can they get lost here? I think so.
+
         if self.state == OBSERVE_HUB:
             self.setState(OBSERVE_HUB, OBSERVE_COLOR, self.hubLocation)
 
@@ -102,6 +173,12 @@ class Agent:
                             self.setState(RTFX, RTFX_COLOR, self.hubLocation)
                             self.assignSite(neighborList[i].assignedSite)
                             return
+
+                    if neighborList[i].getState() == LEAD_FORWARD:  # TODO: maybe add some randomness so they don't all follow
+                        self.leadAgent = neighborList[i]
+                        self.setState(FOLLOW, FOLLOW_COLOR, self.leadAgent.pos)
+                        self.piping_agents = 0  # JOSHUA TODO: Delete later
+                        return
 
             if np.random.exponential(OBSERVE_EXPONENTIAL) > OBSERVE_THRESHOLD*OBSERVE_EXPONENTIAL:
                 if len(neighborList) != 0:
@@ -141,6 +218,12 @@ class Agent:
                     self.estimatedQuality = self.assignedSite.getQuality()  # TODO: add noise
                     # + int(np.round(np.min(255.0,np.max(0.0, np.random.normal(0,QUALITY_STD))))) # Site quality can't be less than zero
                     print(f"quality = {self.assignedSite.getQuality()}, estimated = {self.estimatedQuality}")
+                    if self.estimatedQuality > 255 / 2:
+                        self.phase = CANVAS_PHASE  # TODO: Where should I put this?
+                        self.phaseColor = CANVAS_PHASE_COLOR
+                        self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
+                        print("Canvasing")
+                        return
 
                 if len(neighborList) != 0:
                     for i in range(0, len(neighborList)):
@@ -304,11 +387,22 @@ class Agent:
         self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
         self.pos = [self.agentRect.centerx, self.agentRect.centery]
 
+    def updateFollowPosition(self):
+        self.agentRect.centerx = int(np.round(float(self.leadAgent.pos[0]) - self.leadAgent.speed * np.cos(self.leadAgent.angle))) # TODO: Maybe need to subtract more?
+        self.agentRect.centery = int(np.round(float(self.leadAgent.pos[1]) - self.leadAgent.speed * np.sin(self.leadAgent.angle)))
+        self.pos = [self.agentRect.centerx, self.agentRect.centery]
+
+    def closeToSite(self, site):
+        siteLocation = self.hubLocation
+        if site is not None:
+            siteLocation = site.pos
+        return np.abs(self.pos[0] - siteLocation[0]) < 15 and np.abs(self.pos[1] - siteLocation[1]) < 15
+
     def drawAgent(self, surface):
         surface.blit(self.agentHandle, self.agentRect)
 
-        pyg.draw.ellipse(surface, self.color, self.agentRect, 8)
-        pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 4)
+        pyg.draw.ellipse(surface, self.color, self.agentRect, 4)
+        pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
     def getAgentHandle(self):
         return self.agentHandle
@@ -321,6 +415,7 @@ class Agent:
             self.assignedSite.decrementCount()
         self.assignedSite = site
         self.assignedSite.incrementCount()
+        self.knownSites.append(self.assignedSite)
 
 # for i in range(0, len(neighborList)):
 #     if neighborList[i].getState() == COMMIT and neighborList[i].assignedSite == self.assignedSite:
