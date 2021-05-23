@@ -1,10 +1,10 @@
 """ Global constants used in swarm simulation program """
 import numpy as np
 
-NUM_AGENTS = 100    # Total number of agents in the simulation
-SIM_DURATION = 500  # Time of the simulation in seconds
+NUM_AGENTS = 50    # Total number of agents in the simulation
+SIM_DURATION = 300  # Time of the simulation in seconds
 NUM_GOOD = 1        # Number of top sites
-NUM_SITES = 20      # Number of total sites
+NUM_SITES = 10      # Number of total sites
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_STEPS = 5000    # Maximum allowed duration in seconds
@@ -55,9 +55,6 @@ DANCE_EXPONENTIAL = 50  # Average number of samples before change
 DANCE_THRESHOLD = 25  # TODO: Get some physics behind this. Magic
 DANCE_DECAY = 0.7
 
-
-# TODO
-
 # TO_PIPE = 0
 # TO_PIPE_THRESHOLD = 0
 
@@ -93,7 +90,7 @@ FOLLOW_THRESHOLD = 3  # TODO
 
 
 EXPLORE = 0         # Explore agent state
-EXPLORE_COLOR = 255, 0, 0   # Red is color of Explorer
+EXPLORE_COLOR = 0, 0, 255  # Blue
 
 AT_NEST = 1            # Rest agent state
 REST_COLOR = 0, 0, 0  # Blue
@@ -103,7 +100,7 @@ RTFX_COLOR = 0, 0, 0  # BLACK
 
 ASSESS_HOME = 3     # Assess state where agent returns home to hub
 ASSESS_SITE = 4     # Assess state where agent goes to site
-ASSESS_COLOR = 204, 204, 0  # Yellow
+ASSESS_COLOR = 255, 0, 0   # Red
 
 OBSERVE_HUB = 5     # Observe agent state at hub or traveling to hub
 OBSERVE_COLOR = 0, 0, 0  # BLACK
@@ -123,7 +120,7 @@ FOLLOW = 10          # Following another ant to a nest
 FOLLOW_COLOR = 255, 165, 0  # Orange
 
 LEAD_FORWARD = 11
-LEAD_FORWARD_COLOR = 0, 0, 255  # Blue  TODO: Maybe change
+LEAD_FORWARD_COLOR = 204, 204, 0  # Yellow
 """End Joshua Ant States"""
 
 # NUM_POSSIBLE_STATES = COMMIT + 1  # Last state plus 1
@@ -143,3 +140,5 @@ CANVAS_PHASE_COLOR = 204, 204, 0  # Yellow
 
 COMMIT_PHASE = 3
 COMMIT_PHASE_COLOR = 0, 255, 0  # Green
+
+EXPLORE_RANGE = 160  # How far away from their assigned site they can explore when they aren't in the explore phase

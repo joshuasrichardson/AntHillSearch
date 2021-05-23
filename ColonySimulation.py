@@ -89,18 +89,6 @@ class ColonySimulation:
                     foundNewHome = True
                     self.chosenHome = agent.assignedSite
 
-                # if state == OBSERVE_HUB: #or state == PIPE or state == REST:
-                #     agentRect = agent.getAgentRect()
-                #     possibleNeighborList = agentRect.collidelistall(agentRectList)
-                #     dancingNeighborList = []
-                #     for i in range(0,len(possibleNeighborList)):
-                #         if self.agentList[possibleNeighborList[i]].getState() == DANCE_HUB:
-                #             dancingNeighborList.append(self.agentList[possibleNeighborList[i]])
-                #     #if len(dancingNeighborList) !=0:
-                #     #    print(dancingNeighborList)
-                #     agent.changeState(dancingNeighborList)
-                # else:
-                #     agent.changeState(None)
             self.world.drawWorldObjects()
             pygame.display.flip()
 
@@ -108,10 +96,6 @@ class ColonySimulation:
         if not self.timeRanOut:
             print("The agents found their new home!")
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
-        if self.chosenHome.getQuality() > (255 / 2):
-            print("You won!")
-        else:
-            print("You lost!")
         exit(0)
 
     def timeOut(self):
@@ -120,5 +104,5 @@ class ColonySimulation:
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " agents made it to the new home.")
+        print(str(self.chosenHome.agentCount) + " out of " + NUM_AGENTS + " agents made it to the new home.")
         self.timeRanOut = True

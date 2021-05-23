@@ -17,9 +17,9 @@ class World:
         a random state"""
         self.hubLocation = HUB_LOCATION
         self.hubHandle = pyg.image.load("Anthill.png")
-        self.hubRect = self.hubHandle.get_rect()
-        self.hubRect.centerx = self.hubLocation[0]
-        self.hubRect.centery = self.hubLocation[1]
+#        self.hubRect = self.hubHandle.get_rect()
+#        self.hubRect.centerx = self.hubLocation[0]
+#        self.hubRect.centery = self.hubLocation[1]
         self.siteList = []
         self.siteRectList = []  # List of agent rectangles
         self.screen = screen
@@ -70,11 +70,11 @@ class World:
     def getHubPosition(self):
         return self.hubLocation
 
-    def getWorldHandle(self):
-        return self.hubHandle
+#    def getWorldHandle(self):
+#        return self.hubHandle
 
-    def getWorldRect(self):
-        return self.hubRect
+#    def getWorldRect(self):
+#        return self.hubRect
 
     def getSiteObserveRectList(self):
         return self.siteRectList
@@ -91,11 +91,11 @@ class World:
     def getClosestSite(self, position):
         # closest site is first one in the list by default
         closest = self.siteList[0]
-        min = np.abs(position[0] - self.siteList[0].pos[0]) + np.abs(position[1] - self.siteList[0].pos[1])
+        minimum = np.abs(position[0] - self.siteList[0].pos[0]) + np.abs(position[1] - self.siteList[0].pos[1])
 
         for site in self.siteList:
             # if the site is closer than the current closest site
-            if np.abs(position[0] - site.pos[0]) + np.abs(position[1] - site.pos[1]) < min:
+            if np.abs(position[0] - site.pos[0]) + np.abs(position[1] - site.pos[1]) < minimum:
                 closest = site
 
         return closest
