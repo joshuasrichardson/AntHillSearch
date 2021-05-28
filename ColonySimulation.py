@@ -104,5 +104,5 @@ class ColonySimulation:
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " out of " + NUM_AGENTS + " agents made it to the new home.")
+        print(str(self.chosenHome.agentCount) + " out of " + str(NUM_AGENTS) + " agents made it to the new home.")
         self.timeRanOut = True
