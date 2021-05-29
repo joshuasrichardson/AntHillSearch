@@ -4,7 +4,7 @@ import numpy as np
 NUM_AGENTS = 50    # Total number of agents in the simulation
 SIM_DURATION = 300  # Time of the simulation in seconds
 NUM_GOOD = 1        # Number of top sites
-NUM_SITES = 10      # Number of total sites
+NUM_SITES = 3      # Number of total sites
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_STEPS = 5000    # Maximum allowed duration in seconds
@@ -24,60 +24,26 @@ SITE_NO_FARTHER_THAN = 400  # How far away from hub can a site be?
 QUALITY_STD = 255.0*.20  # Standard deviation of the quality of the site assessed by agent
                         # Set to 20% of maximum quality
 
-GRAPH_LOCATION = [120, 80]
+STATE_GRAPH_LOCATION = [120, 40]  # The location of the graph that shows how many ants are in each state. The left number moves it right more, and the right number moves it down more
+PHASE_GRAPH_LOCATION = [120, 150]  # The location of the graph that shows how many ants are in each phase. The left number moves it right more, and the right number moves it down more
 
 # Agent parameters
 AGENT_SPEED = 20  # Actual speed is AGENT_SPEED * TIME_STEP
 # TODO: Agent speed doesn't make sense as speed times time.
 
 """ Transition parameters for timed transitions """
-# REST TO OBSERVE
-MIN_REST = 0       # Must rest at least MIN_REST seconds
-REST_EXPONENTIAL = 50  # Average number of samples before change
-REST_THRESHOLD = 7  # TODO: Get some physics behind this. Magic
-# OBSERVE TO EXPLORE
-MIN_OBSERVE = 0       # Must rest at least MIN_REST seconds
-OBSERVE_EXPONENTIAL = 50  # Average number of samples before change
-OBSERVE_THRESHOLD = 7  # TODO: Get some physics behind this. Magic
-# EXPLORE TO REST
-MIN_EXPLORE = 0       # Must rest at least MIN_REST seconds
-EXPLORE_EXPONENTIAL = 50  # Average number of samples before change
-EXPLORE_THRESHOLD = 7  # TODO: Get some physics behind this. Magic
-# ASSESS_SITE TO ASSES_HUB
-MIN_ASSESS = 0       # Must rest at least MIN_REST seconds
+AT_NEST_EXPONENTIAL = 50  # Average number of samples before change
+AT_NEST_THRESHOLD = 7
+
+SEARCH_EXPONENTIAL = 50  # Average number of samples before change
+SEARCH_THRESHOLD = 4  # Higher number is less likely
+SEARCH_FROM_HUB_THRESHOLD = 8  # Higher number is less likely
+
 ASSESS_EXPONENTIAL = 50  # Average number of samples before change
-ASSESS_THRESHOLD = 4  # TODO: Get some physics behind this. Magic
-# DANCE_SITE TO DANCE_HUB is same as ASSESS_SITE TO ASSESS_HUB
-# DANCE_HUB is given by LingerTime,
-# which is proportional to site quality,
-# which decays each visit to the site
-DANCE_EXPONENTIAL = 50  # Average number of samples before change
-DANCE_THRESHOLD = 25  # TODO: Get some physics behind this. Magic
-DANCE_DECAY = 0.7
-
-# TO_PIPE = 0
-# TO_PIPE_THRESHOLD = 0
-
-# TO_COMMIT = 0
-# TO_COMMIT_THRESHOLD = 0
-
-ADP_EXPONENTIAL = 50
-ADP_THRESHOLD = 25
-
-PIPE_EXPONENTIAL = 50
-PIPE_THRESHOLD = 30
-
-PIPE2REST_EXPONENTIAL = 50
-PIPE2REST_THRESHOLD = 30
+ASSESS_THRESHOLD = 4  # Higher number is less likely
 
 COMMIT_EXPONENTIAL = 50
 COMMIT_THRESHOLD = 40
-
-RTFX_EXPONENTIAL = 50
-RTFX_THRESHOLD = 20
-
-RTF2REST_EXPONENTIAL = 50
-RTF2REST_THRESHOLD = 30
 
 GET_LOST_EXPONENTIAL = 50  # TODO
 GET_LOST_THRESHOLD = 5    # TODO
@@ -88,47 +54,33 @@ RECRUIT_THRESHOLD = 20  # TODO
 FOLLOW_EXPONENTIAL = 50  # TODO
 FOLLOW_THRESHOLD = 3  # TODO
 
+LEAD_EXPONENTIAL = 50  # TODO
+LEAD_THRESHOLD = 3  # TODO
 
-EXPLORE = 0         # Explore agent state
-EXPLORE_COLOR = 0, 0, 255  # Blue
+MIN_ACCEPT_VALUE = 255/2  # The minimum quality of a nest required for agents to accept it
+QUORUM_SIZE = NUM_AGENTS / 2  # The minimum number of agents that need to be at a site before agents will commit to it
+
+""" States and their colors """
+SEARCH = 0         # Explore agent state
+SEARCH_COLOR = 0, 0, 255  # Blue
 
 AT_NEST = 1            # Rest agent state
-REST_COLOR = 0, 0, 0  # Blue
+AT_NEST_COLOR = 0, 0, 0  # Black
 
-RTFX = 2  # Are we flying?
-RTFX_COLOR = 0, 0, 0  # BLACK
-
-ASSESS_HOME = 3     # Assess state where agent returns home to hub
-ASSESS_SITE = 4     # Assess state where agent goes to site
-ASSESS_COLOR = 255, 0, 0   # Red
-
-OBSERVE_HUB = 5     # Observe agent state at hub or traveling to hub
-OBSERVE_COLOR = 0, 0, 0  # BLACK
-
-DANCE_HUB = 6       # Dance agent state where dancing is at hub or dancer is traveling to hub
-DANCE_SITE = 7      # Dance state where dancer goes to site
-DANCE_COLOR = 140, 140, 0  # Dark Yellow
-
-PIPE = 8            # Pipe agent state
-PIPE_COLOR = 0, 0, 255  # Blue
-
-COMMIT = 9           # Commit agent state
-COMMIT_COLOR = 0, 255, 0  # Green
-
-"""Joshua Ant States"""
-FOLLOW = 10          # Following another ant to a nest
+FOLLOW = 2          # Following another ant to a nest
 FOLLOW_COLOR = 255, 165, 0  # Orange
 
-LEAD_FORWARD = 11
+LEAD_FORWARD = 3
 LEAD_FORWARD_COLOR = 204, 204, 0  # Yellow
-"""End Joshua Ant States"""
 
-# NUM_POSSIBLE_STATES = COMMIT + 1  # Last state plus 1
-NUM_POSSIBLE_STATES = LEAD_FORWARD + 1  # Last state plus 1          # """JOSHUA"""
-COLORS = [EXPLORE_COLOR, REST_COLOR, RTFX_COLOR, ASSESS_COLOR, ASSESS_COLOR, OBSERVE_COLOR, DANCE_COLOR, DANCE_COLOR, PIPE_COLOR, COMMIT_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR]
-STATES_LIST = ['EXPLORE', 'REST', 'RTFX', 'ASSESS_HOME', 'ASSESS_SITE', 'OBSERVE', 'DANCE_HUB', 'DANCE_SITE', 'PIPE', 'COMMIT', 'FOLLOW', 'LEAD_FWD']
+COMMIT = 4           # Commit agent state
+COMMIT_COLOR = 0, 255, 0  # Green
 
-"""Phases"""
+NUM_POSSIBLE_STATES = COMMIT + 1  # Last state plus 1
+COLORS = [AT_NEST_COLOR, SEARCH_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, COMMIT_COLOR]
+STATES_LIST = ['AT_NEST', 'SEARCH', 'FOLLOW', 'LEAD_FWD', 'COMMIT']
+
+""" Phases and their colors """
 EXPLORE_PHASE = 0
 EXPLORE_PHASE_COLOR = 0, 0, 255  # Blue
 
@@ -141,4 +93,6 @@ CANVAS_PHASE_COLOR = 204, 204, 0  # Yellow
 COMMIT_PHASE = 3
 COMMIT_PHASE_COLOR = 0, 255, 0  # Green
 
-EXPLORE_RANGE = 160  # How far away from their assigned site they can explore when they aren't in the explore phase
+NUM_POSSIBLE_PHASES = 4
+PHASE_COLORS = [EXPLORE_PHASE_COLOR, ASSESS_PHASE_COLOR, CANVAS_PHASE_COLOR, COMMIT_PHASE_COLOR]
+PHASES_LIST = ['EXPLORE', 'ASSESS', 'CANVAS', 'COMMIT']

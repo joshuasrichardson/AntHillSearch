@@ -1,4 +1,5 @@
 """ Swarm Simulation Environment """
+import numpy as np
 
 from ColonyExceptions import *
 from Constants import *
@@ -27,6 +28,7 @@ class ColonySimulation:
         self.screen = create_screen()
         self.world = World(numSites, self.screen)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
+        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         self.chosenHome = None
         self.timeRanOut = False
 
@@ -60,6 +62,7 @@ class ColonySimulation:
             self.screen.fill(white)
             # print(agent.state)
             self.states = np.zeros((NUM_POSSIBLE_STATES,))
+            self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
             # Get list of agent rectangles
             agentRectList = []
             for agent in self.agentList:
@@ -68,11 +71,14 @@ class ColonySimulation:
             for agent in self.agentList:
                 st = agent.getState()
                 self.states[st] += 1
+                ph = agent.phase
+                self.phases[ph] += 1
 
             for agent in self.agentList:
                 agent.drawAgent(self.screen)
 
-                self.world.drawGraph(self.states)
+                self.world.drawStateGraph(self.states)
+                self.world.drawPhaseGraph(self.phases)
 
                 # Build adjacency list for observers, assessors, and pipers
                 agent.updatePosition()

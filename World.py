@@ -7,14 +7,12 @@ import matplotlib.pyplot as plt
 
 
 # TODO: set internal thresholds for each agent to switch out of a
-# existing state because of time-out. Replace magic numbers with
-# agent-specific thresholds. Use this to show how diversity is
-# necessary for increased resilience for the elements of autonomy paper
+#  existing state because of time-out. Replace magic numbers with
+#  agent-specific thresholds. Use this to show how diversity is
+#  necessary for increased resilience for the elements of autonomy paper
 
 class World:
     def __init__(self, numSites, screen):
-        """randomly places agent at a 2D location and assigns it
-        a random state"""
         self.hubLocation = HUB_LOCATION
         self.hubHandle = pyg.image.load("Anthill.png")
 #        self.hubRect = self.hubHandle.get_rect()
@@ -24,12 +22,14 @@ class World:
         self.siteRectList = []  # List of agent rectangles
         self.screen = screen
         self.numSites = numSites
-        # self.numList = []
-        self.gloc = GRAPH_LOCATION
+        self.gloc = STATE_GRAPH_LOCATION
         self.colors = COLORS
+        self.phaseGLoc = PHASE_GRAPH_LOCATION
+        self.phaseColors = PHASE_COLORS
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
         self.possible_states = STATES_LIST
+        self.possiblePhases = PHASES_LIST
         # Create as many sites as required
         for siteIndex in range(0, numSites):
             newSite = Site(screen)
@@ -79,11 +79,21 @@ class World:
     def getSiteObserveRectList(self):
         return self.siteRectList
 
-    def drawGraph(self, arr):
+    def drawStateGraph(self, arr):
+        img = self.myfont.render("STATES:", True, (0, 0, 0))
+        self.screen.blit(img, (self.gloc[0]-100, self.gloc[1] - 15))
         for id, ii in enumerate(arr):
             pyg.draw.rect(self.screen, self.colors[id], pyg.Rect(self.gloc[0], self.gloc[1] + id*10, ii, 10))
             img = self.myfont.render(self.possible_states[id], True, self.colors[id])
             self.screen.blit(img, (self.gloc[0]-100, self.gloc[1] - 5 + id*10))
+
+    def drawPhaseGraph(self, arr):
+        img = self.myfont.render("PHASES:", True, (0, 0, 0))
+        self.screen.blit(img, (self.phaseGLoc[0]-100, self.phaseGLoc[1] - 15))
+        for id, ii in enumerate(arr):
+            pyg.draw.rect(self.screen, self.phaseColors[id], pyg.Rect(self.phaseGLoc[0], self.phaseGLoc[1] + id*10, ii, 10))
+            img = self.myfont.render(self.possiblePhases[id], True, self.phaseColors[id])
+            self.screen.blit(img, (self.phaseGLoc[0]-100, self.phaseGLoc[1] - 5 + id*10))
 
     def getSiteList(self):
         return self.siteList
@@ -99,5 +109,3 @@ class World:
                 closest = site
 
         return closest
-
-    # def getSite(self, ):

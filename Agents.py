@@ -29,13 +29,13 @@ class Agent:
         self.angularVelocity = 0  # Speed the agent is changing direction
 
         self.state = AT_NEST  # Defines what the agent is currently doing
-        self.color = REST_COLOR  # Color around the agent displaying their current state
+        self.color = AT_NEST_COLOR  # Color around the agent displaying their current state
         self.phase = EXPLORE_PHASE  # The current phase or level of commitment (explore, assess, canvas, commit)
         self.phaseColor = EXPLORE_PHASE_COLOR  # A color to represent the phase so it can be seen on the screen
-        self.setState(AT_NEST, REST_COLOR, self.hubLocation)
+        self.setState(AT_NEST, AT_NEST_COLOR, self.hubLocation)
 
-        self.assignedSite = None  # Site that the agent has discovered and is trying to get others to go see
-        self.estimatedQuality = None  # The agent's evaluation of the assigned site
+        self.assignedSite = self.hub  # Site that the agent has discovered and is trying to get others to go see
+        self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 1  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
 
         self.knownSites = [self.hub]  # A list of sites that the agent has been to before
@@ -47,180 +47,118 @@ class Agent:
 
     def setState(self, state, color, target):
         self.target = target
-        if state == EXPLORE:
-            if self.state == EXPLORE:
+        if state == SEARCH:
+            if self.state == SEARCH:
                 # If not changing state, just update angle
                 self.angularVelocity += np.random.normal(0, np.pi/200)
                 self.angle = self.angle + self.angularVelocity*TIME_STEP
             else:
                 # If changing state, set angle randomly
-                self.state = EXPLORE
-                self.color = EXPLORE_COLOR
-                # self.target = target
                 # Random direction
-                self.angle = np.random.uniform(0, np.pi*2, 1)
                 self.angularVelocity = 0
+                self.angle = np.random.uniform(0, np.pi*2, 1)
 
         else:
             # All states aim for target location except for EXPLORE.
             # EXPLORE does a random walk, so set its angle in the if statement below
             self.angle = np.arctan2(self.target[1]-self.pos[1], self.target[0]-self.pos[0])
-            self.state = state
-            self.color = color
-            # if self.phase == EXPLORE_PHASE and self.target != self.hubLocation:
-            #     self.phase = ASSESS_PHASE
-            #     self.phaseColor = ASSESS_PHASE_COLOR
-            #     self.assignedSite = target
+        self.state = state
+        self.color = color
 
     def changeState(self, neighborList):
         if self.state == AT_NEST:
+            self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+
+            if self.shouldExplore():
+                self.setState(SEARCH, SEARCH_COLOR, None)
+                return
+
             if self.phase == ASSESS_PHASE:
-                if self.shouldAssess():
-                    self.setPhase(ASSESS_PHASE)
-                    self.setState(ASSESS_SITE, ASSESS_COLOR, self.assignedSite.getPosition())
-                    if self.shouldExplore():
-                        self.setState(EXPLORE, EXPLORE_COLOR, None)
-                else:
-                    if self.assignedSite.getQuality() > 255 / 2:
-                        # If they determine the site is good enough after they've been there long enough,
-                        # They enter the canvasing stage and start recruiting others.
-                        self.setPhase(CANVAS_PHASE)
-                        self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
-                    else:
-                        self.setPhase(EXPLORE_PHASE)
-                        self.setState(EXPLORE, EXPLORE_COLOR, None)
+                if self.isDoneAssessing():
+                    self.acceptOrReject()
+                return
+
+            if self.phase == CANVAS_PHASE:
+                if self.shouldLead():
+                    self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
+                return
+
             else:
-                self.setState(AT_NEST, REST_COLOR, self.hubLocation)
-                if self.shouldRest():
-                    self.setState(OBSERVE_HUB, OBSERVE_COLOR, self.hubLocation)
-                    return
-
-                if self.phase == CANVAS_PHASE:
-                    if np.random.randint(0, 1) == 1:  # np.random.exponential(RECRUIT_EXPONENTIAL) > RECRUIT_THRESHOLD*RECRUIT_EXPONENTIAL:
-                        self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
-                        return
-
                 for i in range(0, len(neighborList)):
                     if neighborList[i].getState() == LEAD_FORWARD:
                         if self.shouldFollow():
                             self.tryFollowing(neighborList[i])
                             return
 
+        if self.state == SEARCH:
+            self.setState(SEARCH, SEARCH_COLOR, None)
+
+            if self.phase == ASSESS_PHASE or self.phase == CANVAS_PHASE:
+                siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
+                # If agent finds a site within range then assess it
+                if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
+                    # If the site is better than the one they were assessing, they assess it instead.
+                    if self.siteList[siteWithinRange].getQuality() > self.estimatedQuality:
+                        self.assignSite(self.siteList[siteWithinRange])
+                        self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+                elif self.shouldReturnToNest():  # Else if timeout then go back to continue assessing the site
+                    self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+                elif self.phase == ASSESS_PHASE and self.isDoneAssessing():
+                    self.acceptOrReject()
+
+            else:
+                siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
+                # If agent finds a site within range then assess it
+                if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
+                    self.assignSite(self.siteList[siteWithinRange])
+                    self.setPhase(ASSESS_PHASE)
+                    self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+                # Else if timeout then switch to resting
+                elif self.shouldReturnToNest():
+                    self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+
         if self.state == FOLLOW:
             if self.leadAgent.state == LEAD_FORWARD:
                 if self.shouldGetLost():
                     self.leadAgent = None
                     self.setPhase(EXPLORE_PHASE)
-                    self.setState(EXPLORE, EXPLORE_COLOR, None)
+                    self.setState(SEARCH, SEARCH_COLOR, None)
                 else:
                     self.updateFollowPosition()
             else:
                 # if they arrived at a nest:
                 self.leadAgent = None
                 self.setPhase(ASSESS_PHASE)
-                self.setState(EXPLORE, EXPLORE_COLOR, None)
+                self.setState(SEARCH, SEARCH_COLOR, None)
 
         if self.state == LEAD_FORWARD:
-            # choose a site to recruit from
+            # Choose a site to recruit from
             if self.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there. TODO: Can they get lost here? for now, no.
-                # print("Leader is going to recruit")
                 self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.siteToRecruitFrom.getPosition())
                 if self.agentRect.collidepoint(self.siteToRecruitFrom.pos):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
-                    # print("Leader is close to recruit site")
                     self.goingToRecruit = False  # The agent is now going to head back to the new site
                     self.comingWithFollowers = True
                     self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())  # Go back to the new site with the new follower(s).
                 return
 
             if self.comingWithFollowers:
-                # print("Leader is coming with followers")
                 self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
-                if self.agentRect.collidepoint(self.assignedSite.pos):
-                    if self.assignedSite.agentCount > NUM_AGENTS / 2:
-                        self.setPhase(COMMIT_PHASE)
+                if self.agentRect.collidepoint(self.assignedSite.pos):  # If they get to the assigned site
+                    if self.quorumMet():  # If enough agents are at that site
+                        self.setPhase(COMMIT_PHASE)  # Commit to the site
                         self.setState(COMMIT, COMMIT_COLOR, self.assignedSite.pos)
                     else:
-                        print("Leader is going to assess")
                         self.numFollowers = 0
                         self.comingWithFollowers = False
-                        self.setState(AT_NEST, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
+                        self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())  # Just be at the site and decide what to do next in the AT_NEST state
                 return
 
-            # print("Leader is found a site")
-            self.siteToRecruitFrom = self.hub
-            if len(self.knownSites) > 2 and np.random.randint(0, 2) != 0:  # if they know some sites, they can choose from them or the hub. If they only know the one they are at, they just go recruit from the hub.
+            self.siteToRecruitFrom = self.knownSites[np.random.randint(0, len(self.knownSites) - 1)]
+            while self.siteToRecruitFrom == self.assignedSite:
                 self.siteToRecruitFrom = self.knownSites[np.random.randint(0, len(self.knownSites) - 1)]
-                while self.siteToRecruitFrom == self.assignedSite:
-                    self.siteToRecruitFrom = self.knownSites[np.random.randint(0, len(self.knownSites) - 1)]
             self.goingToRecruit = True
-            # Go to their randomly chosen site to recruit.
-            self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.siteToRecruitFrom.getPosition())
+            self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.siteToRecruitFrom.getPosition())  # Go to their randomly chosen site to recruit.
             # TODO: Can they get lost here? I think so.
-
-        if self.state == OBSERVE_HUB:
-            self.setState(OBSERVE_HUB, OBSERVE_COLOR, self.hubLocation)
-
-            if len(neighborList) != 0:
-                #  look for pipers
-                for i in range(0, len(neighborList)):
-                    if neighborList[i].getState() == LEAD_FORWARD:
-                        self.tryFollowing(neighborList[i])
-                        return
-
-            if self.shouldExplore():
-                self.setState(EXPLORE, EXPLORE_COLOR, None)
-
-        if self.state == EXPLORE:
-            if self.phase == ASSESS_PHASE:  # They should go explore around the site they are assessing
-                self.setState(EXPLORE, EXPLORE_COLOR, None)
-                siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
-                # If agent finds a site within range then assess it
-                if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
-                    # If the site is better than the one they were assessing, they assess it instead.
-                    if self.assignedSite is None or\
-                            self.siteList[siteWithinRange].getQuality() > self.assignedSite.getQuality():
-                        self.assignSite(self.siteList[siteWithinRange])
-                        self.setState(AT_NEST, ASSESS_COLOR, self.assignedSite.getPosition())
-                # Else if timeout then go back to continue assessing the site
-                elif self.shouldExplore():
-                    self.setState(AT_NEST, ASSESS_COLOR, self.assignedSite.getPosition())
-            else:
-                self.setState(EXPLORE, EXPLORE_COLOR, None)
-                siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
-                # If agent finds a site within range then assess it
-                if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
-                    self.assignSite(self.siteList[siteWithinRange])
-                    self.setPhase(ASSESS_PHASE)
-                    self.setState(ASSESS_SITE, ASSESS_COLOR, self.assignedSite.getPosition())
-                # Else if timeout then switch to resting
-                elif self.shouldExplore():
-                    self.setState(AT_NEST, REST_COLOR, self.hubLocation)
-
-        if self.state == ASSESS_SITE:
-            self.setState(ASSESS_SITE, ASSESS_COLOR, self.assignedSite.getPosition())
-            # Check to see if you have arrived at the site. If so, evaluate quality and wait to return
-            if self.agentRect.collidepoint(self.assignedSite.getPosition()):
-                if self.estimatedQuality is None:
-                    self.estimatedQuality = self.assignedSite.getQuality()  # TODO: add noise
-                    # + int(np.round(np.min(255.0,np.max(0.0, np.random.normal(0,QUALITY_STD))))) # Site quality can't be less than zero
-                    print(f"quality = {self.assignedSite.getQuality()}, estimated = {self.estimatedQuality}")
-                    self.assessmentThreshold = 550.0 / (self.estimatedQuality + 1)  # TODO: find a good number  # The +1 prevents dividing by 0
-
-            if self.estimatedQuality is not None:
-                if self.shouldExplore():
-                    # check surrounding area by going into the explore state again in the ASSESS phase
-                    self.setPhase(ASSESS_PHASE)
-                    self.setState(EXPLORE, EXPLORE_COLOR, None)
-
-                if self.shouldAssess():
-                    if self.estimatedQuality > 255 / 2:
-                        self.setPhase(CANVAS_PHASE)
-                        self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
-                        # print("Canvasing")
-                        return
-                    else:  # They reject the site and go out to explore again
-                        self.setPhase(EXPLORE_PHASE)
-                        self.setState(EXPLORE, EXPLORE_COLOR, None)
 
         if self.state == COMMIT:
             self.setState(COMMIT, COMMIT_COLOR, self.assignedSite.getPosition())
@@ -289,26 +227,44 @@ class Agent:
         return self.agentRect
 
     def assignSite(self, site):
-        if site == self.hub:
-            return  # Don't assign them to the home they are leaving
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
         self.assignedSite = site
         self.assignedSite.incrementCount()
+        self.estimatedQuality = self.assignedSite.getQuality()  # TODO: Give agents different levels of quality-checking abilities. Maybe even have the estimatedQuality change as they have spent more time at a site to make it more accurate as time goes on.
         self.knownSites.append(self.assignedSite)
 
     def shouldExplore(self):
         # TODO: decide good probability
-        return np.random.exponential(EXPLORE_EXPONENTIAL) > EXPLORE_THRESHOLD*EXPLORE_EXPONENTIAL
+        if self.assignedSite == self.hub:
+            return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_FROM_HUB_THRESHOLD * SEARCH_EXPONENTIAL
+        return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_THRESHOLD * SEARCH_EXPONENTIAL  # Make it more likely if they aren't at the hub.
 
     def shouldAssess(self):
         # TODO: decide good probability
         return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold*ASSESS_EXPONENTIAL
 
-    def shouldRest(self):
+    def isDoneAssessing(self):
         # TODO: decide good probability
-        # TODO: change to shouldReturnToNest?
-        return np.random.exponential(REST_EXPONENTIAL) > REST_THRESHOLD*REST_EXPONENTIAL
+        return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD*LEAD_EXPONENTIAL
+
+    def acceptOrReject(self):
+        if self.estimatedQuality > MIN_ACCEPT_VALUE:
+            # If they determine the site is good enough after they've been there long enough,
+            # they enter the canvasing phase and start recruiting others.
+            self.setPhase(CANVAS_PHASE)
+            self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
+        else:
+            self.setPhase(EXPLORE_PHASE)
+            self.setState(SEARCH, SEARCH_COLOR, None)
+
+    def shouldReturnToNest(self):
+        # TODO: decide good probability
+        return np.random.exponential(AT_NEST_EXPONENTIAL) > AT_NEST_THRESHOLD * AT_NEST_EXPONENTIAL
+
+    def shouldLead(self):
+        # TODO: decide good probability. Maybe 100% for the first time in canvasing.
+        return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD * LEAD_EXPONENTIAL
 
     def shouldFollow(self):
         # TODO: decide good probability
@@ -317,3 +273,6 @@ class Agent:
     def shouldGetLost(self):
         # TODO: decide good probability
         return np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD*GET_LOST_EXPONENTIAL
+
+    def quorumMet(self):
+        return self.assignedSite.agentCount > QUORUM_SIZE
