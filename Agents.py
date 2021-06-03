@@ -76,27 +76,42 @@ class Agent:
             if self.phase == ASSESS_PHASE:
                 if self.isDoneAssessing():
                     self.acceptOrReject()
-                return
+                    return
 
             if self.phase == CANVAS_PHASE:
                 if self.shouldLead():
                     self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
-                return
+                    return
 
-            else:
-                for i in range(0, len(neighborList)):
-                    if neighborList[i].getState() == LEAD_FORWARD:
-                        if self.shouldFollow():
-                            self.tryFollowing(neighborList[i])
-                            return
+            if self.phase == COMMIT_PHASE:
+                # Recruit, search, or follow
+                self.transportOrReverseTandem()
+                # TODO: search or follow and make recruit less than 100%
+
+            for i in range(0, len(neighborList)):
+                if neighborList[i].getState() == LEAD_FORWARD and neighborList[i].estimatedQuality > self.estimatedQuality:  # TODO: Should it be on their estimated quality or just that the sites are not the same site?
+                    if self.shouldFollow():
+                        self.tryFollowing(neighborList[i])
+                        return
 
         if self.state == SEARCH:
             self.setState(SEARCH, SEARCH_COLOR, None)
+            siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
+            # If agent finds a site within range then assess it
 
-            if self.phase == ASSESS_PHASE or self.phase == CANVAS_PHASE:
-                siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
-                # If agent finds a site within range then assess it
+            if self.phase == EXPLORE_PHASE:
                 if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
+                    self.knownSites.append(self.assignedSite)
+                    self.assignSite(self.siteList[siteWithinRange])
+                    self.setPhase(ASSESS_PHASE)
+                    self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+                # Else if timeout then switch to resting
+                elif self.shouldReturnToNest():
+                    self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+
+            else:
+                if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
+                    self.knownSites.append(self.assignedSite)
                     # If the site is better than the one they were assessing, they assess it instead.
                     if self.siteList[siteWithinRange].getQuality() > self.estimatedQuality:
                         self.assignSite(self.siteList[siteWithinRange])
@@ -106,18 +121,21 @@ class Agent:
                 elif self.phase == ASSESS_PHASE and self.isDoneAssessing():
                     self.acceptOrReject()
 
-            else:
-                siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
-                # If agent finds a site within range then assess it
-                if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
-                    self.assignSite(self.siteList[siteWithinRange])
-                    self.setPhase(ASSESS_PHASE)
-                    self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
-                # Else if timeout then switch to resting
-                elif self.shouldReturnToNest():
-                    self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
+            for i in range(0, len(neighborList)):
+                if neighborList[i].getState() == TRANSPORT:
+                    self.getCarried(neighborList[i])
+                    return
 
         if self.state == FOLLOW:
+            if self.phase == COMMIT_PHASE:
+                # TODO: Fix this if statement
+                if self.shouldGetLost():
+                    self.leadAgent = None
+                    self.setState(SEARCH, SEARCH_COLOR, None)
+                else:
+                    self.updateFollowPosition()
+                return
+
             if self.leadAgent.state == LEAD_FORWARD:
                 if self.shouldGetLost():
                     self.leadAgent = None
@@ -144,12 +162,12 @@ class Agent:
             if self.comingWithFollowers:
                 self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
                 if self.agentRect.collidepoint(self.assignedSite.pos):  # If they get to the assigned site
+                    self.numFollowers = 0
+                    self.comingWithFollowers = False
                     if self.quorumMet():  # If enough agents are at that site
                         self.setPhase(COMMIT_PHASE)  # Commit to the site
-                        self.setState(COMMIT, COMMIT_COLOR, self.assignedSite.pos)
+                        self.transportOrReverseTandem()
                     else:
-                        self.numFollowers = 0
-                        self.comingWithFollowers = False
                         self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())  # Just be at the site and decide what to do next in the AT_NEST state
                 return
 
@@ -160,8 +178,48 @@ class Agent:
             self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.siteToRecruitFrom.getPosition())  # Go to their randomly chosen site to recruit.
             # TODO: Can they get lost here? I think so.
 
-        if self.state == COMMIT:
-            self.setState(COMMIT, COMMIT_COLOR, self.assignedSite.getPosition())
+        if self.state == REVERSE_TANDEM:
+            self.setState(REVERSE_TANDEM, REVERSE_TANDEM_COLOR, self.assignedSite.getPosition())
+            # TODO: Lead back to a previous site to have them help transport
+            self.setState(TRANSPORT, TRANSPORT_COLOR, self.assignedSite.getPosition())
+
+        if self.state == TRANSPORT:
+            # Choose a site to recruit from
+            if self.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there. TODO: Can they get lost here? for now, no.
+                self.setState(TRANSPORT, TRANSPORT_COLOR, self.siteToRecruitFrom.getPosition())
+                if self.agentRect.collidepoint(self.siteToRecruitFrom.pos):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
+                    self.goingToRecruit = False  # The agent is now going to head back to the new site
+                    self.comingWithFollowers = True
+                    self.setState(TRANSPORT, TRANSPORT_COLOR, self.assignedSite.getPosition())  # Go back to the new site with the new follower(s).
+                return
+
+            if self.comingWithFollowers:
+                self.setState(TRANSPORT, TRANSPORT_COLOR, self.assignedSite.getPosition())
+                if self.agentRect.collidepoint(self.assignedSite.pos):  # If they get to the assigned site
+                    self.numFollowers = 0
+                    self.comingWithFollowers = False
+                    if self.shouldKeepTransporting():
+                        self.transportOrReverseTandem()
+                    else:
+                        self.setState(SEARCH, SEARCH_COLOR, self.assignedSite.getPosition())  # Just be at the site and decide what to do next in the AT_NEST state
+                return
+
+            self.siteToRecruitFrom = self.knownSites[np.random.randint(0, len(self.knownSites) - 1)]
+            while self.siteToRecruitFrom == self.assignedSite:
+                self.siteToRecruitFrom = self.knownSites[np.random.randint(0, len(self.knownSites) - 1)]
+            self.goingToRecruit = True
+            self.setState(TRANSPORT, TRANSPORT_COLOR, self.siteToRecruitFrom.getPosition())  # Go to their randomly chosen site to recruit.
+            # TODO: Can they get lost here? I think so.
+
+        if self.state == CARRIED:
+            self.setState(CARRIED, CARRIED_COLOR, self.leadAgent.pos)
+            if self.leadAgent.state == TRANSPORT:
+                self.updateFollowPosition()
+            else:
+                # if they arrived at a nest or the lead agent got lost and put them down or something:
+                self.leadAgent = None
+                self.setPhase(ASSESS_PHASE)
+                self.setState(SEARCH, SEARCH_COLOR, None)
 
     def getState(self):
         return self.state
@@ -193,6 +251,12 @@ class Agent:
             self.leadAgent.incrementFollowers()
             self.setState(FOLLOW, FOLLOW_COLOR, self.leadAgent.pos)
 
+    def getCarried(self, transporter):
+        if transporter.numFollowers < MAX_FOLLOWERS:
+            self.leadAgent = transporter
+            self.leadAgent.incrementFollowers()
+            self.setState(CARRIED, CARRIED_COLOR, self.leadAgent.pos)
+
     def setPhase(self, phase):
         self.phase = phase
         if phase == EXPLORE_PHASE:
@@ -206,7 +270,6 @@ class Agent:
 
     def incrementFollowers(self):
         self.numFollowers += 1
-        # print("Followers: " + str(self.numFollowers))
 
     def drawAgent(self, surface):
         surface.blit(self.agentHandle, self.agentRect)
@@ -218,7 +281,7 @@ class Agent:
             img = self.world.myfont.render(str(self.estimatedQuality), True, self.color)
         else:
             img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
-        self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))     # """JOSHUA"""
+        self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
     def getAgentHandle(self):
         return self.agentHandle
@@ -232,7 +295,6 @@ class Agent:
         self.assignedSite = site
         self.assignedSite.incrementCount()
         self.estimatedQuality = self.assignedSite.getQuality()  # TODO: Give agents different levels of quality-checking abilities. Maybe even have the estimatedQuality change as they have spent more time at a site to make it more accurate as time goes on.
-        self.knownSites.append(self.assignedSite)
 
     def shouldExplore(self):
         # TODO: decide good probability
@@ -276,3 +338,12 @@ class Agent:
 
     def quorumMet(self):
         return self.assignedSite.agentCount > QUORUM_SIZE
+
+    def transportOrReverseTandem(self):
+        if np.random.randint(0, 3) == 0:
+            self.setState(REVERSE_TANDEM, REVERSE_TANDEM_COLOR, self.assignedSite.pos)
+        else:
+            self.setState(TRANSPORT, TRANSPORT_COLOR, self.assignedSite.pos)
+
+    def shouldKeepTransporting(self):
+        return np.random.randint(0, 2) == 0
