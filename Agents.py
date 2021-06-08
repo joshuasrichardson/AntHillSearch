@@ -36,7 +36,7 @@ class Agent:
 
         self.assignedSite = self.hub  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
-        self.assessmentThreshold = 1  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
+        self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
 
         self.knownSites = [self.hub]  # A list of sites that the agent has been to before
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
@@ -69,7 +69,7 @@ class Agent:
         if self.state == AT_NEST:
             self.setState(AT_NEST, AT_NEST_COLOR, self.assignedSite.getPosition())
 
-            if self.shouldExplore():
+            if self.shouldSearch():
                 self.setState(SEARCH, SEARCH_COLOR, None)
                 return
 
@@ -79,17 +79,21 @@ class Agent:
                     return
 
             if self.phase == CANVAS_PHASE:
-                if self.shouldLead():
+                if self.shouldRecruit():
                     self.setState(LEAD_FORWARD, LEAD_FORWARD_COLOR, self.assignedSite.getPosition())
                     return
 
             if self.phase == COMMIT_PHASE:
                 # Recruit, search, or follow
-                self.transportOrReverseTandem()
-                # TODO: search or follow and make recruit less than 100%
+                if self.shouldRecruit():
+                    self.transportOrReverseTandem()
+                    return
 
             for i in range(0, len(neighborList)):
-                if neighborList[i].getState() == LEAD_FORWARD and neighborList[i].estimatedQuality > self.estimatedQuality:  # TODO: Should it be on their estimated quality or just that the sites are not the same site?
+                # if neighborList[i].getState() == TRANSPORT: TODO: REVERSE_TANDEM
+                #     self.getCarried(neighborList[i])
+                #     return
+                if neighborList[i].getState() == LEAD_FORWARD and neighborList[i].estimatedQuality > self.estimatedQuality:
                     if self.shouldFollow():
                         self.tryFollowing(neighborList[i])
                         return
@@ -127,26 +131,17 @@ class Agent:
                     return
 
         if self.state == FOLLOW:
-            if self.phase == COMMIT_PHASE:
-                # TODO: Fix this if statement
-                if self.shouldGetLost():
-                    self.leadAgent = None
-                    self.setState(SEARCH, SEARCH_COLOR, None)
-                else:
-                    self.updateFollowPosition()
-                return
-
             if self.leadAgent.state == LEAD_FORWARD:
                 if self.shouldGetLost():
                     self.leadAgent = None
-                    self.setPhase(EXPLORE_PHASE)
                     self.setState(SEARCH, SEARCH_COLOR, None)
                 else:
                     self.updateFollowPosition()
             else:
                 # if they arrived at a nest:
                 self.leadAgent = None
-                self.setPhase(ASSESS_PHASE)
+                if self.phase == EXPLORE_PHASE:
+                    self.setPhase(ASSESS_PHASE)
                 self.setState(SEARCH, SEARCH_COLOR, None)
 
         if self.state == LEAD_FORWARD:
@@ -213,12 +208,13 @@ class Agent:
 
         if self.state == CARRIED:
             self.setState(CARRIED, CARRIED_COLOR, self.leadAgent.pos)
-            if self.leadAgent.state == TRANSPORT:
+            if self.leadAgent.state == TRANSPORT and not self.agentRect.collidepoint(self.leadAgent.assignedSite.pos):
                 self.updateFollowPosition()
             else:
                 # if they arrived at a nest or the lead agent got lost and put them down or something:
                 self.leadAgent = None
-                self.setPhase(ASSESS_PHASE)
+                if self.phase != COMMIT_PHASE:
+                    self.setPhase(ASSESS_PHASE)
                 self.setState(SEARCH, SEARCH_COLOR, None)
 
     def getState(self):
@@ -296,19 +292,9 @@ class Agent:
         self.assignedSite.incrementCount()
         self.estimatedQuality = self.assignedSite.getQuality()  # TODO: Give agents different levels of quality-checking abilities. Maybe even have the estimatedQuality change as they have spent more time at a site to make it more accurate as time goes on.
 
-    def shouldExplore(self):
-        # TODO: decide good probability
-        if self.assignedSite == self.hub:
-            return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_FROM_HUB_THRESHOLD * SEARCH_EXPONENTIAL
-        return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_THRESHOLD * SEARCH_EXPONENTIAL  # Make it more likely if they aren't at the hub.
-
-    def shouldAssess(self):
-        # TODO: decide good probability
-        return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold*ASSESS_EXPONENTIAL
-
     def isDoneAssessing(self):
         # TODO: decide good probability
-        return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD*LEAD_EXPONENTIAL
+        return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold*ASSESS_EXPONENTIAL
 
     def acceptOrReject(self):
         if self.estimatedQuality > MIN_ACCEPT_VALUE:
@@ -320,11 +306,30 @@ class Agent:
             self.setPhase(EXPLORE_PHASE)
             self.setState(SEARCH, SEARCH_COLOR, None)
 
+    def quorumMet(self):
+        return self.assignedSite.agentCount > QUORUM_SIZE
+
+    def transportOrReverseTandem(self):
+        if np.random.randint(0, 3) == 0:
+            self.setState(REVERSE_TANDEM, REVERSE_TANDEM_COLOR, self.assignedSite.pos)
+        else:
+            self.setState(TRANSPORT, TRANSPORT_COLOR, self.assignedSite.pos)
+
+    def shouldSearch(self):
+        # TODO: decide good probability
+        if self.assignedSite == self.hub:
+            return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_FROM_HUB_THRESHOLD * SEARCH_EXPONENTIAL
+        return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_THRESHOLD * SEARCH_EXPONENTIAL  # Make it more likely if they aren't at the hub.
+
+    # def shouldAssess(self):
+    #     # TODO: decide good probability
+    #     return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold*ASSESS_EXPONENTIAL
+
     def shouldReturnToNest(self):
         # TODO: decide good probability
         return np.random.exponential(AT_NEST_EXPONENTIAL) > AT_NEST_THRESHOLD * AT_NEST_EXPONENTIAL
 
-    def shouldLead(self):
+    def shouldRecruit(self):
         # TODO: decide good probability. Maybe 100% for the first time in canvasing.
         return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD * LEAD_EXPONENTIAL
 
@@ -335,15 +340,6 @@ class Agent:
     def shouldGetLost(self):
         # TODO: decide good probability
         return np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD*GET_LOST_EXPONENTIAL
-
-    def quorumMet(self):
-        return self.assignedSite.agentCount > QUORUM_SIZE
-
-    def transportOrReverseTandem(self):
-        if np.random.randint(0, 3) == 0:
-            self.setState(REVERSE_TANDEM, REVERSE_TANDEM_COLOR, self.assignedSite.pos)
-        else:
-            self.setState(TRANSPORT, TRANSPORT_COLOR, self.assignedSite.pos)
 
     def shouldKeepTransporting(self):
         return np.random.randint(0, 2) == 0
