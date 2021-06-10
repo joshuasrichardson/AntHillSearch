@@ -1,14 +1,11 @@
 """ Swarm Simulation Environment """
-import numpy as np
-
-from ColonyExceptions import *
-from Constants import *
-from Agents import *
-from World import *
-import pygame as pyg
-import sys
-from myPygameUtils import *
 import threading
+
+from colony.Agents import *
+from ColonyExceptions import *
+from World import *
+from myPygameUtils import *
+from states.AtNestState import AtNestState
 
 
 class ColonySimulation:
@@ -42,10 +39,11 @@ class ColonySimulation:
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def runSimulation(self):
-
-        # creates the number of ants specified by main
+        # creates the number of agents specified by main
         for i in range(0, self.numAgents):
             agent = Agent(self.world)
+            state = AtNestState(agent)
+            agent.setState(state)
             self.agentList.append(agent)
 
         white = 255, 255, 255
@@ -60,7 +58,6 @@ class ColonySimulation:
                 if event.type == pyg.QUIT:
                     raise GameOver("Exited Successfully")
             self.screen.fill(white)
-            # print(agent.state)
             self.states = np.zeros((NUM_POSSIBLE_STATES,))
             self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
             # Get list of agent rectangles
@@ -82,7 +79,6 @@ class ColonySimulation:
 
                 # Build adjacency list for observers, assessors, and pipers
                 agent.updatePosition()
-                state = agent.getState()
 
                 agentRect = agent.getAgentRect()
                 possibleNeighborList = agentRect.collidelistall(agentRectList)

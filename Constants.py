@@ -1,10 +1,9 @@
 """ Global constants used in swarm simulation program """
-import numpy as np
 
 NUM_AGENTS = 100    # Total number of agents in the simulation
 SIM_DURATION = 300  # Time of the simulation in seconds
 NUM_GOOD = 1        # Number of top sites
-NUM_SITES = 6      # Number of total sites
+NUM_SITES = 6       # Number of total sites
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_STEPS = 5000    # Maximum allowed duration in seconds
@@ -13,10 +12,10 @@ MAX_N = 30          # Maximum number of possible sites
 MAX_M = 10          # Maximum number of "best" sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
-""" Define world size, hub location, and distribution parameters for sites """
-WORLD_DIM = 1000    # Number of pixels in the square world
+""" Define colony size, hub location, and distribution parameters for sites """
+WORLD_DIM = 1000    # Number of pixels in the square colony
 HUB_LOCATION = [500, 350]  # Location of the hub
-HUB_SCALE = 0.01    # Percentage of world dimension that determines size of hub
+HUB_SCALE = 0.01    # Percentage of colony dimension that determines size of hub
 SITE_SIZE = 20  # How big is the radius of a site?
 SITE_OBSERVED_RANGE = int(round(1.25 * float(SITE_SIZE)))  # How close does and agent have to be to "see" a site
 SITE_NO_CLOSER_THAN = 200  # How close to hub can a site be?

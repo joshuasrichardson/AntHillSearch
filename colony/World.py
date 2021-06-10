@@ -1,9 +1,5 @@
 """ World class. Stores 2D positions of hub and sites """
-import numpy as np
-import pygame as pyg
-from Constants import *
 from Site import *
-import matplotlib.pyplot as plt
 
 
 # TODO: set internal thresholds for each agent to switch out of a
@@ -14,10 +10,6 @@ import matplotlib.pyplot as plt
 class World:
     def __init__(self, numSites, screen):
         self.hubLocation = HUB_LOCATION
-        self.hubHandle = pyg.image.load("Anthill.png")
-#        self.hubRect = self.hubHandle.get_rect()
-#        self.hubRect.centerx = self.hubLocation[0]
-#        self.hubRect.centery = self.hubLocation[1]
         self.siteList = []
         self.siteRectList = []  # List of agent rectangles
         self.screen = screen
@@ -69,12 +61,6 @@ class World:
 
     def getHubPosition(self):
         return self.hubLocation
-
-#    def getWorldHandle(self):
-#        return self.hubHandle
-
-#    def getWorldRect(self):
-#        return self.hubRect
 
     def getSiteObserveRectList(self):
         return self.siteRectList

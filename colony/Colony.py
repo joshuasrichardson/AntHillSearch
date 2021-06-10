@@ -2,8 +2,6 @@
 Michael Goodrich
 February 2019 """
 
-import sys
-import ColonyExceptions
 from ColonySimulation import *
 
 

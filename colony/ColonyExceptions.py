@@ -12,7 +12,6 @@ class InputError(Error):
     """
 
     def __init__(self, message, value):
-        # self.message = message
         print(f"{message}:({value})")
 
 
@@ -25,5 +24,4 @@ class GameOver(Error):
     """
 
     def __init__(self, message):
-        # self.message = message
         print(f"{message}")
