@@ -1,7 +1,6 @@
 import numpy as np
 
 from Constants import *
-from states.phases.AssessPhase import AssessPhase
 from states.State import State
 
 
@@ -25,36 +24,27 @@ class SearchState(State):
         siteWithinRange = self.agent.agentRect.collidelist(self.agent.siteObserveRectList)
         # If agent finds a site within range then assess it
 
-        if self.agent.phase == EXPLORE_PHASE:
-            if siteWithinRange != -1 and self.agent.siteList[siteWithinRange] != self.agent.hub:
-                self.agent.knownSites.append(self.agent.assignedSite)
+        if self.sightIsInRange(siteWithinRange):
+            self.agent.knownSites.append(self.agent.assignedSite)
+            # If the site is better than the one they were assessing, they assess it instead.
+            if self.agent.siteList[siteWithinRange].getQuality() > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.siteList[siteWithinRange])
-                self.agent.setPhase(ASSESS_PHASE)
                 from states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
-            # Else if timeout then switch to resting
-            elif self.agent.shouldReturnToNest():
-                from states.AtNestState import AtNestState
-                self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
+                if self.agent.phase == EXPLORE_PHASE:
+                    self.agent.setPhase(ASSESS_PHASE)
+        elif self.agent.shouldReturnToNest():
+            from states.AtNestState import AtNestState
+            self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
 
-        else:
-            if siteWithinRange != -1 and self.agent.siteList[siteWithinRange] != self.agent.hub:
-                self.agent.knownSites.append(self.agent.assignedSite)
-                # If the site is better than the one they were assessing, they assess it instead.
-                if self.agent.siteList[siteWithinRange].getQuality() > self.agent.estimatedQuality:
-                    self.agent.assignSite(self.agent.siteList[siteWithinRange])
-                    from states.AtNestState import AtNestState
-                    self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
-            elif self.agent.shouldReturnToNest():  # Else if timeout then go back to continue assessing the site
-                from states.AtNestState import AtNestState
-                self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
-            elif self.agent.phase == ASSESS_PHASE and self.agent.isDoneAssessing():
-                AssessPhase.acceptOrReject(self)
-
+        # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):
             if neighborList[i].getState() == TRANSPORT:
                 self.getCarried(neighborList[i])
                 return
+
+    def sightIsInRange(self, siteWithinRange):
+        return siteWithinRange != -1 and self.agent.siteList[siteWithinRange] != self.agent.hub
 
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:

@@ -3,7 +3,6 @@ from states.FollowState import FollowState
 from states.LeadForwardState import LeadForwardState
 from states.SearchState import SearchState
 from states.phases.CommitPhase import CommitPhase
-from states.phases.AssessPhase import AssessPhase
 from states.State import State
 
 
@@ -23,7 +22,7 @@ class AtNestState(State):
 
         if self.agent.phase == ASSESS_PHASE:
             if self.agent.isDoneAssessing():
-                AssessPhase.acceptOrReject(self)
+                self.acceptOrReject()
                 return
 
         if self.agent.phase == CANVAS_PHASE:
@@ -38,16 +37,25 @@ class AtNestState(State):
                 return
 
         for i in range(0, len(neighborList)):
-            # if neighborList[i].getState() == REVERSE_TANDEM: TODO: REVERSE_TANDEM
-            #     self.getCarried(neighborList[i])
-            #     return
-            if neighborList[i].getState() == LEAD_FORWARD and neighborList[i].estimatedQuality > self.agent.estimatedQuality:
-                if self.agent.shouldFollow():
-                    self.tryFollowing(neighborList[i])
-                    return
+            if (neighborList[i].getState() == LEAD_FORWARD or neighborList[i].getState() == REVERSE_TANDEM)\
+                    and neighborList[i].estimatedQuality > self.agent.estimatedQuality and self.agent.shouldFollow():
+                self.tryFollowing(neighborList[i])
+                return
 
     def tryFollowing(self, leader):
         if leader.numFollowers < MAX_FOLLOWERS:
             self.agent.leadAgent = leader
             self.agent.leadAgent.incrementFollowers()
             self.setState(FollowState(self.agent), self.agent.leadAgent.pos)
+
+    def acceptOrReject(self):
+        # If they determine the site is good enough after they've been there long enough,
+        if self.agent.estimatedQuality > MIN_ACCEPT_VALUE:
+            # they enter the canvasing phase and start recruiting others.
+            self.agent.setPhase(CANVAS_PHASE)
+            from states.LeadForwardState import LeadForwardState
+            self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
+        else:
+            self.agent.setPhase(EXPLORE_PHASE)
+            from states.SearchState import SearchState
+            self.setState(SearchState(self.agent), None)

@@ -33,7 +33,7 @@ AT_NEST_EXPONENTIAL = 50  # Average number of samples before change
 AT_NEST_THRESHOLD = 7
 
 SEARCH_EXPONENTIAL = 50  # Average number of samples before change
-SEARCH_THRESHOLD = 4  # Higher number is less likely
+SEARCH_THRESHOLD = 6  # Higher number is less likely
 SEARCH_FROM_HUB_THRESHOLD = 8  # Higher number is less likely
 
 ASSESS_EXPONENTIAL = 50  # Average number of samples before change
@@ -49,7 +49,7 @@ RECRUIT_EXPONENTIAL = 50  # TODO
 RECRUIT_THRESHOLD = 20  # TODO
 
 FOLLOW_EXPONENTIAL = 50  # TODO
-FOLLOW_THRESHOLD = 3  # TODO
+FOLLOW_THRESHOLD = 2  # TODO
 
 LEAD_EXPONENTIAL = 50  # TODO
 LEAD_THRESHOLD = 3  # TODO

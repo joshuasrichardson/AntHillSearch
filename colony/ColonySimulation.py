@@ -56,6 +56,7 @@ class ColonySimulation:
 
             for event in pyg.event.get():
                 if event.type == pyg.QUIT:
+                    pygame.quit()
                     raise GameOver("Exited Successfully")
             self.screen.fill(white)
             self.states = np.zeros((NUM_POSSIBLE_STATES,))
