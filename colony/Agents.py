@@ -111,6 +111,7 @@ class Agent:
         self.assignedSite = site
         self.assignedSite.incrementCount()
         self.estimatedQuality = self.assignedSite.getQuality()  # TODO: Give agents different levels of quality-checking abilities. Maybe even have the estimatedQuality change as they have spent more time at a site to make it more accurate as time goes on.
+        self.assessmentThreshold = 7 - (self.estimatedQuality / 36)  # Take longer to assess lower-quality sites
 
     def isDoneAssessing(self):
         # TODO: decide good probability
@@ -135,11 +136,11 @@ class Agent:
 
     def shouldFollow(self):
         # TODO: decide good probability
-        return np.random.exponential(FOLLOW_EXPONENTIAL) > FOLLOW_THRESHOLD*FOLLOW_EXPONENTIAL
+        return np.random.exponential(FOLLOW_EXPONENTIAL) > FOLLOW_THRESHOLD * FOLLOW_EXPONENTIAL
 
     def shouldGetLost(self):
         # TODO: decide good probability
-        return np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD*GET_LOST_EXPONENTIAL
+        return np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD * GET_LOST_EXPONENTIAL
 
     def shouldKeepTransporting(self):
         return np.random.randint(0, 3) != 0

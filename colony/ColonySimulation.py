@@ -57,6 +57,7 @@ class ColonySimulation:
             for event in pyg.event.get():
                 if event.type == pyg.QUIT:
                     pygame.quit()
+                    timer.cancel()
                     raise GameOver("Exited Successfully")
             self.screen.fill(white)
             self.states = np.zeros((NUM_POSSIBLE_STATES,))
@@ -95,11 +96,11 @@ class ColonySimulation:
             self.world.drawWorldObjects()
             pygame.display.flip()
 
-        pygame.quit()
         if not self.timeRanOut:
             print("The agents found their new home!")
+            pygame.quit()
+            timer.cancel()
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
-        exit(0)
 
     def timeOut(self):
         print("The simulation time has run out.")

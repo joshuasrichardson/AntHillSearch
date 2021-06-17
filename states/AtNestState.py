@@ -37,8 +37,9 @@ class AtNestState(State):
                 return
 
         for i in range(0, len(neighborList)):
-            if (neighborList[i].getState() == LEAD_FORWARD or neighborList[i].getState() == REVERSE_TANDEM)\
-                    and neighborList[i].estimatedQuality > self.agent.estimatedQuality and self.agent.shouldFollow():
+            if (neighborList[i].getState() == LEAD_FORWARD and neighborList[i].estimatedQuality > self.agent.estimatedQuality)\
+                    or (neighborList[i].getState() == REVERSE_TANDEM and neighborList[i].estimatedQuality >= self.agent.estimatedQuality)\
+                    and self.agent.shouldFollow():
                 self.tryFollowing(neighborList[i])
                 return
 

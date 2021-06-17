@@ -84,14 +84,14 @@ class World:
     def getSiteList(self):
         return self.siteList
 
-    def getClosestSite(self, position):
-        # closest site is first one in the list by default
-        closest = self.siteList[0]
-        minimum = np.abs(position[0] - self.siteList[0].pos[0]) + np.abs(position[1] - self.siteList[0].pos[1])
-
-        for site in self.siteList:
-            # if the site is closer than the current closest site
-            if np.abs(position[0] - site.pos[0]) + np.abs(position[1] - site.pos[1]) < minimum:
-                closest = site
-
-        return closest
+    # def getClosestSite(self, position):
+    #     # closest site is first one in the list by default
+    #     closest = self.siteList[0]
+    #     minimum = np.abs(position[0] - self.siteList[0].pos[0]) + np.abs(position[1] - self.siteList[0].pos[1])
+    #
+    #     for site in self.siteList:
+    #         # if the site is closer than the current closest site
+    #         if np.abs(position[0] - site.pos[0]) + np.abs(position[1] - site.pos[1]) < minimum:
+    #             closest = site
+    #
+    #     return closest

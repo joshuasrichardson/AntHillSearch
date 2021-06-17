@@ -30,13 +30,13 @@ class Site:
     def drawSite(self):
         self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
         img = self.myfont.render(str(self.agentCount), True, self.color)
-        self.screen.blit(img, (self.pos[0] - 5, self.pos[1] - 40, 15, 10))     # """JOSHUA"""
+        self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
 
     def getQuality(self):
         return self.quality
 
     def normalizeQuality(self, span, zero):
-        self.quality = int(round((self.quality - zero)/span*255)) 
+        self.quality = int(round((self.quality - zero) / span * 255))
         # 255 is the maximum color range
         self.color = 255 - self.quality, self.quality, 0
 

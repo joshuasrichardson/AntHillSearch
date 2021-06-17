@@ -1,9 +1,9 @@
 """ Global constants used in swarm simulation program """
 
-NUM_AGENTS = 100    # Total number of agents in the simulation
+NUM_AGENTS = 200    # Total number of agents in the simulation
 SIM_DURATION = 300  # Time of the simulation in seconds
 NUM_GOOD = 1        # Number of top sites
-NUM_SITES = 6       # Number of total sites
+NUM_SITES = 5       # Number of total sites
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_STEPS = 5000    # Maximum allowed duration in seconds
@@ -14,47 +14,67 @@ MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead age
 
 """ Define colony size, hub location, and distribution parameters for sites """
 WORLD_DIM = 1000    # Number of pixels in the square colony
+# The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = [500, 350]  # Location of the hub
-HUB_SCALE = 0.01    # Percentage of colony dimension that determines size of hub
+# Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_SIZE = 20  # How big is the radius of a site?
+# Higher observe ranges make sites easier to find, speeding up the simulations.
 SITE_OBSERVED_RANGE = int(round(1.25 * float(SITE_SIZE)))  # How close does and agent have to be to "see" a site
-SITE_NO_CLOSER_THAN = 200  # How close to hub can a site be?
+# Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
+SITE_NO_CLOSER_THAN = 40  # How close to hub can a site be?
+# Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a site be?
-QUALITY_STD = 255.0*.20  # Standard deviation of the quality of the site assessed by agent. Set to 20% of maximum quality
 
+# Does not affect simulation besides making it easier to see what's happening
 STATE_GRAPH_LOCATION = [120, 40]  # The location of the graph that shows how many ants are in each state. The left number moves it right more, and the right number moves it down more
+# Does not affect simulation besides making it easier to see what's happening
 PHASE_GRAPH_LOCATION = [120, 150]  # The location of the graph that shows how many ants are in each phase. The left number moves it right more, and the right number moves it down more
 
 # Agent parameters
 AGENT_SPEED = 20  # Actual speed is AGENT_SPEED * TIME_STEP
 
 """ Transition parameters for timed transitions """
-AT_NEST_EXPONENTIAL = 50  # Average number of samples before change
-AT_NEST_THRESHOLD = 7
+# With exponential 50,
+# 1 ==> 36% chance
+# 2 ==> 13% chance
+# 3 ==> 4.9%
+# 4 ==> 1.8%
+# 5 ==> 0.7%
 
-SEARCH_EXPONENTIAL = 50  # Average number of samples before change
-SEARCH_THRESHOLD = 6  # Higher number is less likely
-SEARCH_FROM_HUB_THRESHOLD = 8  # Higher number is less likely
+# As far as I can tell, changing the exponential doesnt actually make a difference
+AT_NEST_EXPONENTIAL = 50
+# If this threshold is too high, then agents have to find better sites through SEARCH or CARRIED.
+# If it's too low, then they have to find better sites through follow. A good medium lets them find both ways.
+AT_NEST_THRESHOLD = 6  # Influences the likelihood that an agent will go back to their assigned site from searching.
 
-ASSESS_EXPONENTIAL = 50  # Average number of samples before change
-ASSESS_THRESHOLD = 4  # Higher number is less likely
+# As far as I can tell, changing the exponential doesnt actually make a difference
+SEARCH_EXPONENTIAL = 50
+# Lower threshold makes agents more likely to start searching from AT_NEST(not hub)
+SEARCH_THRESHOLD = 3  # Should go from AT_NEST to SEARCH
+# With 100 agents, 8 ==> about 1 agent every second; if transitions from search are disabled,
+# it takes about 45 seconds for half of the agents to go from AT_NEST to SEARCH
+SEARCH_FROM_HUB_THRESHOLD = 8  # Should go from AT_NEST(hub) to SEARCH
 
-COMMIT_EXPONENTIAL = 50
-COMMIT_THRESHOLD = 40
+# As far as I can tell, changing the exponential doesnt actually make a difference
+ASSESS_EXPONENTIAL = 50
+# ASSESS_THRESHOLD = 4  # TODO: make a number that sets how much it can vary
 
-GET_LOST_EXPONENTIAL = 50  # TODO
-GET_LOST_THRESHOLD = 5    # TODO
+# As far as I can tell, changing the exponential doesnt actually make a difference
+GET_LOST_EXPONENTIAL = 50
+GET_LOST_THRESHOLD = 5  # Influences the likelihood that an agent will get lost while following  TODO: see if they can get lost in other states
 
-RECRUIT_EXPONENTIAL = 50  # TODO
-RECRUIT_THRESHOLD = 20  # TODO
+# As far as I can tell, changing the exponential doesnt actually make a difference
+FOLLOW_EXPONENTIAL = 50
+FOLLOW_THRESHOLD = 1  # Influences the likelihood that an agent will start following another agent
 
-FOLLOW_EXPONENTIAL = 50  # TODO
-FOLLOW_THRESHOLD = 2  # TODO
+# As far as I can tell, changing the exponential doesnt actually make a difference
+LEAD_EXPONENTIAL = 50
+# If this is too low (like 3), then the canvasing and committed agents don't stay in the AT_NEST phase much
+LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruiting (LEAD_FORWARD or REVERSE_TANDEM)
 
-LEAD_EXPONENTIAL = 50  # TODO
-LEAD_THRESHOLD = 3  # TODO
-
-MIN_ACCEPT_VALUE = 255/2  # The minimum quality of a nest required for agents to accept it
+# The lower this value is, the lower the quality of nests that agents accept can be initially; however, it doesn't make much of a difference in the long run, because agents move from lower-ranked sites to higher-ranked sites either way.
+MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents to accept it
+# The lower this size is, the earlier agents switch over to the committed phase, making other agents come to their site easier.
 QUORUM_SIZE = NUM_AGENTS / 2  # The minimum number of agents that need to be at a site before agents will commit to it
 
 """ States and their colors """

@@ -13,8 +13,6 @@ def main():
         print("Success!")
     except InputError:
         pass
-    else:
-        print("Post simulation analysis")
         
 
 main()

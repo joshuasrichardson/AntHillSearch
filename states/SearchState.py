@@ -31,8 +31,7 @@ class SearchState(State):
                 self.agent.assignSite(self.agent.siteList[siteWithinRange])
                 from states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
-                if self.agent.phase == EXPLORE_PHASE:
-                    self.agent.setPhase(ASSESS_PHASE)
+                self.agent.setPhase(ASSESS_PHASE)
         elif self.agent.shouldReturnToNest():
             from states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())

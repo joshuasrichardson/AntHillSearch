@@ -1,5 +1,5 @@
 from Constants import *
-from states.SearchState import SearchState
+from states.AtNestState import AtNestState
 from states.State import State
 
 
@@ -13,11 +13,13 @@ class CarriedState(State):
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.leadAgent.pos)
         if self.agent.leadAgent.getState() == TRANSPORT and not \
-                self.agent.agentRect.collidepoint(self.agent.leadAgent.assignedSite.pos):
+                self.agent.leadAgent.agentRect.collidepoint(self.agent.leadAgent.assignedSite.pos):
             self.agent.updateFollowPosition()
         else:
             # if they arrived at a nest or the lead agent got lost and put them down or something:
+            self.agent.knownSites.append(self.agent.leadAgent.assignedSite)
+            self.agent.assignSite(self.agent.leadAgent.assignedSite)
             self.agent.leadAgent = None
             if self.agent.phase != COMMIT_PHASE:
                 self.agent.setPhase(ASSESS_PHASE)
-            self.setState(SearchState(self.agent), None)
+            self.setState(AtNestState(self.agent), self.agent.assignedSite.pos)
