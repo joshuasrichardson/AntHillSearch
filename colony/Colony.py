@@ -2,8 +2,6 @@
 Michael Goodrich
 February 2019 """
 
-import sys
-import ColonyExceptions
 from ColonySimulation import *
 
 
@@ -15,8 +13,6 @@ def main():
         print("Success!")
     except InputError:
         pass
-    else:
-        print("Post simulation analysis")
         
 
 main()

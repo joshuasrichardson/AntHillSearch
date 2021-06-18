@@ -1,13 +1,11 @@
 """ Swarm Simulation Environment """
-
-from ColonyExceptions import *
-from Constants import *
-from Agents import *
-from World import *
-import pygame as pyg
-import sys
-from myPygameUtils import *
 import threading
+
+from colony.Agents import *
+from ColonyExceptions import *
+from World import *
+from myPygameUtils import *
+from states.AtNestState import AtNestState
 
 
 class ColonySimulation:
@@ -27,6 +25,7 @@ class ColonySimulation:
         self.screen = create_screen()
         self.world = World(numSites, self.screen)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
+        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         self.chosenHome = None
         self.timeRanOut = False
 
@@ -40,10 +39,11 @@ class ColonySimulation:
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def runSimulation(self):
-
-        # creates the number of ants specified by main
+        # creates the number of agents specified by main
         for i in range(0, self.numAgents):
             agent = Agent(self.world)
+            state = AtNestState(agent)
+            agent.setState(state)
             self.agentList.append(agent)
 
         white = 255, 255, 255
@@ -56,10 +56,12 @@ class ColonySimulation:
 
             for event in pyg.event.get():
                 if event.type == pyg.QUIT:
+                    pygame.quit()
+                    timer.cancel()
                     raise GameOver("Exited Successfully")
             self.screen.fill(white)
-            # print(agent.state)
             self.states = np.zeros((NUM_POSSIBLE_STATES,))
+            self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
             # Get list of agent rectangles
             agentRectList = []
             for agent in self.agentList:
@@ -68,15 +70,17 @@ class ColonySimulation:
             for agent in self.agentList:
                 st = agent.getState()
                 self.states[st] += 1
+                ph = agent.phase
+                self.phases[ph] += 1
 
             for agent in self.agentList:
                 agent.drawAgent(self.screen)
 
-                self.world.drawGraph(self.states)
+                self.world.drawStateGraph(self.states)
+                self.world.drawPhaseGraph(self.phases)
 
                 # Build adjacency list for observers, assessors, and pipers
                 agent.updatePosition()
-                state = agent.getState()
 
                 agentRect = agent.getAgentRect()
                 possibleNeighborList = agentRect.collidelistall(agentRectList)
@@ -89,30 +93,14 @@ class ColonySimulation:
                     foundNewHome = True
                     self.chosenHome = agent.assignedSite
 
-                # if state == OBSERVE_HUB: #or state == PIPE or state == REST:
-                #     agentRect = agent.getAgentRect()
-                #     possibleNeighborList = agentRect.collidelistall(agentRectList)
-                #     dancingNeighborList = []
-                #     for i in range(0,len(possibleNeighborList)):
-                #         if self.agentList[possibleNeighborList[i]].getState() == DANCE_HUB:
-                #             dancingNeighborList.append(self.agentList[possibleNeighborList[i]])
-                #     #if len(dancingNeighborList) !=0:
-                #     #    print(dancingNeighborList)
-                #     agent.changeState(dancingNeighborList)
-                # else:
-                #     agent.changeState(None)
             self.world.drawWorldObjects()
             pygame.display.flip()
 
-        pygame.quit()
         if not self.timeRanOut:
             print("The agents found their new home!")
+            pygame.quit()
+            timer.cancel()
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
-        if self.chosenHome.getQuality() > (255 / 2):
-            print("You won!")
-        else:
-            print("You lost!")
-        exit(0)
 
     def timeOut(self):
         print("The simulation time has run out.")
@@ -120,5 +108,5 @@ class ColonySimulation:
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " agents made it to the new home.")
+        print(str(self.chosenHome.agentCount) + " out of " + str(NUM_AGENTS) + " agents made it to the new home.")
         self.timeRanOut = True
