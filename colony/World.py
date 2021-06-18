@@ -82,33 +82,49 @@ class World:
             self.screen.blit(img, (self.phaseGLoc[0]-100, self.phaseGLoc[1] - 5 + id*11))
 
     def drawSelectedAgentInfo(self, agent):
+        knownSitesPositions = []
+        for site in agent.knownSites:
+            knownSitesPositions.append(site.pos)
+        siteToRecruitFromPos = None
+        if agent.siteToRecruitFrom is not None:
+            siteToRecruitFromPos = agent.siteToRecruitFrom.pos
+
         attributes = ["SELECTED AGENT:",
                       "Position: " + str(agent.pos),
                       "Assigned Site: " + str(agent.assignedSite.pos),
                       "Estimated Quality: " + str(agent.estimatedQuality),
                       "Target: " + str(agent.target),
                       "Speed: " + str(agent.speed),
-                      "Known Sites: " + str(agent.knownSites),
-                      "Site to recruit from: " + str(agent.siteToRecruitFrom),
-                      "State: " + str(agent.getState()),
-                      "Phase: " + str(agent.phase),
-                      "Assessment Threshold: " + str(agent.assessmentThreshold)]
+                      "Known Sites: " + str(knownSitesPositions),
+                      "Site to Recruit from: " + str(siteToRecruitFromPos),
+                      "State: " + agent.stateToString(),
+                      "Phase: " + agent.phaseToString(),
+                      "Assessment Threshold: " + str(agent.assessmentThreshold),
+                      "Lead Agent: " + str(agent.leadAgent),
+                      "Number of followers: " + str(agent.numFollowers),
+                      "Going to recruit: " + "Yes" if agent.goingToRecruit else "No"]
 
         for i, attribute in enumerate(attributes):
             img = self.myfont.render(attribute, True, (0, 0, 0))
             self.screen.blit(img, (AGENT_INFO_LOCATION[0] - 100, AGENT_INFO_LOCATION[1] - 5 + i * 11))
 
+    def drawSelectedSiteInfo(self, site, agentIsSelected, agentsPositions):
+        attributes = ["SELECTED SITE:",
+                      "Position: " + str(site.pos),
+                      "Quality: " + str(site.getQuality()),
+                      "Agent Count: " + str(site.agentCount),
+                      "Agents' Positions: "]
+
+        for position in agentsPositions:
+            attributes.append(str(position))
+
+        location = AGENT_INFO_LOCATION
+        if agentIsSelected:
+            location = SITE_INFO_LOCATION
+
+        for i, attribute in enumerate(attributes):
+            img = self.myfont.render(attribute, True, (0, 0, 0))
+            self.screen.blit(img, (location[0] - 100, location[1] - 5 + i * 11))
+
     def getSiteList(self):
         return self.siteList
-
-    # def getClosestSite(self, position):
-    #     # closest site is first one in the list by default
-    #     closest = self.siteList[0]
-    #     minimum = np.abs(position[0] - self.siteList[0].pos[0]) + np.abs(position[1] - self.siteList[0].pos[1])
-    #
-    #     for site in self.siteList:
-    #         # if the site is closer than the current closest site
-    #         if np.abs(position[0] - site.pos[0]) + np.abs(position[1] - site.pos[1]) < minimum:
-    #             closest = site
-    #
-    #     return closest

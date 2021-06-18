@@ -7,7 +7,7 @@
 NUM_AGENTS = 90    # Total number of agents in the simulation
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 300  # Time of the simulation in seconds
+SIM_DURATION = 500  # Time of the simulation in seconds
 # This doesn't actually do anything right now.
 NUM_GOOD = 1        # Number of top sites
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
@@ -39,6 +39,8 @@ STATE_GRAPH_LOCATION = [120, 40]  # The location of the graph that shows how man
 PHASE_GRAPH_LOCATION = [120, 150]  # The location of the graph that shows how many ants are in each phase. The left number moves it right more, and the right number moves it down more
 # Does not affect simulation besides making it easier to see what's happening
 AGENT_INFO_LOCATION = [120, 230]  # The location of the information about the selected agent
+# Does not affect simulation besides making it easier to see what's happening
+SITE_INFO_LOCATION = [120, 420]  # The location of the information about the selected site
 
 # Agent parameters
 AGENT_SPEED = 20  # Actual speed is AGENT_SPEED * TIME_STEP

@@ -100,6 +100,13 @@ class ColonySimulation:
             self.world.drawWorldObjects()
             if len(self.clickedAgents) > 0:
                 self.world.drawSelectedAgentInfo(self.clickedAgents[0])
+            if len(self.clickedSites) > 0:
+                agentsPositions = []
+                for agent in self.agentList:
+                    if agent.assignedSite is self.clickedSites[0]:
+                        agentsPositions.append(agent.pos)
+                        agent.select()
+                self.world.drawSelectedSiteInfo(self.clickedSites[0], len(self.clickedAgents) > 0, agentsPositions)
             pygame.display.flip()
 
         if not self.timeRanOut:

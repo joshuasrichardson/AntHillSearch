@@ -44,9 +44,9 @@ class Agent:
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
-        self.speed = AGENT_SPEED*TIME_STEP  # Speed the agent moves on the screen
+        self.speed = AGENT_SPEED * TIME_STEP  # Speed the agent moves on the screen
         self.target = self.hubLocation  # Either the hub or a site the agent is going to
-        self.angle = np.arctan2(self.target[1]-self.pos[1], self.target[0]-self.pos[0])  # Angle the agent is moving
+        self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
@@ -138,7 +138,7 @@ class Agent:
         self.assignedSite = site
         self.assignedSite.incrementCount()
         self.estimatedQuality = self.assignedSite.getQuality()
-        self.assessmentThreshold = 7 - (self.estimatedQuality / 36)  # Take longer to assess lower-quality sites
+        self.assessmentThreshold = 9 - (self.estimatedQuality / 36)  # Take longer to assess lower-quality sites
 
     def isDoneAssessing(self):
         return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold * ASSESS_EXPONENTIAL
@@ -171,3 +171,29 @@ class Agent:
 
     def unselect(self):
         self.isSelected = False
+
+    def stateToString(self):
+        if self.state.state == AT_NEST:
+            return "AT_NEST"
+        if self.state.state == SEARCH:
+            return "SEARCH"
+        if self.state.state == FOLLOW:
+            return "FOLLOW"
+        if self.state.state == LEAD_FORWARD:
+            return "LEAD_FORWARD"
+        if self.state.state == REVERSE_TANDEM:
+            return "REVERSE_TANDEM"
+        if self.state.state == TRANSPORT:
+            return "TRANSPORT"
+        if self.state.state == CARRIED:
+            return "CARRIED"
+
+    def phaseToString(self):
+        if self.phase == EXPLORE_PHASE:
+            return "EXPLORE"
+        if self.phase == ASSESS_PHASE:
+            return "ASSESS"
+        if self.phase == CANVAS_PHASE:
+            return "CANVAS"
+        if self.phase == COMMIT_PHASE:
+            return "COMMIT"
