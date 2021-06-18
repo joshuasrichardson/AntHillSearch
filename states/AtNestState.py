@@ -16,7 +16,11 @@ class AtNestState(State):
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.assignedSite.getPosition())
 
-        if self.agent.shouldSearch():
+        siteWithinRange = self.agent.agentRect.collidelist(self.agent.siteObserveRectList)
+        # checking the siteWithinRange makes sure they actually get to the site before they search again unless they get lost on the way.
+        if self.agent.shouldSearch() and siteWithinRange != -1\
+                and self.agent.siteList[siteWithinRange] is self.agent.assignedSite\
+                and not self.agent.shouldGetLost():
             self.setState(SearchState(self.agent), None)
             return
 
@@ -69,7 +73,7 @@ class AtNestState(State):
                 self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
         else:
             self.agent.setPhase(EXPLORE)
-            self.agent.assignedSite = self.agent.hub  # or None or just don't have this statement?
+            self.agent.assignSite(self.agent.hub)  # or None or just don't have this statement?
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
 

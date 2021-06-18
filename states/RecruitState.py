@@ -38,7 +38,6 @@ class RecruitState(State):
                 index += 1
         self.agent.goingToRecruit = True
         self.setState(self, self.agent.siteToRecruitFrom.getPosition())  # Go to their randomly chosen site to recruit.
-        # TODO: Can they get lost here? I think so.
 
     @abstractmethod
     def arriveAtSite(self):

@@ -21,9 +21,8 @@ MAX_M = 10          # Maximum number of "best" sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
 """ Define colony size, hub location, and distribution parameters for sites """
-WORLD_DIM = 1000    # Number of pixels in the square colony
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
-HUB_LOCATION = [500, 350]  # Location of the hub
+HUB_LOCATION = [600, 350]  # Location of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_SIZE = 20  # How big is the radius of a site?
 # Higher observe ranges make sites easier to find, speeding up the simulations.

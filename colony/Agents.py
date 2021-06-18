@@ -8,9 +8,6 @@ from Constants import *
 #  agent-specific thresholds. Use this to show how diversity is
 #  necessary for increased resilience for the elements of autonomy paper
 
-# TODO: Fix this problem: Sometimes when they are committed to a site, and they follow someone to another site that is better,
-#  they don't choose to be assigned to that site.
-
 # TODO: Make committed agents move faster than canvasing agents. How much?
 
 # TODO: Mess with the length of time in the assessment phase.
@@ -22,14 +19,12 @@ from Constants import *
 
 # TODO: Let estimated quality become more accurate as assessment time goes on.
 
+# TODO: Don't get interrupted while going home unless they get lost.
+
 # TODO: Consider keeping assessing+ agents close to their site when searching. Maybe not necessary.
 
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
-
-# TODO: Pause
-
-# TODO: Adjust screen
 
 
 class Agent:
@@ -140,7 +135,7 @@ class Agent:
         self.assignedSite = site
         self.assignedSite.incrementCount()
         self.estimatedQuality = self.assignedSite.getQuality()
-        self.assessmentThreshold = 9 - (self.estimatedQuality / 36)  # Take longer to assess lower-quality sites
+        self.assessmentThreshold = 9 - (self.estimatedQuality / 40)  # Take longer to assess lower-quality sites
 
     def isDoneAssessing(self):
         return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold * ASSESS_EXPONENTIAL
