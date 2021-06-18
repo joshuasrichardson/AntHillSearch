@@ -37,6 +37,7 @@ class World:
             self.siteRectList.append(newSite.getAgentRect())
         # Set the site qualities so that the best is bright green and the worst bright red
         self.normalizeQuality()
+        self.createHub()
 
     def normalizeQuality(self):
         """Set the site qualities so that the best is bright green and the worst bright red"""
@@ -54,9 +55,16 @@ class World:
         for siteIndex in range(0, self.numSites):
             self.siteList[siteIndex].normalizeQuality(span, zero)
 
+    def createHub(self):
+        hubSite = Site(self.screen)
+        self.siteList.append(hubSite)
+        self.siteRectList.append(hubSite.getAgentRect())
+        hubSite.pos = HUB_LOCATION
+        hubSite.quality = -1  # because it is broken and they need a new home
+        hubSite.color = 0, 0, 0
+
     def drawWorldObjects(self):
-        self.screen.blit(self.hubHandle, self.hubRect)
-        for siteIndex in range(0, self.numSites):
+        for siteIndex in range(0, self.numSites + 1):  # Add one for the hub
             self.siteList[siteIndex].drawSite()
 
     def getHubPosition(self):

@@ -2,24 +2,25 @@
 import numpy as np
 
 NUM_AGENTS = 100    # Total number of agents in the simulation
-SIM_DURATION = 200  # Time of the simulation in seconds
-NUM_GOOD = 5        # Number of top sites
-NUM_SITES = 10      # Number of total sites
+SIM_DURATION = 500  # Time of the simulation in seconds
+NUM_GOOD = 1        # Number of top sites
+NUM_SITES = 20      # Number of total sites
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_STEPS = 5000    # Maximum allowed duration in seconds
 TIME_STEP = 0.2     # Delta t
 MAX_N = 30          # Maximum number of possible sites
 MAX_M = 10          # Maximum number of "best" sites
+MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
 """ Define world size, hub location, and distribution parameters for sites """
-WORLD_DIM = 700    # Number of pixels in the square world
+WORLD_DIM = 1000    # Number of pixels in the square world
 HUB_LOCATION = [500, 350]  # Location of the hub
 HUB_SCALE = 0.01    # Percentage of world dimension that determines size of hub
 SITE_SIZE = 20  # How big is the radius of a site?
 SITE_OBSERVED_RANGE = int(round(1.25 * float(SITE_SIZE)))  # How close does and agent have to be to "see" a site
 SITE_NO_CLOSER_THAN = 200  # How close to hub can a site be?
-SITE_NO_FARTHER_THAN = 350  # How far away from hub can a site be?
+SITE_NO_FARTHER_THAN = 400  # How far away from hub can a site be?
 QUALITY_STD = 255.0*.20  # Standard deviation of the quality of the site assessed by agent
                         # Set to 20% of maximum quality
 
@@ -81,6 +82,15 @@ RTFX_THRESHOLD = 20
 RTF2REST_EXPONENTIAL = 50
 RTF2REST_THRESHOLD = 30
 
+GET_LOST_EXPONENTIAL = 50  # TODO
+GET_LOST_THRESHOLD = 5    # TODO
+
+RECRUIT_EXPONENTIAL = 50  # TODO
+RECRUIT_THRESHOLD = 20  # TODO
+
+FOLLOW_EXPONENTIAL = 50  # TODO
+FOLLOW_THRESHOLD = 3  # TODO
+
 
 EXPLORE = 0         # Explore agent state
 EXPLORE_COLOR = 255, 0, 0   # Red is color of Explorer
@@ -111,12 +121,15 @@ COMMIT_COLOR = 0, 255, 0  # Green
 """Joshua Ant States"""
 FOLLOW = 10          # Following another ant to a nest
 FOLLOW_COLOR = 255, 165, 0  # Orange
+
+LEAD_FORWARD = 11
+LEAD_FORWARD_COLOR = 0, 0, 255  # Blue  TODO: Maybe change
 """End Joshua Ant States"""
 
 # NUM_POSSIBLE_STATES = COMMIT + 1  # Last state plus 1
-NUM_POSSIBLE_STATES = FOLLOW + 1  # Last state plus 1          # """JOSHUA"""
-COLORS = [EXPLORE_COLOR, REST_COLOR, RTFX_COLOR, ASSESS_COLOR, ASSESS_COLOR, OBSERVE_COLOR, DANCE_COLOR, DANCE_COLOR, PIPE_COLOR, COMMIT_COLOR, FOLLOW_COLOR]
-STATES_LIST = ['EXPLORE', 'REST', 'RTFX', 'ASSESS_HOME', 'ASSESS_SITE', 'OBSERVE', 'DANCE_HUB', 'DANCE_SITE', 'PIPE', 'COMMIT', 'FOLLOW']
+NUM_POSSIBLE_STATES = LEAD_FORWARD + 1  # Last state plus 1          # """JOSHUA"""
+COLORS = [EXPLORE_COLOR, REST_COLOR, RTFX_COLOR, ASSESS_COLOR, ASSESS_COLOR, OBSERVE_COLOR, DANCE_COLOR, DANCE_COLOR, PIPE_COLOR, COMMIT_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR]
+STATES_LIST = ['EXPLORE', 'REST', 'RTFX', 'ASSESS_HOME', 'ASSESS_SITE', 'OBSERVE', 'DANCE_HUB', 'DANCE_SITE', 'PIPE', 'COMMIT', 'FOLLOW', 'LEAD_FWD']
 
 """Phases"""
 EXPLORE_PHASE = 0
