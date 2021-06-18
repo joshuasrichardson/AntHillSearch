@@ -8,6 +8,27 @@ from Constants import *
 #  agent-specific thresholds. Use this to show how diversity is
 #  necessary for increased resilience for the elements of autonomy paper
 
+# TODO: Fix this problem: Sometimes when they are committed to a site, and they follow someone to another site that is better,
+#  they don't choose to be assigned to that site.
+
+# TODO: Add a way to select an agent and have its important attributes show up (known sites, assigned site, pos, etc.)
+
+# TODO: Make committed agents move faster than canvasing agents. How much?
+
+# TODO: Mess with the length of time in the assessment phase.
+
+# TODO: Add individual behavior: estimated quality accuracy (how close their estimated quality is to the site quality),
+#                                speed (how fast they move),
+#                                decisiveness (how fast they can assess),
+#                                navigation skills (likeliness of getting lost)
+
+# TODO: Let estimated quality become more accurate as assessment time goes on.
+
+# TODO: Consider keeping assessing+ agents close to their site when searching. Maybe not necessary.
+
+# TODO: Consider separating the probability of changing states in different phases
+#  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
+
 
 class Agent:
 
@@ -36,12 +57,14 @@ class Agent:
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
 
-        self.knownSites = [self.hub]  # A list of sites that the agent has been to before
+        self.knownSites = {self.hub}  # A list of sites that the agent has been to before
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
         self.numFollowers = 0  # The number of agents following the current agent in LEAD_FORWARD or TANDEM_RUN state
         self.goingToRecruit = False  # Whether the agent is heading toward a site to recruit or not.
         self.comingWithFollowers = False  # Whether the agent is coming back toward a new site with followers or not.
+
+        self.isSelected = False  # Whether the user clicked on the agent most recently.
 
     def setState(self, state):
         self.state = state
@@ -88,6 +111,8 @@ class Agent:
         self.numFollowers += 1
 
     def drawAgent(self, surface):
+        if self.isSelected:
+            pyg.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
         surface.blit(self.agentHandle, self.agentRect)
 
         pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
@@ -108,39 +133,41 @@ class Agent:
     def assignSite(self, site):
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
+        if site is not self.assignedSite:
+            self.setPhase(ASSESS_PHASE)
         self.assignedSite = site
         self.assignedSite.incrementCount()
-        self.estimatedQuality = self.assignedSite.getQuality()  # TODO: Give agents different levels of quality-checking abilities. Maybe even have the estimatedQuality change as they have spent more time at a site to make it more accurate as time goes on.
+        self.estimatedQuality = self.assignedSite.getQuality()
         self.assessmentThreshold = 7 - (self.estimatedQuality / 36)  # Take longer to assess lower-quality sites
 
     def isDoneAssessing(self):
-        # TODO: decide good probability
-        return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold*ASSESS_EXPONENTIAL
+        return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold * ASSESS_EXPONENTIAL
 
     def quorumMet(self):
         return self.assignedSite.agentCount > QUORUM_SIZE
 
     def shouldSearch(self):
-        # TODO: decide good probability
         if self.assignedSite == self.hub:
             return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_FROM_HUB_THRESHOLD * SEARCH_EXPONENTIAL
         return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_THRESHOLD * SEARCH_EXPONENTIAL  # Make it more likely if they aren't at the hub.
 
     def shouldReturnToNest(self):
-        # TODO: decide good probability
         return np.random.exponential(AT_NEST_EXPONENTIAL) > AT_NEST_THRESHOLD * AT_NEST_EXPONENTIAL
 
     def shouldRecruit(self):
-        # TODO: decide good probability. Maybe 100% for the first time in canvasing.
         return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD * LEAD_EXPONENTIAL
 
     def shouldFollow(self):
-        # TODO: decide good probability
         return np.random.exponential(FOLLOW_EXPONENTIAL) > FOLLOW_THRESHOLD * FOLLOW_EXPONENTIAL
 
     def shouldGetLost(self):
-        # TODO: decide good probability
         return np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD * GET_LOST_EXPONENTIAL
 
     def shouldKeepTransporting(self):
         return np.random.randint(0, 3) != 0
+
+    def select(self):
+        self.isSelected = True
+
+    def unselect(self):
+        self.isSelected = False

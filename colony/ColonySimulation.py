@@ -28,6 +28,8 @@ class ColonySimulation:
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         self.chosenHome = None
         self.timeRanOut = False
+        self.clickedAgents = []
+        self.clickedSites = []
 
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 1 and 200", numAgents)
@@ -55,6 +57,8 @@ class ColonySimulation:
         while not foundNewHome and not self.timeRanOut:
 
             for event in pyg.event.get():
+                if event.type == pyg.MOUSEBUTTONUP:
+                    self.select(pygame.mouse.get_pos())
                 if event.type == pyg.QUIT:
                     pygame.quit()
                     timer.cancel()
@@ -94,6 +98,8 @@ class ColonySimulation:
                     self.chosenHome = agent.assignedSite
 
             self.world.drawWorldObjects()
+            if len(self.clickedAgents) > 0:
+                self.world.drawSelectedAgentInfo(self.clickedAgents[0])
             pygame.display.flip()
 
         if not self.timeRanOut:
@@ -101,6 +107,20 @@ class ColonySimulation:
             pygame.quit()
             timer.cancel()
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
+
+    def select(self, mousePos):
+        # Unselect all agents and sites
+        for a in self.agentList:
+            a.unselect()
+        for s in self.world.siteList:
+            s.unselect()
+        # get a list of all sprites that are under the mouse cursor
+        self.clickedAgents = [s for s in self.agentList if s.agentRect.collidepoint(mousePos)]
+        self.clickedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
+        if len(self.clickedAgents) > 0:      # for a in self.clickedAgents:
+            self.clickedAgents[0].select()   # a.select()
+        if len(self.clickedSites) > 0:       # for s in self.clickedSites:
+            self.clickedSites[0].select()    # s.select()
 
     def timeOut(self):
         print("The simulation time has run out.")

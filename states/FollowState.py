@@ -19,29 +19,19 @@ class FollowState(State):
                 self.setState(SearchState(self.agent), None)
             else:
                 self.agent.updateFollowPosition()
-                if self.agent.phase == COMMIT_PHASE:
-                    print("Committed follower")
-                    if self.agent.leadAgent.getState() == LEAD_FORWARD:
-                        print("LEAD_FORWARD")
-                    if self.agent.leadAgent.getState() == REVERSE_TANDEM:
-                        print("REV_TAN")
-                    if self.agent.leadAgent.getState() == TRANSPORT:
-                        print("TRANSPORT")
                 # If they get to the site the lead agent is recruiting from,
                 if self.agent.phase == COMMIT_PHASE and self.agent.leadAgent.getState() == REVERSE_TANDEM\
                         and self.agent.leadAgent.comingWithFollowers and self.agent.assignedSite == self.agent.leadAgent.assignedSite:
                     # they also start recruiting from that site.
-                    self.agent.knownSites.append(self.agent.leadAgent.siteToRecruitFrom)
+                    self.agent.knownSites.add(self.agent.leadAgent.siteToRecruitFrom)  # TODO: Only append it if they don't already know about it so it doesn't increase the likelihood that they will recruit from that site in the future
                     self.agent.siteToRecruitFrom = self.agent.leadAgent.siteToRecruitFrom
                     self.agent.leadAgent = None
                     from states.ReverseTandemState import ReverseTandemState
                     self.setState(ReverseTandemState(self.agent), self.agent.siteToRecruitFrom.getPosition())
         else:
             # if they arrived at a nest:
-            self.agent.knownSites.append(self.agent.leadAgent.assignedSite)
+            self.agent.knownSites.add(self.agent.leadAgent.assignedSite)
             self.agent.assignSite(self.agent.leadAgent.assignedSite)
             self.agent.leadAgent = None
-            if self.agent.phase == EXPLORE_PHASE:
-                self.agent.setPhase(ASSESS_PHASE)
             from states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())

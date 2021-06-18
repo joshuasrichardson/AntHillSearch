@@ -25,7 +25,7 @@ class SearchState(State):
         # If agent finds a site within range then assess it
 
         if self.sightIsInRange(siteWithinRange):
-            self.agent.knownSites.append(self.agent.assignedSite)
+            self.agent.knownSites.add(self.agent.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.siteList[siteWithinRange].getQuality() > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.siteList[siteWithinRange])

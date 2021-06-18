@@ -43,6 +43,12 @@ class AtNestState(State):
                 self.tryFollowing(neighborList[i])
                 return
 
+        # If an agent nearby is transporting, get carried by that agent. TODO: If I do end up adding passive agents and brood items, I will get rid of this.
+        for i in range(0, len(neighborList)):
+            if neighborList[i].getState() == TRANSPORT:
+                self.getCarried(neighborList[i])
+                return
+
     def tryFollowing(self, leader):
         if leader.numFollowers < MAX_FOLLOWERS:
             self.agent.leadAgent = leader
@@ -58,5 +64,14 @@ class AtNestState(State):
             self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
         else:
             self.agent.setPhase(EXPLORE_PHASE)
+            # TODO: self.agent.assignedSite = self.agent.hub or None or just don't have this statement?
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
+
+    # TODO: If I keep this, I need to remove the repetition with SearchState
+    def getCarried(self, transporter):
+        if transporter.numFollowers < MAX_FOLLOWERS:
+            self.agent.leadAgent = transporter
+            self.agent.leadAgent.incrementFollowers()
+            from states.CarriedState import CarriedState
+            self.setState(CarriedState(self.agent), self.agent.leadAgent.pos)

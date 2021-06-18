@@ -1,8 +1,16 @@
 """ Global constants used in swarm simulation program """
 
-NUM_AGENTS = 200    # Total number of agents in the simulation
+# Having more agents slows down the simulation, but overall, the behavior is pretty similar.
+# They can go to more various sites and things like that with lots of agents,
+# but it doesn't have a great effect on where they end up.
+
+NUM_AGENTS = 90    # Total number of agents in the simulation
+# Not having a simulation duration leads to all agents eventually ending up at the same nest.
+# Shorter durations increase the likeliness that the colony will be split.
 SIM_DURATION = 300  # Time of the simulation in seconds
+# This doesn't actually do anything right now.
 NUM_GOOD = 1        # Number of top sites
+# More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 5       # Number of total sites
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
@@ -21,7 +29,7 @@ SITE_SIZE = 20  # How big is the radius of a site?
 # Higher observe ranges make sites easier to find, speeding up the simulations.
 SITE_OBSERVED_RANGE = int(round(1.25 * float(SITE_SIZE)))  # How close does and agent have to be to "see" a site
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_CLOSER_THAN = 40  # How close to hub can a site be?
+SITE_NO_CLOSER_THAN = 100  # How close to hub can a site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a site be?
 
@@ -29,14 +37,16 @@ SITE_NO_FARTHER_THAN = 400  # How far away from hub can a site be?
 STATE_GRAPH_LOCATION = [120, 40]  # The location of the graph that shows how many ants are in each state. The left number moves it right more, and the right number moves it down more
 # Does not affect simulation besides making it easier to see what's happening
 PHASE_GRAPH_LOCATION = [120, 150]  # The location of the graph that shows how many ants are in each phase. The left number moves it right more, and the right number moves it down more
+# Does not affect simulation besides making it easier to see what's happening
+AGENT_INFO_LOCATION = [120, 230]  # The location of the information about the selected agent
 
 # Agent parameters
 AGENT_SPEED = 20  # Actual speed is AGENT_SPEED * TIME_STEP
 
 """ Transition parameters for timed transitions """
-# With exponential 50,
-# 1 ==> 36% chance
-# 2 ==> 13% chance
+# Threshold probability,
+# 1 ==> 36%
+# 2 ==> 13%
 # 3 ==> 4.9%
 # 4 ==> 1.8%
 # 5 ==> 0.7%
@@ -57,7 +67,7 @@ SEARCH_FROM_HUB_THRESHOLD = 8  # Should go from AT_NEST(hub) to SEARCH
 
 # As far as I can tell, changing the exponential doesnt actually make a difference
 ASSESS_EXPONENTIAL = 50
-# ASSESS_THRESHOLD = 4  # TODO: make a number that sets how much it can vary
+# ASSESS_THRESHOLD = 4
 
 # As far as I can tell, changing the exponential doesnt actually make a difference
 GET_LOST_EXPONENTIAL = 50
@@ -119,3 +129,6 @@ COMMIT_PHASE_COLOR = 0, 255, 0  # Green
 NUM_POSSIBLE_PHASES = 4
 PHASE_COLORS = [EXPLORE_PHASE_COLOR, ASSESS_PHASE_COLOR, CANVAS_PHASE_COLOR, COMMIT_PHASE_COLOR]
 PHASES_LIST = ['EXPLORE', 'ASSESS', 'CANVAS', 'COMMIT']
+
+""" Interaction """
+SELECTED_COLOR = 0, 255, 244
