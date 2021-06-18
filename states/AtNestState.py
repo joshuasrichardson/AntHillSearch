@@ -20,17 +20,17 @@ class AtNestState(State):
             self.setState(SearchState(self.agent), None)
             return
 
-        if self.agent.phase == ASSESS_PHASE:
+        if self.agent.phase == ASSESS:
             if self.agent.isDoneAssessing():
                 self.acceptOrReject()
                 return
 
-        if self.agent.phase == CANVAS_PHASE:
+        if self.agent.phase == CANVAS:
             if self.agent.shouldRecruit():
                 self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
                 return
 
-        if self.agent.phase == COMMIT_PHASE:
+        if self.agent.phase == COMMIT:
             # Recruit, search, or follow
             if self.agent.shouldRecruit():
                 CommitPhase.transportOrReverseTandem(self)
@@ -58,13 +58,18 @@ class AtNestState(State):
     def acceptOrReject(self):
         # If they determine the site is good enough after they've been there long enough,
         if self.agent.estimatedQuality > MIN_ACCEPT_VALUE:
-            # they enter the canvasing phase and start recruiting others.
-            self.agent.setPhase(CANVAS_PHASE)
-            from states.LeadForwardState import LeadForwardState
-            self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
+            if self.agent.quorumMet():
+                # enough agents are already at the site, so they skip canvasing and go straight to the committed phase
+                self.agent.setPhase(COMMIT)
+                CommitPhase.transportOrReverseTandem(self)
+            else:
+                # they enter the canvasing phase and start recruiting others.
+                self.agent.setPhase(CANVAS)
+                from states.LeadForwardState import LeadForwardState
+                self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
         else:
-            self.agent.setPhase(EXPLORE_PHASE)
-            # TODO: self.agent.assignedSite = self.agent.hub or None or just don't have this statement?
+            self.agent.setPhase(EXPLORE)
+            self.agent.assignedSite = self.agent.hub  # or None or just don't have this statement?
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
 

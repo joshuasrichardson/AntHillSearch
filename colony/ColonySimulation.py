@@ -1,5 +1,8 @@
 """ Swarm Simulation Environment """
 import threading
+import time
+
+import pygame
 
 from colony.Agents import *
 from ColonyExceptions import *
@@ -30,6 +33,8 @@ class ColonySimulation:
         self.timeRanOut = False
         self.clickedAgents = []
         self.clickedSites = []
+        self.timer = None
+        self.pauseTime = 0
 
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 1 and 200", numAgents)
@@ -51,18 +56,17 @@ class ColonySimulation:
         white = 255, 255, 255
 
         foundNewHome = False
-        timer = threading.Timer(self.simulationDuration, self.timeOut)
-        timer.start()
+        startTime = time.time()
+        self.timer = threading.Timer(self.simulationDuration, self.timeOut)
+        self.timer.start()
 
         while not foundNewHome and not self.timeRanOut:
 
             for event in pyg.event.get():
-                if event.type == pyg.MOUSEBUTTONUP:
-                    self.select(pygame.mouse.get_pos())
-                if event.type == pyg.QUIT:
-                    pygame.quit()
-                    timer.cancel()
-                    raise GameOver("Exited Successfully")
+                if event.type == pyg.KEYDOWN and event.key == pyg.K_p:
+                    self.pause(startTime)
+                else:
+                    self.handleEvent(event)
             self.screen.fill(white)
             self.states = np.zeros((NUM_POSSIBLE_STATES,))
             self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
@@ -93,7 +97,7 @@ class ColonySimulation:
                     agentNeighbors.append(self.agentList[i])
                 agent.changeState(agentNeighbors)
 
-                if agent.assignedSite is not None and agent.assignedSite.agentCount == NUM_AGENTS:
+                if agent.assignedSite is not agent.hub and agent.assignedSite.agentCount == NUM_AGENTS:
                     foundNewHome = True
                     self.chosenHome = agent.assignedSite
 
@@ -112,8 +116,18 @@ class ColonySimulation:
         if not self.timeRanOut:
             print("The agents found their new home!")
             pygame.quit()
-            timer.cancel()
+            self.timer.cancel()
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
+
+    def handleEvent(self, event):
+        if event.type == pyg.MOUSEBUTTONUP:
+            self.select(pygame.mouse.get_pos())
+        if event.type == pyg.KEYDOWN and event.key == pyg.K_SPACE:
+            self.go(pygame.mouse.get_pos())
+        if event.type == pyg.QUIT:
+            pygame.quit()
+            self.timer.cancel()
+            raise GameOver("Exited Successfully")
 
     def select(self, mousePos):
         # Unselect all agents and sites
@@ -128,6 +142,31 @@ class ColonySimulation:
             self.clickedAgents[0].select()   # a.select()
         if len(self.clickedSites) > 0:       # for s in self.clickedSites:
             self.clickedSites[0].select()    # s.select()
+
+    def go(self, mousePos):
+        print(str(mousePos))
+        for a in self.agentList:
+            if a.isSelected:
+                a.target = mousePos
+                from states.GoState import GoState
+                a.setState(GoState(a))
+
+    def pause(self, startTime):
+        startPauseTime = time.time()
+        runTime = startPauseTime - self.pauseTime - startTime
+        remainingTime = self.simulationDuration - runTime
+        print("Remaining time: " + str(remainingTime))
+        self.timer.cancel()
+        paused = True
+        while paused:
+            for event in pyg.event.get():
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                    paused = False
+                else:
+                    self.handleEvent(event)
+        self.pauseTime += time.time() - startPauseTime
+        self.timer = threading.Timer(remainingTime, self.timeOut)
+        self.timer.start()
 
     def timeOut(self):
         print("The simulation time has run out.")

@@ -20,6 +20,6 @@ class CarriedState(State):
             self.agent.knownSites.add(self.agent.leadAgent.assignedSite)
             self.agent.assignSite(self.agent.leadAgent.assignedSite)
             self.agent.leadAgent = None
-            if self.agent.phase != COMMIT_PHASE:
-                self.agent.setPhase(ASSESS_PHASE)
+            if self.agent.phase != COMMIT:
+                self.agent.setPhase(ASSESS)
             self.setState(AtNestState(self.agent), self.agent.assignedSite.pos)

@@ -20,7 +20,7 @@ class FollowState(State):
             else:
                 self.agent.updateFollowPosition()
                 # If they get to the site the lead agent is recruiting from,
-                if self.agent.phase == COMMIT_PHASE and self.agent.leadAgent.getState() == REVERSE_TANDEM\
+                if self.agent.phase == COMMIT and self.agent.leadAgent.getState() == REVERSE_TANDEM\
                         and self.agent.leadAgent.comingWithFollowers and self.agent.assignedSite == self.agent.leadAgent.assignedSite:
                     # they also start recruiting from that site.
                     self.agent.knownSites.add(self.agent.leadAgent.siteToRecruitFrom)  # TODO: Only append it if they don't already know about it so it doesn't increase the likelihood that they will recruit from that site in the future

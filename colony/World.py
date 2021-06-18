@@ -54,6 +54,7 @@ class World:
         hubSite.pos = HUB_LOCATION
         hubSite.quality = -1  # because it is broken and they need a new home
         hubSite.color = 0, 0, 0
+        hubSite.agentCount = NUM_AGENTS
 
     def drawWorldObjects(self):
         for siteIndex in range(0, self.numSites + 1):  # Add one for the hub
@@ -102,7 +103,7 @@ class World:
                       "Assessment Threshold: " + str(agent.assessmentThreshold),
                       "Lead Agent: " + str(agent.leadAgent),
                       "Number of followers: " + str(agent.numFollowers),
-                      "Going to recruit: " + "Yes" if agent.goingToRecruit else "No"]
+                      "Going to recruit: " + ("Yes" if agent.goingToRecruit else "No")]
 
         for i, attribute in enumerate(attributes):
             img = self.myfont.render(attribute, True, (0, 0, 0))

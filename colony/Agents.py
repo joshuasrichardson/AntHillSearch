@@ -11,8 +11,6 @@ from Constants import *
 # TODO: Fix this problem: Sometimes when they are committed to a site, and they follow someone to another site that is better,
 #  they don't choose to be assigned to that site.
 
-# TODO: Add a way to select an agent and have its important attributes show up (known sites, assigned site, pos, etc.)
-
 # TODO: Make committed agents move faster than canvasing agents. How much?
 
 # TODO: Mess with the length of time in the assessment phase.
@@ -28,6 +26,10 @@ from Constants import *
 
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
+
+# TODO: Pause
+
+# TODO: Adjust screen
 
 
 class Agent:
@@ -50,8 +52,8 @@ class Agent:
         self.angularVelocity = 0  # Speed the agent is changing direction
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
-        self.phase = EXPLORE_PHASE  # The current phase or level of commitment (explore, assess, canvas, commit)
-        self.phaseColor = EXPLORE_PHASE_COLOR  # A color to represent the phase so it can be seen on the screen
+        self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
+        self.phaseColor = EXPLORE_COLOR  # A color to represent the phase so it can be seen on the screen
 
         self.assignedSite = self.hub  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
@@ -98,14 +100,14 @@ class Agent:
 
     def setPhase(self, phase):
         self.phase = phase
-        if phase == EXPLORE_PHASE:
-            self.phaseColor = EXPLORE_PHASE_COLOR
-        elif phase == ASSESS_PHASE:
-            self.phaseColor = ASSESS_PHASE_COLOR
-        elif phase == CANVAS_PHASE:
-            self.phaseColor = CANVAS_PHASE_COLOR
-        elif phase == COMMIT_PHASE:
-            self.phaseColor = COMMIT_PHASE_COLOR
+        if phase == EXPLORE:
+            self.phaseColor = EXPLORE_COLOR
+        elif phase == ASSESS:
+            self.phaseColor = ASSESS_COLOR
+        elif phase == CANVAS:
+            self.phaseColor = CANVAS_COLOR
+        elif phase == COMMIT:
+            self.phaseColor = COMMIT_COLOR
 
     def incrementFollowers(self):
         self.numFollowers += 1
@@ -134,7 +136,7 @@ class Agent:
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
         if site is not self.assignedSite:
-            self.setPhase(ASSESS_PHASE)
+            self.setPhase(ASSESS)
         self.assignedSite = site
         self.assignedSite.incrementCount()
         self.estimatedQuality = self.assignedSite.getQuality()
@@ -187,13 +189,15 @@ class Agent:
             return "TRANSPORT"
         if self.state.state == CARRIED:
             return "CARRIED"
+        if self.state.state == GO:
+            return "GO"
 
     def phaseToString(self):
-        if self.phase == EXPLORE_PHASE:
+        if self.phase == EXPLORE:
             return "EXPLORE"
-        if self.phase == ASSESS_PHASE:
+        if self.phase == ASSESS:
             return "ASSESS"
-        if self.phase == CANVAS_PHASE:
+        if self.phase == CANVAS:
             return "CANVAS"
-        if self.phase == COMMIT_PHASE:
+        if self.phase == COMMIT:
             return "COMMIT"
