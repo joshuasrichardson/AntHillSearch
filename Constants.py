@@ -50,6 +50,8 @@ SITE_INFO_LOCATION = [120, 420]  # The location of the information about the sel
 AGENT_SPEED = 10  # Actual speed is AGENT_SPEED * TIME_STEP
 COMMIT_SPEED = AGENT_SPEED * 3  # The speed they go when they are committed
 
+MAX_QUALITY_MISJUDGMENT = 75  # How far off agents' estimatedQuality can be from a site's actual quality.
+
 """ Transition parameters for timed transitions """
 # Threshold probability,
 # 1 ==> 36%

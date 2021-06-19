@@ -1,4 +1,6 @@
 """ Agent class. Stores 2D position and agent state """
+import random
+
 import numpy as np
 import pygame as pyg
 from Constants import *
@@ -56,6 +58,8 @@ class Agent:
         self.comingWithFollowers = False  # Whether the agent is coming back toward a new site with followers or not.
 
         self.isSelected = False  # Whether the user clicked on the agent most recently.
+
+        self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)  # How far off an agent's estimate of the quality of a site will be on average.
 
     def setState(self, state):
         self.state = state
@@ -130,7 +134,8 @@ class Agent:
             self.setPhase(ASSESS)
         self.assignedSite = site
         self.assignedSite.incrementCount()
-        self.estimatedQuality = self.assignedSite.getQuality()
+        self.estimatedQuality = self.assignedSite.getQuality() + \
+            (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)  # TODO: Make a bell curve instead of even distribution? Also, make sure estimatedQuality and the site's actual quality are used in the right places.
         self.assessmentThreshold = 9 - (self.estimatedQuality / 40)  # Take longer to assess lower-quality sites
 
     def isDoneAssessing(self):
