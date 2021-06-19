@@ -12,7 +12,7 @@ class LeadForwardState(RecruitState):
 
     def arriveAtSite(self):
         if self.agent.quorumMet():  # If enough agents are at that site
-            self.agent.setPhase(COMMIT_PHASE)  # Commit to the site
+            self.agent.setPhase(COMMIT)  # Commit to the site
             CommitPhase.transportOrReverseTandem(self)
         else:
             from states.AtNestState import AtNestState

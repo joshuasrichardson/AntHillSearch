@@ -17,9 +17,10 @@ class CarriedState(State):
             self.agent.updateFollowPosition()
         else:
             # if they arrived at a nest or the lead agent got lost and put them down or something:
-            self.agent.knownSites.append(self.agent.leadAgent.assignedSite)
-            self.agent.assignSite(self.agent.leadAgent.assignedSite)
+            self.agent.knownSites.add(self.agent.leadAgent.assignedSite)
+            if self.agent.leadAgent.estimatedQuality > self.agent.estimatedQuality:
+                self.agent.assignSite(self.agent.leadAgent.assignedSite)
             self.agent.leadAgent = None
-            if self.agent.phase != COMMIT_PHASE:
-                self.agent.setPhase(ASSESS_PHASE)
+            if self.agent.phase != COMMIT:
+                self.agent.setPhase(ASSESS)
             self.setState(AtNestState(self.agent), self.agent.assignedSite.pos)

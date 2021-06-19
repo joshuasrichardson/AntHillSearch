@@ -16,8 +16,8 @@ class SearchState(State):
             super().move(state, target)
             return
         # If going from search to search, just update angle
-        self.agent.angularVelocity += np.random.normal(0, np.pi/200)
-        self.agent.angle = self.agent.angle + self.agent.angularVelocity*TIME_STEP
+        self.agent.angularVelocity += np.random.normal(0, np.pi / 200)
+        self.agent.angle = self.agent.angle + self.agent.angularVelocity * TIME_STEP
 
     def changeState(self, neighborList) -> None:
         self.setState(self, None)
@@ -25,13 +25,13 @@ class SearchState(State):
         # If agent finds a site within range then assess it
 
         if self.sightIsInRange(siteWithinRange):
-            self.agent.knownSites.append(self.agent.assignedSite)
+            self.agent.knownSites.add(self.agent.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.siteList[siteWithinRange].getQuality() > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.siteList[siteWithinRange])
                 from states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
-                self.agent.setPhase(ASSESS_PHASE)
+                self.agent.setPhase(ASSESS)
         elif self.agent.shouldReturnToNest():
             from states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())

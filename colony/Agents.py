@@ -8,6 +8,18 @@ from Constants import *
 #  agent-specific thresholds. Use this to show how diversity is
 #  necessary for increased resilience for the elements of autonomy paper
 
+# TODO: Mess with the length of time in the assessment phase.
+
+# TODO: Add individual behavior: estimated quality accuracy (how close their estimated quality is to the site quality),
+#                                speed (how fast they move),
+#                                decisiveness (how fast they can assess),
+#                                navigation skills (likeliness of getting lost)
+
+# TODO: Let estimated quality become more accurate as assessment time goes on.
+
+# TODO: Consider separating the probability of changing states in different phases
+#  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
+
 
 class Agent:
 
@@ -23,25 +35,27 @@ class Agent:
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
-        self.speed = AGENT_SPEED*TIME_STEP  # Speed the agent moves on the screen
+        self.speed = AGENT_SPEED * TIME_STEP  # Speed the agent moves on the screen
         self.target = self.hubLocation  # Either the hub or a site the agent is going to
-        self.angle = np.arctan2(self.target[1]-self.pos[1], self.target[0]-self.pos[0])  # Angle the agent is moving
+        self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
-        self.phase = EXPLORE_PHASE  # The current phase or level of commitment (explore, assess, canvas, commit)
-        self.phaseColor = EXPLORE_PHASE_COLOR  # A color to represent the phase so it can be seen on the screen
+        self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
+        self.phaseColor = EXPLORE_COLOR  # A color to represent the phase so it can be seen on the screen
 
         self.assignedSite = self.hub  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
 
-        self.knownSites = [self.hub]  # A list of sites that the agent has been to before
+        self.knownSites = {self.hub}  # A list of sites that the agent has been to before
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
         self.numFollowers = 0  # The number of agents following the current agent in LEAD_FORWARD or TANDEM_RUN state
         self.goingToRecruit = False  # Whether the agent is heading toward a site to recruit or not.
         self.comingWithFollowers = False  # Whether the agent is coming back toward a new site with followers or not.
+
+        self.isSelected = False  # Whether the user clicked on the agent most recently.
 
     def setState(self, state):
         self.state = state
@@ -75,19 +89,23 @@ class Agent:
 
     def setPhase(self, phase):
         self.phase = phase
-        if phase == EXPLORE_PHASE:
-            self.phaseColor = EXPLORE_PHASE_COLOR
-        elif phase == ASSESS_PHASE:
-            self.phaseColor = ASSESS_PHASE_COLOR
-        elif phase == CANVAS_PHASE:
-            self.phaseColor = CANVAS_PHASE_COLOR
-        elif phase == COMMIT_PHASE:
-            self.phaseColor = COMMIT_PHASE_COLOR
+        self.speed = AGENT_SPEED * TIME_STEP
+        if phase == EXPLORE:
+            self.phaseColor = EXPLORE_COLOR
+        elif phase == ASSESS:
+            self.phaseColor = ASSESS_COLOR
+        elif phase == CANVAS:
+            self.phaseColor = CANVAS_COLOR
+        elif phase == COMMIT:
+            self.phaseColor = COMMIT_COLOR
+            self.speed = COMMIT_SPEED * TIME_STEP
 
     def incrementFollowers(self):
         self.numFollowers += 1
 
     def drawAgent(self, surface):
+        if self.isSelected:
+            pyg.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
         surface.blit(self.agentHandle, self.agentRect)
 
         pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
@@ -108,39 +126,69 @@ class Agent:
     def assignSite(self, site):
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
+        if site is not self.assignedSite:
+            self.setPhase(ASSESS)
         self.assignedSite = site
         self.assignedSite.incrementCount()
-        self.estimatedQuality = self.assignedSite.getQuality()  # TODO: Give agents different levels of quality-checking abilities. Maybe even have the estimatedQuality change as they have spent more time at a site to make it more accurate as time goes on.
-        self.assessmentThreshold = 7 - (self.estimatedQuality / 36)  # Take longer to assess lower-quality sites
+        self.estimatedQuality = self.assignedSite.getQuality()
+        self.assessmentThreshold = 9 - (self.estimatedQuality / 40)  # Take longer to assess lower-quality sites
 
     def isDoneAssessing(self):
-        # TODO: decide good probability
-        return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold*ASSESS_EXPONENTIAL
+        return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold * ASSESS_EXPONENTIAL
 
     def quorumMet(self):
         return self.assignedSite.agentCount > QUORUM_SIZE
 
     def shouldSearch(self):
-        # TODO: decide good probability
         if self.assignedSite == self.hub:
             return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_FROM_HUB_THRESHOLD * SEARCH_EXPONENTIAL
         return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_THRESHOLD * SEARCH_EXPONENTIAL  # Make it more likely if they aren't at the hub.
 
     def shouldReturnToNest(self):
-        # TODO: decide good probability
         return np.random.exponential(AT_NEST_EXPONENTIAL) > AT_NEST_THRESHOLD * AT_NEST_EXPONENTIAL
 
     def shouldRecruit(self):
-        # TODO: decide good probability. Maybe 100% for the first time in canvasing.
         return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD * LEAD_EXPONENTIAL
 
     def shouldFollow(self):
-        # TODO: decide good probability
         return np.random.exponential(FOLLOW_EXPONENTIAL) > FOLLOW_THRESHOLD * FOLLOW_EXPONENTIAL
 
     def shouldGetLost(self):
-        # TODO: decide good probability
         return np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD * GET_LOST_EXPONENTIAL
 
     def shouldKeepTransporting(self):
         return np.random.randint(0, 3) != 0
+
+    def select(self):
+        self.isSelected = True
+
+    def unselect(self):
+        self.isSelected = False
+
+    def stateToString(self):
+        if self.state.state == AT_NEST:
+            return "AT_NEST"
+        if self.state.state == SEARCH:
+            return "SEARCH"
+        if self.state.state == FOLLOW:
+            return "FOLLOW"
+        if self.state.state == LEAD_FORWARD:
+            return "LEAD_FORWARD"
+        if self.state.state == REVERSE_TANDEM:
+            return "REVERSE_TANDEM"
+        if self.state.state == TRANSPORT:
+            return "TRANSPORT"
+        if self.state.state == CARRIED:
+            return "CARRIED"
+        if self.state.state == GO:
+            return "GO"
+
+    def phaseToString(self):
+        if self.phase == EXPLORE:
+            return "EXPLORE"
+        if self.phase == ASSESS:
+            return "ASSESS"
+        if self.phase == CANVAS:
+            return "CANVAS"
+        if self.phase == COMMIT:
+            return "COMMIT"

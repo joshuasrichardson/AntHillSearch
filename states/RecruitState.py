@@ -28,12 +28,16 @@ class RecruitState(State):
                 self.arriveAtSite()
             return
 
-        self.agent.siteToRecruitFrom = self.agent.knownSites[np.random.randint(0, len(self.agent.knownSites) - 1)]
+        self.agent.siteToRecruitFrom = self.agent.assignedSite
         while self.agent.siteToRecruitFrom == self.agent.assignedSite:
-            self.agent.siteToRecruitFrom = self.agent.knownSites[np.random.randint(0, len(self.agent.knownSites) - 1)]
+            indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
+            index = 0
+            for site in self.agent.knownSites:
+                if index == indexOfSiteToRecruitFrom:
+                    self.agent.siteToRecruitFrom = site
+                index += 1
         self.agent.goingToRecruit = True
         self.setState(self, self.agent.siteToRecruitFrom.getPosition())  # Go to their randomly chosen site to recruit.
-        # TODO: Can they get lost here? I think so.
 
     @abstractmethod
     def arriveAtSite(self):

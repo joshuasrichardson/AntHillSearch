@@ -27,7 +27,11 @@ class Site:
         self.siteObserveRect.centerx = self.pos[0]
         self.siteObserveRect.centery = self.pos[1]
 
+        self.isSelected = False
+
     def drawSite(self):
+        if self.isSelected:
+            pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
         self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
         img = self.myfont.render(str(self.agentCount), True, self.color)
         self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
@@ -55,3 +59,9 @@ class Site:
 
     def decrementCount(self):
         self.agentCount -= 1
+
+    def select(self):
+        self.isSelected = True
+
+    def unselect(self):
+        self.isSelected = False
