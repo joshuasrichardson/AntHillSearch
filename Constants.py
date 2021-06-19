@@ -4,7 +4,7 @@
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
 
-NUM_AGENTS = 90    # Total number of agents in the simulation
+NUM_AGENTS = 100    # Total number of agents in the simulation
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
 SIM_DURATION = 500  # Time of the simulation in seconds
@@ -42,7 +42,13 @@ AGENT_INFO_LOCATION = [120, 230]  # The location of the information about the se
 SITE_INFO_LOCATION = [120, 420]  # The location of the information about the selected site
 
 # Agent parameters
-AGENT_SPEED = 20  # Actual speed is AGENT_SPEED * TIME_STEP
+# Setting this too high actually makes the simulation take longer because the agents don't turn as
+# sharp and find sites as easily or they get stuck when they try to return to a site.
+# Setting it low makes the simulation take longer just because the agents aren't moving as fast.
+# Somewhere in the middle (about 8 ~ 29 when TIME_STEP is 0.2 and SITE_SIZE is 20) leads to faster simulations.
+# 4 is the slowest they can go without getting stuck. 29 is the fastest.
+AGENT_SPEED = 10  # Actual speed is AGENT_SPEED * TIME_STEP
+COMMIT_SPEED = AGENT_SPEED * 3  # The speed they go when they are committed
 
 """ Transition parameters for timed transitions """
 # Threshold probability,
@@ -67,12 +73,12 @@ SEARCH_THRESHOLD = 3  # Should go from AT_NEST to SEARCH
 SEARCH_FROM_HUB_THRESHOLD = 8  # Should go from AT_NEST(hub) to SEARCH
 
 # As far as I can tell, changing the exponential doesnt actually make a difference
-ASSESS_EXPONENTIAL = 50
+ASSESS_EXPONENTIAL = 50  # TODO: Maybe just get rid of the exponential constants
 # ASSESS_THRESHOLD = 4
 
 # As far as I can tell, changing the exponential doesnt actually make a difference
 GET_LOST_EXPONENTIAL = 50
-GET_LOST_THRESHOLD = 5  # Influences the likelihood that an agent will get lost while following  TODO: see if they can get lost in other states
+GET_LOST_THRESHOLD = 5  # Influences the likelihood that an agent will get lost while following
 
 # As far as I can tell, changing the exponential doesnt actually make a difference
 FOLLOW_EXPONENTIAL = 50

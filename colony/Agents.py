@@ -8,8 +8,6 @@ from Constants import *
 #  agent-specific thresholds. Use this to show how diversity is
 #  necessary for increased resilience for the elements of autonomy paper
 
-# TODO: Make committed agents move faster than canvasing agents. How much?
-
 # TODO: Mess with the length of time in the assessment phase.
 
 # TODO: Add individual behavior: estimated quality accuracy (how close their estimated quality is to the site quality),
@@ -18,10 +16,6 @@ from Constants import *
 #                                navigation skills (likeliness of getting lost)
 
 # TODO: Let estimated quality become more accurate as assessment time goes on.
-
-# TODO: Don't get interrupted while going home unless they get lost.
-
-# TODO: Consider keeping assessing+ agents close to their site when searching. Maybe not necessary.
 
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
@@ -95,6 +89,7 @@ class Agent:
 
     def setPhase(self, phase):
         self.phase = phase
+        self.speed = AGENT_SPEED * TIME_STEP
         if phase == EXPLORE:
             self.phaseColor = EXPLORE_COLOR
         elif phase == ASSESS:
@@ -103,6 +98,7 @@ class Agent:
             self.phaseColor = CANVAS_COLOR
         elif phase == COMMIT:
             self.phaseColor = COMMIT_COLOR
+            self.speed = COMMIT_SPEED * TIME_STEP
 
     def incrementFollowers(self):
         self.numFollowers += 1

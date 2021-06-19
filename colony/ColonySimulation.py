@@ -124,6 +124,9 @@ class ColonySimulation:
             self.select(pygame.mouse.get_pos())
         if event.type == pyg.KEYDOWN and event.key == pyg.K_SPACE:
             self.go(pygame.mouse.get_pos())
+        if event.type == pyg.KEYDOWN and event.key == pyg.K_a:
+            self.go(pygame.mouse.get_pos())
+            self.assignSelectedAgents(pygame.mouse.get_pos())
         if event.type == pyg.QUIT:
             pygame.quit()
             self.timer.cancel()
@@ -150,6 +153,13 @@ class ColonySimulation:
                 a.target = mousePos
                 from states.GoState import GoState
                 a.setState(GoState(a))
+
+    def assignSelectedAgents(self, mousePos):
+        sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
+        if len(sitesUnderMouse) > 0:
+            for a in self.agentList:
+                if a.isSelected:
+                    a.assignSite(sitesUnderMouse[0])
 
     def pause(self, startTime):
         startPauseTime = time.time()
