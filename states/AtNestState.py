@@ -73,7 +73,6 @@ class AtNestState(State):
                 self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
         else:
             self.agent.setPhase(EXPLORE)
-            self.agent.assignSite(self.agent.hub)  # or None or just don't have this statement?
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
 

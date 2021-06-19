@@ -33,6 +33,7 @@ class ColonySimulation:
         self.timeRanOut = False
         self.clickedAgents = []
         self.clickedSites = []
+        self.dragSite = None
         self.timer = None
         self.pauseTime = 0
 
@@ -67,6 +68,8 @@ class ColonySimulation:
                     self.pause(startTime)
                 else:
                     self.handleEvent(event)
+                if self.dragSite is not None:
+                    self.dragSite.pos = pygame.mouse.get_pos()
             self.screen.fill(white)
             self.states = np.zeros((NUM_POSSIBLE_STATES,))
             self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
@@ -84,9 +87,6 @@ class ColonySimulation:
             for agent in self.agentList:
                 agent.drawAgent(self.screen)
 
-                self.world.drawStateGraph(self.states)
-                self.world.drawPhaseGraph(self.phases)
-
                 # Build adjacency list for observers, assessors, and pipers
                 agent.updatePosition()
 
@@ -101,7 +101,10 @@ class ColonySimulation:
                     foundNewHome = True
                     self.chosenHome = agent.assignedSite
 
+            self.world.drawStateGraph(self.states)
+            self.world.drawPhaseGraph(self.phases)
             self.world.drawWorldObjects()
+
             if len(self.clickedAgents) > 0:
                 self.world.drawSelectedAgentInfo(self.clickedAgents[0])
             if len(self.clickedSites) > 0:
@@ -111,6 +114,7 @@ class ColonySimulation:
                         agentsPositions.append(agent.pos)
                         agent.select()
                 self.world.drawSelectedSiteInfo(self.clickedSites[0], len(self.clickedAgents) > 0, agentsPositions)
+
             pygame.display.flip()
 
         if not self.timeRanOut:
@@ -121,12 +125,19 @@ class ColonySimulation:
 
     def handleEvent(self, event):
         if event.type == pyg.MOUSEBUTTONUP:
+            self.dragSite = None
             self.select(pygame.mouse.get_pos())
+        if event.type == pyg.MOUSEBUTTONDOWN:
+            self.drag(pygame.mouse.get_pos())
         if event.type == pyg.KEYDOWN and event.key == pyg.K_SPACE:
             self.go(pygame.mouse.get_pos())
         if event.type == pyg.KEYDOWN and event.key == pyg.K_a:
             self.go(pygame.mouse.get_pos())
             self.assignSelectedAgents(pygame.mouse.get_pos())
+        if event.type == pyg.KEYDOWN and event.key == pyg.K_f:
+            self.speedUp()
+        if event.type == pyg.KEYDOWN and event.key == pyg.K_s:
+            self.slowDown()
         if event.type == pyg.QUIT:
             pygame.quit()
             self.timer.cancel()
@@ -146,6 +157,11 @@ class ColonySimulation:
         if len(self.clickedSites) > 0:       # for s in self.clickedSites:
             self.clickedSites[0].select()    # s.select()
 
+    def drag(self, mousePos):
+        self.clickedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
+        if len(self.clickedSites) > 0:
+            self.dragSite = self.clickedSites[0]
+
     def go(self, mousePos):
         print(str(mousePos))
         for a in self.agentList:
@@ -160,6 +176,16 @@ class ColonySimulation:
             for a in self.agentList:
                 if a.isSelected:
                     a.assignSite(sitesUnderMouse[0])
+
+    def speedUp(self):
+        for a in self.agentList:
+            a.speed *= 1.2
+            a.speedCoefficient *= 1.2
+
+    def slowDown(self):
+        for a in self.agentList:
+            a.speed /= 1.2
+            a.speedCoefficient /= 1.2
 
     def pause(self, startTime):
         self.world.drawPause()

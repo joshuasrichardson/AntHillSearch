@@ -1,6 +1,7 @@
 from Constants import *
 from states.SearchState import SearchState
 from states.State import State
+from states.phases.CommitPhase import CommitPhase
 
 
 class FollowState(State):
@@ -24,13 +25,9 @@ class FollowState(State):
                         and self.agent.leadAgent.comingWithFollowers and self.agent.assignedSite == self.agent.leadAgent.assignedSite:
                     # they also start recruiting from that site.
                     self.agent.knownSites.add(self.agent.leadAgent.siteToRecruitFrom)
-                    if self.agent.leadAgent.siteToRecruitFrom.getQuality() > self.agent.estimatedQuality:
-                        self.agent.assignSite(self.agent.leadAgent.siteToRecruitFrom)
-                    else:
-                        self.agent.siteToRecruitFrom = self.agent.leadAgent.siteToRecruitFrom
+                    self.agent.siteToRecruitFrom = self.agent.leadAgent.siteToRecruitFrom
                     self.agent.leadAgent = None
-                    from states.ReverseTandemState import ReverseTandemState
-                    self.setState(ReverseTandemState(self.agent), self.agent.siteToRecruitFrom.getPosition())
+                    CommitPhase.transportOrReverseTandem(self)
         else:
             # if they arrived at a nest:
             self.agent.knownSites.add(self.agent.leadAgent.assignedSite)

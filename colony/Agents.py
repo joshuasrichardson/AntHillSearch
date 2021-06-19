@@ -60,6 +60,7 @@ class Agent:
         self.isSelected = False  # Whether the user clicked on the agent most recently.
 
         self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)  # How far off an agent's estimate of the quality of a site will be on average.
+        self.speedCoefficient = 1
 
     def setState(self, state):
         self.state = state
@@ -93,7 +94,7 @@ class Agent:
 
     def setPhase(self, phase):
         self.phase = phase
-        self.speed = AGENT_SPEED * TIME_STEP
+        self.speed = AGENT_SPEED * TIME_STEP * self.speedCoefficient
         if phase == EXPLORE:
             self.phaseColor = EXPLORE_COLOR
         elif phase == ASSESS:
@@ -102,7 +103,7 @@ class Agent:
             self.phaseColor = CANVAS_COLOR
         elif phase == COMMIT:
             self.phaseColor = COMMIT_COLOR
-            self.speed = COMMIT_SPEED * TIME_STEP
+            self.speed = COMMIT_SPEED * TIME_STEP * self.speedCoefficient
 
     def incrementFollowers(self):
         self.numFollowers += 1
@@ -127,6 +128,11 @@ class Agent:
     def getAgentRect(self):
         return self.agentRect
 
+    def estimateQuality(self, site):
+        return site.getQuality() + \
+            (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
+        # TODO: Make a bell curve instead of even distribution?
+
     def assignSite(self, site):
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
@@ -134,8 +140,7 @@ class Agent:
             self.setPhase(ASSESS)
         self.assignedSite = site
         self.assignedSite.incrementCount()
-        self.estimatedQuality = self.assignedSite.getQuality() + \
-            (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)  # TODO: Make a bell curve instead of even distribution? Also, make sure estimatedQuality and the site's actual quality are used in the right places.
+        self.estimatedQuality = self.estimateQuality(self.assignedSite)
         self.assessmentThreshold = 9 - (self.estimatedQuality / 40)  # Take longer to assess lower-quality sites
 
     def isDoneAssessing(self):

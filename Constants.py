@@ -4,7 +4,7 @@
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
 
-NUM_AGENTS = 100    # Total number of agents in the simulation
+NUM_AGENTS = 200    # Total number of agents in the simulation
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
 SIM_DURATION = 500  # Time of the simulation in seconds
