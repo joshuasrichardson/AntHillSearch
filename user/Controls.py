@@ -1,5 +1,3 @@
-import threading
-import time
 
 import numpy as np
 import pygame
@@ -64,13 +62,14 @@ class Controls:
             a.unselect()
         for s in self.world.siteList:
             s.unselect()
-        # get a list of all sprites that are under the mouse cursor
+        # get a list of all objects that are under the mouse cursor
         self.selectedAgents = [s for s in self.agentList if s.agentRect.collidepoint(mousePos)]
         self.clickedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
-        if len(self.selectedAgents) > 0:      # for a in self.clickedAgents:
-            self.selectedAgents[0].select()   # a.select()
-        if len(self.clickedSites) > 0:       # for s in self.clickedSites:
-            self.clickedSites[0].select()    # s.select()
+        if len(self.selectedAgents) > 0:
+            self.selectedAgents[0].select()
+            print(self.selectedAgents[0])
+        if len(self.clickedSites) > 0:
+            self.clickedSites[0].select()
             self.selectedAgentsPositions = []
             for agent in self.agentList:
                 if agent.assignedSite is self.clickedSites[0]:
@@ -81,7 +80,8 @@ class Controls:
     def mouseUp(self, mousePos):
         self.dragSite = None
         self.select(mousePos)
-        if self.selectRectCorner is not None:
+        if self.selectRectCorner is not None and np.abs(mousePos[0] - self.selectRectCorner[0]) > 1\
+                and np.abs(mousePos[1] - self.selectRectCorner[1]) > 1:
             self.wideSelect()
         self.selectRectCorner = None
 
@@ -99,7 +99,7 @@ class Controls:
         self.selectRectCorner = mousePos
 
     def wideSelect(self):
-        # get a list of all sprites that are under the mouse cursor
+        # get a list of all objects that are under the mouse cursor
         self.selectedAgents = [s for s in self.agentList if s.agentRect.colliderect(self.selectRect)]
         self.clickedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
         for a in self.selectedAgents:

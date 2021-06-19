@@ -143,7 +143,7 @@ class World:
             top = mousePos[1]
         width = np.abs(selectRectCorner[0] - mousePos[0])
         height = np.abs(selectRectCorner[1] - mousePos[1])
-        return pyg.draw.rect(self.screen, (8, 8, 8), pyg.Rect(left, top, width, height))
+        return pyg.draw.rect(self.screen, (128, 128, 128), pyg.Rect(left, top, width, height))
 
     def getSiteList(self):
         return self.siteList
