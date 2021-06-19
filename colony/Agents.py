@@ -12,8 +12,7 @@ from Constants import *
 
 # TODO: Mess with the length of time in the assessment phase.
 
-# TODO: Add individual behavior: estimated quality accuracy (how close their estimated quality is to the site quality),
-#                                speed (how fast they move),
+# TODO: Add individual behavior: speed (how fast they move),
 #                                decisiveness (how fast they can assess),
 #                                navigation skills (likeliness of getting lost)
 
