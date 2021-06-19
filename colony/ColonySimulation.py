@@ -162,6 +162,8 @@ class ColonySimulation:
                     a.assignSite(sitesUnderMouse[0])
 
     def pause(self, startTime):
+        self.world.drawPause()
+        pygame.display.flip()
         startPauseTime = time.time()
         runTime = startPauseTime - self.pauseTime - startTime
         remainingTime = self.simulationDuration - runTime
