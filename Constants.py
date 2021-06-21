@@ -3,7 +3,6 @@
 # Having more agents slows down the simulation, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
-
 NUM_AGENTS = 200    # Total number of agents in the simulation
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
@@ -41,15 +40,29 @@ AGENT_INFO_LOCATION = [120, 230]  # The location of the information about the se
 # Does not affect simulation besides making it easier to see what's happening
 SITE_INFO_LOCATION = [120, 420]  # The location of the information about the selected site
 
-# Agent parameters
-# Setting this too high actually makes the simulation take longer because the agents don't turn as
+""" Agent parameters """
+# Setting the speed too high actually makes the simulation take longer because the agents don't turn as
 # sharp and find sites as easily or they get stuck when they try to return to a site.
 # Setting it low makes the simulation take longer just because the agents aren't moving as fast.
 # Somewhere in the middle (about 8 ~ 29 when TIME_STEP is 0.2 and SITE_SIZE is 20) leads to faster simulations.
 # 4 is the slowest they can go without getting stuck. 29 is the fastest.
-AGENT_SPEED = 10  # Actual speed is AGENT_SPEED * TIME_STEP
-COMMIT_SPEED = AGENT_SPEED * 3  # The speed they go when they are committed
+MAX_AGENT_SPEED = 24  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
+# Each agent's speed will be between these two numbers v^ (* TIME_STEP)
+MIN_AGENT_SPEED = 4  # The slowest possible agent's initial speed
+# The higher this is, the more their speeds increase when they commit
+COMMIT_SPEED_FACTOR = 3  # The number to multiply the agents' speed by when they commit to a site.
 
+# This being lower makes agents take longer to assess, and thus makes the simulation longer
+MIN_DECISIVENESS = 0.5  # The factor of the least decisive agent possible (slowest assesser)
+# This being lower makes agents take longer to assess, and thus makes the simulation longer
+MAX_DECISIVENESS = 2.0  # The factor of the most decisive agent possible (fastest assesser)
+
+# The lower these numbers are, the more likely agents are to get lost while following, making the simulation take longer.
+MIN_NAV_SKILLS = 0.1  # The factor of the least skilled navigator possible (most likely to get lost)
+MAX_NAV_SKILLS = 2.0  # The factor of the most skilled navigator possible (least likely to get lost)
+
+# The higher this number is, the less accurate the agents' initial judgment about their site is.
+# If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
 MAX_QUALITY_MISJUDGMENT = 75  # How far off agents' estimatedQuality can be from a site's actual quality.
 
 """ Transition parameters for timed transitions """
@@ -76,7 +89,10 @@ SEARCH_FROM_HUB_THRESHOLD = 8  # Should go from AT_NEST(hub) to SEARCH
 
 # As far as I can tell, changing the exponential doesnt actually make a difference
 ASSESS_EXPONENTIAL = 50  # TODO: Maybe just get rid of the exponential constants
-# ASSESS_THRESHOLD = 4
+# This being higher makes agents take longer to assess, and thus makes the simulation longer
+MAX_ASSESS_THRESHOLD = 9.0  # The assessment threshold of a site with quality 0
+# This being higher makes agents take longer to assess, and thus makes the simulation longer
+ASSESS_DIVIDEND = 50.0  # The number the site quality is divided by before being subtracted from the threshold.
 
 # As far as I can tell, changing the exponential doesnt actually make a difference
 GET_LOST_EXPONENTIAL = 50

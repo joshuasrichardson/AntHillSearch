@@ -1,3 +1,5 @@
+import numpy as np
+
 from Constants import *
 from states.FollowState import FollowState
 from states.LeadForwardState import LeadForwardState
@@ -52,6 +54,12 @@ class AtNestState(State):
             if neighborList[i].getState() == TRANSPORT:
                 self.getCarried(neighborList[i])
                 return
+
+        # Let the agent's estimated quality of the site get closer to the actual quality as they spend time at the site.
+        if self.agent.estimatedQuality > self.agent.assignedSite.getQuality():
+            self.agent.estimatedQuality = np.round(self.agent.estimatedQuality - 0.1, 1)
+        else:
+            self.agent.estimatedQuality = np.round(self.agent.estimatedQuality + 0.1, 1)
 
     def tryFollowing(self, leader):
         if leader.numFollowers < MAX_FOLLOWERS:

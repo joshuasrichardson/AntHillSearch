@@ -83,28 +83,7 @@ class World:
             self.screen.blit(img, (self.phaseGLoc[0] - 100, self.phaseGLoc[1] - 5 + phase * 11))
 
     def drawSelectedAgentInfo(self, agent):
-        knownSitesPositions = []
-        for site in agent.knownSites:
-            knownSitesPositions.append(site.pos)
-        siteToRecruitFromPos = None
-        if agent.siteToRecruitFrom is not None:
-            siteToRecruitFromPos = agent.siteToRecruitFrom.pos
-
-        attributes = ["SELECTED AGENT:",
-                      "Position: " + str(agent.pos),
-                      "Assigned Site: " + str(agent.assignedSite.pos),
-                      "Estimated Quality: " + str(agent.estimatedQuality),
-                      "Target: " + str(agent.target),
-                      "Speed: " + str(agent.speed),
-                      "Known Sites: " + str(knownSitesPositions),
-                      "Site to Recruit from: " + str(siteToRecruitFromPos),
-                      "State: " + agent.stateToString(),
-                      "Phase: " + agent.phaseToString(),
-                      "Assessment Threshold: " + str(agent.assessmentThreshold),
-                      "Lead Agent: " + str(agent.leadAgent),
-                      "Number of followers: " + str(agent.numFollowers),
-                      "Going to recruit: " + ("Yes" if agent.goingToRecruit else "No")]
-
+        attributes = agent.getAttributes()
         for i, attribute in enumerate(attributes):
             img = self.myfont.render(attribute, True, (0, 0, 0))
             self.screen.blit(img, (AGENT_INFO_LOCATION[0] - 100, AGENT_INFO_LOCATION[1] - 5 + i * 11))

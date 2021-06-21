@@ -5,21 +5,10 @@ import numpy as np
 import pygame as pyg
 from Constants import *
 
-# TODO: set internal thresholds for each agent to switch out of an
-#  existing state because of time-out. Replace magic numbers with
-#  agent-specific thresholds. Use this to show how diversity is
-#  necessary for increased resilience for the elements of autonomy paper
-
-# TODO: Mess with the length of time in the assessment phase.
-
-# TODO: Add individual behavior: speed (how fast they move),
-#                                decisiveness (how fast they can assess),
-#                                navigation skills (likeliness of getting lost)
-
-# TODO: Let estimated quality become more accurate as assessment time goes on.
-
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
+
+# TODO: Individualize more stuff?
 
 
 class Agent:
@@ -36,7 +25,13 @@ class Agent:
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
-        self.speed = AGENT_SPEED * TIME_STEP  # Speed the agent moves on the screen
+
+        self.speed = random.uniform(MIN_AGENT_SPEED, MAX_AGENT_SPEED) * TIME_STEP  # AGENT_SPEED * TIME_STEP  # Speed the agent moves on the screen
+        self.uncommittedSpeed = self.speed
+        self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR
+        self.decisiveness = random.uniform(MIN_DECISIVENESS, MAX_DECISIVENESS)  # Influences how quickly an agent can assess
+        self.navigationSkills = random.uniform(MIN_NAV_SKILLS, MAX_NAV_SKILLS)  # Influences how likely an agent is to get lost
+
         self.target = self.hubLocation  # Either the hub or a site the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
@@ -93,7 +88,7 @@ class Agent:
 
     def setPhase(self, phase):
         self.phase = phase
-        self.speed = AGENT_SPEED * TIME_STEP * self.speedCoefficient
+        self.speed = self.uncommittedSpeed * self.speedCoefficient
         if phase == EXPLORE:
             self.phaseColor = EXPLORE_COLOR
         elif phase == ASSESS:
@@ -102,7 +97,7 @@ class Agent:
             self.phaseColor = CANVAS_COLOR
         elif phase == COMMIT:
             self.phaseColor = COMMIT_COLOR
-            self.speed = COMMIT_SPEED * TIME_STEP * self.speedCoefficient
+            self.speed = self.committedSpeed * self.speedCoefficient
 
     def incrementFollowers(self):
         self.numFollowers += 1
@@ -137,13 +132,15 @@ class Agent:
             self.assignedSite.decrementCount()
         if site is not self.assignedSite:
             self.setPhase(ASSESS)
+        if site is not self.assignedSite:
+            self.estimatedQuality = self.estimateQuality(site)
         self.assignedSite = site
         self.assignedSite.incrementCount()
-        self.estimatedQuality = self.estimateQuality(self.assignedSite)
-        self.assessmentThreshold = 9 - (self.estimatedQuality / 40)  # Take longer to assess lower-quality sites
+        # Take longer to assess lower-quality sites
+        self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
 
     def isDoneAssessing(self):
-        return np.random.exponential(ASSESS_EXPONENTIAL) > self.assessmentThreshold * ASSESS_EXPONENTIAL
+        return np.random.exponential(ASSESS_EXPONENTIAL) * self.decisiveness > self.assessmentThreshold * ASSESS_EXPONENTIAL
 
     def quorumMet(self):
         return self.assignedSite.agentCount > QUORUM_SIZE
@@ -153,20 +150,24 @@ class Agent:
             return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_FROM_HUB_THRESHOLD * SEARCH_EXPONENTIAL
         return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_THRESHOLD * SEARCH_EXPONENTIAL  # Make it more likely if they aren't at the hub.
 
-    def shouldReturnToNest(self):
+    @staticmethod
+    def shouldReturnToNest():
         return np.random.exponential(AT_NEST_EXPONENTIAL) > AT_NEST_THRESHOLD * AT_NEST_EXPONENTIAL
 
-    def shouldRecruit(self):
+    @staticmethod
+    def shouldRecruit():
         return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD * LEAD_EXPONENTIAL
 
-    def shouldFollow(self):
+    @staticmethod
+    def shouldKeepTransporting():
+        return np.random.randint(0, 3) != 0
+
+    @staticmethod
+    def shouldFollow():
         return np.random.exponential(FOLLOW_EXPONENTIAL) > FOLLOW_THRESHOLD * FOLLOW_EXPONENTIAL
 
     def shouldGetLost(self):
-        return np.random.exponential(GET_LOST_EXPONENTIAL) > GET_LOST_THRESHOLD * GET_LOST_EXPONENTIAL
-
-    def shouldKeepTransporting(self):
-        return np.random.randint(0, 3) != 0
+        return np.random.exponential(GET_LOST_EXPONENTIAL) > self.navigationSkills * GET_LOST_THRESHOLD * GET_LOST_EXPONENTIAL
 
     def select(self):
         self.isSelected = True
@@ -201,3 +202,28 @@ class Agent:
             return "CANVAS"
         if self.phase == COMMIT:
             return "COMMIT"
+
+    def getAttributes(self):
+        knownSitesPositions = []
+        for site in self.knownSites:
+            knownSitesPositions.append(site.pos)
+        siteToRecruitFromPos = None
+        if self.siteToRecruitFrom is not None:
+            siteToRecruitFromPos = self.siteToRecruitFrom.pos
+
+        return ["SELECTED AGENT:",
+                "Position: " + str(self.pos),
+                "Assigned Site: " + str(self.assignedSite.pos),
+                "Estimated Quality: " + str(self.estimatedQuality),
+                "Target: " + str(self.target),
+                "Speed: " + str(self.speed),
+                "Decisiveness: " + str(self.decisiveness),
+                "Navigation skills: " + str(self.navigationSkills),
+                "Known Sites: " + str(knownSitesPositions),
+                "Site to Recruit from: " + str(siteToRecruitFromPos),
+                "State: " + self.stateToString(),
+                "Phase: " + self.phaseToString(),
+                "Assessment Threshold: " + str(self.assessmentThreshold),
+                "Lead Agent: " + str(self.leadAgent),
+                "Number of followers: " + str(self.numFollowers),
+                "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
