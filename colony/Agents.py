@@ -51,7 +51,8 @@ class Agent:
         self.goingToRecruit = False  # Whether the agent is heading toward a site to recruit or not.
         self.comingWithFollowers = False  # Whether the agent is coming back toward a new site with followers or not.
 
-        self.isSelected = False  # Whether the user clicked on the agent most recently.
+        self.isSelected = False  # Whether the user clicked on the agent or its site most recently.
+        self.isTheSelected = False  # Whether the agent is the one with its information shown.
 
         self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)  # How far off an agent's estimate of the quality of a site will be on average.
         self.speedCoefficient = 1
@@ -103,6 +104,8 @@ class Agent:
         self.numFollowers += 1
 
     def drawAgent(self, surface):
+        if self.isTheSelected:
+            pyg.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
         if self.isSelected:
             pyg.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
         surface.blit(self.agentHandle, self.agentRect)
@@ -174,6 +177,7 @@ class Agent:
 
     def unselect(self):
         self.isSelected = False
+        self.isTheSelected = False
 
     def stateToString(self):
         if self.state.state == AT_NEST:

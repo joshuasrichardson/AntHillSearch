@@ -2,6 +2,6 @@
 import pygame
 
 
-def create_screen():
+def createScreen():
     pygame.display.init()
     return pygame.display.set_mode((0, 0), pygame.RESIZABLE)

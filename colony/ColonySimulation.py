@@ -23,7 +23,7 @@ class ColonySimulation:
         self.numGoodSites = numGoodSites
         self.numSites = numSites
         self.agentList = []
-        self.screen = create_screen()
+        self.screen = createScreen()
         self.world = World(numSites, self.screen)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
@@ -85,15 +85,16 @@ class ColonySimulation:
                     agentNeighbors.append(self.agentList[i])
                 agent.changeState(agentNeighbors)
 
-                if agent.assignedSite is not agent.hub and agent.assignedSite.agentCount == NUM_AGENTS:
-                    foundNewHome = True
-                    self.chosenHome = agent.assignedSite
-
             self.world.drawStateGraph(self.states)
             self.world.drawPhaseGraph(self.phases)
             self.world.drawWorldObjects()
             self.userControls.drawChanges()
             pygame.display.flip()
+
+            for site in self.world.siteList:
+                if site is not self.world.siteList[len(self.world.siteList) - 1] and site.agentCount == NUM_AGENTS:
+                    foundNewHome = True
+                    self.chosenHome = site
 
         if not self.timeRanOut:
             print("The agents found their new home!")
