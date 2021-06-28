@@ -48,7 +48,7 @@ SITE_INFO_LOCATION = [120, 420]  # The location of the information about the sel
 # 4 is the slowest they can go without getting stuck. 29 is the fastest.
 MAX_AGENT_SPEED = 24  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
 # Each agent's speed will be between these two numbers v^ (* TIME_STEP)
-MIN_AGENT_SPEED = 4  # The slowest possible agent's initial speed
+MIN_AGENT_SPEED = 24  # The slowest possible agent's initial speed
 # The higher this is, the more their speeds increase when they commit
 COMMIT_SPEED_FACTOR = 3  # The number to multiply the agents' speed by when they commit to a site.
 

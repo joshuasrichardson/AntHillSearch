@@ -3,11 +3,14 @@ Michael Goodrich
 February 2019 """
 
 from ColonySimulation import *
+from recording.RecordingPlayer import RecordingPlayer
+
+# TODO: figure out how to send a request
 
 
 def main():
     colony = ColonySimulation(NUM_AGENTS, SIM_DURATION, NUM_GOOD, NUM_SITES)
-    
+    # RecordingPlayer(SIM_DURATION, NUM_GOOD, NUM_SITES)  #
     try:
         colony.runSimulation()
         print("Success!")

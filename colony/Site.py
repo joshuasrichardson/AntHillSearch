@@ -48,6 +48,13 @@ class Site:
         # return self.x,self.y
         return [self.siteRect.centerx, self.siteRect.centery]
 
+    def setPosition(self, pos):
+        self.pos = pos
+        self.siteRect.centerx = self.pos[0]
+        self.siteRect.centery = self.pos[1]
+        self.siteObserveRect.centerx = self.pos[0]
+        self.siteObserveRect.centery = self.pos[1]
+
     def getColor(self):
         return self.color
 

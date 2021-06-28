@@ -1,4 +1,5 @@
 """ Agent class. Stores 2D position and agent state """
+import copy
 import random
 
 import numpy as np
@@ -31,6 +32,7 @@ class Agent:
         self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR
         self.decisiveness = random.uniform(MIN_DECISIVENESS, MAX_DECISIVENESS)  # Influences how quickly an agent can assess
         self.navigationSkills = random.uniform(MIN_NAV_SKILLS, MAX_NAV_SKILLS)  # Influences how likely an agent is to get lost
+        self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)  # How far off an agent's estimate of the quality of a site will be on average.
 
         self.target = self.hubLocation  # Either the hub or a site the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
@@ -43,6 +45,7 @@ class Agent:
         self.assignedSite = self.hub  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
+        self.speedCoefficient = 1
 
         self.knownSites = {self.hub}  # A list of sites that the agent has been to before
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
@@ -53,9 +56,6 @@ class Agent:
 
         self.isSelected = False  # Whether the user clicked on the agent or its site most recently.
         self.isTheSelected = False  # Whether the agent is the one with its information shown.
-
-        self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)  # How far off an agent's estimate of the quality of a site will be on average.
-        self.speedCoefficient = 1
 
     def setState(self, state):
         self.state = state
@@ -77,10 +77,17 @@ class Agent:
         self.agentRect.centerx = x
         self.agentRect.centery = y
 
-    def updatePosition(self):
+    def getNewPosition(self):
         self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
         self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
-        self.pos = [self.agentRect.centerx, self.agentRect.centery]
+        return [self.agentRect.centerx, self.agentRect.centery]
+
+    def updatePosition(self, pos):
+        self.pos = pos
+        self.setPosition(pos[0], pos[1])
+        # self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
+        # self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
+        # self.pos = [self.agentRect.centerx, self.agentRect.centery]
 
     def updateFollowPosition(self):
         self.agentRect.centerx = int(np.round(float(self.leadAgent.pos[0]) - self.leadAgent.speed * np.cos(self.leadAgent.angle)))
@@ -103,6 +110,18 @@ class Agent:
     def incrementFollowers(self):
         self.numFollowers += 1
 
+    def copy(self):
+        newAgent = Agent(self.world)
+        newAgent.pos = self.pos
+        newAgent.isTheSelected = self.isTheSelected
+        newAgent.isSelected = self.isSelected
+        newAgent.state = self.state.copy(newAgent)
+        newAgent.agentHandle = self.agentHandle
+        newAgent.agentRect = copy.deepcopy(self.agentRect)
+        newAgent.phaseColor = self.phaseColor
+        newAgent.estimatedQuality = self.estimatedQuality
+        return newAgent
+
     def drawAgent(self, surface):
         if self.isTheSelected:
             pyg.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
@@ -113,10 +132,7 @@ class Agent:
         pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
         pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
-        if self.assignedSite is None:
-            img = self.world.myfont.render(str(self.estimatedQuality), True, self.state.color)
-        else:
-            img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
+        img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
         self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
     def getAgentHandle(self):
@@ -231,3 +247,40 @@ class Agent:
                 "Lead Agent: " + str(self.leadAgent),
                 "Number of followers: " + str(self.numFollowers),
                 "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
+
+    def toString(self):
+        return str(self.world) + '\n' +\
+            str(self.siteObserveRectList) + '\n' +\
+            str(self.siteList) + '\n' +\
+            str(self.hubLocation) + '\n' +\
+            str(self.hub) + '\n' +\
+            str(self.pos) + '\n' +\
+            str(self.agentHandle) + '\n' +\
+            str(self.agentRect) + '\n' +\
+            str(self.agentRect.centerx) + '\n' +\
+            str(self.agentRect.centery) + '\n' +\
+            str(self.speed) + '\n' +\
+            str(self.uncommittedSpeed) + '\n' +\
+            str(self.committedSpeed) + '\n' +\
+            str(self.decisiveness) + '\n' +\
+            str(self.navigationSkills) + '\n' +\
+            str(self.target) + '\n' +\
+            str(self.angle) + '\n' +\
+            str(self.angularVelocity) + '\n' +\
+            str(self.state) + '\n' +\
+            str(self.phase) + '\n' +\
+            str(self.phaseColor) + '\n' +\
+            str(self.assignedSite) + '\n' +\
+            str(self.estimatedQuality) + '\n' +\
+            str(self.assessmentThreshold) + '\n' +\
+            str(self.knownSites) + '\n' +\
+            str(self.siteToRecruitFrom) + '\n' +\
+            str(self.leadAgent) + '\n' +\
+            str(self.numFollowers) + '\n' +\
+            str(self.goingToRecruit) + '\n' +\
+            str(self.comingWithFollowers) + '\n' +\
+            str(self.isSelected) + '\n' +\
+            str(self.assignedSite) + '\n' +\
+            str(self.isTheSelected) + '\n' +\
+            str(self.estimationAccuracy) + '\n' +\
+            str(self.speedCoefficient) + '\n'

@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -26,3 +28,8 @@ class State(ABC):
     @abstractmethod
     def changeState(self, neighborList) -> None:
         self.changeState(neighborList)
+
+    def copy(self, agent):
+        state = copy.copy(self)
+        state.agent = agent
+        return state
