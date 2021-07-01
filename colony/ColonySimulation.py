@@ -1,4 +1,5 @@
 """ Colony Simulation Environment """
+import datetime
 import threading
 
 import requests
@@ -11,7 +12,7 @@ from command.DrawStateGraphCommand import DrawStateGraphCommand
 from command.DrawWorldObjectsCommand import DrawWorldObjectsCommand
 from command.FillCommand import FillCommand
 from command.FlipCommand import FlipCommand
-from net.SendRequest import SendRequest
+from net.SendHubInfoRequest import SendHubInfoRequest
 from recording.Recorder import Recorder
 from command.DrawAgentCommand import DrawAgentCommand
 from command.UpdatePositionCommand import UpdatePositionCommand
@@ -64,6 +65,8 @@ class ColonySimulation:
 
         foundNewHome = False
         connected = True
+        previousSendTime = datetime.datetime.now()
+        request = SendHubInfoRequest(self.agentList)
 
         self.timer.start()
 
@@ -108,21 +111,20 @@ class ColonySimulation:
                     agentNeighbors.append(self.agentList[i])
                 agent.changeState(agentNeighbors)
 
-            # TODO: Make this block go once every few seconds to keep the computer from overheating with all the threads
-            if connected:
-                try:
-                    hubRect = self.world.siteList[len(self.world.siteList) - 1].getAgentRect()
-                    hubAgentsIndices = hubRect.collidelistall(agentRectList)
-                    request = SendRequest()
-                    for agentIndex in hubAgentsIndices:
-                        request.addAgentToSendRequest(self.agentList[agentIndex])
-                    request.calculateBestSites()
-                    thread = threading.Thread(target=request.sendHubInfo)
-                    thread.start()
-                    print("start")
-                except:
-                    connected = False
-                    print("Not connected to the Rest API")
+            hubRect = self.world.siteList[len(self.world.siteList) - 1].getAgentRect()
+            hubAgentsIndices = hubRect.collidelistall(agentRectList)
+            request.numAtHub = 0
+            for agentIndex in hubAgentsIndices:
+                request.addAgentToSendRequest(self.agentList[agentIndex], agentIndex)
+            now = datetime.datetime.now()
+            if connected and now > previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
+                previousSendTime = now
+                # try:
+                thread = threading.Thread(target=request.sendHubInfo)
+                thread.start()
+                # except:
+                #     connected = False
+                #     print("Not connected to the Rest API")
 
             self.world.drawStateGraph(self.states)  #
             # drawSGCommand = DrawStateGraphCommand(self.world, self.states)

@@ -11,6 +11,7 @@ SIM_DURATION = 300  # Time of the simulation in seconds
 NUM_GOOD = 1        # Number of top sites
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 5       # Number of total sites
+SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_STEPS = 5000    # Maximum allowed duration in seconds
