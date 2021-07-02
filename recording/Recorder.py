@@ -12,15 +12,30 @@ class Recorder:
         else:
             self.sites = []
         self.positions = []
+        self.states = []
+        self.phases = []
         self.result = None
         self.currentPosIndex = -1
+        self.currentStateIndex = -1
+        self.currentPhaseIndex = -1
         self.surface = None
 
     def record(self, command):
         self.commands.append(command)
 
+    def recordAgentInfo(self, agent):
+        self.recordPosition(agent.getPosition())
+        self.recordState(agent.getState())
+        self.recordPhase(agent.phase)
+
     def recordPosition(self, pos):
         self.positions.append(pos)
+
+    def recordState(self, state):
+        self.states.append(state)
+
+    def recordPhase(self, phase):
+        self.phases.append(phase)
 
     def save(self):
         with open('../recording/recording.txt', 'w') as file:
@@ -32,6 +47,11 @@ class Recorder:
                 file.write(str(site.quality) + "\n")
             for pos in self.positions:
                 file.write(str(pos) + "\n")
+            for state in self.states:
+                file.write(str(state) + "\n")
+            file.write("Phases:\n")
+            for phase in self.phases:
+                file.write(str(phase) + "\n")
 
     def read(self):
         with open('../recording/recording.txt', 'r') as file:
@@ -46,10 +66,21 @@ class Recorder:
                 quality = int(self.result[i + 2])
                 site = CopySite(pos, radius, quality)
                 self.sites.append(site)
+            index = 0
             for i in range(2 + (numSites * 3), len(self.result) - 1):
+                if self.result[i][0] is not '[':
+                    index = i
+                    break
                 res = self.result[i][1:-1]
                 position = [int(s) for s in res.split(',')]
                 self.positions.append(position)
+            for i in range(index, len(self.result) - 1):
+                if self.result[i].__contains__("Phases:"):
+                    index = i + 1
+                    break
+                self.states.append(int(self.result[i]))
+            for i in range(index, len(self.result) - 1):
+                self.phases.append(int(self.result[i]))
 
     def replay(self):
         for command in self.commands:
@@ -59,6 +90,20 @@ class Recorder:
         self.currentPosIndex += 1
         if len(self.positions) > self.currentPosIndex:
             return self.positions[self.currentPosIndex]
+        else:
+            return -1
+
+    def getNextState(self):
+        self.currentStateIndex += 1
+        if len(self.states) > self.currentStateIndex:
+            return self.states[self.currentStateIndex]
+        else:
+            return -1
+
+    def getNextPhase(self):
+        self.currentPhaseIndex += 1
+        if len(self.phases) > self.currentPhaseIndex:
+            return self.phases[self.currentPhaseIndex]
         else:
             return -1
 

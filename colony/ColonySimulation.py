@@ -2,24 +2,15 @@
 import datetime
 import threading
 
-import requests
-
-from colony.Agents import *
 from ColonyExceptions import *
 from World import *
-from command.DrawPhaseGraphCommand import DrawPhaseGraphCommand
-from command.DrawStateGraphCommand import DrawStateGraphCommand
-from command.DrawWorldObjectsCommand import DrawWorldObjectsCommand
-from command.FillCommand import FillCommand
-from command.FlipCommand import FlipCommand
+from colony.Agents import *
+from colony.SimulationTimer import SimulationTimer
+from myPygameUtils import *
 from net.SendHubInfoRequest import SendHubInfoRequest
 from recording.Recorder import Recorder
-from command.DrawAgentCommand import DrawAgentCommand
-from command.UpdatePositionCommand import UpdatePositionCommand
-from myPygameUtils import *
 from states.AtNestState import AtNestState
 from user.Controls import Controls
-from colony.SimulationTimer import SimulationTimer
 
 
 class ColonySimulation:
@@ -91,18 +82,12 @@ class ColonySimulation:
                 self.phases[ph] += 1
 
             for agent in self.agentList:
-                agent.drawAgent(self.screen)  #
-                # drawAgentCommand = DrawAgentCommand(agent, self.screen)
-                # drawAgentCommand.execute()
-                # self.recorder.record(drawAgentCommand)
+                agent.drawAgent(self.screen)
 
                 # Build adjacency list for observers, assessors, and pipers
                 pos = agent.getNewPosition()
-                self.recorder.recordPosition(pos)
-                agent.updatePosition(pos)  #
-                # updatePositionCommand = UpdatePositionCommand(agent, pos)
-                # self.recorder.record(updatePositionCommand)
-                # updatePositionCommand.execute()
+                agent.updatePosition(pos)
+                self.recorder.recordAgentInfo(agent)
 
                 agentRect = agent.getAgentRect()
                 possibleNeighborList = agentRect.collidelistall(agentRectList)
@@ -126,33 +111,18 @@ class ColonySimulation:
                 #     connected = False
                 #     print("Not connected to the Rest API")
 
-            self.world.drawStateGraph(self.states)  #
-            # drawSGCommand = DrawStateGraphCommand(self.world, self.states)
-            # drawSGCommand.execute()
-            # self.recorder.record(drawSGCommand)
-            self.world.drawPhaseGraph(self.phases)  #
-            # drawPGCommand = DrawPhaseGraphCommand(self.world, self.phases)
-            # drawPGCommand.execute()
-            # self.recorder.record(drawPGCommand)
-            self.world.drawWorldObjects()  #
-            # drawWOCommand = DrawWorldObjectsCommand(self.world)
-            # drawWOCommand.execute()
-            # self.recorder.record(drawWOCommand)
+            self.world.drawStateGraph(self.states)
+            self.world.drawPhaseGraph(self.phases)
+            self.world.drawWorldObjects()
 
             self.userControls.drawChanges()
-            pygame.display.flip()  #
-            # flipCommand = FlipCommand()
-            # flipCommand.execute()
-            # self.recorder.record(flipCommand)
+            pygame.display.flip()
 
             for site in self.world.siteList:
                 if site is not self.world.siteList[len(self.world.siteList) - 1] and site.agentCount == NUM_AGENTS:
                     foundNewHome = True
                     self.chosenHome = site
 
-        # val = input("Replay? (y/n)")
-        # if val is "y":
-        #     self.recorder.replay()
         self.recorder.save()
         if not self.timeRanOut:
             print("The agents found their new home!")

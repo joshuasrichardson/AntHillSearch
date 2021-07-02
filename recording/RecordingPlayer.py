@@ -1,21 +1,13 @@
 import threading
 
 from colony.Agents import *
+from colony.SimulationTimer import SimulationTimer
 from colony.World import *
-
 from colony.World import World
-from command.DrawPhaseGraphCommand import DrawPhaseGraphCommand
-from command.DrawStateGraphCommand import DrawStateGraphCommand
-from command.DrawWorldObjectsCommand import DrawWorldObjectsCommand
-from command.FillCommand import FillCommand
-from command.FlipCommand import FlipCommand
-from recording.Recorder import Recorder
-from command.DrawAgentCommand import DrawAgentCommand
-from command.UpdatePositionCommand import UpdatePositionCommand
 from colony.myPygameUtils import *
+from recording.Recorder import Recorder
 from states.AtNestState import AtNestState
 from user.Controls import Controls
-from colony.SimulationTimer import SimulationTimer
 
 
 class RecordingPlayer:
@@ -94,15 +86,18 @@ class RecordingPlayer:
                 pos = self.recorder.getNextPosition()
                 if pos == -1:
                     break
-                updatePositionCommand = UpdatePositionCommand(agent, pos)
-                updatePositionCommand.execute()
+                agent.updatePosition(pos)
 
                 agentRect = agent.getAgentRect()
                 possibleNeighborList = agentRect.collidelistall(agentRectList)
                 agentNeighbors = []
                 for i in possibleNeighborList:
                     agentNeighbors.append(self.agentList[i])
-                agent.changeState(agentNeighbors)
+                agent.state.state = self.recorder.getNextState()
+                agent.state.color = agent.getStateColor(agent.state.state)
+                agent.phase = self.recorder.getNextPhase()
+                agent.phaseColor = agent.getPhaseColor(agent.phase)
+                agent.tryAssigningSite()
 
             if pos == -1:
                 break

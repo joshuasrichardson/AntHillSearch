@@ -85,9 +85,6 @@ class Agent:
     def updatePosition(self, pos):
         self.pos = pos
         self.setPosition(pos[0], pos[1])
-        # self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
-        # self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
-        # self.pos = [self.agentRect.centerx, self.agentRect.centery]
 
     def updateFollowPosition(self):
         self.agentRect.centerx = int(np.round(float(self.leadAgent.pos[0]) - self.leadAgent.speed * np.cos(self.leadAgent.angle)))
@@ -248,39 +245,41 @@ class Agent:
                 "Number of followers: " + str(self.numFollowers),
                 "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
 
-    def toString(self):
-        return str(self.world) + '\n' +\
-            str(self.siteObserveRectList) + '\n' +\
-            str(self.siteList) + '\n' +\
-            str(self.hubLocation) + '\n' +\
-            str(self.hub) + '\n' +\
-            str(self.pos) + '\n' +\
-            str(self.agentHandle) + '\n' +\
-            str(self.agentRect) + '\n' +\
-            str(self.agentRect.centerx) + '\n' +\
-            str(self.agentRect.centery) + '\n' +\
-            str(self.speed) + '\n' +\
-            str(self.uncommittedSpeed) + '\n' +\
-            str(self.committedSpeed) + '\n' +\
-            str(self.decisiveness) + '\n' +\
-            str(self.navigationSkills) + '\n' +\
-            str(self.target) + '\n' +\
-            str(self.angle) + '\n' +\
-            str(self.angularVelocity) + '\n' +\
-            str(self.state) + '\n' +\
-            str(self.phase) + '\n' +\
-            str(self.phaseColor) + '\n' +\
-            str(self.assignedSite) + '\n' +\
-            str(self.estimatedQuality) + '\n' +\
-            str(self.assessmentThreshold) + '\n' +\
-            str(self.knownSites) + '\n' +\
-            str(self.siteToRecruitFrom) + '\n' +\
-            str(self.leadAgent) + '\n' +\
-            str(self.numFollowers) + '\n' +\
-            str(self.goingToRecruit) + '\n' +\
-            str(self.comingWithFollowers) + '\n' +\
-            str(self.isSelected) + '\n' +\
-            str(self.assignedSite) + '\n' +\
-            str(self.isTheSelected) + '\n' +\
-            str(self.estimationAccuracy) + '\n' +\
-            str(self.speedCoefficient) + '\n'
+    @staticmethod
+    def getStateColor(state):
+        if state == AT_NEST:
+            return AT_NEST_COLOR
+        if state == SEARCH:
+            return SEARCH_COLOR
+        if state == LEAD_FORWARD:
+            return LEAD_FORWARD_COLOR
+        if state == REVERSE_TANDEM:
+            return REVERSE_TANDEM_COLOR
+        if state == TRANSPORT:
+            return TRANSPORT_COLOR
+        if state == FOLLOW:
+            return FOLLOW_COLOR
+        if state == CARRIED:
+            return CARRIED_COLOR
+        if state == GO:
+            return GO_COLOR
+
+    @staticmethod
+    def getPhaseColor(phase):
+        if phase == EXPLORE:
+            return EXPLORE_COLOR
+        if phase == ASSESS:
+            return ASSESS_COLOR
+        if phase == CANVAS:
+            return CANVAS_COLOR
+        if phase == COMMIT:
+            return COMMIT_COLOR
+
+    def tryAssigningSite(self):
+        siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
+        # If agent finds a site within range then assess it
+
+        if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
+            self.knownSites.add(self.siteList[siteWithinRange])
+            if self.siteList[siteWithinRange].quality > self.assignedSite.quality:
+                self.assignSite(self.siteList[siteWithinRange])
