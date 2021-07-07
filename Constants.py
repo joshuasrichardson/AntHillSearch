@@ -13,7 +13,10 @@ SIM_DURATION = 300  # Time of the simulation in seconds
 NUM_GOOD = 1        # Number of top sites
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 5       # Number of total sites
+# Does not affect the simulation, but the lower it is, the harder the computer will have to work to execute all the threads
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
+# Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
+SHOW_AGENT_COLORS = False  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_STEPS = 5000    # Maximum allowed duration in seconds

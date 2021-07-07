@@ -107,18 +107,6 @@ class Agent:
     def incrementFollowers(self):
         self.numFollowers += 1
 
-    def copy(self):
-        newAgent = Agent(self.world)
-        newAgent.pos = self.pos
-        newAgent.isTheSelected = self.isTheSelected
-        newAgent.isSelected = self.isSelected
-        newAgent.state = self.state.copy(newAgent)
-        newAgent.agentHandle = self.agentHandle
-        newAgent.agentRect = copy.deepcopy(self.agentRect)
-        newAgent.phaseColor = self.phaseColor
-        newAgent.estimatedQuality = self.estimatedQuality
-        return newAgent
-
     def drawAgent(self, surface):
         if self.isTheSelected:
             pyg.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
@@ -126,11 +114,12 @@ class Agent:
             pyg.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
         surface.blit(self.agentHandle, self.agentRect)
 
-        pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
-        pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
+        if SHOW_AGENT_COLORS:
+            pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
+            pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
-        img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
-        self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
+        # img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
+        # self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
     def getAgentHandle(self):
         return self.agentHandle

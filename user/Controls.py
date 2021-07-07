@@ -5,6 +5,7 @@ from colony.ColonyExceptions import GameOver
 
 
 class Controls:
+    """ Lets the user interact with the simulation """
 
     def __init__(self, timer, agentList, world):
         self.timer = timer
@@ -85,6 +86,9 @@ class Controls:
             self.selectedAgent.select()
             self.selectedAgent.isTheSelected = True
             self.selectedAgentIndex = 0
+            if self.allSelectedAgentsAssignedToSameSite():
+                self.selectedSite = self.selectedAgent.assignedSite
+                self.selectedSite.select()
         if len(self.selectedSites) > 0:
             self.selectedSite = self.selectedSites[0]
             self.selectedSite.select()
@@ -95,6 +99,12 @@ class Controls:
                     self.selectedAgentsPositions.append(agent.pos)
                     agent.select()
                     self.selectedAgents.append(agent)
+
+    def allSelectedAgentsAssignedToSameSite(self):
+        for agent in self.selectedAgents:
+            if agent.assignedSite is not self.selectedAgent.assignedSite:
+                return False
+        return True
 
     def mouseUp(self, mousePos):
         self.dragSite = None
@@ -128,6 +138,9 @@ class Controls:
             self.selectedAgent = self.selectedAgents[0]
             self.selectedAgent.isTheSelected = True
             self.selectedAgentIndex = 0
+            if self.allSelectedAgentsAssignedToSameSite():
+                self.selectedSite = self.selectedAgent.assignedSite
+                self.selectedSite.select()
         if len(self.selectedSites) > 0:
             self.selectedSite = self.selectedSites[0]
             self.selectedAgent.isTheSelected = True
