@@ -136,6 +136,7 @@ class SendHubInfoRequest:
                 'numAssess': self.numAssess,
                 'numCanvas': self.numCanvas,
                 'numCommit': self.numCommit,
+
                 'numAtHub': self.numAtHub,
                 'numSearch': self.numSearch,
                 'numLeadForward': self.numLeadForward,
@@ -143,6 +144,7 @@ class SendHubInfoRequest:
                 'numReverseTandem': self.numReverseTandem,
                 'numTransport': self.numTransport,
                 'numCarried': self.numCarried,
+
                 'sitesPositions': self.sitesPositions,
                 'sitesQualities': self.sitesQualities,
                 'numAgentsAtSites': self.numAgentsAtSites}
