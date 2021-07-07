@@ -6,6 +6,7 @@ from states.State import State
 
 
 class RecruitState(State):
+    """ Abstract state where agents recruit other agents to come to their assigned site """
 
     def __init__(self, agent):
         super().__init__(agent)

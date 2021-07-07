@@ -9,6 +9,8 @@ from states.State import State
 
 
 class AtNestState(State):
+    """ State where an agent is just at a nest, whether it is the original home, a nest they are assessing, or
+    a nest they are recruiting to """
 
     def __init__(self, agent):
         super().__init__(agent)

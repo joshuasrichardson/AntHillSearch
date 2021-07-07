@@ -10,6 +10,7 @@ from recording.Recorder import Recorder
 
 
 class ColonySimulation(AbstractColonySimulation):
+    """ A class to run the simulation for ants finding their new home after the old one broke """
 
     def __init__(self, numAgents, simulationDuration, numGoodSites, numSites):
         self.numAgents = numAgents

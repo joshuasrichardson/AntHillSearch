@@ -9,10 +9,10 @@ from Constants import *
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
 
-# TODO: Individualize more stuff?
-
 
 class Agent:
+    """ Represents an agent that works to find a new nest when the old one is broken by going through different
+    phases and states"""
 
     def __init__(self, world):
         self.world = world  # The colony the agent lives in

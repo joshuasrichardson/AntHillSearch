@@ -1,11 +1,11 @@
-from colony.myPygameUtils import createScreen
 from recording.CopySite import CopySite
 
 
 class Recorder:
+    """ Records essential site information, agent positions, agent states, and agent phases
+    in recording.txt so that the same simulation can be played over again """
 
     def __init__(self, numAgents, sites):
-        self.commands = []
         self.numAgents = numAgents
         if sites is not None:
             self.sites = sites
@@ -18,10 +18,6 @@ class Recorder:
         self.currentPosIndex = -1
         self.currentStateIndex = -1
         self.currentPhaseIndex = -1
-        self.surface = None
-
-    def record(self, command):
-        self.commands.append(command)
 
     def recordAgentInfo(self, agent):
         self.recordPosition(agent.getPosition())
@@ -82,10 +78,6 @@ class Recorder:
             for i in range(index, len(self.result) - 1):
                 self.phases.append(int(self.result[i]))
 
-    def replay(self):
-        for command in self.commands:
-            command.execute()
-
     def getNextPosition(self):
         self.currentPosIndex += 1
         if len(self.positions) > self.currentPosIndex:
@@ -106,8 +98,3 @@ class Recorder:
             return self.phases[self.currentPhaseIndex]
         else:
             return -1
-
-    def getSurface(self):
-        if self.surface is None:
-            self.surface = createScreen()
-        return self.surface

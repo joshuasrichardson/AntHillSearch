@@ -2,12 +2,9 @@
 from Site import *
 
 
-# TODO: set internal thresholds for each agent to switch out of a
-#  existing state because of time-out. Replace magic numbers with
-#  agent-specific thresholds. Use this to show how diversity is
-#  necessary for increased resilience for the elements of autonomy paper
-
 class World:
+    """ Represents the world around the ants old home """
+
     def __init__(self, numSites, screen):
         self.hubLocation = HUB_LOCATION
         self.siteList = []
@@ -32,7 +29,7 @@ class World:
         self.createHub()
 
     def normalizeQuality(self):
-        """Set the site qualities so that the best is bright green and the worst bright red"""
+        """ Set the site qualities so that the best is bright green and the worst bright red """
         # Normalize quality to be between lower bound and upper bound
         minValue = -np.inf
         maxValue = np.inf

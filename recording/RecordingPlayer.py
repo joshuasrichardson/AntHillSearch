@@ -3,6 +3,7 @@ from recording.Recorder import Recorder
 
 
 class RecordingPlayer(AbstractColonySimulation):
+    """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
     def __init__(self, simulationDuration, numGoodSites, numSites):
         super().__init__(simulationDuration, numGoodSites, numSites)

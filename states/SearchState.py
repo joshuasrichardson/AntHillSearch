@@ -5,6 +5,7 @@ from states.State import State
 
 
 class SearchState(State):
+    """ State where agents look around the world for better sites """
 
     def __init__(self, agent):
         super().__init__(agent)

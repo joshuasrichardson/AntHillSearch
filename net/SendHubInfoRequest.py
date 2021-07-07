@@ -1,12 +1,11 @@
-import asyncio
-
 import requests
-import json
 
 from Constants import *
 
 
 class SendHubInfoRequest:
+    """ A Request object holding information that is known from the hub.
+    This request can be send to a rest API. """
 
     def __init__(self, agentList):
         self.agentPhases = []

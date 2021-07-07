@@ -5,8 +5,9 @@ from Constants import *
 
 
 class Site:
+    """ Represents possible sites for agents to move to, including their old home """
     def __init__(self, surface):
-        """randomly places site at a 2D location and assigns it a random state"""
+        """ randomly places site at a 2D location and assigns it a random state """
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
         self.screen = surface
         self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality

@@ -1,4 +1,3 @@
-import datetime
 import threading
 from abc import ABC, abstractmethod
 
@@ -7,17 +6,15 @@ import pygame
 
 from Constants import *
 from colony.Agents import Agent
-from colony.ColonyExceptions import InputError
 from colony.SimulationTimer import SimulationTimer
 from colony.World import World
 from colony.myPygameUtils import createScreen
-from net.SendHubInfoRequest import SendHubInfoRequest
-from recording.Recorder import Recorder
 from states.AtNestState import AtNestState
 from user.Controls import Controls
 
 
 class AbstractColonySimulation(ABC):
+    """ Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
     def __init__(self, simulationDuration, numGoodSites, numSites):
         """ numAgents is the number of agents in the simulation.

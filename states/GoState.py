@@ -3,6 +3,9 @@ from states.State import State
 
 
 class GoState(State):
+    """ State where an agent must keep moving toward a point specified by the user until the agent gets there.
+    This state is entered when the user selects an agent, points the mouse where they want the agent to go, and
+    pushes the space bar """
 
     def __init__(self, agent):
         super().__init__(agent)

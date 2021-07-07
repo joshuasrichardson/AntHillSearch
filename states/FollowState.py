@@ -5,6 +5,8 @@ from states.phases.CommitPhase import CommitPhase
 
 
 class FollowState(State):
+    """ State where an agent is following an agent in the lead forward or reverse tandem state either toward
+    the other agent's assigned site or toward the site they are going to recruit from """
 
     def __init__(self, agent):
         super().__init__(agent)

@@ -1,10 +1,10 @@
 import threading
 import time
-
 import pygame
 
 
 class SimulationTimer:
+    """ A class to keep track of the time remaining in the colony simulation """
 
     def __init__(self, simulationDuration, timer, timeOut):
         self.simulationDuration = simulationDuration

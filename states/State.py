@@ -1,14 +1,11 @@
 import copy
-
 import numpy as np
 from abc import ABC, abstractmethod
-
-
-# An abstract base class for the states the agents can be in
 from Constants import SEARCH
 
 
 class State(ABC):
+    """ An abstract base class for the states the agents can be in """
 
     def __init__(self, agent):
         self.agent = agent
