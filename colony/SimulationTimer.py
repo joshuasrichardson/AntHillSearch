@@ -22,9 +22,7 @@ class SimulationTimer:
 
     def pause(self, handleEvent):
         startPauseTime = time.time()
-        runTime = startPauseTime - self.pauseTime - self.startTime
-        remainingTime = self.simulationDuration - runTime
-        print("Remaining time: " + str(remainingTime))
+        remainingTime = self.getRemainingTime(startPauseTime)
         self.timer.cancel()
         paused = True
         while paused:
@@ -36,3 +34,11 @@ class SimulationTimer:
         self.pauseTime += time.time() - startPauseTime
         self.timer = threading.Timer(remainingTime, self.timeOut)
         self.timer.start()
+
+    def getRemainingTime(self, now):
+        if now is None:
+            now = time.time()
+        runTime = now - self.pauseTime - self.startTime
+        remainingTime = self.simulationDuration - runTime
+        print("Remaining time: " + str(remainingTime))
+        return remainingTime

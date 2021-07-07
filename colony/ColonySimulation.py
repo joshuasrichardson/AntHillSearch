@@ -61,3 +61,7 @@ class ColonySimulation(AbstractColonySimulation):
             self.previousSendTime = now
             thread = threading.Thread(target=self.request.sendHubInfo)
             thread.start()
+
+    def sendResults(self, chosenSite, simulationTime):
+        """ Tells the rest API which site the agents ended up at and how long it took them to get there """
+        self.request.sendResults(chosenSite.pos, SIM_DURATION - simulationTime)

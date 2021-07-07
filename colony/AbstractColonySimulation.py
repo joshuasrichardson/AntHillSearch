@@ -76,15 +76,15 @@ class AbstractColonySimulation(ABC):
         self.recorder.save()
         self.printResults()
 
-    def initializeRequest(self):
-        pass  # The method is overridden by simulations that send requests to rest APIs
-
     def initializeAgentList(self):
         for i in range(0, self.numAgents):
             agent = Agent(self.world)
             state = AtNestState(agent)
             agent.setState(state)
             self.agentList.append(agent)
+
+    def initializeRequest(self):
+        pass  # The method is overridden by simulations that send requests to rest APIs
 
     def getAgentRectList(self):
         agentRectList = []
@@ -133,8 +133,14 @@ class AbstractColonySimulation(ABC):
         self.timeRanOut = True
 
     def printResults(self):
+        simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
+            simulationTime = self.timer.getRemainingTime(None)
             print("The agents found their new home!")
             pygame.quit()
             self.timer.cancel()
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
+        self.sendResults(self.chosenHome, simulationTime)
+
+    def sendResults(self, chosenSite, simulationTime):
+        pass

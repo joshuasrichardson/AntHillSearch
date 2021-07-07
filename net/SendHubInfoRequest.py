@@ -147,3 +147,10 @@ class SendHubInfoRequest:
                 'sitesPositions': self.sitesPositions,
                 'sitesQualities': self.sitesQualities,
                 'numAgentsAtSites': self.numAgentsAtSites}
+
+    @staticmethod
+    def sendResults(chosenSite, simulationTime):
+        data = {'chosenSite': chosenSite,
+                'simulationTime': simulationTime}
+        response = requests.post('http://localhost:5000/sendResults', data=data)
+        print("After: {}".format(response.text))

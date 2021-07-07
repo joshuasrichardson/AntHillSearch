@@ -118,8 +118,9 @@ class Agent:
             pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
             pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
-        # img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
-        # self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
+        if SHOW_ESTIMATED_QUALITY:
+            img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
+            self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
     def getAgentHandle(self):
         return self.agentHandle
