@@ -5,6 +5,7 @@ from states.State import State
 
 
 class SearchState(State):
+    """ State where agents look around the world for better sites """
 
     def __init__(self, agent):
         super().__init__(agent)
@@ -27,7 +28,7 @@ class SearchState(State):
         if self.sightIsInRange(siteWithinRange):
             self.agent.knownSites.add(self.agent.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
-            if self.agent.siteList[siteWithinRange].getQuality() > self.agent.estimatedQuality:
+            if self.agent.estimateQuality(self.agent.siteList[siteWithinRange]) > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.siteList[siteWithinRange])
                 from states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())

@@ -4,6 +4,7 @@ from states.State import State
 
 
 class CarriedState(State):
+    """ State where an agent is being carried by a transporting committed agent toward that agent's site """
 
     def __init__(self, agent):
         super().__init__(agent)

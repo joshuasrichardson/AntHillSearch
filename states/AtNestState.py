@@ -1,3 +1,5 @@
+import numpy as np
+
 from Constants import *
 from states.FollowState import FollowState
 from states.LeadForwardState import LeadForwardState
@@ -7,6 +9,8 @@ from states.State import State
 
 
 class AtNestState(State):
+    """ State where an agent is just at a nest, whether it is the original home, a nest they are assessing, or
+    a nest they are recruiting to """
 
     def __init__(self, agent):
         super().__init__(agent)
@@ -53,6 +57,12 @@ class AtNestState(State):
                 self.getCarried(neighborList[i])
                 return
 
+        # Let the agent's estimated quality of the site get closer to the actual quality as they spend time at the site.
+        if self.agent.estimatedQuality > self.agent.assignedSite.getQuality():
+            self.agent.estimatedQuality = np.round(self.agent.estimatedQuality - 0.1, 1)
+        else:
+            self.agent.estimatedQuality = np.round(self.agent.estimatedQuality + 0.1, 1)
+
     def tryFollowing(self, leader):
         if leader.numFollowers < MAX_FOLLOWERS:
             self.agent.leadAgent = leader
@@ -73,7 +83,6 @@ class AtNestState(State):
                 self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
         else:
             self.agent.setPhase(EXPLORE)
-            self.agent.assignSite(self.agent.hub)  # or None or just don't have this statement?
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
 

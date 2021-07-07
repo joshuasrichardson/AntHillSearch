@@ -4,6 +4,8 @@ from states.phases.CommitPhase import CommitPhase
 
 
 class TransportState(RecruitState):
+    """ State where an agent goes to a previous site and picks up any searching agent it comes in contact with
+    to carry it to the site the agent is committed to """
 
     def __init__(self, agent):
         super().__init__(agent)
