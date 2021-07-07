@@ -6,13 +6,14 @@ from states.State import State
 
 
 class RecruitState(State):
+    """ Abstract state where agents recruit other agents to come to their assigned site """
 
     def __init__(self, agent):
         super().__init__(agent)
 
     def changeState(self, neighborList) -> None:
         # Choose a site to recruit from
-        if self.agent.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there. TODO: Can they get lost here? for now, no.
+        if self.agent.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there.
             self.setState(self, self.agent.siteToRecruitFrom.getPosition())
             if self.agent.agentRect.collidepoint(self.agent.siteToRecruitFrom.pos):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
                 self.agent.goingToRecruit = False  # The agent is now going to head back to the new site

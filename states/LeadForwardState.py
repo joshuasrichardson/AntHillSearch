@@ -4,6 +4,7 @@ from states.phases.CommitPhase import CommitPhase
 
 
 class LeadForwardState(RecruitState):
+    """ State where an agent goes to known sites and starts recruiting other agents to a better site it found """
 
     def __init__(self, agent):
         super().__init__(agent)

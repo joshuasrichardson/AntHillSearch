@@ -1,40 +1,23 @@
-""" Swarm Simulation Environment """
+""" Colony Simulation Environment """
+import datetime
 import threading
-import time
 
-import pygame
-
-from colony.Agents import *
 from ColonyExceptions import *
-from World import *
-from myPygameUtils import *
-from states.AtNestState import AtNestState
+from colony.AbstractColonySimulation import AbstractColonySimulation
+from colony.Agents import *
+from net.SendHubInfoRequest import SendHubInfoRequest
+from recording.Recorder import Recorder
 
 
-class ColonySimulation:
+class ColonySimulation(AbstractColonySimulation):
+    """ A class to run the simulation for ants finding their new home after the old one broke """
+
     def __init__(self, numAgents, simulationDuration, numGoodSites, numSites):
-        """ numAgents is the number of agents in the simulation.
-        simulationDuration is the amount of time in seconds that the simulation can last
-        numGoodSites is the number of top sites
-        numSites number of total sites
-        """
-        # TODO: allow input files to be read and used instead of values and randomization
-
         self.numAgents = numAgents
-        self.simulationDuration = simulationDuration
-        self.numGoodSites = numGoodSites
-        self.numSites = numSites
-        self.agentList = []
-        self.screen = create_screen()
-        self.world = World(numSites, self.screen)
-        self.states = np.zeros((NUM_POSSIBLE_STATES,))
-        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-        self.chosenHome = None
-        self.timeRanOut = False
-        self.clickedAgents = []
-        self.clickedSites = []
-        self.timer = None
-        self.pauseTime = 0
+        super().__init__(simulationDuration, numGoodSites, numSites)
+        self.connected = True
+        self.previousSendTime = datetime.datetime.now()
+        self.request = None
 
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 1 and 200", numAgents)
@@ -45,146 +28,40 @@ class ColonySimulation:
         if numSites < 0 or numSites > MAX_N:
             raise InputError("Can't be more sites than maximum value", numSites)
 
-    def runSimulation(self):
-        # creates the number of agents specified by main
-        for i in range(0, self.numAgents):
-            agent = Agent(self.world)
-            state = AtNestState(agent)
-            agent.setState(state)
-            self.agentList.append(agent)
+    def getRecorder(self):
+        return Recorder(self.numAgents, self.world.siteList)
 
-        white = 255, 255, 255
+    def getNumAgents(self):
+        return self.numAgents
 
-        foundNewHome = False
-        startTime = time.time()
-        self.timer = threading.Timer(self.simulationDuration, self.timeOut)
-        self.timer.start()
+    def initializeRequest(self):
+        self.request = SendHubInfoRequest(self.agentList)
 
-        while not foundNewHome and not self.timeRanOut:
+    def updateAgent(self, agent, agentRectList):
+        # Build adjacency list for observers, assessors, and pipers
+        pos = agent.getNewPosition()
+        agent.updatePosition(pos)
+        self.recorder.recordAgentInfo(agent)
 
-            for event in pyg.event.get():
-                if event.type == pyg.KEYDOWN and event.key == pyg.K_p:
-                    self.pause(startTime)
-                else:
-                    self.handleEvent(event)
-            self.screen.fill(white)
-            self.states = np.zeros((NUM_POSSIBLE_STATES,))
-            self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-            # Get list of agent rectangles
-            agentRectList = []
-            for agent in self.agentList:
-                agentRectList.append(agent.getAgentRect())
+        agentRect = agent.getAgentRect()
+        possibleNeighborList = agentRect.collidelistall(agentRectList)
+        agentNeighbors = []
+        for i in possibleNeighborList:
+            agentNeighbors.append(self.agentList[i])
+        agent.changeState(agentNeighbors)
 
-            for agent in self.agentList:
-                st = agent.getState()
-                self.states[st] += 1
-                ph = agent.phase
-                self.phases[ph] += 1
+    def updateRestAPI(self, agentRectList):
+        hubRect = self.world.siteList[len(self.world.siteList) - 1].getAgentRect()
+        hubAgentsIndices = hubRect.collidelistall(agentRectList)
+        self.request.numAtHub = 0
+        for agentIndex in hubAgentsIndices:
+            self.request.addAgentToSendRequest(self.agentList[agentIndex], agentIndex)
+        now = datetime.datetime.now()
+        if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
+            self.previousSendTime = now
+            thread = threading.Thread(target=self.request.sendHubInfo)
+            thread.start()
 
-            for agent in self.agentList:
-                agent.drawAgent(self.screen)
-
-                self.world.drawStateGraph(self.states)
-                self.world.drawPhaseGraph(self.phases)
-
-                # Build adjacency list for observers, assessors, and pipers
-                agent.updatePosition()
-
-                agentRect = agent.getAgentRect()
-                possibleNeighborList = agentRect.collidelistall(agentRectList)
-                agentNeighbors = []
-                for i in possibleNeighborList:
-                    agentNeighbors.append(self.agentList[i])
-                agent.changeState(agentNeighbors)
-
-                if agent.assignedSite is not agent.hub and agent.assignedSite.agentCount == NUM_AGENTS:
-                    foundNewHome = True
-                    self.chosenHome = agent.assignedSite
-
-            self.world.drawWorldObjects()
-            if len(self.clickedAgents) > 0:
-                self.world.drawSelectedAgentInfo(self.clickedAgents[0])
-            if len(self.clickedSites) > 0:
-                agentsPositions = []
-                for agent in self.agentList:
-                    if agent.assignedSite is self.clickedSites[0]:
-                        agentsPositions.append(agent.pos)
-                        agent.select()
-                self.world.drawSelectedSiteInfo(self.clickedSites[0], len(self.clickedAgents) > 0, agentsPositions)
-            pygame.display.flip()
-
-        if not self.timeRanOut:
-            print("The agents found their new home!")
-            pygame.quit()
-            self.timer.cancel()
-        print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
-
-    def handleEvent(self, event):
-        if event.type == pyg.MOUSEBUTTONUP:
-            self.select(pygame.mouse.get_pos())
-        if event.type == pyg.KEYDOWN and event.key == pyg.K_SPACE:
-            self.go(pygame.mouse.get_pos())
-        if event.type == pyg.KEYDOWN and event.key == pyg.K_a:
-            self.go(pygame.mouse.get_pos())
-            self.assignSelectedAgents(pygame.mouse.get_pos())
-        if event.type == pyg.QUIT:
-            pygame.quit()
-            self.timer.cancel()
-            raise GameOver("Exited Successfully")
-
-    def select(self, mousePos):
-        # Unselect all agents and sites
-        for a in self.agentList:
-            a.unselect()
-        for s in self.world.siteList:
-            s.unselect()
-        # get a list of all sprites that are under the mouse cursor
-        self.clickedAgents = [s for s in self.agentList if s.agentRect.collidepoint(mousePos)]
-        self.clickedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
-        if len(self.clickedAgents) > 0:      # for a in self.clickedAgents:
-            self.clickedAgents[0].select()   # a.select()
-        if len(self.clickedSites) > 0:       # for s in self.clickedSites:
-            self.clickedSites[0].select()    # s.select()
-
-    def go(self, mousePos):
-        print(str(mousePos))
-        for a in self.agentList:
-            if a.isSelected:
-                a.target = mousePos
-                from states.GoState import GoState
-                a.setState(GoState(a))
-
-    def assignSelectedAgents(self, mousePos):
-        sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
-        if len(sitesUnderMouse) > 0:
-            for a in self.agentList:
-                if a.isSelected:
-                    a.assignSite(sitesUnderMouse[0])
-
-    def pause(self, startTime):
-        self.world.drawPause()
-        pygame.display.flip()
-        startPauseTime = time.time()
-        runTime = startPauseTime - self.pauseTime - startTime
-        remainingTime = self.simulationDuration - runTime
-        print("Remaining time: " + str(remainingTime))
-        self.timer.cancel()
-        paused = True
-        while paused:
-            for event in pyg.event.get():
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
-                    paused = False
-                else:
-                    self.handleEvent(event)
-        self.pauseTime += time.time() - startPauseTime
-        self.timer = threading.Timer(remainingTime, self.timeOut)
-        self.timer.start()
-
-    def timeOut(self):
-        print("The simulation time has run out.")
-        self.chosenHome = self.world.siteList[0]
-        for home in self.world.siteList:
-            if home.agentCount > self.chosenHome.agentCount:
-                self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " out of " + str(NUM_AGENTS) + " agents made it to the new home.")
-        self.timeRanOut = True
+    def sendResults(self, chosenSite, simulationTime):
+        """ Tells the rest API which site the agents ended up at and how long it took them to get there """
+        self.request.sendResults(chosenSite.pos, SIM_DURATION - simulationTime)
