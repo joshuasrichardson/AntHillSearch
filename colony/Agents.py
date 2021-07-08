@@ -1,10 +1,11 @@
 """ Agent class. Stores 2D position and agent state """
-import copy
 import random
 
 import numpy as np
 import pygame as pyg
+
 from Constants import *
+
 
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
@@ -27,12 +28,12 @@ class Agent:
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
 
-        self.speed = random.uniform(MIN_AGENT_SPEED, MAX_AGENT_SPEED) * TIME_STEP  # AGENT_SPEED * TIME_STEP  # Speed the agent moves on the screen
+        self.speed = self.initializeSpeed()  # AGENT_SPEED * TIME_STEP  # Speed the agent moves on the screen
         self.uncommittedSpeed = self.speed
         self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR
-        self.decisiveness = random.uniform(MIN_DECISIVENESS, MAX_DECISIVENESS)  # Influences how quickly an agent can assess
-        self.navigationSkills = random.uniform(MIN_NAV_SKILLS, MAX_NAV_SKILLS)  # Influences how likely an agent is to get lost
-        self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)  # How far off an agent's estimate of the quality of a site will be on average.
+        self.decisiveness = self.initializeDecisiveness()  # Influences how quickly an agent can assess
+        self.navigationSkills = self.initializeNavSkills()  # Influences how likely an agent is to get lost
+        self.estimationAccuracy = self.initializeAccuracy()  # How far off an agent's estimate of the quality of a site will be on average.
 
         self.target = self.hubLocation  # Either the hub or a site the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
@@ -56,6 +57,34 @@ class Agent:
 
         self.isSelected = False  # Whether the user clicked on the agent or its site most recently.
         self.isTheSelected = False  # Whether the agent is the one with its information shown.
+
+    def initializeSpeed(self):
+        if HOMOGENOUS_AGENTS:
+            self.speed = MAX_AGENT_SPEED
+        else:
+            self.speed = random.uniform(MIN_AGENT_SPEED, MAX_AGENT_SPEED) * TIME_STEP
+        return self.speed
+
+    def initializeDecisiveness(self):
+        if HOMOGENOUS_AGENTS:
+            self.decisiveness = MAX_DECISIVENESS
+        else:
+            self.decisiveness = random.uniform(MIN_DECISIVENESS, MAX_DECISIVENESS)
+        return self.decisiveness
+
+    def initializeNavSkills(self):
+        if HOMOGENOUS_AGENTS:
+            self.navigationSkills = MAX_NAV_SKILLS
+        else:
+            self.navigationSkills = random.uniform(MIN_NAV_SKILLS, MAX_NAV_SKILLS)
+        return self.navigationSkills
+
+    def initializeAccuracy(self):
+        if HOMOGENOUS_AGENTS:
+            self.estimationAccuracy = MAX_QUALITY_MISJUDGMENT
+        else:
+            self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)
+        return self.estimationAccuracy
 
     def setState(self, state):
         self.state = state
@@ -131,7 +160,7 @@ class Agent:
     def estimateQuality(self, site):
         return site.getQuality() + \
             (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
-        # TODO: Make a bell curve instead of even distribution?
+        # TODO: Make a bell curve instead of even distribution
 
     def assignSite(self, site):
         if self.assignedSite is not None:
@@ -210,31 +239,6 @@ class Agent:
         if self.phase == COMMIT:
             return "COMMIT"
 
-    def getAttributes(self):
-        knownSitesPositions = []
-        for site in self.knownSites:
-            knownSitesPositions.append(site.pos)
-        siteToRecruitFromPos = None
-        if self.siteToRecruitFrom is not None:
-            siteToRecruitFromPos = self.siteToRecruitFrom.pos
-
-        return ["SELECTED AGENT:",
-                "Position: " + str(self.pos),
-                "Assigned Site: " + str(self.assignedSite.pos),
-                "Estimated Quality: " + str(self.estimatedQuality),
-                "Target: " + str(self.target),
-                "Speed: " + str(self.speed),
-                "Decisiveness: " + str(self.decisiveness),
-                "Navigation skills: " + str(self.navigationSkills),
-                "Known Sites: " + str(knownSitesPositions),
-                "Site to Recruit from: " + str(siteToRecruitFromPos),
-                "State: " + self.stateToString(),
-                "Phase: " + self.phaseToString(),
-                "Assessment Threshold: " + str(self.assessmentThreshold),
-                "Lead Agent: " + str(self.leadAgent),
-                "Number of followers: " + str(self.numFollowers),
-                "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
-
     @staticmethod
     def getStateColor(state):
         if state == AT_NEST:
@@ -264,6 +268,31 @@ class Agent:
             return CANVAS_COLOR
         if phase == COMMIT:
             return COMMIT_COLOR
+
+    def getAttributes(self):
+        knownSitesPositions = []
+        for site in self.knownSites:
+            knownSitesPositions.append(site.pos)
+        siteToRecruitFromPos = None
+        if self.siteToRecruitFrom is not None:
+            siteToRecruitFromPos = self.siteToRecruitFrom.pos
+
+        return ["SELECTED AGENT:",
+                "Position: " + str(self.pos),
+                "Assigned Site: " + str(self.assignedSite.pos),
+                "Estimated Quality: " + str(self.estimatedQuality),
+                "Target: " + str(self.target),
+                "Speed: " + str(self.speed),
+                "Decisiveness: " + str(self.decisiveness),
+                "Navigation skills: " + str(self.navigationSkills),
+                "Known Sites: " + str(knownSitesPositions),
+                "Site to Recruit from: " + str(siteToRecruitFromPos),
+                "State: " + self.stateToString(),
+                "Phase: " + self.phaseToString(),
+                "Assessment Threshold: " + str(self.assessmentThreshold),
+                "Lead Agent: " + str(self.leadAgent),
+                "Number of followers: " + str(self.numFollowers),
+                "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
 
     def tryAssigningSite(self):
         siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)

@@ -143,7 +143,7 @@ class Controls:
                 self.selectedSite.select()
         if len(self.selectedSites) > 0:
             self.selectedSite = self.selectedSites[0]
-            self.selectedAgent.isTheSelected = True
+            self.selectedSite.isTheSelected = True
             self.selectedSiteIndex = 0
         for a in self.selectedAgents:
             a.select()

@@ -5,8 +5,8 @@ from recording.Recorder import Recorder
 class RecordingPlayer(AbstractColonySimulation):
     """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
-    def __init__(self, simulationDuration, numGoodSites, numSites):
-        super().__init__(simulationDuration, numGoodSites, numSites)
+    def __init__(self, simulationDuration, numSites):
+        super().__init__(simulationDuration, numSites)
 
     def getRecorder(self):
         self.recorder = Recorder(None, None)
@@ -20,8 +20,7 @@ class RecordingPlayer(AbstractColonySimulation):
             self.world.siteList[i].radius = self.recorder.sites[i].radius
             self.world.siteList[i].quality = self.recorder.sites[i].quality
             self.world.siteList[i].setPosition(self.recorder.sites[i].pos)
-            if self.world.siteList[i].quality != -1:
-                self.world.siteList[i].color = (255 - self.world.siteList[i].quality, self.world.siteList[i].quality, 0)
+            self.world.siteList[i].setColor(self.world.siteList[i].quality)
         return self.numAgents
 
     def updateAgent(self, agent, agentRectList):

@@ -19,25 +19,40 @@ class World:
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
         self.possible_states = STATES_LIST
         self.possiblePhases = PHASES_LIST
-        # Create as many sites as required
-        for siteIndex in range(0, numSites):
-            newSite = Site(screen)
-            self.siteList.append(newSite)
-            self.siteRectList.append(newSite.getAgentRect())
+        self.createSites(screen, numSites)
         # Set the site qualities so that the best is bright green and the worst bright red
         self.normalizeQuality()
         self.createHub()
 
+    def createSites(self, screen, numSites):
+        # Create as many sites as required
+        for siteIndex in range(0, numSites):
+            try:
+                x = SITE_POSITIONS[siteIndex][0]
+                y = SITE_POSITIONS[siteIndex][1]
+            except IndexError:
+                print("Site position index out of range. Assigning random position.")
+                x = None
+                y = None
+            try:
+                quality = SITE_QUALITIES[siteIndex]
+            except IndexError:
+                print("Site quality index out of range. Assigning random quality")
+                quality = None
+            newSite = Site(screen, x, y, quality)
+            self.siteList.append(newSite)
+            self.siteRectList.append(newSite.getAgentRect())
+
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """
         # Normalize quality to be between lower bound and upper bound
-        minValue = -np.inf
-        maxValue = np.inf
+        minValue = np.inf
+        maxValue = -np.inf
         for siteIndex in range(0, self.numSites):
             quality = self.siteList[siteIndex].getQuality()
-            if quality > minValue:
+            if quality < minValue:
                 minValue = quality
-            if quality < maxValue:
+            if quality > maxValue:
                 maxValue = quality
         zero = minValue
         span = maxValue - minValue
@@ -45,12 +60,9 @@ class World:
             self.siteList[siteIndex].normalizeQuality(span, zero)
 
     def createHub(self):
-        hubSite = Site(self.screen)
+        hubSite = Site(self.screen, HUB_LOCATION[0], HUB_LOCATION[1], -1)
         self.siteList.append(hubSite)
         self.siteRectList.append(hubSite.getAgentRect())
-        hubSite.pos = HUB_LOCATION
-        hubSite.quality = -1  # because it is broken and they need a new home
-        hubSite.color = 0, 0, 0
         hubSite.agentCount = NUM_AGENTS
 
     def drawWorldObjects(self):
@@ -106,6 +118,11 @@ class World:
     def drawPause(self):
         pausedFont = pyg.font.SysFont('Comic Sans MS', 40)
         img = pausedFont.render("Paused", True, (123, 123, 123))
+        self.screen.blit(img, (self.hubLocation[0] - (img.get_width() / 2), self.hubLocation[1] - (img.get_height() / 2)))
+
+    def drawFinish(self):
+        pausedFont = pyg.font.SysFont('Comic Sans MS', 40)
+        img = pausedFont.render("Finished", True, (123, 123, 123))
         self.screen.blit(img, (self.hubLocation[0] - (img.get_width() / 2), self.hubLocation[1] - (img.get_height() / 2)))
 
     def drawSelectRect(self, selectRectCorner, mousePos):

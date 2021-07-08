@@ -16,14 +16,12 @@ from user.Controls import Controls
 class AbstractColonySimulation(ABC):
     """ Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
-    def __init__(self, simulationDuration, numGoodSites, numSites):
+    def __init__(self, simulationDuration, numSites):
         """ numAgents is the number of agents in the simulation.
         simulationDuration is the amount of time in seconds that the simulation can last
         numGoodSites is the number of top sites
-        numSites number of total sites
-        """
+        numSites number of total sites """
 
-        self.numGoodSites = numGoodSites
         self.numSites = numSites
         self.agentList = []
         self.screen = createScreen()
@@ -73,8 +71,7 @@ class AbstractColonySimulation(ABC):
 
             foundNewHome = self.checkIfSimulationEnded()
 
-        self.recorder.save()
-        self.printResults()
+        self.finish()
 
     def initializeAgentList(self):
         for i in range(0, self.numAgents):
@@ -125,17 +122,26 @@ class AbstractColonySimulation(ABC):
 
     def timeOut(self):
         print("The simulation time has run out.")
+        self.timeRanOut = True
+
+    def finish(self):
+        self.world.drawFinish()
+        pygame.display.flip()
+        self.recorder.save()
+        self.determineChosenHome()
+        self.printResults()
+
+    def determineChosenHome(self):
         self.chosenHome = self.world.siteList[0]
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
         print(str(self.chosenHome.agentCount) + " out of " + str(NUM_AGENTS) + " agents made it to the new home.")
-        self.timeRanOut = True
 
     def printResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
-            simulationTime = self.timer.getRemainingTime(None)
+            simulationTime = SIM_DURATION - self.timer.getRemainingTime(None)
             print("The agents found their new home!")
             pygame.quit()
             self.timer.cancel()

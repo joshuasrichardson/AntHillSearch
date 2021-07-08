@@ -6,17 +6,14 @@ from Constants import *
 
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
-    def __init__(self, surface):
+    def __init__(self, surface, x, y, quality):
         """ randomly places site at a 2D location and assigns it a random state """
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
         self.screen = surface
-        self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality
-        self.color = 255 - self.quality, self.quality, 0
-        angle = np.random.uniform(0, np.pi*2)
-        radius = np.random.uniform(SITE_NO_CLOSER_THAN, SITE_NO_FARTHER_THAN)
-        x = int(HUB_LOCATION[0] + np.round(radius * np.cos(angle)))
-        y = int(HUB_LOCATION[1] + np.round(radius * np.sin(angle)))
-        self.pos = [x, y]
+        self.quality = self.setQuality(quality)
+        self.color = self.setColor(self.quality)
+
+        self.pos = self.initializePosition(x, y)
         self.radius = SITE_SIZE
         self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
         self.agentCount = 0
@@ -30,6 +27,34 @@ class Site:
 
         self.isSelected = False
 
+    def setQuality(self, quality):
+        if quality is None:
+            self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality
+        elif quality > 255:
+            self.quality = 255
+        elif quality < -1:
+            self.quality = 0
+        else:
+            self.quality = quality
+        return self.quality
+
+    def setColor(self, quality):
+        if quality < 0:
+            self.color = (0, 0, 0)
+        else:
+            self.color = 255 - quality, quality, 0
+        return self.color
+
+    @staticmethod
+    def initializePosition(x, y):
+        angle = np.random.uniform(0, np.pi * 2)
+        radius = np.random.uniform(SITE_NO_CLOSER_THAN, SITE_NO_FARTHER_THAN)
+        if x is None:
+            x = int(HUB_LOCATION[0] + np.round(radius * np.cos(angle)))
+        if y is None:
+            y = int(HUB_LOCATION[1] + np.round(radius * np.sin(angle)))
+        return [x, y]
+
     def drawSite(self):
         if self.isSelected:
             pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
@@ -41,9 +66,10 @@ class Site:
         return self.quality
 
     def normalizeQuality(self, span, zero):
-        self.quality = int(round((self.quality - zero) / span * 255))
-        # 255 is the maximum color range
-        self.color = 255 - self.quality, self.quality, 0
+        if SITE_QUALITIES.count(self.quality) == 0:  # Only normalize if the quality was not manually set
+            self.quality = int(round((self.quality - zero) / span * 255))
+            # 255 is the maximum color range
+            self.color = 255 - self.quality, self.quality, 0
 
     def getPosition(self):
         # return self.x,self.y
