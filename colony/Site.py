@@ -66,9 +66,10 @@ class Site:
         return self.quality
 
     def normalizeQuality(self, span, zero):
-        self.quality = int(round((self.quality - zero) / span * 255))
-        # 255 is the maximum color range
-        self.color = 255 - self.quality, self.quality, 0
+        if SITE_QUALITIES.count(self.quality) == 0:  # Only normalize if the quality was not manually set
+            self.quality = int(round((self.quality - zero) / span * 255))
+            # 255 is the maximum color range
+            self.color = 255 - self.quality, self.quality, 0
 
     def getPosition(self):
         # return self.x,self.y

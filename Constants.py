@@ -9,15 +9,18 @@ CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assign
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
 SIM_DURATION = 300  # Time of the simulation in seconds
-# This doesn't actually do anything right now.
-NUM_GOOD = 1        # Number of top sites
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
-NUM_SITES = 15       # Number of total sites
-
-SITE_POSITIONS = [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100],
-                  [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
-
-SITE_QUALITIES = [256, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 230, 240, 250, 255]
+NUM_SITES = 9       # Number of total sites
+# Setting these, especially the good ones, closer to the hub location, makes the simulation end sooner
+# [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100], [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
+SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a position here,
+#                      it will be assigned a random position in the simulation.
+# Setting these more spread apart makes the simulation end sooner and having them close together makes it take longer
+#                      because the agents have a harder time deciding between more similar sites.
+# [256, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 230, 240, 250, 255]
+SITE_QUALITIES = []  # The quality of each site. If a site is not assigned a quality here,
+#                      it will be assigned a random quality in the simulation. If quality is set outside the range,
+#                      it will be set the the closest number in the range.
 # Does not affect the simulation, but the lower it is, the harder the computer will have to work to execute all the threads
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
@@ -55,14 +58,16 @@ AGENT_INFO_LOCATION = [120, 230]  # The location of the information about the se
 SITE_INFO_LOCATION = [120, 420]  # The location of the information about the selected site
 
 """ Agent parameters """
+HOMOGENOUS_AGENTS = True  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
+#                            If set to true, they will all have the MAX number as their attribute.
 # Setting the speed too high actually makes the simulation take longer because the agents don't turn as
 # sharp and find sites as easily or they get stuck when they try to return to a site.
 # Setting it low makes the simulation take longer just because the agents aren't moving as fast.
 # Somewhere in the middle (about 8 ~ 29 when TIME_STEP is 0.2 and SITE_SIZE is 20) leads to faster simulations.
 # 4 is the slowest they can go without getting stuck. 29 is the fastest.
-MAX_AGENT_SPEED = 24  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
+MAX_AGENT_SPEED = 9  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
 # Each agent's speed will be between these two numbers v^ (* TIME_STEP)
-MIN_AGENT_SPEED = 24  # The slowest possible agent's initial speed
+MIN_AGENT_SPEED = 8  # The slowest possible agent's initial speed
 # The higher this is, the more their speeds increase when they commit
 COMMIT_SPEED_FACTOR = 3  # The number to multiply the agents' speed by when they commit to a site.
 

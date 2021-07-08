@@ -12,9 +12,9 @@ from recording.Recorder import Recorder
 class ColonySimulation(AbstractColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
-    def __init__(self, numAgents, simulationDuration, numGoodSites, numSites):
+    def __init__(self, numAgents, simulationDuration, numSites):
         self.numAgents = numAgents
-        super().__init__(simulationDuration, numGoodSites, numSites)
+        super().__init__(simulationDuration, numSites)
         self.connected = True
         self.previousSendTime = datetime.datetime.now()
         self.request = None
@@ -23,8 +23,6 @@ class ColonySimulation(AbstractColonySimulation):
             raise InputError("Number of agents must be between 1 and 200", numAgents)
         if simulationDuration < 0 or simulationDuration/TIME_STEP > MAX_STEPS:
             raise InputError("Simulation too short or too long", simulationDuration)
-        if numGoodSites < 0 or numGoodSites > numSites or numGoodSites > MAX_M:
-            raise InputError("Can't be more top sites than sites", numGoodSites)
         if numSites < 0 or numSites > MAX_N:
             raise InputError("Can't be more sites than maximum value", numSites)
 
@@ -64,4 +62,4 @@ class ColonySimulation(AbstractColonySimulation):
 
     def sendResults(self, chosenSite, simulationTime):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
-        self.request.sendResults(chosenSite.pos, SIM_DURATION - simulationTime)
+        self.request.sendResults(chosenSite.pos, simulationTime)

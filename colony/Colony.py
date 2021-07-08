@@ -9,8 +9,8 @@ from recording.RecordingPlayer import RecordingPlayer
 
 
 def main():
-    colony = ColonySimulation(NUM_AGENTS, SIM_DURATION, NUM_GOOD, NUM_SITES)
-    # RecordingPlayer(SIM_DURATION, NUM_GOOD, NUM_SITES)  #
+    colony = ColonySimulation(NUM_AGENTS, SIM_DURATION, NUM_SITES)
+    # RecordingPlayer(SIM_DURATION, NUM_SITES)  #
     try:
         colony.runSimulation()
         print("Success!")
