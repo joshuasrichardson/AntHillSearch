@@ -85,7 +85,7 @@ class Site:
     def getColor(self):
         return self.color
 
-    def getAgentRect(self):
+    def getSiteRect(self):
         return self.siteRect
 
     def incrementCount(self):

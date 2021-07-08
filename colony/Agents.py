@@ -22,6 +22,7 @@ class Agent:
         self.hubLocation = world.getHubPosition()  # Original home location
         self.hub = self.siteList[len(self.siteList) - 1]  # Original home that the agents are leaving
 
+        self.prevPos = world.getHubPosition()  # Initial position
         self.pos = world.getHubPosition()  # Initial position
         self.agentHandle = pyg.image.load("../copter.png")  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
@@ -105,15 +106,17 @@ class Agent:
     def setPosition(self, x, y):
         self.agentRect.centerx = x
         self.agentRect.centery = y
+        self.pos = [x, y]
 
-    def getNewPosition(self):
-        self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
-        self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
-        return [self.agentRect.centerx, self.agentRect.centery]
-
-    def updatePosition(self, pos):
-        self.pos = pos
-        self.setPosition(pos[0], pos[1])
+    def updatePosition(self, position):
+        if position is None:
+            self.prevPos = self.pos
+            self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
+            self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
+        else:
+            self.agentRect.centerx = position[0]
+            self.agentRect.centery = position[1]
+        self.pos = [self.agentRect.centerx, self.agentRect.centery]
 
     def updateFollowPosition(self):
         self.agentRect.centerx = int(np.round(float(self.leadAgent.pos[0]) - self.leadAgent.speed * np.cos(self.leadAgent.angle)))
@@ -167,12 +170,16 @@ class Agent:
             self.assignedSite.decrementCount()
         if site is not self.assignedSite:
             self.setPhase(ASSESS)
-        if site is not self.assignedSite:
             self.estimatedQuality = self.estimateQuality(site)
         self.assignedSite = site
         self.assignedSite.incrementCount()
         # Take longer to assess lower-quality sites
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
+
+    def getAssignedSiteIndex(self):
+        for siteIndex in range(len(self.siteList)):
+            if self.siteList[siteIndex] is self.assignedSite:
+                return siteIndex
 
     def isDoneAssessing(self):
         return np.random.exponential(ASSESS_EXPONENTIAL) * self.decisiveness > self.assessmentThreshold * ASSESS_EXPONENTIAL
@@ -293,12 +300,3 @@ class Agent:
                 "Lead Agent: " + str(self.leadAgent),
                 "Number of followers: " + str(self.numFollowers),
                 "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
-
-    def tryAssigningSite(self):
-        siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
-        # If agent finds a site within range then assess it
-
-        if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
-            self.knownSites.add(self.siteList[siteWithinRange])
-            if self.siteList[siteWithinRange].quality > self.assignedSite.quality:
-                self.assignSite(self.siteList[siteWithinRange])

@@ -12,9 +12,9 @@ class SearchState(State):
         self.state = SEARCH
         self.color = SEARCH_COLOR
 
-    def move(self, state, target) -> None:
+    def move(self, state) -> None:
         if state.state != SEARCH:
-            super().move(state, target)
+            super().move(state)
             return
         # If going from search to search, just update angle
         self.agent.angularVelocity += np.random.normal(0, np.pi / 200)

@@ -15,7 +15,7 @@ class GoState(State):
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
         from math import isclose
-        if isclose(self.agent.pos[0], self.agent.target[0], abs_tol=3) and\
-                isclose(self.agent.pos[1], self.agent.target[1], abs_tol=3):
+        if isclose(self.agent.pos[0], self.agent.target[0], abs_tol=self.agent.speed / 2) and\
+                isclose(self.agent.pos[1], self.agent.target[1], abs_tol=self.agent.speed / 2):
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)

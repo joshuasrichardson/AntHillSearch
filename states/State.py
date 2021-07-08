@@ -12,10 +12,10 @@ class State(ABC):
 
     def setState(self, state, target):
         self.agent.target = target
-        self.move(state, target)
+        self.move(state)
         self.agent.state = state
 
-    def move(self, state, target) -> None:
+    def move(self, state) -> None:
         if state.state == SEARCH:  # If changing state to search from something else, set angle randomly
             self.agent.angularVelocity = 0
             self.agent.angle = np.random.uniform(0, np.pi * 2, 1)
@@ -24,7 +24,7 @@ class State(ABC):
 
     @abstractmethod
     def changeState(self, neighborList) -> None:
-        self.changeState(neighborList)
+        pass
 
     def copy(self, agent):
         state = copy.copy(self)
