@@ -108,10 +108,14 @@ class Agent:
         self.agentRect.centery = y
         self.pos = [x, y]
 
-    def updatePosition(self):
-        self.prevPos = self.pos
-        self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
-        self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
+    def updatePosition(self, position):
+        if position is None:
+            self.prevPos = self.pos
+            self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
+            self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
+        else:
+            self.agentRect.centerx = position[0]
+            self.agentRect.centery = position[1]
         self.pos = [self.agentRect.centerx, self.agentRect.centery]
 
     def updateFollowPosition(self):

@@ -99,6 +99,9 @@ class Controls:
                     self.selectedAgentsPositions.append(agent.pos)
                     agent.select()
                     self.selectedAgents.append(agent)
+            if len(self.selectedAgents) > 0:
+                self.selectedAgent = self.selectedAgents[0]
+                self.selectedAgent.isTheSelected = True
 
     def allSelectedAgentsAssignedToSameSite(self):
         for agent in self.selectedAgents:
@@ -134,6 +137,23 @@ class Controls:
         # get a list of all objects that are under the mouse cursor
         self.selectedAgents = [s for s in self.agentList if s.agentRect.colliderect(self.selectRect)]
         self.selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
+
+        for a in self.selectedAgents:
+            a.select()
+        for s in self.selectedSites:
+            s.select()
+
+        if len(self.selectedSites) > 0:
+            self.selectedSite = self.selectedSites[0]
+            self.selectedSite.isTheSelected = True
+            self.selectedSiteIndex = 0
+            self.selectedAgentsPositions = []
+            for agent in self.agentList:
+                if agent.assignedSite.isSelected:
+                    self.selectedAgentsPositions.append(agent.pos)
+                    agent.select()
+                    self.selectedAgents.append(agent)
+
         if len(self.selectedAgents) > 0:
             self.selectedAgent = self.selectedAgents[0]
             self.selectedAgent.isTheSelected = True
@@ -141,14 +161,6 @@ class Controls:
             if self.allSelectedAgentsAssignedToSameSite():
                 self.selectedSite = self.selectedAgent.assignedSite
                 self.selectedSite.select()
-        if len(self.selectedSites) > 0:
-            self.selectedSite = self.selectedSites[0]
-            self.selectedSite.isTheSelected = True
-            self.selectedSiteIndex = 0
-        for a in self.selectedAgents:
-            a.select()
-        for s in self.selectedSites:
-            s.select()
 
     def half(self):
         for i in range(len(self.selectedAgents) - 1, int(np.round(len(self.selectedAgents) / 2) - 1), -1):

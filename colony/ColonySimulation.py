@@ -37,7 +37,7 @@ class ColonySimulation(AbstractColonySimulation):
 
     def updateAgent(self, agent, agentRectList):
         # Build adjacency list for observers, assessors, and pipers
-        agent.updatePosition()
+        agent.updatePosition(None)
         self.recorder.recordAgentInfo(agent)
 
         agentRect = agent.getAgentRect()
