@@ -12,12 +12,17 @@ SIM_DURATION = 300  # Time of the simulation in seconds
 # This doesn't actually do anything right now.
 NUM_GOOD = 1        # Number of top sites
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
-NUM_SITES = 5       # Number of total sites
+NUM_SITES = 15       # Number of total sites
+
+SITE_POSITIONS = [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100],
+                  [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
+
+SITE_QUALITIES = [256, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 230, 240, 250, 255]
 # Does not affect the simulation, but the lower it is, the harder the computer will have to work to execute all the threads
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
 # Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
-SHOW_AGENT_COLORS = False  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
+SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
 

@@ -74,6 +74,7 @@ class AbstractColonySimulation(ABC):
             foundNewHome = self.checkIfSimulationEnded()
 
         self.recorder.save()
+        self.determineChosenHome()
         self.printResults()
 
     def initializeAgentList(self):
@@ -124,15 +125,19 @@ class AbstractColonySimulation(ABC):
         return False
 
     def timeOut(self):
+        # TODO: centralize the chosen home decision
         print("The simulation time has run out.")
+        self.timeRanOut = True
+
+    def determineChosenHome(self):
         self.chosenHome = self.world.siteList[0]
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
         print(str(self.chosenHome.agentCount) + " out of " + str(NUM_AGENTS) + " agents made it to the new home.")
-        self.timeRanOut = True
 
     def printResults(self):
+        # TODO: FIx this number so it doesn't come out -9700
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
             simulationTime = self.timer.getRemainingTime(None)
