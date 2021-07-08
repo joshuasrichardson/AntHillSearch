@@ -37,8 +37,7 @@ class ColonySimulation(AbstractColonySimulation):
 
     def updateAgent(self, agent, agentRectList):
         # Build adjacency list for observers, assessors, and pipers
-        pos = agent.getNewPosition()
-        agent.updatePosition(pos)
+        agent.updatePosition()
         self.recorder.recordAgentInfo(agent)
 
         agentRect = agent.getAgentRect()
@@ -49,7 +48,7 @@ class ColonySimulation(AbstractColonySimulation):
         agent.changeState(agentNeighbors)
 
     def updateRestAPI(self, agentRectList):
-        hubRect = self.world.siteList[len(self.world.siteList) - 1].getAgentRect()
+        hubRect = self.world.siteList[len(self.world.siteList) - 1].getSiteRect()
         hubAgentsIndices = hubRect.collidelistall(agentRectList)
         self.request.numAtHub = 0
         for agentIndex in hubAgentsIndices:

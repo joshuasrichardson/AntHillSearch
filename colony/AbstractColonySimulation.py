@@ -55,20 +55,8 @@ class AbstractColonySimulation(ABC):
             self.userControls.handleEvents()
             self.screen.fill(white)
             agentRectList = self.getAgentRectList()
-
-            # try:
-            self.updateStateAndPhaseCounts()
-            self.updateAgents(agentRectList)
-            self.updateRestAPI(agentRectList)
-            # except:
-            #     break
-
-            self.world.drawStateGraph(self.states)
-            self.world.drawPhaseGraph(self.phases)
-            self.world.drawWorldObjects()
-            self.userControls.drawChanges()
-            pygame.display.flip()
-
+            self.update(agentRectList)
+            self.draw()
             foundNewHome = self.checkIfSimulationEnded()
 
         self.finish()
@@ -88,6 +76,18 @@ class AbstractColonySimulation(ABC):
         for agent in self.agentList:
             agentRectList.append(agent.getAgentRect())
         return agentRectList
+
+    def update(self, agentRectList):
+        self.updateStateAndPhaseCounts()
+        self.updateAgents(agentRectList)
+        self.updateRestAPI(agentRectList)
+
+    def draw(self):
+        self.world.drawStateGraph(self.states)
+        self.world.drawPhaseGraph(self.phases)
+        self.world.drawWorldObjects()
+        self.userControls.drawChanges()
+        pygame.display.flip()
 
     def updateStateAndPhaseCounts(self):
         self.states = np.zeros((NUM_POSSIBLE_STATES,))

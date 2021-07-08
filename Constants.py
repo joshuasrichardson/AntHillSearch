@@ -65,7 +65,7 @@ HOMOGENOUS_AGENTS = True  # Determines whether the agents have all the same attr
 # Setting it low makes the simulation take longer just because the agents aren't moving as fast.
 # Somewhere in the middle (about 8 ~ 29 when TIME_STEP is 0.2 and SITE_SIZE is 20) leads to faster simulations.
 # 4 is the slowest they can go without getting stuck. 29 is the fastest.
-MAX_AGENT_SPEED = 9  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
+MAX_AGENT_SPEED = 25  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
 # Each agent's speed will be between these two numbers v^ (* TIME_STEP)
 MIN_AGENT_SPEED = 8  # The slowest possible agent's initial speed
 # The higher this is, the more their speeds increase when they commit
@@ -82,7 +82,7 @@ MAX_NAV_SKILLS = 2.0  # The factor of the most skilled navigator possible (least
 
 # The higher this number is, the less accurate the agents' initial judgment about their site is.
 # If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
-MAX_QUALITY_MISJUDGMENT = 75  # How far off agents' estimatedQuality can be from a site's actual quality.
+MAX_QUALITY_MISJUDGMENT = 7  # How far off agents' estimatedQuality can be from a site's actual quality.
 
 """ Transition parameters for timed transitions """
 # Threshold probability,

@@ -41,7 +41,7 @@ class World:
                 quality = None
             newSite = Site(screen, x, y, quality)
             self.siteList.append(newSite)
-            self.siteRectList.append(newSite.getAgentRect())
+            self.siteRectList.append(newSite.getSiteRect())
 
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """
@@ -62,7 +62,7 @@ class World:
     def createHub(self):
         hubSite = Site(self.screen, HUB_LOCATION[0], HUB_LOCATION[1], -1)
         self.siteList.append(hubSite)
-        self.siteRectList.append(hubSite.getAgentRect())
+        self.siteRectList.append(hubSite.getSiteRect())
         hubSite.agentCount = NUM_AGENTS
 
     def drawWorldObjects(self):

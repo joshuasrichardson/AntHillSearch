@@ -29,7 +29,7 @@ class RecordingPlayer(AbstractColonySimulation):
             return False
         agent.updatePosition(pos)
 
-        agentRect = agent.getAgentRect()
+        agentRect = agent.getSiteRect()
         possibleNeighborList = agentRect.collidelistall(agentRectList)
         agentNeighbors = []
         for i in possibleNeighborList:
