@@ -24,7 +24,7 @@ class State(ABC):
 
     @abstractmethod
     def changeState(self, neighborList) -> None:
-        self.changeState(neighborList)
+        pass
 
     def copy(self, agent):
         state = copy.copy(self)

@@ -14,15 +14,18 @@ class Recorder:
         self.positions = []
         self.states = []
         self.phases = []
+        self.assignments = []
         self.result = None
         self.currentPosIndex = -1
         self.currentStateIndex = -1
         self.currentPhaseIndex = -1
+        self.currentAssignmentIndex = -1
 
     def recordAgentInfo(self, agent):
         self.recordPosition(agent.getPosition())
         self.recordState(agent.getState())
         self.recordPhase(agent.phase)
+        self.recordAssignment(agent.getAssignedSiteIndex())
 
     def recordPosition(self, pos):
         self.positions.append(pos)
@@ -32,6 +35,9 @@ class Recorder:
 
     def recordPhase(self, phase):
         self.phases.append(phase)
+
+    def recordAssignment(self, siteIndex):
+        self.assignments.append(siteIndex)
 
     def save(self):
         with open('../recording/recording.txt', 'w') as file:
@@ -48,6 +54,9 @@ class Recorder:
             file.write("Phases:\n")
             for phase in self.phases:
                 file.write(str(phase) + "\n")
+            file.write("Assignments:\n")
+            for assignment in self.assignments:
+                file.write(str(assignment) + "\n")
 
     def read(self):
         with open('../recording/recording.txt', 'r') as file:
@@ -76,7 +85,13 @@ class Recorder:
                     break
                 self.states.append(int(self.result[i]))
             for i in range(index, len(self.result) - 1):
+                if self.result[i].__contains__("Assignments:"):
+                    index = i + 1
+                    break
                 self.phases.append(int(self.result[i]))
+            for i in range(index, len(self.result) - 1):
+                self.assignments.append(int(self.result[i]))
+                # self.assignments.append(int(self.result[i]))
 
     def getNextPosition(self):
         self.currentPosIndex += 1
@@ -96,5 +111,12 @@ class Recorder:
         self.currentPhaseIndex += 1
         if len(self.phases) > self.currentPhaseIndex:
             return self.phases[self.currentPhaseIndex]
+        else:
+            return -1
+
+    def getNextAssignment(self):
+        self.currentAssignmentIndex += 1
+        if len(self.assignments) > self.currentAssignmentIndex:
+            return self.assignments[self.currentAssignmentIndex]
         else:
             return -1

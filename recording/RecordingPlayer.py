@@ -38,4 +38,5 @@ class RecordingPlayer(AbstractColonySimulation):
         agent.state.color = agent.getStateColor(agent.state.state)
         agent.phase = self.recorder.getNextPhase()
         agent.phaseColor = agent.getPhaseColor(agent.phase)
-        agent.tryAssigningSite()
+        siteToAssign = agent.siteList[self.recorder.getNextAssignment()]
+        agent.assignSite(siteToAssign)

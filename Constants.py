@@ -84,7 +84,7 @@ MAX_NAV_SKILLS = 2.0  # The factor of the most skilled navigator possible (least
 
 # The higher this number is, the less accurate the agents' initial judgment about their site is.
 # If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
-MAX_QUALITY_MISJUDGMENT = 40  # How far off agents' estimatedQuality can be from a site's actual quality.
+MAX_QUALITY_MISJUDGMENT = 0  # How far off agents' estimatedQuality can be from a site's actual quality.
 
 """ Transition parameters for timed transitions """
 # Threshold probability,

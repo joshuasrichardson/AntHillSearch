@@ -170,12 +170,16 @@ class Agent:
             self.assignedSite.decrementCount()
         if site is not self.assignedSite:
             self.setPhase(ASSESS)
-        if site is not self.assignedSite:
             self.estimatedQuality = self.estimateQuality(site)
         self.assignedSite = site
         self.assignedSite.incrementCount()
         # Take longer to assess lower-quality sites
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
+
+    def getAssignedSiteIndex(self):
+        for siteIndex in range(len(self.siteList)):
+            if self.siteList[siteIndex] is self.assignedSite:
+                return siteIndex
 
     def isDoneAssessing(self):
         return np.random.exponential(ASSESS_EXPONENTIAL) * self.decisiveness > self.assessmentThreshold * ASSESS_EXPONENTIAL
@@ -296,12 +300,3 @@ class Agent:
                 "Lead Agent: " + str(self.leadAgent),
                 "Number of followers: " + str(self.numFollowers),
                 "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
-
-    def tryAssigningSite(self):
-        siteWithinRange = self.agentRect.collidelist(self.siteObserveRectList)
-        # If agent finds a site within range then assess it
-
-        if siteWithinRange != -1 and self.siteList[siteWithinRange] != self.hub:
-            self.knownSites.add(self.siteList[siteWithinRange])
-            if self.siteList[siteWithinRange].quality > self.assignedSite.quality:
-                self.assignSite(self.siteList[siteWithinRange])
