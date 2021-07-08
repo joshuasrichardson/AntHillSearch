@@ -32,7 +32,9 @@ class SendHubInfoRequest:
         # Estimates about site information
         self.sitesPositions = []
         self.sitesQualities = []
+        self.sitesPreviousNQualities = []
         self.numAgentsAtSites = []
+        self.previousNumAgentsAtSites = []
 
     def addAgentToSendRequest(self, agent, agentIndex):
         self.decrementPhaseCount(agentIndex)
@@ -100,7 +102,9 @@ class SendHubInfoRequest:
         if self.siteIsNew(agent.assignedSite.pos):
             self.sitesPositions.append(agent.assignedSite.pos)
             self.sitesQualities.append(agent.estimatedQuality)
+            self.sitesPreviousNQualities.append([agent.estimatedQuality])
             self.numAgentsAtSites.append(agent.assignedSite.agentCount)
+            self.previousNumAgentsAtSites.append([agent.assignedSite.agentCount])
         else:
             siteIndex = 0
             for i in range(0, len(self.sitesPositions) - 1):
@@ -117,14 +121,34 @@ class SendHubInfoRequest:
         return True
 
     def updateSiteQuality(self, siteIndex, estimatedQuality):
-        # TODO: Instead of just having the current estimated quality have a weight of 9, keep track of the previous 10
-        #  and calculate new estimated quality using that.
-        self.sitesQualities[siteIndex] = (self.sitesQualities[siteIndex] * 9 + estimatedQuality) / 10
+        self.sitesPreviousNQualities[siteIndex].append(estimatedQuality)
+        n = 10
+        previousAverage = self.getAverageOfLastNEstimates(n, siteIndex)
+        self.sitesQualities[siteIndex] = (previousAverage * n + estimatedQuality) / (n + 1)
+
+    def getAverageOfLastNEstimates(self, n, siteIndex):
+        return self.getAverageOfLastN(n, siteIndex, self.sitesPreviousNQualities)
 
     def updateSiteNumAgents(self, siteIndex, agentCount):
-        # TODO: Instead of just having the current number of agents have a weight of 0, keep track of the previous 1
-        #  and calculate new number of agents using that.
-        self.numAgentsAtSites[siteIndex] = (self.numAgentsAtSites[siteIndex] * 0 + agentCount) / 1
+        self.previousNumAgentsAtSites[siteIndex].append(agentCount)
+        n = 0
+        previousAverage = self.getAverageOfLastNNumAgents(n, siteIndex)
+        self.numAgentsAtSites[siteIndex] = (previousAverage * n + agentCount) / (n + 1)
+
+    def getAverageOfLastNNumAgents(self, n, siteIndex):
+        return self.getAverageOfLastN(n, siteIndex, self.previousNumAgentsAtSites)
+
+    @staticmethod
+    def getAverageOfLastN(n, arrayIndex, array2D):
+        if n < 1:
+            return 0
+        total = 0
+        length = len(array2D[arrayIndex])
+        if length < n:
+            n = length
+        for i in range(length - 1, length - n, -1):
+            total += array2D[arrayIndex][i]
+        return total / n
 
     def sendHubInfo(self):
         response = requests.post('http://localhost:5000/addHubInfo', data=self.hubToJson())

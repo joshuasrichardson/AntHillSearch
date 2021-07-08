@@ -56,12 +56,12 @@ class AbstractColonySimulation(ABC):
             self.screen.fill(white)
             agentRectList = self.getAgentRectList()
 
-            try:
-                self.updateStateAndPhaseCounts()
-                self.updateAgents(agentRectList)
-                self.updateRestAPI(agentRectList)
-            except:
-                break
+            # try:
+            self.updateStateAndPhaseCounts()
+            self.updateAgents(agentRectList)
+            self.updateRestAPI(agentRectList)
+            # except:
+            #     break
 
             self.world.drawStateGraph(self.states)
             self.world.drawPhaseGraph(self.phases)
