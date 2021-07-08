@@ -24,6 +24,8 @@ SITE_QUALITIES = []  # The quality of each site. If a site is not assigned a qua
 # Does not affect the simulation, but the lower it is, the harder the computer will have to work to execute all the threads
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
+# Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
+SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
 # Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
 SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.

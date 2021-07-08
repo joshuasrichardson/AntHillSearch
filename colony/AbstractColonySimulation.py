@@ -52,11 +52,13 @@ class AbstractColonySimulation(ABC):
         self.timer.start()
 
         while not foundNewHome and not self.timeRanOut:
-            self.userControls.handleEvents()
-            self.screen.fill(white)
+            if SHOULD_DRAW:
+                self.userControls.handleEvents()
+                self.screen.fill(white)
             agentRectList = self.getAgentRectList()
             self.update(agentRectList)
-            self.draw()
+            if SHOULD_DRAW:
+                self.draw()
             foundNewHome = self.checkIfSimulationEnded()
 
         self.finish()
