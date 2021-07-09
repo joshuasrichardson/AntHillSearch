@@ -129,7 +129,8 @@ class AbstractColonySimulation(ABC):
     def finish(self):
         self.world.drawFinish()
         pygame.display.flip()
-        self.save()
+        if SHOULD_RECORD:
+            self.save()
         self.determineChosenHome()
         self.printResults()
 
