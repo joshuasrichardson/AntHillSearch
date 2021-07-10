@@ -5,8 +5,10 @@ from recording.Recorder import Recorder
 class RecordingPlayer(AbstractColonySimulation):
     """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
-    def __init__(self, simulationDuration, numSites):
-        super().__init__(simulationDuration, numSites)
+    def __init__(self, simulationDuration, numSites, convergenceFraction, hubLocation, hubRadius,
+                 hubAgentCount, sitePositions, siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+        super().__init__(simulationDuration, numSites, False, True, convergenceFraction, hubLocation, hubRadius,
+                         hubAgentCount, sitePositions, siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
 
     def getRecorder(self):
         self.recorder = Recorder(None, None)

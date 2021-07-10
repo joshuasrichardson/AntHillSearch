@@ -4,7 +4,6 @@ from Constants import *
 from states.FollowState import FollowState
 from states.LeadForwardState import LeadForwardState
 from states.SearchState import SearchState
-from states.phases.CommitPhase import CommitPhase
 from states.State import State
 
 
@@ -41,7 +40,7 @@ class AtNestState(State):
         if self.agent.phase == COMMIT:
             # Recruit, search, or follow
             if self.agent.shouldRecruit():
-                CommitPhase.transportOrReverseTandem(self)
+                self.agent.transportOrReverseTandem(self)
                 return
 
         for i in range(0, len(neighborList)):
@@ -75,7 +74,7 @@ class AtNestState(State):
             if self.agent.quorumMet():
                 # enough agents are already at the site, so they skip canvasing and go straight to the committed phase
                 self.agent.setPhase(COMMIT)
-                CommitPhase.transportOrReverseTandem(self)
+                self.agent.transportOrReverseTandem(self)
             else:
                 # they enter the canvasing phase and start recruiting others.
                 self.agent.setPhase(CANVAS)

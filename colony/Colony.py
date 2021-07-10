@@ -9,9 +9,15 @@ from recording.RecordingPlayer import RecordingPlayer
 
 
 def main():
-    colony = ColonySimulation(NUM_AGENTS, SIM_DURATION, NUM_SITES)
-    # RecordingPlayer(SIM_DURATION, NUM_SITES)  #
+    colony = ColonySimulation(NUM_AGENTS, SIM_DURATION, NUM_SITES, SHOULD_RECORD, SHOULD_DRAW, CONVERGENCE_FRACTION,
+                              HUB_LOCATION, DEFAULT_SITE_SIZE, NUM_AGENTS, SITE_POSITIONS, SITE_QUALITIES, SITE_RADII,
+                              SITE_NO_CLOSER_THAN, SITE_NO_FARTHER_THAN)
+    # colony = RecordingPlayer(SIM_DURATION, NUM_SITES, CONVERGENCE_FRACTION, HUB_LOCATION, DEFAULT_SITE_SIZE,
+    #                          NUM_AGENTS, SITE_POSITIONS, SITE_QUALITIES, SITE_RADII,
+    #                          SITE_NO_CLOSER_THAN, SITE_NO_FARTHER_THAN)
     try:
+        colony.initializeAgentList(HOMOGENOUS_AGENTS, MIN_AGENT_SPEED, MAX_AGENT_SPEED, MIN_DECISIVENESS, MAX_DECISIVENESS,
+                                   MIN_NAV_SKILLS, MAX_NAV_SKILLS, MIN_QUALITY_MISJUDGMENT, MAX_QUALITY_MISJUDGMENT)
         colony.runSimulation()
         print("Success!")
     except InputError:

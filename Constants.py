@@ -3,7 +3,7 @@
 # Having more agents slows down the simulation, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
-NUM_AGENTS = 100    # Total number of agents in the simulation
+NUM_AGENTS = 200    # Total number of agents in the simulation
 # The lower the convergence fraction is, the faster the simulation goes because lower fractions require less agents to go to a site
 CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
@@ -11,7 +11,7 @@ CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assign
 SIM_DURATION = 300  # Time of the simulation in seconds
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 4       # Number of total sites
-# Setting these, especially the good ones, closer to the hub location, makes the simulation end sooner
+# Setting these, especially the good ones, closer to the hub location makes the simulation end sooner
 # [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100], [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
 SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a position here,
 #                      it will be assigned a random position in the simulation.
@@ -21,6 +21,9 @@ SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a pos
 SITE_QUALITIES = []  # The quality of each site. If a site is not assigned a quality here,
 #                      it will be assigned a random quality in the simulation. If quality is set outside the range,
 #                      it will be set the the closest number in the range.
+# Setting these, especially good ones, bigger makes the simulation end sooner
+SITE_RADII = []  # The radius of each site. If a site is not assigned a radius here,
+#                  it will be assigned to the SITE_SIZE.
 # Does not affect the simulation, but the lower it is, the harder the computer will have to work to execute all the threads
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
@@ -35,23 +38,19 @@ SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors ar
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
-MAX_STEPS = 5000    # Maximum allowed duration in seconds
-TIME_STEP = 0.2     # Delta t
-MAX_N = 30          # Maximum number of possible sites
-MAX_M = 10          # Maximum number of "best" sites
+MAX_TIME = 5000     # Maximum allowed duration in seconds
+MAX_NUM_SITES = 30  # Maximum number of possible sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = [600, 350]  # Location of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
-SITE_SIZE = 20  # How big is the radius of a site?
-# Higher observe ranges make sites easier to find, speeding up the simulations.
-SITE_OBSERVED_RANGE = int(round(1.25 * float(SITE_SIZE)))  # How close does and agent have to be to "see" a site
+DEFAULT_SITE_SIZE = 20  # How big is the radius of a site?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_CLOSER_THAN = 100  # How close to hub can a site be?
+SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_FARTHER_THAN = 400  # How far away from hub can a site be?
+SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 
 # Does not affect simulation besides making it easier to see what's happening
 STATE_GRAPH_LOCATION = [120, 40]  # The location of the graph that shows how many ants are in each state. The left number moves it right more, and the right number moves it down more
@@ -68,11 +67,12 @@ HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same att
 # Setting the speed too high actually makes the simulation take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the simulation take longer just because the agents aren't moving as fast.
-# Somewhere in the middle (about 8 ~ 29 when TIME_STEP is 0.2 and SITE_SIZE is 20) leads to faster simulations.
-# Each agent's speed will be between these two numbers v^ (* TIME_STEP)
-MIN_AGENT_SPEED = 12  # The slowest possible agent's initial speed
-# 4 is the slowest they can go without getting stuck. 29 is the fastest.
-MAX_AGENT_SPEED = 18  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
+# Somewhere in the middle (about 4 ~ 25 when DEFAULT_SITE_SIZE is 20) leads to faster simulations.
+MIN_AGENT_SPEED = 10  # The slowest possible agent's initial speed
+# Each agent's speed will be between these two numbers v^
+# 0.8 is the slowest they can go without getting stuck. 25 is about the fastest before it gets too hard to notice sites.
+# Above 12, they start to appear on the side of the sites they are at, which is fine if its not too much (like over 25).
+MAX_AGENT_SPEED = 12  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
 # The higher this is, the more their speeds increase when they commit
 COMMIT_SPEED_FACTOR = 3  # The number to multiply the agents' speed by when they commit to a site.
 
@@ -87,6 +87,9 @@ MAX_NAV_SKILLS = 2.0  # The factor of the most skilled navigator possible (least
 
 # The higher this number is, the less accurate the agents' initial judgment about their site is.
 # If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
+MIN_QUALITY_MISJUDGMENT = 0  # How close agents' estimatedQuality can be from a site's actual quality.
+# The higher this number is, the less accurate the agents' initial judgment about their site is.
+# If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
 MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from a site's actual quality.
 
 """ Transition parameters for timed transitions """
@@ -97,37 +100,25 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 # 4 ==> 1.8%
 # 5 ==> 0.7%
 
-# As far as I can tell, changing the exponential doesnt actually make a difference
-AT_NEST_EXPONENTIAL = 50
 # If this threshold is too high, then agents have to find better sites through SEARCH or CARRIED.
 # If it's too low, then they have to find better sites through follow. A good medium lets them find both ways.
 AT_NEST_THRESHOLD = 6  # Influences the likelihood that an agent will go back to their assigned site from searching.
 
-# As far as I can tell, changing the exponential doesnt actually make a difference
-SEARCH_EXPONENTIAL = 50
 # Lower threshold makes agents more likely to start searching from AT_NEST(not hub)
 SEARCH_THRESHOLD = 3  # Should go from AT_NEST to SEARCH
 # With 100 agents, 8 ==> about 1 agent every second; if transitions from search are disabled,
 # it takes about 45 seconds for half of the agents to go from AT_NEST to SEARCH
 SEARCH_FROM_HUB_THRESHOLD = 8  # Should go from AT_NEST(hub) to SEARCH
 
-# As far as I can tell, changing the exponential doesnt actually make a difference
-ASSESS_EXPONENTIAL = 50  # TODO: Maybe just get rid of the exponential constants
 # This being higher makes agents take longer to assess, and thus makes the simulation longer
 MAX_ASSESS_THRESHOLD = 9.0  # The assessment threshold of a site with quality 0
 # This being higher makes agents take longer to assess, and thus makes the simulation longer
 ASSESS_DIVIDEND = 50.0  # The number the site quality is divided by before being subtracted from the threshold.
 
-# As far as I can tell, changing the exponential doesnt actually make a difference
-GET_LOST_EXPONENTIAL = 50
 GET_LOST_THRESHOLD = 5  # Influences the likelihood that an agent will get lost while following
 
-# As far as I can tell, changing the exponential doesnt actually make a difference
-FOLLOW_EXPONENTIAL = 50
 FOLLOW_THRESHOLD = 1  # Influences the likelihood that an agent will start following another agent
 
-# As far as I can tell, changing the exponential doesnt actually make a difference
-LEAD_EXPONENTIAL = 50
 # If this is too low (like 3), then the canvasing and committed agents don't stay in the AT_NEST phase much
 LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruiting (LEAD_FORWARD or REVERSE_TANDEM)
 

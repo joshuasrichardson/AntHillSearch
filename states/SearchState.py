@@ -17,8 +17,8 @@ class SearchState(State):
             super().move(state)
             return
         # If going from search to search, just update angle
-        self.agent.angularVelocity += np.random.normal(0, np.pi / 200)
-        self.agent.angle = self.agent.angle + self.agent.angularVelocity * TIME_STEP
+        self.agent.angularVelocity += np.random.normal(0, np.pi / 1000)
+        self.agent.angle = self.agent.angle + self.agent.angularVelocity
 
     def changeState(self, neighborList) -> None:
         self.setState(self, None)

@@ -1,7 +1,6 @@
 from Constants import *
 from states.SearchState import SearchState
 from states.State import State
-from states.phases.CommitPhase import CommitPhase
 
 
 class FollowState(State):
@@ -29,7 +28,7 @@ class FollowState(State):
                     self.agent.knownSites.add(self.agent.leadAgent.siteToRecruitFrom)
                     self.agent.siteToRecruitFrom = self.agent.leadAgent.siteToRecruitFrom
                     self.agent.leadAgent = None
-                    CommitPhase.transportOrReverseTandem(self)
+                    self.agent.transportOrReverseTandem(self)
         else:
             # if they arrived at a nest:
             self.agent.knownSites.add(self.agent.leadAgent.assignedSite)

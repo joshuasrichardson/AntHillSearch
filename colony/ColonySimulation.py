@@ -12,18 +12,21 @@ from recording.Recorder import Recorder
 class ColonySimulation(AbstractColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
-    def __init__(self, numAgents, simulationDuration, numSites):
+    def __init__(self, numAgents, simulationDuration, numSites, shouldRecord, shouldDraw, convergenceFraction,
+                 hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+                 siteNoCloserThan, siteNoFartherThan):
         self.numAgents = numAgents
-        super().__init__(simulationDuration, numSites)
-        self.connected = True
+        super().__init__(simulationDuration, numSites, shouldRecord, shouldDraw, convergenceFraction,
+                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
+                         siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.previousSendTime = datetime.datetime.now()
         self.request = None
 
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 1 and 200", numAgents)
-        if simulationDuration < 0 or simulationDuration / TIME_STEP > MAX_STEPS:
+        if simulationDuration < 0 or simulationDuration > MAX_TIME:
             raise InputError("Simulation too short or too long", simulationDuration)
-        if numSites < 0 or numSites > MAX_N:
+        if numSites < 0 or numSites > MAX_NUM_SITES:
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def getRecorder(self):
@@ -36,7 +39,6 @@ class ColonySimulation(AbstractColonySimulation):
         self.request = SendHubInfoRequest(self.agentList)
 
     def updateAgent(self, agent, agentRectList):
-        # Build adjacency list for observers, assessors, and pipers
         agent.updatePosition(None)
 
         agentRect = agent.getAgentRect()
@@ -46,7 +48,7 @@ class ColonySimulation(AbstractColonySimulation):
             agentNeighbors.append(self.agentList[i])
         agent.changeState(agentNeighbors)
 
-        if SHOULD_RECORD:
+        if self.shouldRecord:
             self.recorder.recordAgentInfo(agent)
 
     def updateRestAPI(self, agentRectList):

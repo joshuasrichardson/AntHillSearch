@@ -1,6 +1,5 @@
 from Constants import *
 from states.RecruitState import RecruitState
-from states.phases.CommitPhase import CommitPhase
 
 
 class LeadForwardState(RecruitState):
@@ -14,7 +13,7 @@ class LeadForwardState(RecruitState):
     def arriveAtSite(self):
         if self.agent.quorumMet():  # If enough agents are at that site
             self.agent.setPhase(COMMIT)  # Commit to the site
-            CommitPhase.transportOrReverseTandem(self)
+            self.agent.transportOrReverseTandem(self)
         else:
             from states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())  # Just be at the site and decide what to do next in the AT_NEST state

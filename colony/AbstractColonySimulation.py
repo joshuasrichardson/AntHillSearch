@@ -16,7 +16,8 @@ from user.Controls import Controls
 class AbstractColonySimulation(ABC):
     """ Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
-    def __init__(self, simulationDuration, numSites):
+    def __init__(self, simulationDuration, numSites, shouldRecord, shouldDraw, convergenceFraction, hubLocation,
+                 hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
         """ numAgents is the number of agents in the simulation.
         simulationDuration is the amount of time in seconds that the simulation can last
         numGoodSites is the number of top sites
@@ -25,7 +26,8 @@ class AbstractColonySimulation(ABC):
         self.numSites = numSites
         self.agentList = []
         self.screen = createScreen()
-        self.world = World(numSites, self.screen)
+        self.world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
+                           siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         self.chosenHome = None
@@ -34,6 +36,10 @@ class AbstractColonySimulation(ABC):
         self.userControls = Controls(self.timer, self.agentList, self.world)
         self.recorder = self.getRecorder()
         self.numAgents = self.getNumAgents()
+
+        self.shouldRecord = shouldRecord
+        self.shouldDraw = shouldDraw
+        self.convergenceFraction = convergenceFraction
 
     @abstractmethod
     def getRecorder(self):
@@ -44,7 +50,6 @@ class AbstractColonySimulation(ABC):
         pass
 
     def runSimulation(self):
-        self.initializeAgentList()
         self.initializeRequest()
         white = 255, 255, 255
         foundNewHome = False
@@ -52,20 +57,25 @@ class AbstractColonySimulation(ABC):
         self.timer.start()
 
         while not foundNewHome and not self.timeRanOut:
-            if SHOULD_DRAW:
+            if self.shouldDraw:
                 self.userControls.handleEvents()
                 self.screen.fill(white)
             agentRectList = self.getAgentRectList()
             self.update(agentRectList)
-            if SHOULD_DRAW:
+            if self.shouldDraw:
                 self.draw()
             foundNewHome = self.checkIfSimulationEnded()
 
         self.finish()
 
-    def initializeAgentList(self):
+    def setAgentList(self, agents):
+        self.agentList = agents
+
+    def initializeAgentList(self, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
+                            minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy):
         for i in range(0, self.numAgents):
-            agent = Agent(self.world)
+            agent = Agent(self.world, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
+                          minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy)
             state = AtNestState(agent)
             agent.setState(state)
             self.agentList.append(agent)
@@ -115,7 +125,7 @@ class AbstractColonySimulation(ABC):
     def checkIfSimulationEnded(self):
         for site in self.world.siteList:
             if site is not self.world.siteList[len(self.world.siteList) - 1]\
-                    and site.agentCount == NUM_AGENTS * CONVERGENCE_FRACTION:
+                    and site.agentCount == self.numAgents * self.convergenceFraction:
                 self.chosenHome = site
                 return True
             else:
@@ -129,7 +139,7 @@ class AbstractColonySimulation(ABC):
     def finish(self):
         self.world.drawFinish()
         pygame.display.flip()
-        if SHOULD_RECORD:
+        if self.shouldRecord:
             self.save()
         self.determineChosenHome()
         self.printResults()
@@ -142,12 +152,12 @@ class AbstractColonySimulation(ABC):
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " out of " + str(NUM_AGENTS) + " agents made it to the new home.")
+        print(str(self.chosenHome.agentCount) + " out of " + str(self.numAgents) + " agents made it to the new home.")
 
     def printResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
-            simulationTime = SIM_DURATION - self.timer.getRemainingTime(None)
+            simulationTime = self.timer.simulationDuration - self.timer.getRemainingTime(None)
             print("The agents found their new home!")
             pygame.quit()
             self.timer.cancel()

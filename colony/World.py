@@ -5,10 +5,18 @@ from Site import *
 class World:
     """ Represents the world around the ants old home """
 
-    def __init__(self, numSites, screen):
-        self.hubLocation = HUB_LOCATION
+    def __init__(self, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+                 siteNoCloserThan, siteNoFartherThan):
+        self.hubLocation = hubLocation
+        self.hubRadius = hubRadius
+        self.siteNoCloserThan = siteNoCloserThan
+        self.siteNoFartherThan = siteNoFartherThan
+        self.initialHubAgentCount = hubAgentCount
         self.siteList = []
         self.siteRectList = []  # List of agent rectangles
+        self.sitePositions = sitePositions
+        self.siteQualities = siteQualities
+        self.sitesRadii = siteRadii
         self.screen = screen
         self.numSites = numSites
         self.gloc = STATE_GRAPH_LOCATION
@@ -28,18 +36,24 @@ class World:
         # Create as many sites as required
         for siteIndex in range(0, numSites):
             try:
-                x = SITE_POSITIONS[siteIndex][0]
-                y = SITE_POSITIONS[siteIndex][1]
+                x = self.sitePositions[siteIndex][0]
+                y = self.sitePositions[siteIndex][1]
             except IndexError:
                 print("Site position index out of range. Assigning random position.")
                 x = None
                 y = None
             try:
-                quality = SITE_QUALITIES[siteIndex]
+                quality = self.siteQualities[siteIndex]
             except IndexError:
                 print("Site quality index out of range. Assigning random quality")
                 quality = None
-            newSite = Site(screen, x, y, quality)
+            try:
+                radius = self.sitesRadii[siteIndex]
+            except IndexError:
+                print("Site radius index out of range. Assigning radius to " + str(DEFAULT_SITE_SIZE))
+                radius = DEFAULT_SITE_SIZE
+            newSite = Site(screen, self.hubLocation, x, y, radius, quality, self.siteQualities,
+                           self.siteNoCloserThan, self.siteNoFartherThan)
             self.siteList.append(newSite)
             self.siteRectList.append(newSite.getSiteRect())
 
@@ -60,10 +74,11 @@ class World:
             self.siteList[siteIndex].normalizeQuality(span, zero)
 
     def createHub(self):
-        hubSite = Site(self.screen, HUB_LOCATION[0], HUB_LOCATION[1], -1)
+        hubSite = Site(self.screen, self.hubLocation, self.hubLocation[0], self.hubLocation[1], self.hubRadius, -1,
+                       self.siteQualities, self.siteNoCloserThan, self.siteNoFartherThan)
         self.siteList.append(hubSite)
         self.siteRectList.append(hubSite.getSiteRect())
-        hubSite.agentCount = NUM_AGENTS
+        hubSite.agentCount = self.initialHubAgentCount
 
     def drawWorldObjects(self):
         for siteIndex in range(0, self.numSites + 1):  # Add one for the hub

@@ -135,7 +135,8 @@ class Controls:
 
     def wideSelect(self):
         # get a list of all objects that are under the mouse cursor
-        self.selectedAgents = [s for s in self.agentList if s.agentRect.colliderect(self.selectRect)]
+        self.selectRect = self.world.drawSelectRect(self.selectRectCorner, pygame.mouse.get_pos())
+        self.selectedAgents = [a for a in self.agentList if a.agentRect.colliderect(self.selectRect)]
         self.selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
 
         for a in self.selectedAgents:
