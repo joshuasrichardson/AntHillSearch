@@ -16,8 +16,11 @@ from user.Controls import Controls
 class AbstractColonySimulation(ABC):
     """ Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
-    def __init__(self, simulationDuration, numSites, shouldRecord, shouldDraw, convergenceFraction, hubLocation,
-                 hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldRecord=SHOULD_RECORD,
+                 shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION, hubLocation=HUB_LOCATION,
+                 hubRadius=DEFAULT_SITE_SIZE, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
+                 siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
+                 siteNoFartherThan=SITE_NO_FARTHER_THAN):
         """ numAgents is the number of agents in the simulation.
         simulationDuration is the amount of time in seconds that the simulation can last
         numGoodSites is the number of top sites
@@ -71,8 +74,10 @@ class AbstractColonySimulation(ABC):
     def setAgentList(self, agents):
         self.agentList = agents
 
-    def initializeAgentList(self, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
-                            minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy):
+    def initializeAgentList(self, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED, maxSpeed=MAX_AGENT_SPEED,
+                            minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS, minNavSkills=MIN_NAV_SKILLS,
+                            maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
         for i in range(0, self.numAgents):
             agent = Agent(self.world, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy)

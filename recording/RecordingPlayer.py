@@ -1,3 +1,4 @@
+from Constants import *
 from colony.AbstractColonySimulation import AbstractColonySimulation
 from recording.Recorder import Recorder
 
@@ -5,8 +6,10 @@ from recording.Recorder import Recorder
 class RecordingPlayer(AbstractColonySimulation):
     """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
-    def __init__(self, simulationDuration, numSites, convergenceFraction, hubLocation, hubRadius,
-                 hubAgentCount, sitePositions, siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, convergenceFraction=CONVERGENCE_FRACTION,
+                 hubLocation=HUB_LOCATION, hubRadius=DEFAULT_SITE_SIZE, hubAgentCount=NUM_AGENTS,
+                 sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
+                 siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
         super().__init__(simulationDuration, numSites, False, True, convergenceFraction, hubLocation, hubRadius,
                          hubAgentCount, sitePositions, siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
 
