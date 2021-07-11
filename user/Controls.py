@@ -1,7 +1,9 @@
 import numpy as np
 import pygame
 
+from Constants import DEFAULT_SITE_SIZE, EXPLORE
 from colony.ColonyExceptions import GameOver
+from states.SearchState import SearchState
 
 
 class Controls:
@@ -21,6 +23,7 @@ class Controls:
         self.selectedSites = []
         self.selectedSiteIndex = 0
         self.dragSite = None
+        self.oldRect = None
 
     def drawChanges(self):
         if self.selectedAgent is not None:
@@ -39,7 +42,7 @@ class Controls:
 
     def handleEvent(self, event):
         if self.dragSite is not None:
-            self.dragSite.pos = pygame.mouse.get_pos()
+            self.dragSite.setPosition(pygame.mouse.get_pos())
         if event.type == pygame.MOUSEBUTTONUP:
             self.mouseUp(pygame.mouse.get_pos())
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -67,6 +70,10 @@ class Controls:
             self.expand()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_MINUS:
             self.shrink()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            self.createSite(pygame.mouse.get_pos())
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE:
+            self.delete()
         if event.type == pygame.QUIT:
             pygame.quit()
             self.timer.cancel()
@@ -110,6 +117,12 @@ class Controls:
         return True
 
     def mouseUp(self, mousePos):
+        if self.dragSite is not None:
+            print("Old Rect: " + str(self.oldRect))
+            print("Drag Rect: " + str(self.dragSite.getSiteRect()))
+            print("Old site rect list: " + str(self.world.siteRectList))
+            self.world.siteRectList = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.siteRectList]
+            print("New site rect list: " + str(self.world.siteRectList))
         self.dragSite = None
         self.selectedAgent = None
         self.selectedSite = None
@@ -128,6 +141,7 @@ class Controls:
             self.startSelectRect(mousePos)
 
     def drag(self):
+        self.oldRect = self.selectedSite.getSiteRect()
         self.dragSite = self.selectedSite
 
     def startSelectRect(self, mousePos):
@@ -247,6 +261,42 @@ class Controls:
     def shrink(self):
         for site in self.selectedSites:
             site.radius -= 1
+
+    def createSite(self, position):
+        self.world.createSite(position[0], position[1], DEFAULT_SITE_SIZE, 255 / 2)
+        self.world.numSites += 1
+
+    def createAgent(self, position):
+        self.world.createAgent()
+        pass  # TODO
+
+    def delete(self):
+        self.deleteSelectedSites()
+        self.deleteSelectedAgents()
+
+    def deleteSelectedSites(self):
+        print("All sites: " + str(self.selectedSites))
+        i = 0
+        while len(self.selectedSites) > 0:
+            site = self.selectedSites[i]
+            print("Deleting: " + str(site))
+            for agent in self.agentList:
+                agent.siteObserveRectList = self.world.siteRectList
+                if agent.assignedSite is site:
+                    agent.assignSite(self.world.hub)
+                    agent.setPhase(EXPLORE)
+                    agent.setState(SearchState(agent))
+                if agent.knownSites.__contains__(site) and site is not self.world.hub:
+                    agent.knownSites.remove(site)
+            self.world.removeSite(site)
+            self.selectedSites.remove(site)
+        self.selectedSite = None
+
+    def deleteSelectedAgents(self):
+        pass  # TODO
+
+    def setSiteQuality(self):
+        pass  # TODO
 
     def pause(self):
         self.world.drawPause()

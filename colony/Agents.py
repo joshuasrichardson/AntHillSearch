@@ -20,7 +20,7 @@ class Agent:
         self.world = world  # The colony the agent lives in
         self.siteObserveRectList = world.getSiteObserveRectList()  # List of rectangles of all the sites in the colony
         self.siteList = world.getSiteList()  # List of all the sites in the colony
-        self.hub = self.siteList[len(self.siteList) - 1]  # Original home that the agents are leaving
+        self.hub = world.hub  # Original home that the agents are leaving
 
         self.prevPos = world.getHubPosition()  # Initial position
         self.pos = world.getHubPosition()  # Initial position

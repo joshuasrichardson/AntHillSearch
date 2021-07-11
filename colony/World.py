@@ -5,7 +5,7 @@ from Site import *
 class World:
     """ Represents the world around the ants old home """
 
-    def __init__(self, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+    def __init__(self, numAgents, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
                  siteNoCloserThan, siteNoFartherThan):
         self.hubLocation = hubLocation
         self.hubRadius = hubRadius
@@ -27,14 +27,16 @@ class World:
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
         self.possible_states = STATES_LIST
         self.possiblePhases = PHASES_LIST
-        self.createSites(screen, numSites)
+        self.createSites()
         # Set the site qualities so that the best is bright green and the worst bright red
         self.normalizeQuality()
-        self.createHub()
+        self.numAgents = numAgents
+        self.agentList = []
+        self.hub = self.createHub()
 
-    def createSites(self, screen, numSites):
+    def createSites(self):
         # Create as many sites as required
-        for siteIndex in range(0, numSites):
+        for siteIndex in range(0, self.numSites):
             try:
                 x = self.sitePositions[siteIndex][0]
                 y = self.sitePositions[siteIndex][1]
@@ -52,10 +54,25 @@ class World:
             except IndexError:
                 print("Site radius index out of range. Assigning radius to " + str(DEFAULT_SITE_SIZE))
                 radius = DEFAULT_SITE_SIZE
-            newSite = Site(screen, self.hubLocation, x, y, radius, quality, self.siteQualities,
-                           self.siteNoCloserThan, self.siteNoFartherThan)
-            self.siteList.append(newSite)
-            self.siteRectList.append(newSite.getSiteRect())
+            self.createSite(x, y, radius, quality)
+
+    def createSite(self, x, y, radius, quality):
+        newSite = Site(self.screen, self.hubLocation, x, y, radius, quality, self.siteQualities,
+                       self.siteNoCloserThan, self.siteNoFartherThan)
+        self.siteList.append(newSite)
+        self.siteRectList.append(newSite.getSiteRect())
+
+    def removeSite(self, site):
+        if site is self.hub:
+            print("Cannot delete the hub")
+        else:
+            index = self.siteList.index(site, 0, len(self.siteList))
+            self.siteList.pop(index)
+            self.siteRectList.pop(index)
+            self.numSites -= 1
+
+    def createAgent(self, x, y):
+         pass  # TODO
 
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """
@@ -79,6 +96,7 @@ class World:
         self.siteList.append(hubSite)
         self.siteRectList.append(hubSite.getSiteRect())
         hubSite.agentCount = self.initialHubAgentCount
+        return hubSite
 
     def drawWorldObjects(self):
         for siteIndex in range(0, self.numSites + 1):  # Add one for the hub

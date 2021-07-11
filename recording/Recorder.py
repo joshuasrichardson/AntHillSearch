@@ -1,9 +1,13 @@
 from recording.CopySite import CopySite
+import json
 
 
 class Recorder:
     """ Records essential site information, agent positions, agent states, and agent phases
     in recording.txt so that the same simulation can be played over again """
+
+    # TODO: Fix the format of the recording to make more sense (with json)
+    # TODO: Record site positions and qualities so that when they are deleted and stuff, it shows up in the recording
 
     def __init__(self, numAgents, sites):
         self.numAgents = numAgents
@@ -91,7 +95,6 @@ class Recorder:
                 self.phases.append(int(self.result[i]))
             for i in range(index, len(self.result) - 1):
                 self.assignments.append(int(self.result[i]))
-                # self.assignments.append(int(self.result[i]))
 
     def getNextPosition(self):
         self.currentPosIndex += 1

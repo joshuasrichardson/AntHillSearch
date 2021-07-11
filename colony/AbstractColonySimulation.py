@@ -27,30 +27,47 @@ class AbstractColonySimulation(ABC):
         numSites number of total sites """
 
         self.numSites = numSites
-        self.agentList = []
         self.screen = createScreen()
-        self.world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                           siteRadii, siteNoCloserThan, siteNoFartherThan)
+        self.world, self.recorder = self.initializeWorldAndRecorder(numSites, hubLocation, hubRadius,
+                                                                    hubAgentCount, sitePositions, siteQualities,
+                                                                    siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         self.chosenHome = None
         self.timeRanOut = False
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)
-        self.userControls = Controls(self.timer, self.agentList, self.world)
-        self.recorder = self.getRecorder()
-        self.numAgents = self.getNumAgents()
+        self.userControls = Controls(self.timer, self.world.agentList, self.world)
+        # self.recorder = self.getRecorder()
 
         self.shouldRecord = shouldRecord
         self.shouldDraw = shouldDraw
         self.convergenceFraction = convergenceFraction
 
     @abstractmethod
-    def getRecorder(self):
+    def initializeWorldAndRecorder(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                                   siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
         pass
+    #
+    # @abstractmethod
+    # def getRecorder(self):
+    #     pass
+    #
+    # @abstractmethod
+    # def getNumAgents(self):
+    #     pass
 
-    @abstractmethod
-    def getNumAgents(self):
-        pass
+    def setAgentList(self, agents):
+        self.world.agentList = agents
+
+    def initializeAgentList(self, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED, maxSpeed=MAX_AGENT_SPEED,
+                            minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS, minNavSkills=MIN_NAV_SKILLS,
+                            maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
+        for i in range(0, self.world.numAgents):
+            agent = Agent(self.world, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
+                          minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy)
+            agent.setState(AtNestState(agent))
+            self.world.agentList.append(agent)
 
     def runSimulation(self):
         self.initializeRequest()
@@ -71,26 +88,12 @@ class AbstractColonySimulation(ABC):
 
         self.finish()
 
-    def setAgentList(self, agents):
-        self.agentList = agents
-
-    def initializeAgentList(self, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED, maxSpeed=MAX_AGENT_SPEED,
-                            minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS, minNavSkills=MIN_NAV_SKILLS,
-                            maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
-        for i in range(0, self.numAgents):
-            agent = Agent(self.world, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
-                          minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy)
-            state = AtNestState(agent)
-            agent.setState(state)
-            self.agentList.append(agent)
-
     def initializeRequest(self):
         pass  # The method is overridden by simulations that send requests to rest APIs
 
     def getAgentRectList(self):
         agentRectList = []
-        for agent in self.agentList:
+        for agent in self.world.agentList:
             agentRectList.append(agent.getAgentRect())
         return agentRectList
 
@@ -109,14 +112,14 @@ class AbstractColonySimulation(ABC):
     def updateStateAndPhaseCounts(self):
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-        for agent in self.agentList:
+        for agent in self.world.agentList:
             st = agent.getState()
             self.states[st] += 1
             ph = agent.phase
             self.phases[ph] += 1
 
     def updateAgents(self, agentRectList):
-        for agent in self.agentList:
+        for agent in self.world.agentList:
             agent.drawAgent(self.screen)
             self.updateAgent(agent, agentRectList)
 
@@ -129,8 +132,7 @@ class AbstractColonySimulation(ABC):
 
     def checkIfSimulationEnded(self):
         for site in self.world.siteList:
-            if site is not self.world.siteList[len(self.world.siteList) - 1]\
-                    and site.agentCount == self.numAgents * self.convergenceFraction:
+            if site is not self.world.hub and site.agentCount == self.world.numAgents * self.convergenceFraction:
                 self.chosenHome = site
                 return True
             else:
@@ -157,7 +159,7 @@ class AbstractColonySimulation(ABC):
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " out of " + str(self.numAgents) + " agents made it to the new home.")
+        print(str(self.chosenHome.agentCount) + " out of " + str(self.world.numAgents) + " agents made it to the new home.")
 
     def printResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.

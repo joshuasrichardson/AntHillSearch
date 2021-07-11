@@ -5,6 +5,7 @@ import threading
 from ColonyExceptions import *
 from colony.AbstractColonySimulation import AbstractColonySimulation
 from colony.Agents import *
+from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
 from recording.Recorder import Recorder
 
@@ -31,14 +32,15 @@ class ColonySimulation(AbstractColonySimulation):
         if numSites < 0 or numSites > MAX_NUM_SITES:
             raise InputError("Can't be more sites than maximum value", numSites)
 
-    def getRecorder(self):
-        return Recorder(self.numAgents, self.world.siteList)
-
-    def getNumAgents(self):
-        return self.numAgents
+    def initializeWorldAndRecorder(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                                   siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+        world = World(self.numAgents, numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
+        recorder = Recorder(self.numAgents, world.siteList)
+        return world, recorder
 
     def initializeRequest(self):
-        self.request = SendHubInfoRequest(self.agentList)
+        self.request = SendHubInfoRequest(self.world.agentList)
 
     def updateAgent(self, agent, agentRectList):
         agent.updatePosition(None)
@@ -47,18 +49,18 @@ class ColonySimulation(AbstractColonySimulation):
         possibleNeighborList = agentRect.collidelistall(agentRectList)
         agentNeighbors = []
         for i in possibleNeighborList:
-            agentNeighbors.append(self.agentList[i])
+            agentNeighbors.append(self.world.agentList[i])
         agent.changeState(agentNeighbors)
 
         if self.shouldRecord:
             self.recorder.recordAgentInfo(agent)
 
     def updateRestAPI(self, agentRectList):
-        hubRect = self.world.siteList[len(self.world.siteList) - 1].getSiteRect()
+        hubRect = self.world.hub.getSiteRect()
         hubAgentsIndices = hubRect.collidelistall(agentRectList)
         self.request.numAtHub = 0
         for agentIndex in hubAgentsIndices:
-            self.request.addAgentToSendRequest(self.agentList[agentIndex], agentIndex)
+            self.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
         now = datetime.datetime.now()
         if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
             self.previousSendTime = now
