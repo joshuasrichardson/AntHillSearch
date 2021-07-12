@@ -36,6 +36,18 @@ class SendHubInfoRequest:
         self.numAgentsAtSites = []
         self.previousNumAgentsAtSites = []
 
+    def addAgent(self, agent):
+        self.agentPhases.append(agent.phase)
+        self.agentStates.append(agent.getState())
+        self.incrementPhaseCount(agent)
+        self.incrementStateCount(agent)
+
+    def removeAgent(self, agentIndex):
+        self.decrementPhaseCount(agentIndex)
+        self.decrementStateCount(agentIndex)
+        self.agentPhases.pop(agentIndex)
+        self.agentStates.pop(agentIndex)
+
     def addAgentToSendRequest(self, agent, agentIndex):
         self.decrementPhaseCount(agentIndex)
         self.agentPhases[agentIndex] = agent.phase

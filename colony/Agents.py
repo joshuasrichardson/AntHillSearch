@@ -2,7 +2,7 @@
 import random
 
 import numpy as np
-import pygame as pyg
+import pygame
 
 from Constants import *
 
@@ -25,7 +25,7 @@ class Agent:
 
         self.prevPos = world.getHubPosition()  # Initial position
         self.pos = world.getHubPosition()  # Initial position
-        self.agentHandle = pyg.image.load("../copter.png")  # Image on screen representing the agent
+        self.agentHandle = pygame.image.load("../copter.png")  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
@@ -121,14 +121,14 @@ class Agent:
 
     def drawAgent(self, surface):
         if self.isTheSelected:
-            pyg.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
+            pygame.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
         if self.isSelected:
-            pyg.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
+            pygame.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
         surface.blit(self.agentHandle, self.agentRect)
 
         if SHOW_AGENT_COLORS:
-            pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
-            pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
+            pygame.draw.ellipse(surface, self.state.color, self.agentRect, 4)
+            pygame.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
         if SHOW_ESTIMATED_QUALITY:
             img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)

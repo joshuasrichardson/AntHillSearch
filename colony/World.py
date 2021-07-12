@@ -25,13 +25,14 @@ class World:
         self.phaseColors = PHASE_COLORS
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
-        self.possible_states = STATES_LIST
+        self.possibleStates = STATES_LIST
         self.possiblePhases = PHASES_LIST
         self.createSites()
         # Set the site qualities so that the best is bright green and the worst bright red
         self.normalizeQuality()
         self.agentList = []
         self.hub = self.createHub()
+        self.request = None
 
     def createSites(self):
         # Create as many sites as required
@@ -72,6 +73,8 @@ class World:
 
     def addAgent(self, agent):
         self.agentList.append(agent)
+        if self.request is not None:
+            self.request.addAgent(agent)
 
     def deleteSelectedAgents(self):
         i = 0
@@ -80,6 +83,8 @@ class World:
             if agent.isSelected:
                 agent.assignedSite.decrementCount()
                 self.agentList.remove(agent)
+                if self.request is not None:
+                    self.request.removeAgent(i)
             else:
                 i += 1
 
@@ -122,7 +127,7 @@ class World:
         self.screen.blit(img, (self.gloc[0]-100, self.gloc[1] - 15))
         for state, width in enumerate(states):
             pyg.draw.rect(self.screen, self.colors[state], pyg.Rect(self.gloc[0], self.gloc[1] + state * 11, width, 10))
-            img = self.myfont.render(self.possible_states[state], True, self.colors[state])
+            img = self.myfont.render(self.possibleStates[state], True, self.colors[state])
             self.screen.blit(img, (self.gloc[0] - 100, self.gloc[1] - 5 + state * 11))
 
     def drawPhaseGraph(self, phases):
@@ -179,6 +184,12 @@ class World:
         width = np.abs(selectRectCorner[0] - mousePos[0])
         height = np.abs(selectRectCorner[1] - mousePos[1])
         return pyg.draw.rect(self.screen, (128, 128, 128), pyg.Rect(left, top, width, height))
+
+    def drawPotentialQuality(self, potentialQuality):
+        img = self.myfont.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))
+        for site in self.siteList:
+            if site.isSelected:
+                self.screen.blit(img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
 
     def getSiteList(self):
         return self.siteList

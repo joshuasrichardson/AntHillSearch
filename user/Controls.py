@@ -27,12 +27,16 @@ class Controls:
         self.selectedSiteIndex = 0
         self.dragSite = None
         self.oldRect = None
+        self.potentialQuality = 0
+        self.shouldDrawQuality = False
 
     def drawChanges(self):
         if self.selectedAgent is not None:
             self.world.drawSelectedAgentInfo(self.selectedAgent)
         if self.selectedSite is not None:
             self.world.drawSelectedSiteInfo(self.selectedSite, len(self.selectedAgents) > 0, self.selectedAgentsPositions)
+            if self.shouldDrawQuality:
+                self.world.drawPotentialQuality(self.potentialQuality)
         if self.selectRectCorner is not None:
             self.selectRect = self.world.drawSelectRect(self.selectRectCorner, pygame.mouse.get_pos())
 
@@ -73,12 +77,22 @@ class Controls:
             self.expand()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_MINUS:
             self.shrink()
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
             self.createSite(pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
             self.createAgent(pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE:
             self.delete()
+        if len(self.selectedSites) > 0:
+            if event.type == pygame.KEYDOWN and event.unicode.isnumeric():
+                self.appendNumber(int(event.unicode))
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
+                self.deleteLastDigit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                self.setSiteQuality()
+        else:
+            self.potentialQuality = 0
+            self.shouldDrawQuality = False
         if event.type == pygame.QUIT:
             pygame.quit()
             self.timer.cancel()
@@ -304,8 +318,24 @@ class Controls:
     def deleteSelectedAgents(self):
         self.world.deleteSelectedAgents()
 
+    def appendNumber(self, number):
+        if self.potentialQuality == 0 or self.potentialQuality > 25 or (self.potentialQuality == 25 and number > 5):
+            self.potentialQuality = number
+        else:
+            self.potentialQuality *= 10
+            self.potentialQuality += number
+        self.shouldDrawQuality = True
+
+    def deleteLastDigit(self):
+        if self.potentialQuality < 10:
+            self.shouldDrawQuality = False
+        self.potentialQuality = int(self.potentialQuality / 10)
+
     def setSiteQuality(self):
-        pass  # TODO
+        for site in self.selectedSites:
+            print("Set quality of " + str(site) + " to " + str(self.potentialQuality))
+            site.setQuality(self.potentialQuality)
+            site.setColor(self.potentialQuality)
 
     def pause(self):
         self.world.drawPause()

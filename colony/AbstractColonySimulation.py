@@ -49,7 +49,7 @@ class AbstractColonySimulation(ABC):
         self.world.agentList = agents
 
     def initializeAgentList(self, numAgents=NUM_AGENTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
-                            maxSpeed=MAX_AGENT_SPEED,minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                            maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS,
                             minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
         if numAgents < 0 or numAgents > MAX_AGENTS:
@@ -156,7 +156,6 @@ class AbstractColonySimulation(ABC):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
             simulationTime = self.timer.simulationDuration - self.timer.getRemainingTime(None)
-            print("The agents found their new home!")
             pygame.quit()
             self.timer.cancel()
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")

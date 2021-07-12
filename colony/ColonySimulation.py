@@ -22,7 +22,6 @@ class ColonySimulation(AbstractColonySimulation):
                          hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                          siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.previousSendTime = datetime.datetime.now()
-        self.request = None
 
         if simulationDuration < 0 or simulationDuration > MAX_TIME:
             raise InputError("Simulation too short or too long", simulationDuration)
@@ -37,7 +36,7 @@ class ColonySimulation(AbstractColonySimulation):
         return world, recorder
 
     def initializeRequest(self):
-        self.request = SendHubInfoRequest(self.world.agentList)
+        self.world.request = SendHubInfoRequest(self.world.agentList)
 
     def updateAgent(self, agent, agentRectList):
         agent.updatePosition(None)
@@ -55,13 +54,13 @@ class ColonySimulation(AbstractColonySimulation):
     def updateRestAPI(self, agentRectList):
         hubRect = self.world.hub.getSiteRect()
         hubAgentsIndices = hubRect.collidelistall(agentRectList)
-        self.request.numAtHub = 0
+        self.world.request.numAtHub = 0
         for agentIndex in hubAgentsIndices:
-            self.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
+            self.world.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
         now = datetime.datetime.now()
         if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
             self.previousSendTime = now
-            thread = threading.Thread(target=self.request.sendHubInfo)
+            thread = threading.Thread(target=self.world.request.sendHubInfo)
             thread.start()
 
     def save(self):
@@ -69,4 +68,4 @@ class ColonySimulation(AbstractColonySimulation):
 
     def sendResults(self, chosenSite, simulationTime):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
-        self.request.sendResults(chosenSite.pos, simulationTime)
+        self.world.request.sendResults(chosenSite.pos, simulationTime)
