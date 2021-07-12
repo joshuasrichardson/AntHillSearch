@@ -21,9 +21,9 @@ class RecordingPlayer(AbstractColonySimulation):
         recorder = Recorder(None, None)
         recorder.read()
 
-        numAgents = recorder.numAgents
+        # numAgents = recorder.numAgents
 
-        world = World(numAgents, numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
+        world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
                       siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
 
         for i in range(0, len(recorder.sites)):

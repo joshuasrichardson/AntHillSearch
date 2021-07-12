@@ -1,7 +1,10 @@
+import random
+
 import numpy as np
 import pygame
 
 from Constants import DEFAULT_SITE_SIZE, EXPLORE
+from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from states.SearchState import SearchState
 
@@ -72,6 +75,8 @@ class Controls:
             self.shrink()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
             self.createSite(pygame.mouse.get_pos())
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+            self.createAgent(pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE:
             self.delete()
         if event.type == pygame.QUIT:
@@ -267,8 +272,12 @@ class Controls:
         self.world.numSites += 1
 
     def createAgent(self, position):
-        self.world.createAgent()
-        pass  # TODO
+        agent = Agent(self.world)
+        agent.setState(SearchState(agent))
+        agent.setPosition(position[0], position[1])
+        agent.angle = random.uniform(0, 2 * np.pi)
+        agent.assignedSite.incrementCount()
+        self.world.addAgent(agent)
 
     def delete(self):
         self.deleteSelectedSites()
@@ -282,7 +291,7 @@ class Controls:
             print("Deleting: " + str(site))
             for agent in self.agentList:
                 agent.siteObserveRectList = self.world.siteRectList
-                if agent.assignedSite is site:
+                if agent.assignedSite is site and site is not self.world.hub:
                     agent.assignSite(self.world.hub)
                     agent.setPhase(EXPLORE)
                     agent.setState(SearchState(agent))
@@ -293,7 +302,7 @@ class Controls:
         self.selectedSite = None
 
     def deleteSelectedAgents(self):
-        pass  # TODO
+        self.world.deleteSelectedAgents()
 
     def setSiteQuality(self):
         pass  # TODO

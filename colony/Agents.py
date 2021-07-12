@@ -15,8 +15,9 @@ class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
     phases and states"""
 
-    def __init__(self, world, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
-                 minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy):
+    def __init__(self, world, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED, maxSpeed=MAX_AGENT_SPEED,
+                 minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS, minNavSkills=MIN_NAV_SKILLS,
+                 maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
         self.world = world  # The colony the agent lives in
         self.siteObserveRectList = world.getSiteObserveRectList()  # List of rectangles of all the sites in the colony
         self.siteList = world.getSiteList()  # List of all the sites in the colony

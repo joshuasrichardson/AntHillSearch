@@ -6,8 +6,8 @@ import pygame
 
 from Constants import *
 from colony.Agents import Agent
+from colony.ColonyExceptions import InputError
 from colony.SimulationTimer import SimulationTimer
-from colony.World import World
 from colony.myPygameUtils import createScreen
 from states.AtNestState import AtNestState
 from user.Controls import Controls
@@ -21,9 +21,7 @@ class AbstractColonySimulation(ABC):
                  hubRadius=DEFAULT_SITE_SIZE, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
                  siteNoFartherThan=SITE_NO_FARTHER_THAN):
-        """ numAgents is the number of agents in the simulation.
-        simulationDuration is the amount of time in seconds that the simulation can last
-        numGoodSites is the number of top sites
+        """ simulationDuration is the amount of time in seconds that the simulation can last
         numSites number of total sites """
 
         self.numSites = numSites
@@ -37,7 +35,6 @@ class AbstractColonySimulation(ABC):
         self.timeRanOut = False
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)
         self.userControls = Controls(self.timer, self.world.agentList, self.world)
-        # self.recorder = self.getRecorder()
 
         self.shouldRecord = shouldRecord
         self.shouldDraw = shouldDraw
@@ -47,23 +44,17 @@ class AbstractColonySimulation(ABC):
     def initializeWorldAndRecorder(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                    siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
         pass
-    #
-    # @abstractmethod
-    # def getRecorder(self):
-    #     pass
-    #
-    # @abstractmethod
-    # def getNumAgents(self):
-    #     pass
 
     def setAgentList(self, agents):
         self.world.agentList = agents
 
-    def initializeAgentList(self, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED, maxSpeed=MAX_AGENT_SPEED,
-                            minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS, minNavSkills=MIN_NAV_SKILLS,
-                            maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
-        for i in range(0, self.world.numAgents):
+    def initializeAgentList(self, numAgents=NUM_AGENTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
+                            maxSpeed=MAX_AGENT_SPEED,minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                            minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS,
+                            minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
+        if numAgents < 0 or numAgents > MAX_AGENTS:
+            raise InputError("Number of agents must be between 1 and 200", numAgents)
+        for i in range(0, numAgents):
             agent = Agent(self.world, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy)
             agent.setState(AtNestState(agent))
@@ -132,7 +123,7 @@ class AbstractColonySimulation(ABC):
 
     def checkIfSimulationEnded(self):
         for site in self.world.siteList:
-            if site is not self.world.hub and site.agentCount == self.world.numAgents * self.convergenceFraction:
+            if site is not self.world.hub and site.agentCount == len(self.world.agentList) * self.convergenceFraction:
                 self.chosenHome = site
                 return True
             else:
@@ -159,7 +150,7 @@ class AbstractColonySimulation(ABC):
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " out of " + str(self.world.numAgents) + " agents made it to the new home.")
+        print(str(self.chosenHome.agentCount) + " out of " + str(len(self.world.agentList)) + " agents made it to the new home.")
 
     def printResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.

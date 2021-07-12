@@ -5,7 +5,7 @@ from Site import *
 class World:
     """ Represents the world around the ants old home """
 
-    def __init__(self, numAgents, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+    def __init__(self, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
                  siteNoCloserThan, siteNoFartherThan):
         self.hubLocation = hubLocation
         self.hubRadius = hubRadius
@@ -30,7 +30,6 @@ class World:
         self.createSites()
         # Set the site qualities so that the best is bright green and the worst bright red
         self.normalizeQuality()
-        self.numAgents = numAgents
         self.agentList = []
         self.hub = self.createHub()
 
@@ -71,8 +70,18 @@ class World:
             self.siteRectList.pop(index)
             self.numSites -= 1
 
-    def createAgent(self, x, y):
-         pass  # TODO
+    def addAgent(self, agent):
+        self.agentList.append(agent)
+
+    def deleteSelectedAgents(self):
+        i = 0
+        while i < len(self.agentList):
+            agent = self.agentList[i]
+            if agent.isSelected:
+                agent.assignedSite.decrementCount()
+                self.agentList.remove(agent)
+            else:
+                i += 1
 
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """

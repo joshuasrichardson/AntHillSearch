@@ -13,7 +13,7 @@ def main():
     # colony = ColonySimulation(NUM_AGENTS, SIM_DURATION, NUM_SITES, SHOULD_RECORD, SHOULD_DRAW, CONVERGENCE_FRACTION,
     #                           HUB_LOCATION, DEFAULT_SITE_SIZE, NUM_AGENTS, SITE_POSITIONS, SITE_QUALITIES, SITE_RADII,
     #                           SITE_NO_CLOSER_THAN)
-    colony = ColonySimulation(sitePositions=[[300, 100], [300, 200], [300, 300]])
+    colony = ColonySimulation(sitePositions=[[300, 100], [300, 200], [300, 300], [300, 400]])
     # default is (see Constants.py):
     # colony = RecordingPlayer(SIM_DURATION, NUM_SITES, CONVERGENCE_FRACTION, HUB_LOCATION, DEFAULT_SITE_SIZE,
     #                          NUM_AGENTS, SITE_POSITIONS, SITE_QUALITIES, SITE_RADII,

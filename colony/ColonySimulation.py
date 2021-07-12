@@ -13,20 +13,17 @@ from recording.Recorder import Recorder
 class ColonySimulation(AbstractColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
-    def __init__(self, numAgents=NUM_AGENTS, simulationDuration=SIM_DURATION, numSites=NUM_SITES,
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES,
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=DEFAULT_SITE_SIZE, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
-        self.numAgents = numAgents
         super().__init__(simulationDuration, numSites, shouldRecord, shouldDraw, convergenceFraction,
                          hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                          siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.previousSendTime = datetime.datetime.now()
         self.request = None
 
-        if numAgents < 0 or numAgents > MAX_AGENTS:
-            raise InputError("Number of agents must be between 1 and 200", numAgents)
         if simulationDuration < 0 or simulationDuration > MAX_TIME:
             raise InputError("Simulation too short or too long", simulationDuration)
         if numSites < 0 or numSites > MAX_NUM_SITES:
@@ -34,9 +31,9 @@ class ColonySimulation(AbstractColonySimulation):
 
     def initializeWorldAndRecorder(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                    siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
-        world = World(self.numAgents, numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
+        world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
                       siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
-        recorder = Recorder(self.numAgents, world.siteList)
+        recorder = Recorder(len(world.agentList), world.siteList)
         return world, recorder
 
     def initializeRequest(self):
