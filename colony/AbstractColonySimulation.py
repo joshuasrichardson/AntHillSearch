@@ -6,9 +6,10 @@ import pygame
 
 from Constants import *
 from colony.Agents import Agent
-from colony.ColonyExceptions import InputError
+from colony.ColonyExceptions import InputError, GameOver
 from colony.SimulationTimer import SimulationTimer
 from colony.myPygameUtils import createScreen
+from recording.Recorder import Recorder
 from states.AtNestState import AtNestState
 from user.Controls import Controls
 
@@ -18,17 +19,16 @@ class AbstractColonySimulation(ABC):
 
     def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldRecord=SHOULD_RECORD,
                  shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION, hubLocation=HUB_LOCATION,
-                 hubRadius=DEFAULT_SITE_SIZE, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
+                 hubRadius=SITES_RADII, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
                  siteNoFartherThan=SITE_NO_FARTHER_THAN):
         """ simulationDuration is the amount of time in seconds that the simulation can last
         numSites number of total sites """
 
-        self.numSites = numSites
         self.screen = createScreen()
-        self.world, self.recorder = self.initializeWorldAndRecorder(numSites, hubLocation, hubRadius,
-                                                                    hubAgentCount, sitePositions, siteQualities,
-                                                                    siteRadii, siteNoCloserThan, siteNoFartherThan)
+        self.recorder = Recorder()
+        self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                                          siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         self.chosenHome = None
@@ -41,8 +41,8 @@ class AbstractColonySimulation(ABC):
         self.convergenceFraction = convergenceFraction
 
     @abstractmethod
-    def initializeWorldAndRecorder(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                                   siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+    def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
         pass
 
     def setAgentList(self, agents):
@@ -67,15 +67,18 @@ class AbstractColonySimulation(ABC):
 
         self.timer.start()
 
-        while not foundNewHome and not self.timeRanOut:
-            if self.shouldDraw:
-                self.userControls.handleEvents()
-                self.screen.fill(white)
-            agentRectList = self.getAgentRectList()
-            self.update(agentRectList)
-            if self.shouldDraw:
-                self.draw()
-            foundNewHome = self.checkIfSimulationEnded()
+        try:
+            while not foundNewHome and not self.timeRanOut:
+                if self.shouldDraw:
+                    self.userControls.handleEvents()
+                    self.screen.fill(white)
+                agentRectList = self.getAgentRectList()
+                self.update(agentRectList)
+                if self.shouldDraw:
+                    self.draw()
+                foundNewHome = self.checkIfSimulationEnded()
+        except GameOver:
+            pass
 
         self.finish()
 
@@ -89,8 +92,11 @@ class AbstractColonySimulation(ABC):
         return agentRectList
 
     def update(self, agentRectList):
+        self.setNextRound()
         self.updateStateAndPhaseCounts()
+        self.updateSites()
         self.updateAgents(agentRectList)
+        self.save()
         self.updateRestAPI(agentRectList)
 
     def draw(self):
@@ -99,6 +105,9 @@ class AbstractColonySimulation(ABC):
         self.world.drawWorldObjects()
         self.userControls.drawChanges()
         pygame.display.flip()
+
+    def setNextRound(self):
+        pass
 
     def updateStateAndPhaseCounts(self):
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
@@ -109,10 +118,16 @@ class AbstractColonySimulation(ABC):
             ph = agent.phase
             self.phases[ph] += 1
 
+    def updateSites(self):
+        pass
+
     def updateAgents(self, agentRectList):
         for agent in self.world.agentList:
-            agent.drawAgent(self.screen)
-            self.updateAgent(agent, agentRectList)
+            try:
+                self.updateAgent(agent, agentRectList)
+                agent.drawAgent(self.screen)
+            except IndexError:
+                self.world.removeAgent(agent)
 
     @abstractmethod
     def updateAgent(self, agent, agentRectList):
@@ -123,11 +138,12 @@ class AbstractColonySimulation(ABC):
 
     def checkIfSimulationEnded(self):
         for site in self.world.siteList:
-            if site is not self.world.hub and site.agentCount == len(self.world.agentList) * self.convergenceFraction:
+            if site.getQuality() != -1 and site.agentCount == len(self.world.agentList) * self.convergenceFraction:
+                print(str(site))
                 self.chosenHome = site
                 return True
             else:
-                self.chosenHome = self.world.siteList[len(self.world.siteList) - 1]
+                self.chosenHome = None
         return False
 
     def timeOut(self):
@@ -138,11 +154,14 @@ class AbstractColonySimulation(ABC):
         self.world.drawFinish()
         pygame.display.flip()
         if self.shouldRecord:
-            self.save()
+            self.write()
         self.determineChosenHome()
         self.printResults()
 
     def save(self):
+        pass
+
+    def write(self):
         pass
 
     def determineChosenHome(self):

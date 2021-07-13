@@ -46,7 +46,7 @@ MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead age
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = [600, 350]  # Location of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
-DEFAULT_SITE_SIZE = 20  # How big is the radius of a site?
+SITES_RADII = 20  # How big is the radius of a site?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.

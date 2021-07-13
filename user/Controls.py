@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 
-from Constants import DEFAULT_SITE_SIZE, EXPLORE
+from Constants import SITES_RADII, EXPLORE
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from states.SearchState import SearchState
@@ -282,8 +282,7 @@ class Controls:
             site.radius -= 1
 
     def createSite(self, position):
-        self.world.createSite(position[0], position[1], DEFAULT_SITE_SIZE, 255 / 2)
-        self.world.numSites += 1
+        self.world.createSite(position[0], position[1], SITES_RADII, 256 / 2)
 
     def createAgent(self, position):
         agent = Agent(self.world)
@@ -298,7 +297,6 @@ class Controls:
         self.deleteSelectedAgents()
 
     def deleteSelectedSites(self):
-        print("All sites: " + str(self.selectedSites))
         i = 0
         while len(self.selectedSites) > 0:
             site = self.selectedSites[i]

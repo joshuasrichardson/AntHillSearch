@@ -15,7 +15,7 @@ class ColonySimulation(AbstractColonySimulation):
 
     def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES,
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
-                 hubLocation=HUB_LOCATION, hubRadius=DEFAULT_SITE_SIZE, hubAgentCount=NUM_AGENTS,
+                 hubLocation=HUB_LOCATION, hubRadius=SITES_RADII, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
         super().__init__(simulationDuration, numSites, shouldRecord, shouldDraw, convergenceFraction,
@@ -28,15 +28,19 @@ class ColonySimulation(AbstractColonySimulation):
         if numSites < 0 or numSites > MAX_NUM_SITES:
             raise InputError("Can't be more sites than maximum value", numSites)
 
-    def initializeWorldAndRecorder(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                                   siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+    def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
                       siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
-        recorder = Recorder(len(world.agentList), world.siteList)
-        return world, recorder
+        return world
 
     def initializeRequest(self):
         self.world.request = SendHubInfoRequest(self.world.agentList)
+
+    def updateSites(self):
+        if self.shouldRecord:
+            for site in self.world.siteList:
+                self.recorder.recordSiteInfo(site)
 
     def updateAgent(self, agent, agentRectList):
         agent.updatePosition(None)
@@ -64,7 +68,12 @@ class ColonySimulation(AbstractColonySimulation):
             thread.start()
 
     def save(self):
-        self.recorder.save()
+        if self.shouldRecord:
+            self.recorder.save()
+
+    def write(self):
+        if self.shouldRecord:
+            self.recorder.write()
 
     def sendResults(self, chosenSite, simulationTime):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """

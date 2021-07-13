@@ -18,7 +18,6 @@ class World:
         self.siteQualities = siteQualities
         self.sitesRadii = siteRadii
         self.screen = screen
-        self.numSites = numSites
         self.gloc = STATE_GRAPH_LOCATION
         self.colors = COLORS
         self.phaseGLoc = PHASE_GRAPH_LOCATION
@@ -27,16 +26,16 @@ class World:
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
         self.possibleStates = STATES_LIST
         self.possiblePhases = PHASES_LIST
-        self.createSites()
+        self.createSites(numSites)
         # Set the site qualities so that the best is bright green and the worst bright red
         self.normalizeQuality()
         self.agentList = []
         self.hub = self.createHub()
         self.request = None
 
-    def createSites(self):
+    def createSites(self, numSites):
         # Create as many sites as required
-        for siteIndex in range(0, self.numSites):
+        for siteIndex in range(0, numSites):
             try:
                 x = self.sitePositions[siteIndex][0]
                 y = self.sitePositions[siteIndex][1]
@@ -52,8 +51,8 @@ class World:
             try:
                 radius = self.sitesRadii[siteIndex]
             except IndexError:
-                print("Site radius index out of range. Assigning radius to " + str(DEFAULT_SITE_SIZE))
-                radius = DEFAULT_SITE_SIZE
+                print("Site radius index out of range. Assigning radius to " + str(SITES_RADII))
+                radius = SITES_RADII
             self.createSite(x, y, radius, quality)
 
     def createSite(self, x, y, radius, quality):
@@ -63,13 +62,13 @@ class World:
         self.siteRectList.append(newSite.getSiteRect())
 
     def removeSite(self, site):
-        if site is self.hub:
+        if site.quality == -1:
             print("Cannot delete the hub")
         else:
             index = self.siteList.index(site, 0, len(self.siteList))
             self.siteList.pop(index)
             self.siteRectList.pop(index)
-            self.numSites -= 1
+            del site
 
     def addAgent(self, agent):
         self.agentList.append(agent)
@@ -81,19 +80,22 @@ class World:
         while i < len(self.agentList):
             agent = self.agentList[i]
             if agent.isSelected:
-                agent.assignedSite.decrementCount()
-                self.agentList.remove(agent)
+                self.removeAgent(agent)
                 if self.request is not None:
                     self.request.removeAgent(i)
             else:
                 i += 1
+
+    def removeAgent(self, agent):
+        agent.assignedSite.decrementCount()
+        self.agentList.remove(agent)
 
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """
         # Normalize quality to be between lower bound and upper bound
         minValue = np.inf
         maxValue = -np.inf
-        for siteIndex in range(0, self.numSites):
+        for siteIndex in range(0, len(self.siteList)):
             quality = self.siteList[siteIndex].getQuality()
             if quality < minValue:
                 minValue = quality
@@ -101,7 +103,7 @@ class World:
                 maxValue = quality
         zero = minValue
         span = maxValue - minValue
-        for siteIndex in range(0, self.numSites):
+        for siteIndex in range(0, len(self.siteList)):
             self.siteList[siteIndex].normalizeQuality(span, zero)
 
     def createHub(self):
@@ -113,11 +115,11 @@ class World:
         return hubSite
 
     def drawWorldObjects(self):
-        for siteIndex in range(0, self.numSites + 1):  # Add one for the hub
+        for siteIndex in range(0, len(self.siteList)):
             self.siteList[siteIndex].drawSite()
 
     def getHubPosition(self):
-        return self.hubLocation
+        return self.hub.getPosition()
 
     def getSiteObserveRectList(self):
         return self.siteRectList
