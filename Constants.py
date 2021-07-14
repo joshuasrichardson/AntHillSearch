@@ -31,7 +31,6 @@ SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending inform
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
-# TODO: Make it so that when this is false, the screen does not appear at all.
 # Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
 SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.

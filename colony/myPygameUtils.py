@@ -2,6 +2,9 @@
 import pygame
 
 
-def createScreen():
-    pygame.display.init()
-    return pygame.display.set_mode((0, 0), pygame.RESIZABLE)
+def createScreen(shouldDraw):
+    if shouldDraw:
+        pygame.display.init()
+        return pygame.display.set_mode((0, 0), pygame.RESIZABLE)
+    else:
+        return None

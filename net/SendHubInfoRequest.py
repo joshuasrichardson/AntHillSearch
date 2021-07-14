@@ -8,26 +8,28 @@ class SendHubInfoRequest:
     This request can be send to a rest API. """
 
     def __init__(self, agentList):
-        self.agentPhases = []
-        self.agentStates = []
-        for agent in agentList:
-            self.agentPhases.append(agent.phase)
-            self.agentStates.append(agent.getState())
-
         # Agent phases count estimates
-        self.numExplore = NUM_AGENTS
+        self.numExplore = 0
         self.numAssess = 0
         self.numCanvas = 0
         self.numCommit = 0
 
         # Agent state count estimates
-        self.numAtHub = NUM_AGENTS
+        self.numAtHub = 0
         self.numSearch = 0
         self.numLeadForward = 0
         self.numFollow = 0
         self.numReverseTandem = 0
         self.numTransport = 0
         self.numCarried = 0
+
+        self.agentPhases = []
+        self.agentStates = []
+        for agent in agentList:
+            self.agentPhases.append(agent.phase)
+            self.incrementPhaseCount(agent)
+            self.agentStates.append(agent.getState())
+            self.incrementStateCount(agent)
 
         # Estimates about site information
         self.sitesPositions = []
@@ -164,7 +166,7 @@ class SendHubInfoRequest:
 
     def sendHubInfo(self):
         response = requests.post('http://localhost:5000/addHubInfo', data=self.hubToJson())
-        print("After: {}".format(response.text))
+        print("Simulation Status: {}".format(response.text))
 
     def hubToJson(self):
         return {'numExplore': self.numExplore,
@@ -186,7 +188,8 @@ class SendHubInfoRequest:
 
     @staticmethod
     def sendResults(chosenSite, simulationTime):
-        data = {'chosenSite': chosenSite,
+        data = {'chosenSitePosition': chosenSite.getPosition(),
+                'chosenSiteQuality': chosenSite.getQuality(),
                 'simulationTime': simulationTime}
         response = requests.post('http://localhost:5000/sendResults', data=data)
-        print("After: {}".format(response.text))
+        print("Simulation Results: {}".format(response.text))

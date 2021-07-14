@@ -22,27 +22,26 @@ class AbstractColonySimulation(ABC):
                  hubRadius=SITES_RADII, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
                  siteNoFartherThan=SITE_NO_FARTHER_THAN):
-        """ simulationDuration is the amount of time in seconds that the simulation can last
-        numSites number of total sites """
 
-        self.screen = createScreen()
-        self.recorder = Recorder()
+        self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
+        self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                                          siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
-        self.states = np.zeros((NUM_POSSIBLE_STATES,))
-        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-        self.chosenHome = None
-        self.timeRanOut = False
-        self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)
-        self.userControls = Controls(self.timer, self.world.agentList, self.world)
+                                          siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)  # The world that has all the sites and agents
+        self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
+        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
+        self.chosenHome = None  # The site that most of the agents are assigned to when the simulation ends
+        self.timeRanOut = False  # Whether there is no more time left in the simulation
+        self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
+        self.userControls = Controls(self.timer, self.world.agentList, self.world)  # And object to handle events dealing with user interactions
 
-        self.shouldRecord = shouldRecord
-        self.shouldDraw = shouldDraw
-        self.convergenceFraction = convergenceFraction
+        self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
+        self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
+
+        self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the simulation will end
 
     @abstractmethod
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw):
         pass
 
     def setAgentList(self, agents):
@@ -125,7 +124,8 @@ class AbstractColonySimulation(ABC):
         for agent in self.world.agentList:
             try:
                 self.updateAgent(agent, agentRectList)
-                agent.drawAgent(self.screen)
+                if self.shouldDraw:
+                    agent.drawAgent(self.screen)
             except IndexError:
                 self.world.removeAgent(agent)
 
@@ -139,7 +139,6 @@ class AbstractColonySimulation(ABC):
     def checkIfSimulationEnded(self):
         for site in self.world.siteList:
             if site.getQuality() != -1 and site.agentCount == len(self.world.agentList) * self.convergenceFraction:
-                print(str(site))
                 self.chosenHome = site
                 return True
             else:
@@ -151,8 +150,9 @@ class AbstractColonySimulation(ABC):
         self.timeRanOut = True
 
     def finish(self):
-        self.world.drawFinish()
-        pygame.display.flip()
+        if self.shouldDraw:
+            self.world.drawFinish()
+            pygame.display.flip()
         if self.shouldRecord:
             self.write()
         self.determineChosenHome()

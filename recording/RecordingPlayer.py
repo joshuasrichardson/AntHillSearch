@@ -15,11 +15,11 @@ class RecordingPlayer(AbstractColonySimulation):
                          hubAgentCount, sitePositions, siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan):
+                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True):
         self.recorder.read()
 
         return World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                     siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
+                     siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)
 
     def setNextRound(self):
         if not self.recorder.setNextRound():

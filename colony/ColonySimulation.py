@@ -7,7 +7,6 @@ from colony.AbstractColonySimulation import AbstractColonySimulation
 from colony.Agents import *
 from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
-from recording.Recorder import Recorder
 
 
 class ColonySimulation(AbstractColonySimulation):
@@ -29,9 +28,9 @@ class ColonySimulation(AbstractColonySimulation):
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan):
+                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)
         return world
 
     def initializeRequest(self):
@@ -90,4 +89,4 @@ class ColonySimulation(AbstractColonySimulation):
 
     def sendResults(self, chosenSite, simulationTime):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
-        self.world.request.sendResults(chosenSite.pos, simulationTime)
+        self.world.request.sendResults(chosenSite, simulationTime)

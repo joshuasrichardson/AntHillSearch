@@ -31,15 +31,15 @@ class Agent:
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
 
-        self.homogenousAgents = homogenousAgents
+        self.homogenousAgents = homogenousAgents  # Whether all the agents have the same attributes (if false, their attributes vary)
         self.speed = self.initializeAttribute(minSpeed, maxSpeed)  # Speed the agent moves on the screen
-        self.uncommittedSpeed = self.speed
-        self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR
+        self.uncommittedSpeed = self.speed  # The speed of the agents outside the committed phase
+        self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR  # The speed of the agents in the committed phase
         self.decisiveness = self.initializeAttribute(minDecisiveness, maxDecisiveness)  # Influences how quickly an agent can assess
         self.navigationSkills = self.initializeAttribute(minNavSkills, maxNavSkills)  # Influences how likely an agent is to get lost
         self.estimationAccuracy = self.initializeAttribute(minEstAccuracy, maxEstAccuracy)  # How far off an agent's estimate of the quality of a site will be on average.
 
-        self.target = world.getHubPosition()  # Either the hub or a site the agent is going to
+        self.target = startingPosition  # The position the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
 
@@ -50,11 +50,10 @@ class Agent:
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
-        self.speedCoefficient = 1
+        self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.knownSites = {self.hub}  # A list of sites that the agent has been to before
-        if startingAssignment is not self.hub:
-            self.knownSites.add(startingAssignment)
+        self.knownSites.add(startingAssignment)
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
         self.numFollowers = 0  # The number of agents following the current agent in LEAD_FORWARD or TANDEM_RUN state

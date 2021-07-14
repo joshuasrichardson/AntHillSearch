@@ -8,32 +8,32 @@ class World:
     """ Represents the world around the ants old home """
 
     def __init__(self, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
-                 siteNoCloserThan, siteNoFartherThan):
-        self.hubLocation = hubLocation
-        self.hubRadius = hubRadius
-        self.siteNoCloserThan = siteNoCloserThan
-        self.siteNoFartherThan = siteNoFartherThan
-        self.initialHubAgentCount = hubAgentCount
-        self.siteList = []
-        self.siteRectList = []  # List of agent rectangles
-        self.sitePositions = sitePositions
-        self.siteQualities = siteQualities
-        self.sitesRadii = siteRadii
-        self.screen = screen
-        self.gloc = STATE_GRAPH_LOCATION
-        self.colors = COLORS
-        self.phaseGLoc = PHASE_GRAPH_LOCATION
-        self.phaseColors = PHASE_COLORS
+                 siteNoCloserThan, siteNoFartherThan, shouldDraw):
+        self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
+        self.hubLocation = hubLocation  # Where the agents' original home is located
+        self.hubRadius = hubRadius  # The radius of the agent's original home
+        self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub a site can randomly be generated
+        self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub a site can randomly be generated
+        self.initialHubAgentCount = hubAgentCount  # The number of agents at the start of the simulation
+        self.siteList = []  # The sites in the world
+        self.siteRectList = []  # List of site rectangles
+        self.sitePositions = sitePositions  # Where the sites are located
+        self.siteQualities = siteQualities  # The quality of each site
+        self.sitesRadii = siteRadii  # A list of the radius of each site
+        self.screen = screen  # The screen to draw the simulation on
+        self.gloc = STATE_GRAPH_LOCATION  # The location of the graph that displays the number of agents in each state
+        self.colors = COLORS  # The colors displayed on the state graph
+        self.phaseGLoc = PHASE_GRAPH_LOCATION  # The location of the graph that displays the number of agents in each phase
+        self.phaseColors = PHASE_COLORS  # The colors displayed on the phase graph
         pyg.font.init()
-        self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
-        self.possibleStates = STATES_LIST
-        self.possiblePhases = PHASES_LIST
-        self.createSites(numSites)
-        # Set the site qualities so that the best is bright green and the worst bright red
-        self.normalizeQuality()
-        self.agentList = []
-        self.hub = self.createHub()
-        self.request = None
+        self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
+        self.possibleStates = STATES_LIST  # The states that agents can be assigned to
+        self.possiblePhases = PHASES_LIST  # The phases that agents can be assigned to
+        self.createSites(numSites)  # Initializes the site list with sites that match the specified values or random sites by default
+        self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
+        self.agentList = []  # List of all the agents in the world
+        self.hub = self.createHub()  # The agents' original home
+        self.request = None  # The request, used to sent information to a rest API
 
     def randomizeState(self):
         for agent in self.agentList:
@@ -64,7 +64,7 @@ class World:
 
     def createSite(self, x, y, radius, quality):
         newSite = Site(self.screen, self.hubLocation, x, y, radius, quality, self.siteQualities,
-                       self.siteNoCloserThan, self.siteNoFartherThan)
+                       self.siteNoCloserThan, self.siteNoFartherThan, self.shouldDraw)
         self.siteList.append(newSite)
         self.siteRectList.append(newSite.getSiteRect())
 
@@ -115,7 +115,7 @@ class World:
 
     def createHub(self):
         hubSite = Site(self.screen, self.hubLocation, self.hubLocation[0], self.hubLocation[1], self.hubRadius, -1,
-                       self.siteQualities, self.siteNoCloserThan, self.siteNoFartherThan)
+                       self.siteQualities, self.siteNoCloserThan, self.siteNoFartherThan, self.shouldDraw)
         self.siteList.append(hubSite)
         self.siteRectList.append(hubSite.getSiteRect())
         hubSite.agentCount = self.initialHubAgentCount
