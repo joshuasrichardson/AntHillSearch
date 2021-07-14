@@ -79,7 +79,7 @@ class Controls:
             self.shrink()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
             self.createSite(pygame.mouse.get_pos())
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_o:
             self.createAgent(pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE:
             self.delete()
@@ -285,9 +285,8 @@ class Controls:
         self.world.createSite(position[0], position[1], SITES_RADII, 256 / 2)
 
     def createAgent(self, position):
-        agent = Agent(self.world)
+        agent = Agent(self.world, self.world.hub, startingPosition=position)
         agent.setState(SearchState(agent))
-        agent.setPosition(position[0], position[1])
         agent.angle = random.uniform(0, 2 * np.pi)
         agent.assignedSite.incrementCount()
         self.world.addAgent(agent)

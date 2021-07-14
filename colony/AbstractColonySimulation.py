@@ -55,8 +55,8 @@ class AbstractColonySimulation(ABC):
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 1 and 200", numAgents)
         for i in range(0, numAgents):
-            agent = Agent(self.world, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
-                          minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy)
+            agent = Agent(self.world, self.world.hub, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
+                          minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation)
             agent.setState(AtNestState(agent))
             self.world.agentList.append(agent)
 

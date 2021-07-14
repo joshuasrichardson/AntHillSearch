@@ -1,4 +1,6 @@
 """ World class. Stores 2D positions of hub and sites """
+import random
+
 from Site import *
 
 
@@ -32,6 +34,11 @@ class World:
         self.agentList = []
         self.hub = self.createHub()
         self.request = None
+
+    def randomizeState(self):
+        for agent in self.agentList:
+            agent.assignSite(self.siteList[random.randint(0, len(self.siteList) - 1)])
+            agent.setPosition(agent.assignedSite.getPosition()[0], agent.assignedSite.getPosition()[1])
 
     def createSites(self, numSites):
         # Create as many sites as required

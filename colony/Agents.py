@@ -15,16 +15,17 @@ class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
     phases and states"""
 
-    def __init__(self, world, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED, maxSpeed=MAX_AGENT_SPEED,
-                 minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS, minNavSkills=MIN_NAV_SKILLS,
-                 maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
+    def __init__(self, world, startingAssignment, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
+                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION):
         self.world = world  # The colony the agent lives in
         self.siteObserveRectList = world.getSiteObserveRectList()  # List of rectangles of all the sites in the colony
         self.siteList = world.getSiteList()  # List of all the sites in the colony
         self.hub = world.hub  # Original home that the agents are leaving
 
-        self.prevPos = world.getHubPosition()  # Initial position
-        self.pos = world.getHubPosition()  # Initial position
+        self.prevPos = startingPosition  # Initial position
+        self.pos = startingPosition  # Initial position
         self.agentHandle = pygame.image.load("../copter.png")  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
@@ -46,12 +47,14 @@ class Agent:
         self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
         self.phaseColor = EXPLORE_COLOR  # A color to represent the phase so it can be seen on the screen
 
-        self.assignedSite = self.hub  # Site that the agent has discovered and is trying to get others to go see
+        self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
         self.speedCoefficient = 1
 
         self.knownSites = {self.hub}  # A list of sites that the agent has been to before
+        if startingAssignment is not self.hub:
+            self.knownSites.add(startingAssignment)
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
         self.numFollowers = 0  # The number of agents following the current agent in LEAD_FORWARD or TANDEM_RUN state

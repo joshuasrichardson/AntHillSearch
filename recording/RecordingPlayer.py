@@ -7,8 +7,6 @@ from colony.World import World
 class RecordingPlayer(AbstractColonySimulation):
     """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
-    # TODO: Get the hub to stop showing up twice in recordings where sites were deleted.
-
     def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITES_RADII, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,

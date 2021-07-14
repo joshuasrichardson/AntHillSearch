@@ -37,6 +37,19 @@ class ColonySimulation(AbstractColonySimulation):
     def initializeRequest(self):
         self.world.request = SendHubInfoRequest(self.world.agentList)
 
+    def randomizeInitialState(self):
+        self.world.randomizeState()
+
+    def addAgents(self, numAgents, state, phase, assignedSiteIndex, startingPosition=None):
+        if startingPosition is None:
+            startingPosition = self.world.siteList[assignedSiteIndex].getPosition()
+        for i in range(0, numAgents):
+            agent = Agent(self.world, self.world.siteList[assignedSiteIndex], startingPosition=startingPosition)
+            agent.assignedSite.agentCount += 1
+            agent.setState(state(agent))
+            agent.setPhase(phase)
+            self.world.addAgent(agent)
+
     def updateSites(self):
         if self.shouldRecord:
             for site in self.world.siteList:
