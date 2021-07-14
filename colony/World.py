@@ -1,7 +1,7 @@
 """ World class. Stores 2D positions of hub and sites """
 import random
 
-from Site import *
+from colony.Site import *
 
 
 class World:
@@ -58,8 +58,8 @@ class World:
             try:
                 radius = self.sitesRadii[siteIndex]
             except IndexError:
-                print("Site radius index out of range. Assigning radius to " + str(SITES_RADII))
-                radius = SITES_RADII
+                print("Site radius index out of range. Assigning radius to " + str(SITE_RADIUS))
+                radius = SITE_RADIUS
             self.createSite(x, y, radius, quality)
 
     def createSite(self, x, y, radius, quality):

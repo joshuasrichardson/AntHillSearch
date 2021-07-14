@@ -27,6 +27,8 @@ SITE_RADII = []  # The radius of each site. If a site is not assigned a radius h
 # Does not affect the simulation, but the lower it is, the harder the computer will have to work to execute all the threads
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
+# Having this set to False makes the simulation a little faster, but not much. However, it does prevent errors from not having the API running.
+SHOULD_REPORT = False  # Whether the simulation sends information about the hub to the rest API
 # Having this set to False makes the simulation a little faster because it doesn't have to record all the time.
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
@@ -45,7 +47,7 @@ MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead age
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = [600, 350]  # Location of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
-SITES_RADII = 20  # How big is the radius of a site?
+SITE_RADIUS = 20  # How big is the radius of a site?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.

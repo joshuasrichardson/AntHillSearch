@@ -17,9 +17,9 @@ from user.Controls import Controls
 class AbstractColonySimulation(ABC):
     """ Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldRecord=SHOULD_RECORD,
-                 shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION, hubLocation=HUB_LOCATION,
-                 hubRadius=SITES_RADII, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldReport=SHOULD_REPORT,
+                 shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
+                 hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
                  siteNoFartherThan=SITE_NO_FARTHER_THAN):
 
@@ -34,6 +34,7 @@ class AbstractColonySimulation(ABC):
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
         self.userControls = Controls(self.timer, self.world.agentList, self.world)  # And object to handle events dealing with user interactions
 
+        self.shouldReport = shouldReport  # Whether the simulation should periodically report hub information to the rest API
         self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
 
@@ -169,16 +170,18 @@ class AbstractColonySimulation(ABC):
         for home in self.world.siteList:
             if home.agentCount > self.chosenHome.agentCount:
                 self.chosenHome = home
-        print(str(self.chosenHome.agentCount) + " out of " + str(len(self.world.agentList)) + " agents made it to the new home.")
 
     def printResults(self):
+        print(str(self.chosenHome.agentCount) + " out of " + str(len(self.world.agentList)) + " agents made it to the new home.")
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
             simulationTime = self.timer.simulationDuration - self.timer.getRemainingTime(None)
+            print("The simulation took " + str(simulationTime) + " seconds to complete.")
             pygame.quit()
             self.timer.cancel()
-        print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255")
-        self.sendResults(self.chosenHome, simulationTime)
+        print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255.")
+        if self.shouldReport:
+            self.sendResults(self.chosenHome, simulationTime)
 
     def sendResults(self, chosenSite, simulationTime):
         pass

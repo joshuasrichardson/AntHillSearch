@@ -75,11 +75,11 @@ class Recorder:
         self.siteRadii = []
 
     def write(self):
-        with open('../recording/recording.json', 'w') as file:
+        with open('recording/recording.json', 'w') as file:
             json.dump(self.data, file)
 
     def read(self):
-        with open('../recording/recording.json', 'r') as file:
+        with open('recording/recording.json', 'r') as file:
             self.data = json.load(file)
 
     def getNextAgentPosition(self):

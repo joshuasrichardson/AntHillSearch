@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 
-from Constants import SITES_RADII, EXPLORE
+from Constants import SITE_RADIUS, EXPLORE
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from states.SearchState import SearchState
@@ -282,7 +282,7 @@ class Controls:
             site.radius -= 1
 
     def createSite(self, position):
-        self.world.createSite(position[0], position[1], SITES_RADII, 256 / 2)
+        self.world.createSite(position[0], position[1], SITE_RADIUS, 256 / 2)
 
     def createAgent(self, position):
         agent = Agent(self.world, self.world.hub, startingPosition=position)

@@ -1,23 +1,35 @@
 """ Colony Simulation Environment """
 import datetime
 import threading
-
-from ColonyExceptions import *
+import sys
+sys.path.append("")
+from colony.ColonyExceptions import *
 from colony.AbstractColonySimulation import AbstractColonySimulation
 from colony.Agents import *
 from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
 
 
+# python colony/Colony.py
+
+# TODO: Fix the location of the hub to always go in the center of the screen or fix the size of the screen.
+# TODO: Limit search radius of agents
+# TODO: Make it so they can select only agents or only sites
+# TODO: Add a parameter to make it so that they look for the site if it moves
+# TODO: Add parameter to send or not send
+# TODO: Add a readme file explaining how the controls and stuff work.
+# TODO: Add a graph that can show the probability of converging to a site and time to converge
+
+
 class ColonySimulation(AbstractColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES,
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldReport=SHOULD_REPORT,
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
-                 hubLocation=HUB_LOCATION, hubRadius=SITES_RADII, hubAgentCount=NUM_AGENTS,
+                 hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
-        super().__init__(simulationDuration, numSites, shouldRecord, shouldDraw, convergenceFraction,
+        super().__init__(simulationDuration, numSites, shouldReport, shouldRecord, shouldDraw, convergenceFraction,
                          hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                          siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.previousSendTime = datetime.datetime.now()
@@ -68,16 +80,17 @@ class ColonySimulation(AbstractColonySimulation):
             self.recorder.recordAgentInfo(agent)
 
     def updateRestAPI(self, agentRectList):
-        hubRect = self.world.hub.getSiteRect()
-        hubAgentsIndices = hubRect.collidelistall(agentRectList)
-        self.world.request.numAtHub = 0
-        for agentIndex in hubAgentsIndices:
-            self.world.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
-        now = datetime.datetime.now()
-        if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
-            self.previousSendTime = now
-            thread = threading.Thread(target=self.world.request.sendHubInfo)
-            thread.start()
+        if self.shouldReport:
+            hubRect = self.world.hub.getSiteRect()
+            hubAgentsIndices = hubRect.collidelistall(agentRectList)
+            self.world.request.numAtHub = 0
+            for agentIndex in hubAgentsIndices:
+                self.world.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
+            now = datetime.datetime.now()
+            if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
+                self.previousSendTime = now
+                thread = threading.Thread(target=self.world.request.sendHubInfo)
+                thread.start()
 
     def save(self):
         if self.shouldRecord:

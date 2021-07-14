@@ -26,7 +26,7 @@ class Agent:
 
         self.prevPos = startingPosition  # Initial position
         self.pos = startingPosition  # Initial position
-        self.agentHandle = pygame.image.load("../copter.png")  # Image on screen representing the agent
+        self.agentHandle = pygame.image.load("copter.png")  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
