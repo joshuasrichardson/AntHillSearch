@@ -1,31 +1,39 @@
 """ Site class. Stores 2D positions of hub and sites """
 import numpy as np
 import pygame as pyg
+from pygame.rect import Rect
+
 from Constants import *
 
 
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
-    def __init__(self, surface, x, y, quality):
+    def __init__(self, surface, hubLocation, x, y, radius, quality, allSiteQualities, siteNoCloserThan, siteNoFartherThan,
+                 shouldDraw):
         """ randomly places site at a 2D location and assigns it a random state """
-        self.myfont = pyg.font.SysFont('Comic Sans MS', 12)
-        self.screen = surface
-        self.quality = self.setQuality(quality)
-        self.color = self.setColor(self.quality)
+        self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font that is used on the value of the site
+        self.screen = surface  # The screen on which the site is drawn
+        self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
 
-        self.pos = self.initializePosition(x, y)
-        self.radius = SITE_SIZE
-        self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
-        self.agentCount = 0
-        self.observeRadius = SITE_OBSERVED_RANGE
-        self.siteObserveRect = pyg.draw.circle(self.screen, self.color, self.pos, self.observeRadius, 0)
+        self.quality = self.setQuality(quality)  # The quality of a site on a scale of 0 - 255
+        self.allSiteQualities = allSiteQualities  # A list storing the qualities of all sites in the simulation
+        self.color = self.setColor(self.quality)  # The color of the site, representing its quality
 
-        self.siteRect.centerx = self.pos[0]
-        self.siteRect.centery = self.pos[1]
-        self.siteObserveRect.centerx = self.pos[0]
-        self.siteObserveRect.centery = self.pos[1]
+        self.hubLocation = hubLocation  # Where the agents' original home is
+        self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub that the sites can be randomly generated
+        self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub that the sites can be randomly generated
+        self.pos = self.initializePosition(x, y)  # Where the site is located when the simulation starts
+        self.radius = radius  # The radius of the circle that represents the site
+        if self.shouldDraw:
+            self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)  # The rectangle used to track collisions in the simulation
+        else:
+            self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
+        self.siteRect.centerx = self.pos[0]  # The x coordinate of the center of the rectangle
+        self.siteRect.centery = self.pos[1]  # The y coordinate of the center of the rectangle
 
-        self.isSelected = False
+        self.agentCount = 0  # The number of agents assigned to the site
+
+        self.isSelected = False  # Whether the site is selected (helps with user controls)
 
     def setQuality(self, quality):
         if quality is None:
@@ -45,14 +53,13 @@ class Site:
             self.color = 255 - quality, quality, 0
         return self.color
 
-    @staticmethod
-    def initializePosition(x, y):
+    def initializePosition(self, x, y):
         angle = np.random.uniform(0, np.pi * 2)
-        radius = np.random.uniform(SITE_NO_CLOSER_THAN, SITE_NO_FARTHER_THAN)
+        radius = np.random.uniform(self.siteNoCloserThan, self.siteNoFartherThan)
         if x is None:
-            x = int(HUB_LOCATION[0] + np.round(radius * np.cos(angle)))
+            x = int(self.hubLocation[0] + np.round(radius * np.cos(angle)))
         if y is None:
-            y = int(HUB_LOCATION[1] + np.round(radius * np.sin(angle)))
+            y = int(self.hubLocation[1] + np.round(radius * np.sin(angle)))
         return [x, y]
 
     def drawSite(self):
@@ -66,21 +73,18 @@ class Site:
         return self.quality
 
     def normalizeQuality(self, span, zero):
-        if SITE_QUALITIES.count(self.quality) == 0:  # Only normalize if the quality was not manually set
+        if self.allSiteQualities.count(self.quality) == 0:  # Only normalize if the quality was not manually set
             self.quality = int(round((self.quality - zero) / span * 255))
             # 255 is the maximum color range
             self.color = 255 - self.quality, self.quality, 0
 
     def getPosition(self):
-        # return self.x,self.y
         return [self.siteRect.centerx, self.siteRect.centery]
 
     def setPosition(self, pos):
         self.pos = pos
         self.siteRect.centerx = self.pos[0]
         self.siteRect.centery = self.pos[1]
-        self.siteObserveRect.centerx = self.pos[0]
-        self.siteObserveRect.centery = self.pos[1]
 
     def getColor(self):
         return self.color

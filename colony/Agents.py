@@ -2,7 +2,7 @@
 import random
 
 import numpy as np
-import pygame as pyg
+import pygame
 
 from Constants import *
 
@@ -15,28 +15,31 @@ class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
     phases and states"""
 
-    def __init__(self, world):
+    def __init__(self, world, startingAssignment, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
+                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION):
         self.world = world  # The colony the agent lives in
         self.siteObserveRectList = world.getSiteObserveRectList()  # List of rectangles of all the sites in the colony
         self.siteList = world.getSiteList()  # List of all the sites in the colony
-        self.hubLocation = world.getHubPosition()  # Original home location
-        self.hub = self.siteList[len(self.siteList) - 1]  # Original home that the agents are leaving
+        self.hub = world.hub  # Original home that the agents are leaving
 
-        self.prevPos = world.getHubPosition()  # Initial position
-        self.pos = world.getHubPosition()  # Initial position
-        self.agentHandle = pyg.image.load("../copter.png")  # Image on screen representing the agent
+        self.prevPos = startingPosition  # Initial position
+        self.pos = startingPosition  # Initial position
+        self.agentHandle = pygame.image.load("copter.png")  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
 
-        self.speed = self.initializeSpeed()  # AGENT_SPEED * TIME_STEP  # Speed the agent moves on the screen
-        self.uncommittedSpeed = self.speed
-        self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR
-        self.decisiveness = self.initializeDecisiveness()  # Influences how quickly an agent can assess
-        self.navigationSkills = self.initializeNavSkills()  # Influences how likely an agent is to get lost
-        self.estimationAccuracy = self.initializeAccuracy()  # How far off an agent's estimate of the quality of a site will be on average.
+        self.homogenousAgents = homogenousAgents  # Whether all the agents have the same attributes (if false, their attributes vary)
+        self.speed = self.initializeAttribute(minSpeed, maxSpeed)  # Speed the agent moves on the screen
+        self.uncommittedSpeed = self.speed  # The speed of the agents outside the committed phase
+        self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR  # The speed of the agents in the committed phase
+        self.decisiveness = self.initializeAttribute(minDecisiveness, maxDecisiveness)  # Influences how quickly an agent can assess
+        self.navigationSkills = self.initializeAttribute(minNavSkills, maxNavSkills)  # Influences how likely an agent is to get lost
+        self.estimationAccuracy = self.initializeAttribute(minEstAccuracy, maxEstAccuracy)  # How far off an agent's estimate of the quality of a site will be on average.
 
-        self.target = self.hubLocation  # Either the hub or a site the agent is going to
+        self.target = startingPosition  # The position the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
 
@@ -44,12 +47,13 @@ class Agent:
         self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
         self.phaseColor = EXPLORE_COLOR  # A color to represent the phase so it can be seen on the screen
 
-        self.assignedSite = self.hub  # Site that the agent has discovered and is trying to get others to go see
+        self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
-        self.speedCoefficient = 1
+        self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.knownSites = {self.hub}  # A list of sites that the agent has been to before
+        self.knownSites.add(startingAssignment)
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
         self.numFollowers = 0  # The number of agents following the current agent in LEAD_FORWARD or TANDEM_RUN state
@@ -59,33 +63,11 @@ class Agent:
         self.isSelected = False  # Whether the user clicked on the agent or its site most recently.
         self.isTheSelected = False  # Whether the agent is the one with its information shown.
 
-    def initializeSpeed(self):
-        if HOMOGENOUS_AGENTS:
-            self.speed = MAX_AGENT_SPEED
+    def initializeAttribute(self, minimum, maximum):
+        if self.homogenousAgents:
+            return maximum
         else:
-            self.speed = random.uniform(MIN_AGENT_SPEED, MAX_AGENT_SPEED) * TIME_STEP
-        return self.speed
-
-    def initializeDecisiveness(self):
-        if HOMOGENOUS_AGENTS:
-            self.decisiveness = MAX_DECISIVENESS
-        else:
-            self.decisiveness = random.uniform(MIN_DECISIVENESS, MAX_DECISIVENESS)
-        return self.decisiveness
-
-    def initializeNavSkills(self):
-        if HOMOGENOUS_AGENTS:
-            self.navigationSkills = MAX_NAV_SKILLS
-        else:
-            self.navigationSkills = random.uniform(MIN_NAV_SKILLS, MAX_NAV_SKILLS)
-        return self.navigationSkills
-
-    def initializeAccuracy(self):
-        if HOMOGENOUS_AGENTS:
-            self.estimationAccuracy = MAX_QUALITY_MISJUDGMENT
-        else:
-            self.estimationAccuracy = random.randint(0, MAX_QUALITY_MISJUDGMENT)
-        return self.estimationAccuracy
+            return random.uniform(minimum, maximum)
 
     def setState(self, state):
         self.state = state
@@ -141,14 +123,14 @@ class Agent:
 
     def drawAgent(self, surface):
         if self.isTheSelected:
-            pyg.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
+            pygame.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
         if self.isSelected:
-            pyg.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
+            pygame.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
         surface.blit(self.agentHandle, self.agentRect)
 
         if SHOW_AGENT_COLORS:
-            pyg.draw.ellipse(surface, self.state.color, self.agentRect, 4)
-            pyg.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
+            pygame.draw.ellipse(surface, self.state.color, self.agentRect, 4)
+            pygame.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
         if SHOW_ESTIMATED_QUALITY:
             img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
@@ -182,23 +164,23 @@ class Agent:
                 return siteIndex
 
     def isDoneAssessing(self):
-        return np.random.exponential(ASSESS_EXPONENTIAL) * self.decisiveness > self.assessmentThreshold * ASSESS_EXPONENTIAL
+        return np.random.exponential() * self.decisiveness > self.assessmentThreshold
 
     def quorumMet(self):
         return self.assignedSite.agentCount > QUORUM_SIZE
 
     def shouldSearch(self):
         if self.assignedSite == self.hub:
-            return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_FROM_HUB_THRESHOLD * SEARCH_EXPONENTIAL
-        return np.random.exponential(SEARCH_EXPONENTIAL) > SEARCH_THRESHOLD * SEARCH_EXPONENTIAL  # Make it more likely if they aren't at the hub.
+            return np.random.exponential() > SEARCH_FROM_HUB_THRESHOLD
+        return np.random.exponential() > SEARCH_THRESHOLD  # Make it more likely if they aren't at the hub.
 
     @staticmethod
     def shouldReturnToNest():
-        return np.random.exponential(AT_NEST_EXPONENTIAL) > AT_NEST_THRESHOLD * AT_NEST_EXPONENTIAL
+        return np.random.exponential() > AT_NEST_THRESHOLD
 
     @staticmethod
     def shouldRecruit():
-        return np.random.exponential(LEAD_EXPONENTIAL) > LEAD_THRESHOLD * LEAD_EXPONENTIAL
+        return np.random.exponential() > LEAD_THRESHOLD
 
     @staticmethod
     def shouldKeepTransporting():
@@ -206,10 +188,19 @@ class Agent:
 
     @staticmethod
     def shouldFollow():
-        return np.random.exponential(FOLLOW_EXPONENTIAL) > FOLLOW_THRESHOLD * FOLLOW_EXPONENTIAL
+        return np.random.exponential() > FOLLOW_THRESHOLD
 
     def shouldGetLost(self):
-        return np.random.exponential(GET_LOST_EXPONENTIAL) > self.navigationSkills * GET_LOST_THRESHOLD * GET_LOST_EXPONENTIAL
+        return np.random.exponential() > self.navigationSkills * GET_LOST_THRESHOLD
+
+    @staticmethod
+    def transportOrReverseTandem(state):
+        if np.random.randint(0, 3) == 0:
+            from states.ReverseTandemState import ReverseTandemState
+            state.setState(ReverseTandemState(state.agent), state.agent.assignedSite.pos)
+        else:
+            from states.TransportState import TransportState
+            state.setState(TransportState(state.agent), state.agent.assignedSite.pos)
 
     def select(self):
         self.isSelected = True

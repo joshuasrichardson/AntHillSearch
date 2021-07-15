@@ -1,122 +1,137 @@
-from recording.CopySite import CopySite
+import json
 
 
 class Recorder:
     """ Records essential site information, agent positions, agent states, and agent phases
     in recording.txt so that the same simulation can be played over again """
 
-    def __init__(self, numAgents, sites):
-        self.numAgents = numAgents
-        if sites is not None:
-            self.sites = sites
-        else:
-            self.sites = []
-        self.positions = []
-        self.states = []
-        self.phases = []
-        self.assignments = []
-        self.result = None
-        self.currentPosIndex = -1
+    def __init__(self):
+        self.agentPositions = []
+        self.agentStates = []
+        self.agentPhases = []
+        self.agentAssignments = []
+        self.sitePositions = []
+        self.siteQualities = []
+        self.siteRadii = []
+
+        self.data = []
+
+        self.currentAgentPosIndex = -1
         self.currentStateIndex = -1
         self.currentPhaseIndex = -1
         self.currentAssignmentIndex = -1
+        self.currentSitePosIndex = -1
+        self.currentQualityIndex = -1
+        self.currentRadiusIndex = -1
+
+        self.dataIndex = -1
 
     def recordAgentInfo(self, agent):
-        self.recordPosition(agent.getPosition())
+        self.recordAgentPosition(agent.getPosition())
         self.recordState(agent.getState())
         self.recordPhase(agent.phase)
         self.recordAssignment(agent.getAssignedSiteIndex())
 
-    def recordPosition(self, pos):
-        self.positions.append(pos)
+    def recordAgentPosition(self, pos):
+        self.agentPositions.append(pos)
 
     def recordState(self, state):
-        self.states.append(state)
+        self.agentStates.append(state)
 
     def recordPhase(self, phase):
-        self.phases.append(phase)
+        self.agentPhases.append(phase)
 
     def recordAssignment(self, siteIndex):
-        self.assignments.append(siteIndex)
+        self.agentAssignments.append(siteIndex)
+
+    def recordSiteInfo(self, site):
+        self.recordSitePosition(site.getPosition())
+        self.recordSiteQuality(site.getQuality())
+        self.recordSiteRadius(site.radius)
+
+    def recordSitePosition(self, pos):
+        self.sitePositions.append(pos)
+
+    def recordSiteQuality(self, quality):
+        self.siteQualities.append(quality)
+
+    def recordSiteRadius(self, radius):
+        self.siteRadii.append(radius)
 
     def save(self):
-        with open('../recording/recording.txt', 'w') as file:
-            file.write(str(self.numAgents) + "\n")
-            file.write(str(len(self.sites)) + "\n")
-            for site in self.sites:
-                file.write(str(site.pos) + "\n")
-                file.write(str(site.radius) + "\n")
-                file.write(str(site.quality) + "\n")
-            for pos in self.positions:
-                file.write(str(pos) + "\n")
-            for state in self.states:
-                file.write(str(state) + "\n")
-            file.write("Phases:\n")
-            for phase in self.phases:
-                file.write(str(phase) + "\n")
-            file.write("Assignments:\n")
-            for assignment in self.assignments:
-                file.write(str(assignment) + "\n")
+        self.data.append({'agentPositions': self.agentPositions,
+                          'agentStates': self.agentStates,
+                          'agentPhases': self.agentPhases,
+                          'agentAssignments': self.agentAssignments,
+                          'sitePositions': self.sitePositions,
+                          'siteQualities': self.siteQualities,
+                          'siteRadii': self.siteRadii})
+        self.agentPositions = []
+        self.agentStates = []
+        self.agentPhases = []
+        self.agentAssignments = []
+        self.sitePositions = []
+        self.siteQualities = []
+        self.siteRadii = []
+
+    def write(self):
+        with open('recording/recording.json', 'w') as file:
+            json.dump(self.data, file)
 
     def read(self):
-        with open('../recording/recording.txt', 'r') as file:
-            text = file.read()
-            self.result = text.split('\n')
-            self.numAgents = int(self.result[0])
-            numSites = int(self.result[1])
-            for i in range(2, (numSites * 3) + 2, 3):
-                res = self.result[i][1:-1]
-                pos = [int(s) for s in res.split(',')]
-                radius = int(self.result[i + 1])
-                quality = int(self.result[i + 2])
-                site = CopySite(pos, radius, quality)
-                self.sites.append(site)
-            index = 0
-            for i in range(2 + (numSites * 3), len(self.result) - 1):
-                if self.result[i][0] is not '[':
-                    index = i
-                    break
-                res = self.result[i][1:-1]
-                position = [int(s) for s in res.split(',')]
-                self.positions.append(position)
-            for i in range(index, len(self.result) - 1):
-                if self.result[i].__contains__("Phases:"):
-                    index = i + 1
-                    break
-                self.states.append(int(self.result[i]))
-            for i in range(index, len(self.result) - 1):
-                if self.result[i].__contains__("Assignments:"):
-                    index = i + 1
-                    break
-                self.phases.append(int(self.result[i]))
-            for i in range(index, len(self.result) - 1):
-                self.assignments.append(int(self.result[i]))
-                # self.assignments.append(int(self.result[i]))
+        with open('recording/recording.json', 'r') as file:
+            self.data = json.load(file)
 
-    def getNextPosition(self):
-        self.currentPosIndex += 1
-        if len(self.positions) > self.currentPosIndex:
-            return self.positions[self.currentPosIndex]
-        else:
-            return -1
+    def getNextAgentPosition(self):
+        self.currentAgentPosIndex += 1
+        return self.agentPositions[self.currentAgentPosIndex]
 
     def getNextState(self):
         self.currentStateIndex += 1
-        if len(self.states) > self.currentStateIndex:
-            return self.states[self.currentStateIndex]
-        else:
-            return -1
+        return self.agentStates[self.currentStateIndex]
 
     def getNextPhase(self):
         self.currentPhaseIndex += 1
-        if len(self.phases) > self.currentPhaseIndex:
-            return self.phases[self.currentPhaseIndex]
-        else:
-            return -1
+        return self.agentPhases[self.currentPhaseIndex]
 
     def getNextAssignment(self):
         self.currentAssignmentIndex += 1
-        if len(self.assignments) > self.currentAssignmentIndex:
-            return self.assignments[self.currentAssignmentIndex]
+        return self.agentAssignments[self.currentAssignmentIndex]
+
+    def getNextSitePosition(self):
+        self.currentSitePosIndex += 1
+        return self.sitePositions[self.currentSitePosIndex]
+
+    def getNextSiteQuality(self):
+        self.currentQualityIndex += 1
+        return self.siteQualities[self.currentQualityIndex]
+
+    def getNextSiteRadius(self):
+        self.currentRadiusIndex += 1
+        return self.siteRadii[self.currentRadiusIndex]
+
+    def getNumSites(self):
+        return len(self.sitePositions)
+
+    def setNextRound(self):
+        self.dataIndex += 1
+
+        self.currentAgentPosIndex = -1
+        self.currentStateIndex = -1
+        self.currentPhaseIndex = -1
+        self.currentAssignmentIndex = -1
+        self.currentSitePosIndex = -1
+        self.currentQualityIndex = -1
+        self.currentRadiusIndex = -1
+
+        if len(self.data) > self.dataIndex:
+            self.agentPositions = self.data[self.dataIndex]['agentPositions']
+            self.agentStates = self.data[self.dataIndex]['agentStates']
+            self.agentPhases = self.data[self.dataIndex]['agentPhases']
+            self.agentAssignments = self.data[self.dataIndex]['agentAssignments']
+            self.sitePositions = self.data[self.dataIndex]['sitePositions']
+            self.siteQualities = self.data[self.dataIndex]['siteQualities']
+            self.siteRadii = self.data[self.dataIndex]['siteRadii']
+            return True
         else:
-            return -1
+            return False

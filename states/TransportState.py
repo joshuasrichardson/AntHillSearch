@@ -1,6 +1,5 @@
 from Constants import *
 from states.RecruitState import RecruitState
-from states.phases.CommitPhase import CommitPhase
 
 
 class TransportState(RecruitState):
@@ -14,7 +13,7 @@ class TransportState(RecruitState):
 
     def arriveAtSite(self):
         if self.agent.shouldKeepTransporting():
-            CommitPhase.transportOrReverseTandem(self)
+            self.agent.transportOrReverseTandem(self)
         else:
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), self.agent.assignedSite.getPosition())

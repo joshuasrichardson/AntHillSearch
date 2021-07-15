@@ -1,68 +1,102 @@
 """ Colony Simulation Environment """
 import datetime
 import threading
-
-from ColonyExceptions import *
+import sys
+sys.path.append("")
+from colony.ColonyExceptions import *
 from colony.AbstractColonySimulation import AbstractColonySimulation
 from colony.Agents import *
+from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
-from recording.Recorder import Recorder
+
+
+# TODO: Fix the location of the hub to always go in the center of the screen or fix the size of the screen
+# TODO: Limit search radius of agents
+# TODO: Add a parameter to make it so that they look for the site if it moves
+# TODO: Add parameter to send or not send hub information
+# TODO: Complete README.md file
+# TODO: Add a graph that can show the probability of converging to a site and time to converge
 
 
 class ColonySimulation(AbstractColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
-    def __init__(self, numAgents, simulationDuration, numSites):
-        self.numAgents = numAgents
-        super().__init__(simulationDuration, numSites)
-        self.connected = True
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldReport=SHOULD_REPORT,
+                 shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
+                 hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
+                 sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
+                 siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
+        super().__init__(simulationDuration, numSites, shouldReport, shouldRecord, shouldDraw, convergenceFraction,
+                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
+                         siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.previousSendTime = datetime.datetime.now()
-        self.request = None
 
-        if numAgents < 0 or numAgents > MAX_AGENTS:
-            raise InputError("Number of agents must be between 1 and 200", numAgents)
-        if simulationDuration < 0 or simulationDuration / TIME_STEP > MAX_STEPS:
+        if simulationDuration < 0 or simulationDuration > MAX_TIME:
             raise InputError("Simulation too short or too long", simulationDuration)
-        if numSites < 0 or numSites > MAX_N:
+        if numSites < 0 or numSites > MAX_NUM_SITES:
             raise InputError("Can't be more sites than maximum value", numSites)
 
-    def getRecorder(self):
-        return Recorder(self.numAgents, self.world.siteList)
-
-    def getNumAgents(self):
-        return self.numAgents
+    def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True):
+        world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)
+        return world
 
     def initializeRequest(self):
-        self.request = SendHubInfoRequest(self.agentList)
+        self.world.request = SendHubInfoRequest(self.world.agentList)
+
+    def randomizeInitialState(self):
+        self.world.randomizeState()
+
+    def addAgents(self, numAgents, state, phase, assignedSiteIndex, startingPosition=None):
+        if startingPosition is None:
+            startingPosition = self.world.siteList[assignedSiteIndex].getPosition()
+        for i in range(0, numAgents):
+            agent = Agent(self.world, self.world.siteList[assignedSiteIndex], startingPosition=startingPosition)
+            agent.assignedSite.agentCount += 1
+            agent.setState(state(agent))
+            agent.setPhase(phase)
+            self.world.addAgent(agent)
+
+    def updateSites(self):
+        if self.shouldRecord:
+            for site in self.world.siteList:
+                self.recorder.recordSiteInfo(site)
 
     def updateAgent(self, agent, agentRectList):
-        # Build adjacency list for observers, assessors, and pipers
         agent.updatePosition(None)
-        # self.recorder.recordAgentInfo(agent)
 
         agentRect = agent.getAgentRect()
         possibleNeighborList = agentRect.collidelistall(agentRectList)
         agentNeighbors = []
         for i in possibleNeighborList:
-            agentNeighbors.append(self.agentList[i])
+            agentNeighbors.append(self.world.agentList[i])
         agent.changeState(agentNeighbors)
-        self.recorder.recordAgentInfo(agent)
+
+        if self.shouldRecord:
+            self.recorder.recordAgentInfo(agent)
 
     def updateRestAPI(self, agentRectList):
-        hubRect = self.world.siteList[len(self.world.siteList) - 1].getSiteRect()
-        hubAgentsIndices = hubRect.collidelistall(agentRectList)
-        self.request.numAtHub = 0
-        for agentIndex in hubAgentsIndices:
-            self.request.addAgentToSendRequest(self.agentList[agentIndex], agentIndex)
-        now = datetime.datetime.now()
-        if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
-            self.previousSendTime = now
-            thread = threading.Thread(target=self.request.sendHubInfo)
-            thread.start()
+        if self.shouldReport:
+            hubRect = self.world.hub.getSiteRect()
+            hubAgentsIndices = hubRect.collidelistall(agentRectList)
+            self.world.request.numAtHub = 0
+            for agentIndex in hubAgentsIndices:
+                self.world.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
+            now = datetime.datetime.now()
+            if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
+                self.previousSendTime = now
+                thread = threading.Thread(target=self.world.request.sendHubInfo)
+                thread.start()
 
     def save(self):
-        self.recorder.save()
+        if self.shouldRecord:
+            self.recorder.save()
+
+    def write(self):
+        if self.shouldRecord:
+            self.recorder.write()
 
     def sendResults(self, chosenSite, simulationTime):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
-        self.request.sendResults(chosenSite.pos, simulationTime)
+        self.world.request.sendResults(chosenSite, simulationTime)
