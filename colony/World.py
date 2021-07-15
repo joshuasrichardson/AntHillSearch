@@ -34,6 +34,10 @@ class World:
         self.agentList = []  # List of all the agents in the world
         self.hub = self.createHub()  # The agents' original home
         self.request = None  # The request, used to sent information to a rest API
+        self.selectAgentsRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] - 10, 10, 10)
+        self.selectSitesRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 2, 10, 10)
+        self.selectAgentsSitesRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 14, 10, 10)
+        self.selectSitesAgentsRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 26, 10, 10)
 
     def randomizeState(self):
         for agent in self.agentList:
@@ -133,7 +137,7 @@ class World:
 
     def drawStateGraph(self, states):
         img = self.myfont.render("STATES:", True, (0, 0, 0))
-        self.screen.blit(img, (self.gloc[0]-100, self.gloc[1] - 15))
+        self.screen.blit(img, (self.gloc[0] - 100, self.gloc[1] - 15))
         for state, width in enumerate(states):
             pyg.draw.rect(self.screen, self.colors[state], pyg.Rect(self.gloc[0], self.gloc[1] + state * 11, width, 10))
             img = self.myfont.render(self.possibleStates[state], True, self.colors[state])
@@ -170,6 +174,48 @@ class World:
         for i, attribute in enumerate(attributes):
             img = self.myfont.render(attribute, True, (0, 0, 0))
             self.screen.blit(img, (location[0] - 100, location[1] - 5 + i * 11))
+
+    def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites):
+        selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
+        img = self.myfont.render("Select Agents:", True, (0, 0, 0))
+        self.screen.blit(img, (self.gloc[0] + 210, self.gloc[1] - 15))
+        pyg.draw.rect(self.screen, selectAgentsColor, self.selectAgentsRect)
+
+        selectSitesColor = self.getShouldSelectColor(shouldSelectSites)
+        img = self.myfont.render("Select Sites:", True, (0, 0, 0))
+        self.screen.blit(img, (self.gloc[0] + 210, self.gloc[1] - 3))
+        pyg.draw.rect(self.screen, selectSitesColor, self.selectSitesRect)
+
+        if shouldSelectAgents:
+            selectAgentsSitesColor = self.getShouldSelectColor(shouldSelectAgentSites)
+            img = self.myfont.render("Select Agents Sites:", True, (0, 0, 0))
+            self.screen.blit(img, (self.gloc[0] + 210, self.gloc[1] + 9))
+            pyg.draw.rect(self.screen, selectAgentsSitesColor, self.selectAgentsSitesRect)
+
+        if shouldSelectSites:
+            selectSitesAgentsColor = self.getShouldSelectColor(shouldSelectSiteAgents)
+            img = self.myfont.render("Select Sites Agents:", True, (0, 0, 0))
+            self.screen.blit(img, (self.gloc[0] + 210, self.gloc[1] + 21))
+            pyg.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
+
+    def collidesWithSelectAgentsButton(self, position):
+        return self.selectAgentsRect.collidepoint(position[0], position[1])
+
+    def collidesWithSelectSitesButton(self, position):
+        return self.selectSitesRect.collidepoint(position[0], position[1])
+
+    def collidesWithSelectAgentsSitesButton(self, position):
+        return self.selectAgentsSitesRect.collidepoint(position[0], position[1])
+
+    def collidesWithSelectSitesAgentsButton(self, position):
+        return self.selectSitesAgentsRect.collidepoint(position[0], position[1])
+
+    @staticmethod
+    def getShouldSelectColor(shouldSelect):
+        if shouldSelect:
+            return 0, 0, 255
+        else:
+            return 120, 120, 120
 
     def drawPause(self):
         pausedFont = pyg.font.SysFont('Comic Sans MS', 40)

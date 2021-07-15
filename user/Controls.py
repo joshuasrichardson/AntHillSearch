@@ -19,7 +19,7 @@ class Controls:
         self.selectedAgent = None
         self.selectedAgents = []
         self.selectedAgentIndex = 0
-        self.selectedAgentsPositions = []
+        self.selectedAgentsPositions = []  # FIXME: When using nextSite and previousSite, it keeps the same positions
         self.selectRectCorner = None
         self.selectRect = None
         self.selectedSite = None
@@ -29,8 +29,13 @@ class Controls:
         self.oldRect = None
         self.potentialQuality = 0
         self.shouldDrawQuality = False
+        self.shouldSelectAgents = True
+        self.shouldSelectSites = True
+        self.shouldSelectSiteAgents = False
+        self.shouldSelectAgentSites = False
 
     def drawChanges(self):
+        self.world.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents, self.shouldSelectAgentSites)
         if self.selectedAgent is not None:
             self.world.drawSelectedAgentInfo(self.selectedAgent)
         if self.selectedSite is not None:
@@ -98,38 +103,9 @@ class Controls:
             self.timer.cancel()
             raise GameOver("Exited Successfully")
 
-    def select(self, mousePos):
-        # Unselect all agents and sites
-        for a in self.agentList:
-            a.unselect()
-        for s in self.world.siteList:
-            s.unselect()
-        # get a list of all objects that are under the mouse cursor
-        self.selectedAgents = [s for s in self.agentList if s.agentRect.collidepoint(mousePos)]
-        self.selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
-        if len(self.selectedAgents) > 0:
-            self.selectedAgent = self.selectedAgents[0]
-            self.selectedAgent.select()
-            self.selectedAgent.isTheSelected = True
-            self.selectedAgentIndex = 0
-            if self.allSelectedAgentsAssignedToSameSite():
-                self.selectedSite = self.selectedAgent.assignedSite
-                self.selectedSite.select()
-        if len(self.selectedSites) > 0:
-            self.selectedSite = self.selectedSites[0]
-            self.selectedSite.select()
-            self.selectedSiteIndex = 0
-            self.selectedAgentsPositions = []
-            for agent in self.agentList:
-                if agent.assignedSite is self.selectedSite:
-                    self.selectedAgentsPositions.append(agent.pos)
-                    agent.select()
-                    self.selectedAgents.append(agent)
-            if len(self.selectedAgents) > 0:
-                self.selectedAgent = self.selectedAgents[0]
-                self.selectedAgent.isTheSelected = True
-
     def allSelectedAgentsAssignedToSameSite(self):
+        if len(self.selectedAgents) == 0:
+            return False
         for agent in self.selectedAgents:
             if agent.assignedSite is not self.selectedAgent.assignedSite:
                 return False
@@ -137,18 +113,24 @@ class Controls:
 
     def mouseUp(self, mousePos):
         if self.dragSite is not None:
-            print("Old Rect: " + str(self.oldRect))
-            print("Drag Rect: " + str(self.dragSite.getSiteRect()))
-            print("Old site rect list: " + str(self.world.siteRectList))
             self.world.siteRectList = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.siteRectList]
-            print("New site rect list: " + str(self.world.siteRectList))
         self.dragSite = None
         self.selectedAgent = None
         self.selectedSite = None
-        self.select(mousePos)
+        self.unselectAll()
         if self.selectRectCorner is not None and np.abs(mousePos[0] - self.selectRectCorner[0]) > 1\
                 and np.abs(mousePos[1] - self.selectRectCorner[1]) > 1:
             self.wideSelect()
+        elif self.world.collidesWithSelectAgentsButton(mousePos):
+            self.shouldSelectAgents = not self.shouldSelectAgents
+        elif self.world.collidesWithSelectSitesButton(mousePos):
+            self.shouldSelectSites = not self.shouldSelectSites
+        elif self.world.collidesWithSelectAgentsSitesButton(mousePos):
+            self.shouldSelectAgentSites = not self.shouldSelectAgentSites
+        elif self.world.collidesWithSelectSitesAgentsButton(mousePos):
+            self.shouldSelectSiteAgents = not self.shouldSelectSiteAgents
+        else:
+            self.select(mousePos)
         self.selectRectCorner = None
 
     def mouseDown(self, mousePos):
@@ -163,17 +145,83 @@ class Controls:
         self.oldRect = self.selectedSite.getSiteRect()
         self.dragSite = self.selectedSite
 
+    def unselectAll(self):
+        # Unselect all agents and sites
+        for a in self.agentList:
+            a.unselect()
+        for s in self.world.siteList:
+            s.unselect()
+        self.selectedAgents = []
+        self.selectedSites = []
+
+    def select(self, mousePos):
+        # get a list of all objects that are under the mouse cursor
+        if self.shouldSelectAgents:
+            self.selectAgent(mousePos)
+        if self.shouldSelectSites:
+            self.selectSite(mousePos)
+
+    def selectAgent(self, mousePos):
+        selectedAgents = [s for s in self.agentList if s.agentRect.collidepoint(mousePos)]
+
+        if len(selectedAgents) > 0:
+            self.selectedAgent = self.selectedAgents[0]
+            self.selectedAgent.select()
+            self.selectedAgent.isTheSelected = True
+            self.selectedAgents = [self.selectedAgent]
+            self.selectedAgentIndex = 0
+            if self.shouldSelectAgentSites:
+                self.selectedSite = self.selectedAgent.assignedSite
+                self.selectedSite.select()
+                self.selectedSite.isTheSelected = True
+
+    def selectSite(self, mousePos):
+        selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
+
+        if len(selectedSites) > 0:
+            self.selectedSite = selectedSites[0]
+            self.selectedSite.select()
+            self.selectedSite.isTheSelected = True
+            self.selectedSites = [self.selectedSite]
+            self.selectedSiteIndex = 0
+            self.selectedAgentsPositions = []
+            for agent in self.agentList:
+                if agent.assignedSite is self.selectedSite:
+                    self.selectedAgentsPositions.append(agent.pos)
+                    if self.shouldSelectSiteAgents:
+                        agent.select()
+                        self.selectedAgents.append(agent)
+            if len(self.selectedAgents) > 0:
+                self.selectedAgent = self.selectedAgents[0]
+                self.selectedAgent.isTheSelected = True
+
     def startSelectRect(self, mousePos):
         self.selectRectCorner = mousePos
 
     def wideSelect(self):
         # get a list of all objects that are under the mouse cursor
         self.selectRect = self.world.drawSelectRect(self.selectRectCorner, pygame.mouse.get_pos())
+        if self.shouldSelectAgents:
+            self.selectAgents()
+        if self.shouldSelectSites:
+            self.selectSites()
+        if self.shouldSelectAgentSites and self.allSelectedAgentsAssignedToSameSite():
+            self.selectAgentsSite()
+
+    def selectAgents(self):
         self.selectedAgents = [a for a in self.agentList if a.agentRect.colliderect(self.selectRect)]
-        self.selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
 
         for a in self.selectedAgents:
             a.select()
+
+        if len(self.selectedAgents) > 0:
+            self.selectedAgent = self.selectedAgents[0]
+            self.selectedAgent.isTheSelected = True
+            self.selectedAgentIndex = 0
+
+    def selectSites(self):
+        self.selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
+
         for s in self.selectedSites:
             s.select()
 
@@ -185,16 +233,14 @@ class Controls:
             for agent in self.agentList:
                 if agent.assignedSite.isSelected:
                     self.selectedAgentsPositions.append(agent.pos)
-                    agent.select()
-                    self.selectedAgents.append(agent)
+                    if self.shouldSelectSiteAgents:
+                        agent.select()
+                        self.selectedAgents.append(agent)
 
-        if len(self.selectedAgents) > 0:
-            self.selectedAgent = self.selectedAgents[0]
-            self.selectedAgent.isTheSelected = True
-            self.selectedAgentIndex = 0
-            if self.allSelectedAgentsAssignedToSameSite():
-                self.selectedSite = self.selectedAgent.assignedSite
-                self.selectedSite.select()
+    def selectAgentsSite(self):
+        self.selectedSite = self.selectedAgent.assignedSite
+        self.selectedSite.isTheSelected = True
+        self.selectedSite.select()
 
     def half(self):
         for i in range(len(self.selectedAgents) - 1, int(np.round(len(self.selectedAgents) / 2) - 1), -1):

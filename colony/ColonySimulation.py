@@ -10,14 +10,11 @@ from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
 
 
-# python colony/Colony.py
-
-# TODO: Fix the location of the hub to always go in the center of the screen or fix the size of the screen.
+# TODO: Fix the location of the hub to always go in the center of the screen or fix the size of the screen
 # TODO: Limit search radius of agents
-# TODO: Make it so they can select only agents or only sites
 # TODO: Add a parameter to make it so that they look for the site if it moves
-# TODO: Add parameter to send or not send
-# TODO: Add a readme file explaining how the controls and stuff work.
+# TODO: Add parameter to send or not send hub information
+# TODO: Complete README.md file
 # TODO: Add a graph that can show the probability of converging to a site and time to converge
 
 
