@@ -15,7 +15,11 @@ class CarriedState(State):
         self.setState(self, self.agent.leadAgent.pos)
         if self.agent.leadAgent.getState() == TRANSPORT and not \
                 self.agent.leadAgent.agentRect.collidepoint(self.agent.leadAgent.assignedSite.pos):
-            self.agent.updateFollowPosition()
+            if not self.agent.world.agentList.__contains__(self.agent.leadAgent):
+                from states.SearchState import SearchState
+                self.setState(SearchState(self.agent), None)
+            else:
+                self.agent.updateFollowPosition()
         else:
             # if they arrived at a nest or the lead agent got lost and put them down or something:
             self.agent.knownSites.add(self.agent.leadAgent.assignedSite)

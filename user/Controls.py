@@ -34,6 +34,7 @@ class Controls:
         self.shouldSelectSiteAgents = False
         self.shouldSelectAgentSites = False
         self.paused = False
+        self.shouldShowOptions = False
 
     def draw(self):
         self.world.screen.fill(SCREEN_COLOR)
@@ -44,10 +45,13 @@ class Controls:
         for agent in self.world.agentList:
             agent.drawAgent(self.world.screen)
         self.world.drawPause()
+        if self.shouldShowOptions:
+            self.world.drawOptions()
         pygame.display.flip()
 
     def drawChanges(self):
-        self.world.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents, self.shouldSelectAgentSites)
+        self.world.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents,
+                                        self.shouldSelectAgentSites, self.shouldShowOptions, self.paused)
         if self.selectedAgent is not None:
             self.world.drawSelectedAgentInfo(self.selectedAgent)
         if self.selectedSite is not None:
@@ -96,9 +100,10 @@ class Controls:
             self.shrink()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_c:
             self.createSite(pygame.mouse.get_pos())
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_o:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
             self.createAgent(pygame.mouse.get_pos())
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE \
+                or event.type == pygame.KEYDOWN and event.key == pygame.K_SLASH:
             self.delete()
         if len(self.selectedSites) > 0:
             if event.type == pygame.KEYDOWN and event.unicode.isnumeric():
@@ -112,6 +117,8 @@ class Controls:
             self.shouldDrawQuality = False
         if self.paused:
             self.draw()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_o:
+                self.shouldShowOptions = not self.shouldShowOptions
         if event.type == pygame.QUIT:
             pygame.quit()
             self.timer.cancel()
@@ -143,6 +150,8 @@ class Controls:
             self.shouldSelectAgentSites = not self.shouldSelectAgentSites
         elif self.world.collidesWithSelectSitesAgentsButton(mousePos):
             self.shouldSelectSiteAgents = not self.shouldSelectSiteAgents
+        elif self.world.collidesWithOptionsButton(mousePos):
+            self.shouldShowOptions = not self.shouldShowOptions
         else:
             self.select(mousePos)
         self.selectRectCorner = None

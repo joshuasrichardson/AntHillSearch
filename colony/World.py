@@ -41,8 +41,12 @@ class World:
         self.selectSitesRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 2, 10, 10)
         self.selectAgentsSitesRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 14, 10, 10)
         self.selectSitesAgentsRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 26, 10, 10)
+        self.showOptionsRect = pyg.Rect(self.gloc[0] + 500, self.gloc[1] - 10, 10, 10)
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
+
+    def getSiteList(self):
+        return self.siteList
 
     def randomizeState(self):
         for agent in self.agentList:
@@ -189,7 +193,8 @@ class World:
             img = self.myfont.render(attribute, True, (0, 0, 0))
             self.screen.blit(img, (location[0] - 100, location[1] - 5 + i * 11))
 
-    def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites):
+    def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
+                             shouldShowOptions, paused):
         selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
         img = self.myfont.render("Select Agents:", True, (0, 0, 0))
         self.screen.blit(img, (self.gloc[0] + 210, self.gloc[1] - 15))
@@ -212,6 +217,12 @@ class World:
             self.screen.blit(img, (self.gloc[0] + 210, self.gloc[1] + 21))
             pyg.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
 
+        if paused:
+            showOptionsColor = self.getShouldSelectColor(shouldShowOptions)
+            img = self.myfont.render("Show Options:", True, (0, 0, 0))
+            self.screen.blit(img, (self.gloc[0] + 400, self.gloc[1] - 15))
+            pyg.draw.rect(self.screen, showOptionsColor, self.showOptionsRect)
+
     def collidesWithSelectAgentsButton(self, position):
         return self.selectAgentsRect.collidepoint(position[0], position[1])
 
@@ -223,6 +234,9 @@ class World:
 
     def collidesWithSelectSitesAgentsButton(self, position):
         return self.selectSitesAgentsRect.collidepoint(position[0], position[1])
+
+    def collidesWithOptionsButton(self, position):
+        return self.showOptionsRect.collidepoint(position[0], position[1])
 
     @staticmethod
     def getShouldSelectColor(shouldSelect):
@@ -260,5 +274,94 @@ class World:
             if site.isSelected:
                 self.screen.blit(img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
 
-    def getSiteList(self):
-        return self.siteList
+    def drawOptions(self):
+        x, y = self.screen.get_size()
+        left = x / 4
+        top = y / 4
+        width = x / 2
+        height = y / 2
+        pyg.draw.rect(self.screen, (0, 128, 128), pyg.Rect(left - 4, top - 4, width + 8, height + 8))
+        pyg.draw.rect(self.screen, (255, 255, 255), pyg.Rect(left, top, width, height))
+        leftMargin = x / 40
+
+        optionsFont = pyg.font.SysFont('Comic Sans MS', 40)
+        img = optionsFont.render("Options", True, (123, 123, 123))
+        self.screen.blit(img, (left * 2 - img.get_width() / 2, top - 60))
+        left = left + leftMargin
+
+        agentOptions = ['Select Agent',
+                        'Wide Select',
+                        'Half',
+                        'Next Agent',
+                        'Previous Agent',
+                        'Speed Up',
+                        'Slow Down',
+                        'Move Agent',
+                        'Assign Agent to Site',
+                        'Create Agent',
+                        'Delete Agent']
+
+        agentOptionButtons = ['- MOUSE_BUTTON (click)',
+                              '- MOUSE_BUTTON (drag)',
+                              '- H',
+                              '- RIGHT_ARROW',
+                              '- LEFT_ARROW',
+                              '- F',
+                              '- S',
+                              '- SPACE_BAR',
+                              '- A',
+                              '- X',
+                              '- DEL or /']
+
+        longerListSize = len(agentOptions)
+
+        siteOptions = ['Select Site',
+                       'Wide Select',
+                       'Next Site',
+                       'Previous Site',
+                       'Move Site',
+                       'Set Quality',
+                       'Increase Quality',
+                       'Decrease Quality',
+                       'Expand Site',
+                       'Shrink Site',
+                       'Create Site',
+                       'Delete Site']
+
+        siteOptionButtons = ['- MOUSE_BUTTON (click)',
+                             '- MOUSE_BUTTON (drag)',
+                             '- RIGHT_ARROW',
+                             '- LEFT_ARROW',
+                             '- MOUSE_BUTTON (drag)',
+                             '- 0-9 (BACKSPACE)',
+                             '- UP_ARROW',
+                             '- DOWN_ARROW',
+                             '- = (+)',
+                             '- _ (-)',
+                             '- C',
+                             '- DEL or /']
+
+        if len(siteOptions) > longerListSize:
+            longerListSize = len(siteOptions)
+
+        img = self.myfont.render("Agent Options:", True, (0, 0, 0))
+        self.screen.blit(img, (left, top + 10))
+
+        for i, option in enumerate(agentOptions):
+            img = self.myfont.render(option, True, (0, 0, 0))
+            self.screen.blit(img, (left, top + 25 + (i + 1) * (height / longerListSize - 5)))
+
+        for i, option in enumerate(agentOptionButtons):
+            img = self.myfont.render(option, True, (0, 0, 0))
+            self.screen.blit(img, (left + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
+
+        img = self.myfont.render("Site Options:", True, (0, 0, 0))
+        self.screen.blit(img, ((x / 2) + (leftMargin / 2), top + 10))
+
+        for i, option in enumerate(siteOptions):
+            img = self.myfont.render(option, True, (0, 0, 0))
+            self.screen.blit(img, ((x / 2) + (leftMargin / 2), top + 25 + (i + 1) * (height / longerListSize - 5)))
+
+        for i, option in enumerate(siteOptionButtons):
+            img = self.myfont.render(option, True, (0, 0, 0))
+            self.screen.blit(img, ((x / 2) + (leftMargin / 2) + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
