@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 
-from Constants import SITE_RADIUS, EXPLORE
+from Constants import SITE_RADIUS, EXPLORE, SCREEN_COLOR
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from states.SearchState import SearchState
@@ -33,6 +33,18 @@ class Controls:
         self.shouldSelectSites = True
         self.shouldSelectSiteAgents = False
         self.shouldSelectAgentSites = False
+        self.paused = False
+
+    def draw(self):
+        self.world.screen.fill(SCREEN_COLOR)
+        self.world.drawStateGraph(self.world.states)
+        self.world.drawPhaseGraph(self.world.phases)
+        self.world.drawWorldObjects()
+        self.drawChanges()
+        for agent in self.world.agentList:
+            agent.drawAgent(self.world.screen)
+        self.world.drawPause()
+        pygame.display.flip()
 
     def drawChanges(self):
         self.world.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents, self.shouldSelectAgentSites)
@@ -98,6 +110,8 @@ class Controls:
         else:
             self.potentialQuality = 0
             self.shouldDrawQuality = False
+        if self.paused:
+            self.draw()
         if event.type == pygame.QUIT:
             pygame.quit()
             self.timer.cancel()
@@ -165,7 +179,7 @@ class Controls:
         selectedAgents = [s for s in self.agentList if s.agentRect.collidepoint(mousePos)]
 
         if len(selectedAgents) > 0:
-            self.selectedAgent = self.selectedAgents[0]
+            self.selectedAgent = selectedAgents[0]
             self.selectedAgent.select()
             self.selectedAgent.isTheSelected = True
             self.selectedAgents = [self.selectedAgent]
@@ -244,9 +258,9 @@ class Controls:
 
     def half(self):
         for i in range(len(self.selectedAgents) - 1, int(np.round(len(self.selectedAgents) / 2) - 1), -1):
-            self.selectedAgents[i].unselect()
-            self.selectedAgents.remove(self.selectedAgents[i])
-        print(len(self.selectedAgents))
+            if self.selectedAgents[i] is not self.selectedAgent:
+                self.selectedAgents[i].unselect()
+                self.selectedAgents.remove(self.selectedAgents[i])
 
     def next(self):
         if len(self.selectedAgents) > 1:
@@ -383,4 +397,6 @@ class Controls:
     def pause(self):
         self.world.drawPause()
         pygame.display.flip()
+        self.paused = True
         self.timer.pause(self.handleEvent)
+        self.paused = False

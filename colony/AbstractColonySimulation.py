@@ -27,8 +27,6 @@ class AbstractColonySimulation(ABC):
         self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                           siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)  # The world that has all the sites and agents
-        self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
-        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
         self.chosenHome = None  # The site that most of the agents are assigned to when the simulation ends
         self.timeRanOut = False  # Whether there is no more time left in the simulation
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
@@ -53,7 +51,7 @@ class AbstractColonySimulation(ABC):
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS,
                             minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
         if numAgents < 0 or numAgents > MAX_AGENTS:
-            raise InputError("Number of agents must be between 1 and 200", numAgents)
+            raise InputError("Number of agents must be between 1 and " + str(MAX_AGENTS), numAgents)
         for i in range(0, numAgents):
             agent = Agent(self.world, self.world.hub, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation)
@@ -62,7 +60,6 @@ class AbstractColonySimulation(ABC):
 
     def runSimulation(self):
         self.initializeRequest()
-        white = 255, 255, 255
         foundNewHome = False
 
         self.timer.start()
@@ -71,7 +68,7 @@ class AbstractColonySimulation(ABC):
             while not foundNewHome and not self.timeRanOut:
                 if self.shouldDraw:
                     self.userControls.handleEvents()
-                    self.screen.fill(white)
+                    self.screen.fill(SCREEN_COLOR)
                 agentRectList = self.getAgentRectList()
                 self.update(agentRectList)
                 if self.shouldDraw:
@@ -93,30 +90,21 @@ class AbstractColonySimulation(ABC):
 
     def update(self, agentRectList):
         self.setNextRound()
-        self.updateStateAndPhaseCounts()
+        self.world.updateStateAndPhaseCounts()
         self.updateSites()
         self.updateAgents(agentRectList)
         self.save()
         self.updateRestAPI(agentRectList)
 
     def draw(self):
-        self.world.drawStateGraph(self.states)
-        self.world.drawPhaseGraph(self.phases)
+        self.world.drawStateGraph(self.world.states)
+        self.world.drawPhaseGraph(self.world.phases)
         self.world.drawWorldObjects()
         self.userControls.drawChanges()
         pygame.display.flip()
 
     def setNextRound(self):
         pass
-
-    def updateStateAndPhaseCounts(self):
-        self.states = np.zeros((NUM_POSSIBLE_STATES,))
-        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-        for agent in self.world.agentList:
-            st = agent.getState()
-            self.states[st] += 1
-            ph = agent.phase
-            self.phases[ph] += 1
 
     def updateSites(self):
         pass

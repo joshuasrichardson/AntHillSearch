@@ -11,6 +11,9 @@ class World:
                  siteNoCloserThan, siteNoFartherThan, shouldDraw):
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
         self.hubLocation = hubLocation  # Where the agents' original home is located
+        if hubLocation is None:
+            x, y = screen.get_size()
+            self.hubLocation = [x / 2, y / 2]
         self.hubRadius = hubRadius  # The radius of the agent's original home
         self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub a site can randomly be generated
         self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub a site can randomly be generated
@@ -38,6 +41,8 @@ class World:
         self.selectSitesRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 2, 10, 10)
         self.selectAgentsSitesRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 14, 10, 10)
         self.selectSitesAgentsRect = pyg.Rect(self.gloc[0] + 350, self.gloc[1] + 26, 10, 10)
+        self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
+        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
     def randomizeState(self):
         for agent in self.agentList:
@@ -124,6 +129,15 @@ class World:
         self.siteRectList.append(hubSite.getSiteRect())
         hubSite.agentCount = self.initialHubAgentCount
         return hubSite
+
+    def updateStateAndPhaseCounts(self):
+        self.states = np.zeros((NUM_POSSIBLE_STATES,))
+        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
+        for agent in self.agentList:
+            st = agent.getState()
+            self.states[st] += 1
+            ph = agent.phase
+            self.phases[ph] += 1
 
     def drawWorldObjects(self):
         for siteIndex in range(0, len(self.siteList)):

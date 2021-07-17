@@ -43,9 +43,11 @@ MAX_TIME = 5000     # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
+SCREEN_COLOR = 255, 255, 255  # White
+
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
-HUB_LOCATION = [600, 350]  # Location of the hub
+HUB_LOCATION = None  # Location of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 20  # How big is the radius of a site?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
