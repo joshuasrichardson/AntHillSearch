@@ -251,8 +251,8 @@ class World:
         self.screen.blit(img, (self.hubLocation[0] - (img.get_width() / 2), self.hubLocation[1] - (img.get_height() / 2)))
 
     def drawFinish(self):
-        pausedFont = pyg.font.SysFont('Comic Sans MS', 40)
-        img = pausedFont.render("Finished", True, (123, 123, 123))
+        finishFont = pyg.font.SysFont('Comic Sans MS', 40)
+        img = finishFont.render("Finished", True, (123, 123, 123))
         self.screen.blit(img, (self.hubLocation[0] - (img.get_width() / 2), self.hubLocation[1] - (img.get_height() / 2)))
 
     def drawSelectRect(self, selectRectCorner, mousePos):

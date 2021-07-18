@@ -14,6 +14,8 @@ class State(ABC):
         self.agent.target = target
         self.move(state)
         self.agent.state = state
+        if self.agent.isSelected:
+            print("Set State target:" + str(target))
 
     def move(self, state) -> None:
         if state.state == SEARCH:  # If changing state to search from something else, set angle randomly

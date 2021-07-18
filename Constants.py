@@ -67,6 +67,7 @@ SITE_INFO_LOCATION = [120, 420]  # The location of the information about the sel
 """ Agent parameters """
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
+MAX_SEARCH_DIST = 2000  # The farthest an agent can get away from the hub while searching.
 # Setting the speed too high actually makes the simulation take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the simulation take longer just because the agents aren't moving as fast.

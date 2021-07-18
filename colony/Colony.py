@@ -27,7 +27,7 @@ def main():
 
         # initializeAgentList's default values are:        (see Constants.py to check constants' values)
         # colony.initializeAgentList(HOMOGENOUS_AGENTS, MIN_AGENT_SPEED, MAX_AGENT_SPEED, MIN_DECISIVENESS, MAX_DECISIVENESS,
-        #                                    MIN_NAV_SKILLS, MAX_NAV_SKILLS, MIN_QUALITY_MISJUDGMENT, MAX_QUALITY_MISJUDGMENT)
+        #                            MIN_NAV_SKILLS, MAX_NAV_SKILLS, MIN_QUALITY_MISJUDGMENT, MAX_QUALITY_MISJUDGMENT, MAX_SEARCH_DIST)
         colony.initializeAgentList()
 
         # colony.randomizeInitialState()

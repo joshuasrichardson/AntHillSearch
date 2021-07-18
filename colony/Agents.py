@@ -18,7 +18,7 @@ class Agent:
     def __init__(self, world, startingAssignment, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                  maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION):
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION, maxSearchDistance=MAX_SEARCH_DIST):
         self.world = world  # The colony the agent lives in
         self.siteObserveRectList = world.getSiteObserveRectList()  # List of rectangles of all the sites in the colony
         self.siteList = world.getSiteList()  # List of all the sites in the colony
@@ -42,6 +42,7 @@ class Agent:
         self.target = startingPosition  # The position the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
+        self.maxSearchDistance = maxSearchDistance
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
@@ -91,8 +92,8 @@ class Agent:
         self.pos = [x, y]
 
     def updatePosition(self, position):
+        self.prevPos = self.pos
         if position is None:
-            self.prevPos = self.pos
             self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
             self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
         else:
@@ -141,6 +142,12 @@ class Agent:
 
     def getAgentRect(self):
         return self.agentRect
+
+    def isTooFarAway(self, site):
+        from math import isclose
+        tooFarX = not isclose(self.pos[0], site.getPosition()[0], abs_tol=self.maxSearchDistance)
+        tooFarY = not isclose(self.pos[1], site.getPosition()[1], abs_tol=self.maxSearchDistance)
+        return tooFarX or tooFarY
 
     def estimateQuality(self, site):
         return site.getQuality() + \

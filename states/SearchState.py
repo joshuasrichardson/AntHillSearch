@@ -15,13 +15,13 @@ class SearchState(State):
     def move(self, state) -> None:
         if state.state != SEARCH:
             super().move(state)
-            return
-        # If going from search to search, just update angle
-        self.agent.angularVelocity += np.random.normal(0, np.pi / 1000)
-        self.agent.angle = self.agent.angle + self.agent.angularVelocity
+        else:
+            # If going from search to search, just update angle
+            self.agent.angularVelocity += np.random.normal(0, np.pi / 1000)
+            self.agent.angle = self.agent.angle + self.agent.angularVelocity
 
     def changeState(self, neighborList) -> None:
-        self.setState(self, None)
+        self.setState(self, self.agent.target)
         siteWithinRange = self.agent.agentRect.collidelist(self.agent.siteObserveRectList)
         # If agent finds a site within range then assess it
 
@@ -36,6 +36,8 @@ class SearchState(State):
         elif self.agent.shouldReturnToNest():
             from states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
+        elif self.agent.isTooFarAway(self.agent.hub):
+            self.agent.angle = self.agent.angle - np.pi
 
         # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):

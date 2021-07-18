@@ -48,13 +48,13 @@ class AbstractColonySimulation(ABC):
 
     def initializeAgentList(self, numAgents=NUM_AGENTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                             maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
-                            minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS,
-                            minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT):
+                            minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST):
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 1 and " + str(MAX_AGENTS), numAgents)
         for i in range(0, numAgents):
             agent = Agent(self.world, self.world.hub, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
-                          minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation)
+                          minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation, maxSearchDist)
             agent.setState(AtNestState(agent))
             self.world.agentList.append(agent)
 
