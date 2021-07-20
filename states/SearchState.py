@@ -22,22 +22,22 @@ class SearchState(State):
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
-        siteWithinRange = self.agent.agentRect.collidelist(self.agent.siteObserveRectList)
+        siteWithinRange = self.agent.agentRect.collidelist(self.agent.world.siteRectList)
         # If agent finds a site within range then assess it
 
         if self.sightIsInRange(siteWithinRange):
-            self.agent.knownSites.add(self.agent.siteList[siteWithinRange])
+            self.agent.knownSites.add(self.agent.world.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
-            if self.agent.estimateQuality(self.agent.siteList[siteWithinRange]) > self.agent.estimatedQuality:
-                self.agent.assignSite(self.agent.siteList[siteWithinRange])
+            if self.agent.estimateQuality(self.agent.world.siteList[siteWithinRange]) > self.agent.estimatedQuality:
+                self.agent.assignSite(self.agent.world.siteList[siteWithinRange])
                 from states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
                 self.agent.setPhase(ASSESS)
         elif self.agent.shouldReturnToNest():
             from states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
-        elif self.agent.isTooFarAway(self.agent.hub):
-            self.agent.angle = self.agent.angle - np.pi
+        elif self.agent.isTooFarAway(self.agent.assignedSite):
+            self.goBackTowardSite(self.agent.assignedSite)
 
         # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):
@@ -46,7 +46,7 @@ class SearchState(State):
                 return
 
     def sightIsInRange(self, siteWithinRange):
-        return siteWithinRange != -1 and self.agent.siteList[siteWithinRange] != self.agent.hub
+        return siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange] != self.agent.hub
 
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:
@@ -54,3 +54,15 @@ class SearchState(State):
             self.agent.leadAgent.incrementFollowers()
             from states.CarriedState import CarriedState
             self.setState(CarriedState(self.agent), self.agent.leadAgent.pos)
+
+    def goBackTowardSite(self, site):
+        if site.getPosition()[0] > self.agent.getPosition()[0]:
+            x = self.agent.getPosition()[0] + 1
+        else:
+            x = self.agent.getPosition()[0] - 1
+        if site.getPosition()[1] > self.agent.getPosition()[1]:
+            y = self.agent.getPosition()[1] + 1
+        else:
+            y = self.agent.getPosition()[1] - 1
+        self.agent.setPosition(x, y)
+        self.agent.angle = self.agent.angle - (1.1 * np.pi)

@@ -20,8 +20,7 @@ class Agent:
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION, maxSearchDistance=MAX_SEARCH_DIST):
         self.world = world  # The colony the agent lives in
-        self.siteObserveRectList = world.getSiteObserveRectList()  # List of rectangles of all the sites in the colony
-        self.siteList = world.getSiteList()  # List of all the sites in the colony
+        # self.siteList = world.getSiteList()  # List of all the sites in the colony
         self.hub = world.hub  # Original home that the agents are leaving
 
         self.prevPos = startingPosition  # Initial position
@@ -134,7 +133,7 @@ class Agent:
             pygame.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
         if SHOW_ESTIMATED_QUALITY:
-            img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
+            img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
             self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
     def getAgentHandle(self):
@@ -166,9 +165,7 @@ class Agent:
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
 
     def getAssignedSiteIndex(self):
-        for siteIndex in range(len(self.siteList)):
-            if self.siteList[siteIndex] is self.assignedSite:
-                return siteIndex
+        return self.world.getSiteIndex(self.assignedSite)
 
     def isDoneAssessing(self):
         return np.random.exponential() * self.decisiveness > self.assessmentThreshold

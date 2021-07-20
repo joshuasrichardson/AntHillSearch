@@ -1,12 +1,12 @@
 import threading
 from abc import ABC, abstractmethod
 
-import numpy as np
 import pygame
 
 from Constants import *
 from colony.Agents import Agent
 from colony.ColonyExceptions import InputError, GameOver
+from colony.SimulationGraphs import SimulationGraphs
 from colony.SimulationTimer import SimulationTimer
 from colony.myPygameUtils import createScreen
 from recording.Recorder import Recorder
@@ -24,13 +24,14 @@ class AbstractColonySimulation(ABC):
                  siteNoFartherThan=SITE_NO_FARTHER_THAN):
 
         self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
+        self.graphs = SimulationGraphs(self.screen)
         self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                           siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)  # The world that has all the sites and agents
         self.chosenHome = None  # The site that most of the agents are assigned to when the simulation ends
         self.timeRanOut = False  # Whether there is no more time left in the simulation
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
-        self.userControls = Controls(self.timer, self.world.agentList, self.world)  # And object to handle events dealing with user interactions
+        self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
 
         self.shouldReport = shouldReport  # Whether the simulation should periodically report hub information to the rest API
         self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
@@ -97,8 +98,9 @@ class AbstractColonySimulation(ABC):
         self.updateRestAPI(agentRectList)
 
     def draw(self):
-        self.world.drawStateGraph(self.world.states)
-        self.world.drawPhaseGraph(self.world.phases)
+        self.graphs.drawStateGraph(self.world.states)
+        self.graphs.drawPhaseGraph(self.world.phases)
+        self.graphs.drawPredictionsGraph(self.world.siteList)
         self.world.drawWorldObjects()
         self.userControls.drawChanges()
         pygame.display.flip()
@@ -140,7 +142,7 @@ class AbstractColonySimulation(ABC):
 
     def finish(self):
         if self.shouldDraw:
-            self.world.drawFinish()
+            self.graphs.drawFinish()
             pygame.display.flip()
         if self.shouldRecord:
             self.write()

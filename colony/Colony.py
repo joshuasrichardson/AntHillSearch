@@ -14,7 +14,7 @@ def main():
     # colony = ColonySimulation(SIM_DURATION, NUM_SITES, SHOULD_REPORT, SHOULD_RECORD, SHOULD_DRAW,
     #                           CONVERGENCE_FRACTION, HUB_LOCATION, SITE_RADIUS, NUM_AGENTS, SITE_POSITIONS,
     #                           SITE_QUALITIES, SITE_RADII, SITE_NO_CLOSER_THAN)
-    colony = ColonySimulation(shouldReport=False, siteQualities=[0, 10, 20, 255], sitePositions=[[400, 400], [500, 500], [600, 600], [650, 400]])
+    colony = ColonySimulation(shouldReport=False, siteQualities=[0, 10, 20, 255], sitePositions=[[700, 350], [650, 300], [600, 350], [650, 400]])
 
     # recording default values are:        (see Constants.py to check constants' values)
     # colony = RecordingPlayer(SIM_DURATION, NUM_SITES, CONVERGENCE_FRACTION, HUB_LOCATION, SITE_RADIUS,
