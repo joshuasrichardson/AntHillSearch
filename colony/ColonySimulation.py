@@ -11,8 +11,7 @@ from net.SendHubInfoRequest import SendHubInfoRequest
 
 
 # TODO: Add a parameter to make it so that they look for the site if it moves
-# TODO: Complete README.md file
-# TODO: Add a graph that can show the probability of converging to a site and time to converge
+# TODO: Break Agents, Site, and World, into themselves and ""Builder classes
 
 
 class ColonySimulation(AbstractColonySimulation):

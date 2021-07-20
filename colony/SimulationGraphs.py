@@ -59,15 +59,16 @@ class SimulationGraphs:
         self.screen.blit(img, (self.x, self.y))
 
         self.incrementY()
-        img = self.font.render("Likelihood of converging to site:", True, (0, 0, 0))
+        img = self.font.render("LIKELIHOOD OF CONVERGING TO SITE:", True, (0, 0, 0))
         self.screen.blit(img, (self.x, self.y))
         for siteIndex, site in enumerate(siteList):
             self.incrementY()
-            img = self.font.render("Site " + str(siteList[siteIndex].getPosition()) + ": ", True, (0, 0, 0))
+            img = self.font.render("SITE " + str(siteList[siteIndex].getPosition()) + ": " +
+                                   str(siteIndex * 10) + "%", True, (0, 0, 0))  # TODO: Insert actual probability here
             self.screen.blit(img, (self.x, self.y))
 
         self.incrementY()
-        img = self.font.render("Predicted time to converge:", True, (0, 0, 0))
+        img = self.font.render("PREDICTED TIME TO COVERAGE: 59 seconds", True, (0, 0, 0))  # TODO: Insert actual predicted time here
         self.screen.blit(img, (self.x, self.y))
         self.incrementY()
         self.incrementY()
@@ -216,7 +217,7 @@ class SimulationGraphs:
                              '- UP_ARROW',
                              '- DOWN_ARROW',
                              '- = (+)',
-                             '- _ (-)',
+                             '- -',
                              '- C',
                              '- DEL or /']
 
