@@ -10,12 +10,8 @@ from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
 
 
-# TODO: Fix the location of the hub to always go in the center of the screen or fix the size of the screen
-# TODO: Limit search radius of agents
 # TODO: Add a parameter to make it so that they look for the site if it moves
-# TODO: Add parameter to send or not send hub information
-# TODO: Complete README.md file
-# TODO: Add a graph that can show the probability of converging to a site and time to converge
+# TODO: Break Agents, Site, and World, into themselves and ""Builder classes
 
 
 class ColonySimulation(AbstractColonySimulation):

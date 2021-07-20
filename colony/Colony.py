@@ -14,12 +14,9 @@ def main():
     # colony = ColonySimulation(SIM_DURATION, NUM_SITES, SHOULD_REPORT, SHOULD_RECORD, SHOULD_DRAW,
     #                           CONVERGENCE_FRACTION, HUB_LOCATION, SITE_RADIUS, NUM_AGENTS, SITE_POSITIONS,
     #                           SITE_QUALITIES, SITE_RADII, SITE_NO_CLOSER_THAN)
-    colony = ColonySimulation(shouldReport=False, siteQualities=[0, 10, 20, 255], sitePositions=[[400, 400], [500, 500], [600, 600], [650, 400]])
+    colony = ColonySimulation(shouldReport=False, siteQualities=[0, 10, 20, 255], sitePositions=[[700, 350], [650, 300], [600, 350], [650, 400]])
 
-    # recording default values are:        (see Constants.py to check constants' values)
-    # colony = RecordingPlayer(SIM_DURATION, NUM_SITES, CONVERGENCE_FRACTION, HUB_LOCATION, SITE_RADIUS,
-    #                          NUM_AGENTS, SITE_POSITIONS, SITE_QUALITIES, SITE_RADII,
-    #                          SITE_NO_CLOSER_THAN, SITE_NO_FARTHER_THAN)
+    # RecordingPlayer does not take any parameters, because all the positions, assignments, states, etc. are set by the recording.json file.
     # colony = RecordingPlayer()
     try:
         # (numAgents, state, phase, siteIndex)
@@ -27,7 +24,7 @@ def main():
 
         # initializeAgentList's default values are:        (see Constants.py to check constants' values)
         # colony.initializeAgentList(HOMOGENOUS_AGENTS, MIN_AGENT_SPEED, MAX_AGENT_SPEED, MIN_DECISIVENESS, MAX_DECISIVENESS,
-        #                                    MIN_NAV_SKILLS, MAX_NAV_SKILLS, MIN_QUALITY_MISJUDGMENT, MAX_QUALITY_MISJUDGMENT)
+        #                            MIN_NAV_SKILLS, MAX_NAV_SKILLS, MIN_QUALITY_MISJUDGMENT, MAX_QUALITY_MISJUDGMENT, MAX_SEARCH_DIST)
         colony.initializeAgentList()
 
         # colony.randomizeInitialState()

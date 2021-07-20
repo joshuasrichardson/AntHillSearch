@@ -9,7 +9,7 @@ from Constants import *
 
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
-
+# TODO: Break into Agents and AgentsBuilder
 
 class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
@@ -18,10 +18,9 @@ class Agent:
     def __init__(self, world, startingAssignment, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                  maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION):
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION, maxSearchDistance=MAX_SEARCH_DIST):
         self.world = world  # The colony the agent lives in
-        self.siteObserveRectList = world.getSiteObserveRectList()  # List of rectangles of all the sites in the colony
-        self.siteList = world.getSiteList()  # List of all the sites in the colony
+        # self.siteList = world.getSiteList()  # List of all the sites in the colony
         self.hub = world.hub  # Original home that the agents are leaving
 
         self.prevPos = startingPosition  # Initial position
@@ -42,6 +41,7 @@ class Agent:
         self.target = startingPosition  # The position the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
+        self.maxSearchDistance = maxSearchDistance
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
@@ -91,8 +91,8 @@ class Agent:
         self.pos = [x, y]
 
     def updatePosition(self, position):
+        self.prevPos = self.pos
         if position is None:
-            self.prevPos = self.pos
             self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
             self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
         else:
@@ -133,7 +133,7 @@ class Agent:
             pygame.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
 
         if SHOW_ESTIMATED_QUALITY:
-            img = self.world.myfont.render(str(self.estimatedQuality), True, self.assignedSite.color)
+            img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
             self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
     def getAgentHandle(self):
@@ -141,6 +141,12 @@ class Agent:
 
     def getAgentRect(self):
         return self.agentRect
+
+    def isTooFarAway(self, site):
+        from math import isclose
+        tooFarX = not isclose(self.pos[0], site.getPosition()[0], abs_tol=self.maxSearchDistance)
+        tooFarY = not isclose(self.pos[1], site.getPosition()[1], abs_tol=self.maxSearchDistance)
+        return tooFarX or tooFarY
 
     def estimateQuality(self, site):
         return site.getQuality() + \
@@ -159,9 +165,7 @@ class Agent:
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
 
     def getAssignedSiteIndex(self):
-        for siteIndex in range(len(self.siteList)):
-            if self.siteList[siteIndex] is self.assignedSite:
-                return siteIndex
+        return self.world.getSiteIndex(self.assignedSite)
 
     def isDoneAssessing(self):
         return np.random.exponential() * self.decisiveness > self.assessmentThreshold

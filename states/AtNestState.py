@@ -19,10 +19,10 @@ class AtNestState(State):
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.assignedSite.getPosition())
 
-        siteWithinRange = self.agent.agentRect.collidelist(self.agent.siteObserveRectList)
+        siteWithinRange = self.agent.agentRect.collidelist(self.agent.world.siteRectList)
         # checking the siteWithinRange makes sure they actually get to the site before they search again unless they get lost on the way.
         if self.agent.shouldSearch() and (siteWithinRange != -1 or self.agent.assignedSite is self.agent.hub)\
-                and self.agent.siteList[siteWithinRange] is self.agent.assignedSite\
+                and self.agent.world.siteList[siteWithinRange] is self.agent.assignedSite\
                 and not self.agent.shouldGetLost():
             self.setState(SearchState(self.agent), None)
             return

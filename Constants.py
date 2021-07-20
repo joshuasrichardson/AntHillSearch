@@ -43,9 +43,11 @@ MAX_TIME = 5000     # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
+SCREEN_COLOR = 255, 255, 255  # White
+
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
-HUB_LOCATION = [600, 350]  # Location of the hub
+HUB_LOCATION = None  # Location of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 20  # How big is the radius of a site?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
@@ -54,17 +56,15 @@ SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 
 # Does not affect simulation besides making it easier to see what's happening
-STATE_GRAPH_LOCATION = [120, 40]  # The location of the graph that shows how many ants are in each state. The left number moves it right more, and the right number moves it down more
-# Does not affect simulation besides making it easier to see what's happening
-PHASE_GRAPH_LOCATION = [120, 150]  # The location of the graph that shows how many ants are in each phase. The left number moves it right more, and the right number moves it down more
-# Does not affect simulation besides making it easier to see what's happening
-AGENT_INFO_LOCATION = [120, 230]  # The location of the information about the selected agent
-# Does not affect simulation besides making it easier to see what's happening
-SITE_INFO_LOCATION = [120, 420]  # The location of the information about the selected site
+GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
+#                             The others all build off of that depending on what is being displayed.
 
 """ Agent parameters """
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
+# The smaller the max distance is, the faster the simulation ends because agents never get too far away from the sites
+# (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
+MAX_SEARCH_DIST = 2000  # The farthest an agent can get away from the hub while searching.
 # Setting the speed too high actually makes the simulation take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the simulation take longer just because the agents aren't moving as fast.
@@ -154,7 +154,7 @@ GO = 7
 GO_COLOR = 0, 255, 255  # Cyan
 
 NUM_POSSIBLE_STATES = 8
-COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR]
+STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR]
 STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO']
 
 """ Phases and their colors """
