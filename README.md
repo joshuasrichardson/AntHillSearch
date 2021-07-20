@@ -1,6 +1,6 @@
 # Ant Hill Search Simulation
 
-##Overview
+## Overview
 
 - Introduction
 - Running the Program
@@ -79,7 +79,7 @@ it is running.
 4. If desired, try using some of the user controls while the
    simulation is running (see "Controls" for more details).
 
-##Parameters
+## Parameters
 
 The parameters set before the simulation begins can have a big
 impact on the set up and behavior of the simulation. The default 
@@ -90,7 +90,7 @@ passing something else in as a parameter in
 Important methods and their parameters to know about are listed 
 below.
 
-###<code>ColonySimulation()</code>
+### <code>ColonySimulation()</code>
 
 The constructor for the <code>ColonySimulation</code> class (the class that runs the simulation).
 
@@ -134,7 +134,7 @@ The constructor for the <code>ColonySimulation</code> class (the class that runs
   positions that users set with <code>sitePositions</code> as well as the "Move
   Site" command (see "Site Controls" below).
   
-###<code>RecordingPlayer()</code>
+### <code>RecordingPlayer()</code>
 
 Constructor for the <code>RecordingPlayer</code> class. This class can be used instead of the 
 <code>ColonySimulation</code> to replay a previously recorded simulation from the recording.json
@@ -142,7 +142,7 @@ file.
 
 This method has no parameters because everything is determined by the recording.json file.
 
-###<code>ColonySimulation.initializeAgentList()</code>
+### <code>ColonySimulation.initializeAgentList()</code>
 
 Generates a list of agents with the specified attributes.
 
@@ -187,7 +187,7 @@ any agents.
   from their assigned site or the hub before they are forced to come a little closer to their 
   assigned site or the hub.
 
-###<code>ColonySimulation.randomizeInitialState()</code>
+### <code>ColonySimulation.randomizeInitialState()</code>
 
 Assigns each agent in the simulation a random site to start from.
 
@@ -195,7 +195,7 @@ This method has no parameters, but note that it can only
 be called with the ColonySimulation (not with the 
 RecordingPlayer).
 
-###<code>ColonySimulation.addAgents()</code>
+### <code>ColonySimulation.addAgents()</code>
 
 Adds agents to the simulation (in addition to the "numAgents" specified in the constructor).
 These agents can be given specific starting states, phases, locations, and assignments.
@@ -227,7 +227,7 @@ user.Controls</code> Below is a complete list of
 all the controls available right now (There will 
 be more to come).
 
-###Agent Controls
+### Agent Controls
 
 - <strong>Select Agent</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
   <p>Users can select agents by clicking on them with the mouse. 
@@ -307,7 +307,7 @@ be more to come).
   or <code>DELETE</code> key (on some keyboards, the <code>DELETE</code> key
   does not work).</p>
 
-###Site Controls
+### Site Controls
 
 - <strong>Select Site</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
   <p>Users can select sites by clicking on them with the mouse. 
@@ -385,7 +385,7 @@ be more to come).
   <p>Users can move sites by clicking them with the mouse, dragging 
   them to a new location, and releasing the mouse button.</p>
 
-###Other Controls
+### Other Controls
 
 - <strong>Pause</strong> - <code>K_p</code>:
   <p>Users can pause and unpause the simulation by pressing the <code>p</code> key. 
