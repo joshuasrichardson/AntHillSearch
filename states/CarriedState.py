@@ -1,4 +1,5 @@
 from Constants import *
+from phases.AssessPhase import AssessPhase
 from states.AtNestState import AtNestState
 from states.State import State
 
@@ -9,12 +10,11 @@ class CarriedState(State):
     def __init__(self, agent):
         super().__init__(agent)
         self.state = CARRIED
-        self.color = CARRIED_COLOR
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.leadAgent.pos)
         if self.agent.leadAgent.getState() == TRANSPORT and not \
-                self.agent.leadAgent.agentRect.collidepoint(self.agent.leadAgent.assignedSite.pos):
+                self.agent.leadAgent.getAgentRect().collidepoint(self.agent.leadAgent.assignedSite.pos):
             if not self.agent.world.agentList.__contains__(self.agent.leadAgent):
                 from states.SearchState import SearchState
                 self.setState(SearchState(self.agent), None)
@@ -26,6 +26,12 @@ class CarriedState(State):
             if self.agent.leadAgent.estimatedQuality > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.leadAgent.assignedSite)
             self.agent.leadAgent = None
-            if self.agent.phase != COMMIT:
-                self.agent.setPhase(ASSESS)
+            if self.agent.getPhaseNumber() != COMMIT:
+                self.agent.setPhase(AssessPhase())
             self.setState(AtNestState(self.agent), self.agent.assignedSite.pos)
+
+    def toString(self):
+        return "CARRIED"
+
+    def getColor(self):
+        return CARRIED_COLOR

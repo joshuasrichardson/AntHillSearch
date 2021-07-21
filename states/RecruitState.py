@@ -46,7 +46,7 @@ class RecruitState(State):
         pass
 
     def arrivedAtOrPassedSite(self, sitePos):
-        if self.agent.agentRect.collidepoint(sitePos):
+        if self.agent.getAgentRect().collidepoint(sitePos):
             return True
         if self.agent.prevPos[0] < self.agent.pos[0]:
             left = self.agent.prevPos[0]

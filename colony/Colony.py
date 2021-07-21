@@ -20,7 +20,7 @@ def main():
     # colony = RecordingPlayer()
     try:
         # (numAgents, state, phase, siteIndex)
-        # colony.addAgents(20, AtNestState, 1, 2)
+        # colony.addAgents(20, AtNestState, AssessPhase, 2)
 
         # initializeAgentList's default values are:        (see Constants.py to check constants' values)
         # colony.initializeAgentList(HOMOGENOUS_AGENTS, MIN_AGENT_SPEED, MAX_AGENT_SPEED, MIN_DECISIVENESS, MAX_DECISIVENESS,

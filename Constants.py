@@ -47,9 +47,9 @@ SCREEN_COLOR = 255, 255, 255  # White
 
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
-HUB_LOCATION = None  # Location of the hub
+HUB_LOCATION = None  # Location of the hub, when it is set to None, it is put in the middle of the screen
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
-SITE_RADIUS = 20  # How big is the radius of a site?
+SITE_RADIUS = 20  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.

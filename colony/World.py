@@ -135,13 +135,16 @@ class World:
         hubSite.agentCount = self.initialHubAgentCount
         return hubSite
 
+    def getHub(self):
+        return self.hub
+
     def updateStateAndPhaseCounts(self):
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         for agent in self.agentList:
             st = agent.getState()
             self.states[st] += 1
-            ph = agent.phase
+            ph = agent.getPhaseNumber()
             self.phases[ph] += 1
 
     def drawWorldObjects(self):

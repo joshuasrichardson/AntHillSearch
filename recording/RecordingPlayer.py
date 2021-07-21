@@ -58,9 +58,7 @@ class RecordingPlayer(AbstractColonySimulation):
         agentNeighbors = []
         for i in possibleNeighborList:
             agentNeighbors.append(self.world.agentList[i])
-        agent.state.state = self.recorder.getNextState()
-        agent.state.color = agent.getStateColor(agent.state.state)
-        agent.phase = self.recorder.getNextPhase()
-        agent.phaseColor = agent.getPhaseColor(agent.phase)
+        agent.setState(self.recorder.getNextState(agent))
+        agent.setPhase(self.recorder.getNextPhase())
         siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
         agent.assignSite(siteToAssign)

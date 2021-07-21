@@ -10,7 +10,6 @@ class GoState(State):
     def __init__(self, agent):
         super().__init__(agent)
         self.state = GO
-        self.color = GO_COLOR
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
@@ -22,3 +21,9 @@ class GoState(State):
                 isclose(self.agent.pos[1], self.agent.target[1], abs_tol=distance):
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
+
+    def toString(self):
+        return "GO"
+
+    def getColor(self):
+        return GO_COLOR

@@ -1,15 +1,15 @@
 """ Agent class. Stores 2D position and agent state """
 import random
-
 import numpy as np
 import pygame
-
 from Constants import *
+from phases.AssessPhase import AssessPhase
+from phases.ExplorePhase import ExplorePhase
 
 
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
-# TODO: Break into Agents and AgentsBuilder
+
 
 class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
@@ -20,8 +20,6 @@ class Agent:
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION, maxSearchDistance=MAX_SEARCH_DIST):
         self.world = world  # The colony the agent lives in
-        # self.siteList = world.getSiteList()  # List of all the sites in the colony
-        self.hub = world.hub  # Original home that the agents are leaving
 
         self.prevPos = startingPosition  # Initial position
         self.pos = startingPosition  # Initial position
@@ -44,15 +42,14 @@ class Agent:
         self.maxSearchDistance = maxSearchDistance
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
-        self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
-        self.phaseColor = EXPLORE_COLOR  # A color to represent the phase so it can be seen on the screen
+        self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
 
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
-        self.knownSites = {self.hub}  # A list of sites that the agent has been to before
+        self.knownSites = {self.getHub()}  # A list of sites that the agent has been to before
         self.knownSites.add(startingAssignment)
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
@@ -78,8 +75,17 @@ class Agent:
     def getState(self):
         return self.state.state
 
-    def getColor(self):
-        return self.state.color
+    def getStateColor(self):
+        return self.state.getColor()
+
+    def phaseToString(self):
+        return self.phase.toString()
+
+    def getPhaseColor(self):
+        return self.phase.getColor()
+
+    def getPhaseNumber(self):
+        return self.phase.getNumber()
 
     def getPosition(self):
         self.pos = [self.agentRect.centerx, self.agentRect.centery]
@@ -107,16 +113,13 @@ class Agent:
 
     def setPhase(self, phase):
         self.phase = phase
-        self.speed = self.uncommittedSpeed * self.speedCoefficient
-        if phase == EXPLORE:
-            self.phaseColor = EXPLORE_COLOR
-        elif phase == ASSESS:
-            self.phaseColor = ASSESS_COLOR
-        elif phase == CANVAS:
-            self.phaseColor = CANVAS_COLOR
-        elif phase == COMMIT:
-            self.phaseColor = COMMIT_COLOR
-            self.speed = self.committedSpeed * self.speedCoefficient
+        self.speed = phase.getSpeed(self.uncommittedSpeed, self.committedSpeed)
+
+    def getHub(self):
+        return self.world.getHub()
+
+    def getAgentRect(self):
+        return self.agentRect
 
     def incrementFollowers(self):
         self.numFollowers += 1
@@ -129,18 +132,12 @@ class Agent:
         surface.blit(self.agentHandle, self.agentRect)
 
         if SHOW_AGENT_COLORS:
-            pygame.draw.ellipse(surface, self.state.color, self.agentRect, 4)
-            pygame.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
+            pygame.draw.ellipse(surface, self.state.getColor(), self.agentRect, 4)
+            pygame.draw.ellipse(surface, self.phase.getColor(), self.agentRect, 2)
 
         if SHOW_ESTIMATED_QUALITY:
             img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
             self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
-
-    def getAgentHandle(self):
-        return self.agentHandle
-
-    def getAgentRect(self):
-        return self.agentRect
 
     def isTooFarAway(self, site):
         from math import isclose
@@ -157,7 +154,7 @@ class Agent:
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
         if site is not self.assignedSite:
-            self.setPhase(ASSESS)
+            self.setPhase(AssessPhase())
             self.estimatedQuality = self.estimateQuality(site)
         self.assignedSite = site
         self.assignedSite.incrementCount()
@@ -174,7 +171,7 @@ class Agent:
         return self.assignedSite.agentCount > QUORUM_SIZE
 
     def shouldSearch(self):
-        if self.assignedSite == self.hub:
+        if self.assignedSite == self.getHub():
             return np.random.exponential() > SEARCH_FROM_HUB_THRESHOLD
         return np.random.exponential() > SEARCH_THRESHOLD  # Make it more likely if they aren't at the hub.
 
@@ -213,64 +210,6 @@ class Agent:
         self.isSelected = False
         self.isTheSelected = False
 
-    def stateToString(self):
-        if self.state.state == AT_NEST:
-            return "AT_NEST"
-        if self.state.state == SEARCH:
-            return "SEARCH"
-        if self.state.state == FOLLOW:
-            return "FOLLOW"
-        if self.state.state == LEAD_FORWARD:
-            return "LEAD_FORWARD"
-        if self.state.state == REVERSE_TANDEM:
-            return "REVERSE_TANDEM"
-        if self.state.state == TRANSPORT:
-            return "TRANSPORT"
-        if self.state.state == CARRIED:
-            return "CARRIED"
-        if self.state.state == GO:
-            return "GO"
-
-    def phaseToString(self):
-        if self.phase == EXPLORE:
-            return "EXPLORE"
-        if self.phase == ASSESS:
-            return "ASSESS"
-        if self.phase == CANVAS:
-            return "CANVAS"
-        if self.phase == COMMIT:
-            return "COMMIT"
-
-    @staticmethod
-    def getStateColor(state):
-        if state == AT_NEST:
-            return AT_NEST_COLOR
-        if state == SEARCH:
-            return SEARCH_COLOR
-        if state == LEAD_FORWARD:
-            return LEAD_FORWARD_COLOR
-        if state == REVERSE_TANDEM:
-            return REVERSE_TANDEM_COLOR
-        if state == TRANSPORT:
-            return TRANSPORT_COLOR
-        if state == FOLLOW:
-            return FOLLOW_COLOR
-        if state == CARRIED:
-            return CARRIED_COLOR
-        if state == GO:
-            return GO_COLOR
-
-    @staticmethod
-    def getPhaseColor(phase):
-        if phase == EXPLORE:
-            return EXPLORE_COLOR
-        if phase == ASSESS:
-            return ASSESS_COLOR
-        if phase == CANVAS:
-            return CANVAS_COLOR
-        if phase == COMMIT:
-            return COMMIT_COLOR
-
     def getAttributes(self):
         knownSitesPositions = []
         for site in self.knownSites:
@@ -289,7 +228,7 @@ class Agent:
                 "Navigation skills: " + str(self.navigationSkills),
                 "Known Sites: " + str(knownSitesPositions),
                 "Site to Recruit from: " + str(siteToRecruitFromPos),
-                "State: " + self.stateToString(),
+                "State: " + self.state.toString(),
                 "Phase: " + self.phaseToString(),
                 "Assessment Threshold: " + str(self.assessmentThreshold),
                 "Lead Agent: " + str(self.leadAgent),

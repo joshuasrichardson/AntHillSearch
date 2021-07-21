@@ -74,7 +74,7 @@ class ColonySimulation(AbstractColonySimulation):
 
     def updateRestAPI(self, agentRectList):
         if self.shouldReport:
-            hubRect = self.world.hub.getSiteRect()
+            hubRect = self.world.getHub().getSiteRect()
             hubAgentsIndices = hubRect.collidelistall(agentRectList)
             self.world.request.numAtHub = 0
             for agentIndex in hubAgentsIndices:
