@@ -10,7 +10,7 @@ from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
 
 
-# TODO: Add a parameter to make it so that they look for the site if it moves
+# TODO: Add ability to change parameters such as findSitesEasily during the simulation?
 # TODO: Break Agents, Site, and World, into themselves and ""Builder classes
 
 
@@ -74,7 +74,7 @@ class ColonySimulation(AbstractColonySimulation):
 
     def updateRestAPI(self, agentRectList):
         if self.shouldReport:
-            hubRect = self.world.hub.getSiteRect()
+            hubRect = self.world.getHub().getSiteRect()
             hubAgentsIndices = hubRect.collidelistall(agentRectList)
             self.world.request.numAtHub = 0
             for agentIndex in hubAgentsIndices:

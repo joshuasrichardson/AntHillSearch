@@ -1,6 +1,9 @@
 import numpy as np
 
 from Constants import *
+from phases.CanvasPhase import CanvasPhase
+from phases.CommitPhase import CommitPhase
+from phases.ExplorePhase import ExplorePhase
 from states.FollowState import FollowState
 from states.LeadForwardState import LeadForwardState
 from states.SearchState import SearchState
@@ -14,30 +17,27 @@ class AtNestState(State):
     def __init__(self, agent):
         super().__init__(agent)
         self.state = AT_NEST
-        self.color = AT_NEST_COLOR
 
     def changeState(self, neighborList) -> None:
-        self.setState(self, self.agent.assignedSite.getPosition())
+        self.setState(self, self.agent.getAssignedSitePosition())
 
-        siteWithinRange = self.agent.agentRect.collidelist(self.agent.world.siteRectList)
+        siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
         # checking the siteWithinRange makes sure they actually get to the site before they search again unless they get lost on the way.
-        if self.agent.shouldSearch() and (siteWithinRange != -1 or self.agent.assignedSite is self.agent.hub)\
-                and self.agent.world.siteList[siteWithinRange] is self.agent.assignedSite\
-                and not self.agent.shouldGetLost():
+        if self.agent.shouldSearch(siteWithinRange):
             self.setState(SearchState(self.agent), None)
             return
 
-        if self.agent.phase == ASSESS:
+        if self.agent.getPhaseNumber() == ASSESS:
             if self.agent.isDoneAssessing():
                 self.acceptOrReject()
                 return
 
-        if self.agent.phase == CANVAS:
+        if self.agent.getPhaseNumber() == CANVAS:
             if self.agent.shouldRecruit():
-                self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
+                self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
                 return
 
-        if self.agent.phase == COMMIT:
+        if self.agent.getPhaseNumber() == COMMIT:
             # Recruit, search, or follow
             if self.agent.shouldRecruit():
                 self.agent.transportOrReverseTandem(self)
@@ -50,7 +50,7 @@ class AtNestState(State):
                 self.tryFollowing(neighborList[i])
                 return
 
-        # If an agent nearby is transporting, get carried by that agent. TODO: If I do end up adding passive agents and brood items, I will get rid of this.
+        # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):
             if neighborList[i].getState() == TRANSPORT:
                 self.getCarried(neighborList[i])
@@ -61,6 +61,10 @@ class AtNestState(State):
             self.agent.estimatedQuality = np.round(self.agent.estimatedQuality - 0.1, 1)
         else:
             self.agent.estimatedQuality = np.round(self.agent.estimatedQuality + 0.1, 1)
+
+        # If the site moves, they might not know where it is
+        if siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange] is self.agent.assignedSite:
+            self.agent.assignedSiteLastKnownPos = self.agent.assignedSite.getPosition()
 
     def tryFollowing(self, leader):
         if leader.numFollowers < MAX_FOLLOWERS:
@@ -73,15 +77,15 @@ class AtNestState(State):
         if self.agent.estimatedQuality > MIN_ACCEPT_VALUE:
             if self.agent.quorumMet():
                 # enough agents are already at the site, so they skip canvasing and go straight to the committed phase
-                self.agent.setPhase(COMMIT)
+                self.agent.setPhase(CommitPhase())
                 self.agent.transportOrReverseTandem(self)
             else:
                 # they enter the canvasing phase and start recruiting others.
-                self.agent.setPhase(CANVAS)
+                self.agent.setPhase(CanvasPhase())
                 from states.LeadForwardState import LeadForwardState
-                self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
+                self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
         else:
-            self.agent.setPhase(EXPLORE)
+            self.agent.setPhase(ExplorePhase())
             from states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
 
@@ -92,3 +96,9 @@ class AtNestState(State):
             self.agent.leadAgent.incrementFollowers()
             from states.CarriedState import CarriedState
             self.setState(CarriedState(self.agent), self.agent.leadAgent.pos)
+
+    def toString(self):
+        return "AT_NEST"
+
+    def getColor(self):
+        return AT_NEST_COLOR

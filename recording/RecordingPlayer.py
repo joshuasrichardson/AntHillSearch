@@ -8,10 +8,6 @@ class RecordingPlayer(AbstractColonySimulation):
     """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
     def __init__(self):
-        # , simulationDuration=SIM_DURATION, numSites=NUM_SITES, convergenceFraction=CONVERGENCE_FRACTION,
-        #          hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
-        #          sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
-        #          siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN
         super().__init__(shouldReport=False, shouldRecord=False, shouldDraw=True)
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
@@ -27,12 +23,10 @@ class RecordingPlayer(AbstractColonySimulation):
 
     def updateSites(self):
         newPositions = []
-        newQualities = []
         for i in range(0, self.recorder.getNumSites()):
             pos = self.recorder.getNextSitePosition()
             newPositions.append(pos)
             quality = self.recorder.getNextSiteQuality()
-            newQualities.append(quality)
             rad = self.recorder.getNextSiteRadius()
 
             try:
@@ -48,6 +42,8 @@ class RecordingPlayer(AbstractColonySimulation):
             if not newPositions.__contains__(site.getPosition()):
                 print("Removing site: " + str(site.getPosition()))
                 self.world.removeSite(site)
+        if len(self.world.siteList) > len(newPositions):
+            self.world.removeSite(self.world.siteList[len(self.world.siteList) - 1])
 
     def updateAgent(self, agent, agentRectList):
         pos = self.recorder.getNextAgentPosition()
@@ -58,9 +54,7 @@ class RecordingPlayer(AbstractColonySimulation):
         agentNeighbors = []
         for i in possibleNeighborList:
             agentNeighbors.append(self.world.agentList[i])
-        agent.state.state = self.recorder.getNextState()
-        agent.state.color = agent.getStateColor(agent.state.state)
-        agent.phase = self.recorder.getNextPhase()
-        agent.phaseColor = agent.getPhaseColor(agent.phase)
+        agent.setState(self.recorder.getNextState(agent))
+        agent.setPhase(self.recorder.getNextPhase())
         siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
         agent.assignSite(siteToAssign)

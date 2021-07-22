@@ -15,38 +15,48 @@ class RecruitState(State):
     def changeState(self, neighborList) -> None:
         # Choose a site to recruit from
         if self.agent.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there.
-            self.setState(self, self.agent.siteToRecruitFrom.getPosition())
-            if self.arrivedAtOrPassedSite(self.agent.siteToRecruitFrom.pos):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
+            self.setState(self, self.agent.getRecruitSitePosition())
+            if not self.agent.findAssignedSiteEasily and self.arrivedAtOrPassedSite(self.agent.getRecruitSitePosition())\
+                    and not self.arrivedAtOrPassedSite(self.agent.siteToRecruitFrom.getPosition()):
+                self.agent.goingToRecruit = False
+                self.agent.removeKnownSite(self.agent.siteToRecruitFrom)
+                from states.AtNestState import AtNestState
+                self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
+            if self.arrivedAtOrPassedSite(self.agent.siteToRecruitFrom.getPosition()):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
                 self.agent.goingToRecruit = False  # The agent is now going to head back to the new site
                 self.agent.comingWithFollowers = True
-                self.setState(self, self.agent.assignedSite.getPosition())  # Go back to the new site with the new follower(s).
+                self.agent.recruitSiteLastKnownPos = self.agent.siteToRecruitFrom.getPosition()
+                self.setState(self, self.agent.getAssignedSitePosition())  # Go back to the new site with the new follower(s).
             return
 
         if self.agent.comingWithFollowers:
-            self.setState(self, self.agent.assignedSite.getPosition())
-            if self.arrivedAtOrPassedSite(self.agent.assignedSite.pos):  # If they get to the assigned site
+            self.setState(self, self.agent.getAssignedSitePosition())
+            if not self.agent.findAssignedSiteEasily and self.arrivedAtOrPassedSite(self.agent.getAssignedSitePosition())\
+                    and not self.arrivedAtOrPassedSite(self.agent.assignedSite.getPosition()):  # If they get to where they thought the site was
+                self.agent.numFollowers = 0
+                self.agent.comingWithFollowers = False
+                self.agent.removeKnownSite(self.agent.assignedSite)
+                from states.SearchState import SearchState
+                self.setState(SearchState(self.agent), None)
+            if self.arrivedAtOrPassedSite(self.agent.assignedSite.getPosition()):  # If they get to the assigned site
                 self.agent.numFollowers = 0
                 self.agent.comingWithFollowers = False
                 self.arriveAtSite()
             return
 
-        self.agent.siteToRecruitFrom = self.agent.assignedSite
-        while self.agent.siteToRecruitFrom == self.agent.assignedSite:
-            indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
-            index = 0
-            for site in self.agent.knownSites:
-                if index == indexOfSiteToRecruitFrom:
-                    self.agent.siteToRecruitFrom = site
-                index += 1
-        self.agent.goingToRecruit = True
-        self.setState(self, self.agent.siteToRecruitFrom.getPosition())  # Go to their randomly chosen site to recruit.
+        if len(self.agent.knownSites) > 1:
+            self.chooseSiteToRecruitFrom()
+        else:
+            from states.SearchState import SearchState
+            self.setState(SearchState(self.agent), None)
+            return
 
     @abstractmethod
     def arriveAtSite(self):
         pass
 
     def arrivedAtOrPassedSite(self, sitePos):
-        if self.agent.agentRect.collidepoint(sitePos):
+        if self.agent.getAgentRect().collidepoint(sitePos):
             return True
         if self.agent.prevPos[0] < self.agent.pos[0]:
             left = self.agent.prevPos[0]
@@ -58,3 +68,16 @@ class RecruitState(State):
             top = self.agent.pos[1]
         rect = Rect(left, top, self.agent.speed, self.agent.speed)
         return rect.collidepoint(sitePos)
+
+    def chooseSiteToRecruitFrom(self):  # Todo: Figure out why they don't go recruit from the hub when it has moved, but they do from the other sites that have moved once they have found them again.
+        indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
+        self.agent.siteToRecruitFrom = self.agent.knownSites[indexOfSiteToRecruitFrom]
+        while self.agent.siteToRecruitFrom == self.agent.assignedSite:
+            indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
+            self.agent.siteToRecruitFrom = self.agent.knownSites[indexOfSiteToRecruitFrom]
+        if self.agent.findAssignedSiteEasily:
+            self.agent.recruitSiteLastKnownPos = self.agent.siteToRecruitFrom.getPosition()
+        else:
+            self.agent.recruitSiteLastKnownPos = self.agent.knownSitesPositions[indexOfSiteToRecruitFrom]
+        self.agent.goingToRecruit = True
+        self.setState(self, self.agent.getRecruitSitePosition())  # Go to their randomly chosen site to recruit.

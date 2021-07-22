@@ -1,15 +1,15 @@
 """ Agent class. Stores 2D position and agent state """
 import random
-
 import numpy as np
 import pygame
-
 from Constants import *
+from phases.AssessPhase import AssessPhase
+from phases.ExplorePhase import ExplorePhase
 
 
 # TODO: Consider separating the probability of changing states in different phases
 #  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
-# TODO: Break into Agents and AgentsBuilder
+
 
 class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
@@ -18,10 +18,10 @@ class Agent:
     def __init__(self, world, startingAssignment, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                  maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION, maxSearchDistance=MAX_SEARCH_DIST):
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION,
+                 maxSearchDistance=MAX_SEARCH_DIST, findAssignedSiteEasily=FIND_SITES_EASILY,
+                 commitSpeedFactor=COMMIT_SPEED_FACTOR):
         self.world = world  # The colony the agent lives in
-        # self.siteList = world.getSiteList()  # List of all the sites in the colony
-        self.hub = world.hub  # Original home that the agents are leaving
 
         self.prevPos = startingPosition  # Initial position
         self.pos = startingPosition  # Initial position
@@ -31,12 +31,15 @@ class Agent:
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
 
         self.homogenousAgents = homogenousAgents  # Whether all the agents have the same attributes (if false, their attributes vary)
+        self.findAssignedSiteEasily = findAssignedSiteEasily
         self.speed = self.initializeAttribute(minSpeed, maxSpeed)  # Speed the agent moves on the screen
         self.uncommittedSpeed = self.speed  # The speed of the agents outside the committed phase
-        self.committedSpeed = self.speed * COMMIT_SPEED_FACTOR  # The speed of the agents in the committed phase
+        self.committedSpeed = self.speed * commitSpeedFactor  # The speed of the agents in the committed phase
         self.decisiveness = self.initializeAttribute(minDecisiveness, maxDecisiveness)  # Influences how quickly an agent can assess
         self.navigationSkills = self.initializeAttribute(minNavSkills, maxNavSkills)  # Influences how likely an agent is to get lost
         self.estimationAccuracy = self.initializeAttribute(minEstAccuracy, maxEstAccuracy)  # How far off an agent's estimate of the quality of a site will be on average.
+        self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
+        self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.target = startingPosition  # The position the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
@@ -44,17 +47,19 @@ class Agent:
         self.maxSearchDistance = maxSearchDistance
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
-        self.phase = EXPLORE  # The current phase or level of commitment (explore, assess, canvas, commit)
-        self.phaseColor = EXPLORE_COLOR  # A color to represent the phase so it can be seen on the screen
+        self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
 
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
-        self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
-        self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
+        self.assignedSiteLastKnownPos = self.assignedSite.getPosition()
 
-        self.knownSites = {self.hub}  # A list of sites that the agent has been to before
-        self.knownSites.add(startingAssignment)
+        self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
+        self.knownSitesPositions = [self.getHub().getPosition()]
+        if startingAssignment is not self.getHub():
+            self.knownSites.append(startingAssignment)
+            self.knownSitesPositions.append(startingAssignment.getPosition())
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
+        self.recruitSiteLastKnownPos = None
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state
         self.numFollowers = 0  # The number of agents following the current agent in LEAD_FORWARD or TANDEM_RUN state
         self.goingToRecruit = False  # Whether the agent is heading toward a site to recruit or not.
@@ -78,8 +83,18 @@ class Agent:
     def getState(self):
         return self.state.state
 
-    def getColor(self):
-        return self.state.color
+    def getStateColor(self):
+        return self.state.getColor()
+
+    def setPhase(self, phase):
+        self.phase = phase
+        self.speed = phase.getSpeed(self.uncommittedSpeed, self.committedSpeed, self.speedCoefficient)
+
+    def getPhaseColor(self):
+        return self.phase.getColor()
+
+    def getPhaseNumber(self):
+        return self.phase.getNumber()
 
     def getPosition(self):
         self.pos = [self.agentRect.centerx, self.agentRect.centery]
@@ -105,18 +120,23 @@ class Agent:
         self.agentRect.centery = int(np.round(float(self.leadAgent.pos[1]) - self.leadAgent.speed * np.sin(self.leadAgent.angle)))
         self.pos = [self.agentRect.centerx, self.agentRect.centery]
 
-    def setPhase(self, phase):
-        self.phase = phase
-        self.speed = self.uncommittedSpeed * self.speedCoefficient
-        if phase == EXPLORE:
-            self.phaseColor = EXPLORE_COLOR
-        elif phase == ASSESS:
-            self.phaseColor = ASSESS_COLOR
-        elif phase == CANVAS:
-            self.phaseColor = CANVAS_COLOR
-        elif phase == COMMIT:
-            self.phaseColor = COMMIT_COLOR
-            self.speed = self.committedSpeed * self.speedCoefficient
+    def getAssignedSitePosition(self):
+        if self.findAssignedSiteEasily:
+            return self.assignedSite.getPosition()
+        else:
+            return self.assignedSiteLastKnownPos
+
+    def getRecruitSitePosition(self):
+        if self.findAssignedSiteEasily:
+            return self.siteToRecruitFrom.getPosition()
+        else:
+            return self.recruitSiteLastKnownPos
+
+    def getHub(self):
+        return self.world.getHub()
+
+    def getAgentRect(self):
+        return self.agentRect
 
     def incrementFollowers(self):
         self.numFollowers += 1
@@ -129,18 +149,18 @@ class Agent:
         surface.blit(self.agentHandle, self.agentRect)
 
         if SHOW_AGENT_COLORS:
-            pygame.draw.ellipse(surface, self.state.color, self.agentRect, 4)
-            pygame.draw.ellipse(surface, self.phaseColor, self.agentRect, 2)
+            pygame.draw.ellipse(surface, self.state.getColor(), self.agentRect, 4)
+            pygame.draw.ellipse(surface, self.phase.getColor(), self.agentRect, 2)
 
         if SHOW_ESTIMATED_QUALITY:
             img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
             self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
-    def getAgentHandle(self):
-        return self.agentHandle
-
-    def getAgentRect(self):
-        return self.agentRect
+    def isClose(self, position):
+        from math import isclose
+        closeX = isclose(self.pos[0], position[0], abs_tol=self.assignedSite.radius)
+        closeY = isclose(self.pos[1], position[1], abs_tol=self.assignedSite.radius)
+        return closeX and closeY
 
     def isTooFarAway(self, site):
         from math import isclose
@@ -153,13 +173,27 @@ class Agent:
             (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
         # TODO: Make a bell curve instead of even distribution
 
+    def addToKnownSites(self, site):
+        if not self.knownSites.__contains__(site):
+            self.knownSites.append(site)
+            self.knownSitesPositions.append(site.getPosition())
+
+    def removeKnownSite(self, site):
+        if self.knownSites.__contains__(site):
+            if site is self.assignedSite:
+                self.assignSite(self.getHub())
+            index = self.knownSites.index(site)
+            self.knownSites.remove(site)
+            self.knownSitesPositions.pop(index)
+
     def assignSite(self, site):
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
-        if site is not self.assignedSite:
-            self.setPhase(ASSESS)
+        if site.getPosition() != self.assignedSite.getPosition():
+            self.setPhase(AssessPhase())
             self.estimatedQuality = self.estimateQuality(site)
         self.assignedSite = site
+        self.assignedSiteLastKnownPos = site.getPosition()
         self.assignedSite.incrementCount()
         # Take longer to assess lower-quality sites
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
@@ -173,10 +207,20 @@ class Agent:
     def quorumMet(self):
         return self.assignedSite.agentCount > QUORUM_SIZE
 
-    def shouldSearch(self):
-        if self.assignedSite == self.hub:
+    def shouldSearch(self, siteWithinRange):
+        if siteWithinRange == -1:
+            # When self.findAssignedSiteEasily is False, this will be False everytime.
+            # When self.findAssignedSiteEasily is True, this will only be True if the agent is
+            # close to where their site was before it moved.
+            if self.isClose(self.getAssignedSitePosition()):
+                self.removeKnownSite(self.assignedSite)
+                return True
+        if not self.world.siteList[siteWithinRange] is self.assignedSite:
+            # They should get back to their site before they go out searching again.
+            return False
+        if self.assignedSite == self.getHub():
             return np.random.exponential() > SEARCH_FROM_HUB_THRESHOLD
-        return np.random.exponential() > SEARCH_THRESHOLD  # Make it more likely if they aren't at the hub.
+        return np.random.exponential() > SEARCH_THRESHOLD  # Make it more likely to search if they aren't at the hub.
 
     @staticmethod
     def shouldReturnToNest():
@@ -197,14 +241,13 @@ class Agent:
     def shouldGetLost(self):
         return np.random.exponential() > self.navigationSkills * GET_LOST_THRESHOLD
 
-    @staticmethod
-    def transportOrReverseTandem(state):
+    def transportOrReverseTandem(self, state):
         if np.random.randint(0, 3) == 0:
             from states.ReverseTandemState import ReverseTandemState
-            state.setState(ReverseTandemState(state.agent), state.agent.assignedSite.pos)
+            state.setState(ReverseTandemState(self), self.getAssignedSitePosition())
         else:
             from states.TransportState import TransportState
-            state.setState(TransportState(state.agent), state.agent.assignedSite.pos)
+            state.setState(TransportState(self), self.getAssignedSitePosition())
 
     def select(self):
         self.isSelected = True
@@ -213,84 +256,28 @@ class Agent:
         self.isSelected = False
         self.isTheSelected = False
 
-    def stateToString(self):
-        if self.state.state == AT_NEST:
-            return "AT_NEST"
-        if self.state.state == SEARCH:
-            return "SEARCH"
-        if self.state.state == FOLLOW:
-            return "FOLLOW"
-        if self.state.state == LEAD_FORWARD:
-            return "LEAD_FORWARD"
-        if self.state.state == REVERSE_TANDEM:
-            return "REVERSE_TANDEM"
-        if self.state.state == TRANSPORT:
-            return "TRANSPORT"
-        if self.state.state == CARRIED:
-            return "CARRIED"
-        if self.state.state == GO:
-            return "GO"
-
-    def phaseToString(self):
-        if self.phase == EXPLORE:
-            return "EXPLORE"
-        if self.phase == ASSESS:
-            return "ASSESS"
-        if self.phase == CANVAS:
-            return "CANVAS"
-        if self.phase == COMMIT:
-            return "COMMIT"
-
-    @staticmethod
-    def getStateColor(state):
-        if state == AT_NEST:
-            return AT_NEST_COLOR
-        if state == SEARCH:
-            return SEARCH_COLOR
-        if state == LEAD_FORWARD:
-            return LEAD_FORWARD_COLOR
-        if state == REVERSE_TANDEM:
-            return REVERSE_TANDEM_COLOR
-        if state == TRANSPORT:
-            return TRANSPORT_COLOR
-        if state == FOLLOW:
-            return FOLLOW_COLOR
-        if state == CARRIED:
-            return CARRIED_COLOR
-        if state == GO:
-            return GO_COLOR
-
-    @staticmethod
-    def getPhaseColor(phase):
-        if phase == EXPLORE:
-            return EXPLORE_COLOR
-        if phase == ASSESS:
-            return ASSESS_COLOR
-        if phase == CANVAS:
-            return CANVAS_COLOR
-        if phase == COMMIT:
-            return COMMIT_COLOR
-
     def getAttributes(self):
         knownSitesPositions = []
         for site in self.knownSites:
-            knownSitesPositions.append(site.pos)
+            knownSitesPositions.append(site.getPosition())
         siteToRecruitFromPos = None
         if self.siteToRecruitFrom is not None:
-            siteToRecruitFromPos = self.siteToRecruitFrom.pos
+            siteToRecruitFromPos = self.siteToRecruitFrom.getPosition()
 
         return ["SELECTED AGENT:",
                 "Position: " + str(self.pos),
-                "Assigned Site: " + str(self.assignedSite.pos),
+                "Assigned Site: " + str(self.assignedSite.getPosition()),
+                "Thinks Assigned Site is at: " + str(self.getAssignedSitePosition()),
                 "Estimated Quality: " + str(self.estimatedQuality),
                 "Target: " + str(self.target),
                 "Speed: " + str(self.speed),
                 "Decisiveness: " + str(self.decisiveness),
                 "Navigation skills: " + str(self.navigationSkills),
                 "Known Sites: " + str(knownSitesPositions),
+                "Thinks Known Sites are at: " + str(self.knownSitesPositions),
                 "Site to Recruit from: " + str(siteToRecruitFromPos),
-                "State: " + self.stateToString(),
-                "Phase: " + self.phaseToString(),
+                "State: " + self.state.toString(),
+                "Phase: " + self.phase.toString(),
                 "Assessment Threshold: " + str(self.assessmentThreshold),
                 "Lead Agent: " + str(self.leadAgent),
                 "Number of followers: " + str(self.numFollowers),

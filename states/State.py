@@ -1,7 +1,33 @@
-import copy
 import numpy as np
 from abc import ABC, abstractmethod
-from Constants import SEARCH
+from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED
+
+
+def numToState(num, agent):
+    if num == AT_NEST:
+        from states.AtNestState import AtNestState
+        return AtNestState(agent)
+    if num == SEARCH:
+        from states.SearchState import SearchState
+        return SearchState(agent)
+    if num == CARRIED:
+        from states.CarriedState import CarriedState
+        return CarriedState(agent)
+    if num == FOLLOW:
+        from states.FollowState import FollowState
+        return FollowState(agent)
+    if num == LEAD_FORWARD:
+        from states.LeadForwardState import LeadForwardState
+        return LeadForwardState(agent)
+    if num == REVERSE_TANDEM:
+        from states.ReverseTandemState import ReverseTandemState
+        return ReverseTandemState(agent)
+    if num == TRANSPORT:
+        from states.TransportState import TransportState
+        return TransportState(agent)
+    if num == GO:
+        from states.GoState import GoState
+        return GoState(agent)
 
 
 class State(ABC):
@@ -26,7 +52,10 @@ class State(ABC):
     def changeState(self, neighborList) -> None:
         pass
 
-    def copy(self, agent):
-        state = copy.copy(self)
-        state.agent = agent
-        return state
+    @abstractmethod
+    def toString(self):
+        pass
+
+    @abstractmethod
+    def getColor(self):
+        pass

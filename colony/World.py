@@ -39,7 +39,9 @@ class World:
 
     def randomizeState(self):
         for agent in self.agentList:
-            agent.assignSite(self.siteList[random.randint(0, len(self.siteList) - 1)])
+            site = self.siteList[random.randint(0, len(self.siteList) - 1)]
+            agent.addToKnownSites(site)
+            agent.assignSite(site)
             agent.setPosition(agent.assignedSite.getPosition()[0], agent.assignedSite.getPosition()[1])
 
     def getSiteList(self):
@@ -83,7 +85,7 @@ class World:
         self.siteRectList.append(newSite.getSiteRect())
 
     def removeSite(self, site):
-        if site.quality == -1:
+        if site.quality == -1 and site.agentCount > 0:
             print("Cannot delete the hub")
         else:
             index = self.siteList.index(site, 0, len(self.siteList))
@@ -135,13 +137,16 @@ class World:
         hubSite.agentCount = self.initialHubAgentCount
         return hubSite
 
+    def getHub(self):
+        return self.hub
+
     def updateStateAndPhaseCounts(self):
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         for agent in self.agentList:
             st = agent.getState()
             self.states[st] += 1
-            ph = agent.phase
+            ph = agent.getPhaseNumber()
             self.phases[ph] += 1
 
     def drawWorldObjects(self):

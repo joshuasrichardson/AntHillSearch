@@ -26,7 +26,7 @@ class SendHubInfoRequest:
         self.agentPhases = []
         self.agentStates = []
         for agent in agentList:
-            self.agentPhases.append(agent.phase)
+            self.agentPhases.append(agent.getPhaseNumber())
             self.incrementPhaseCount(agent)
             self.agentStates.append(agent.getState())
             self.incrementStateCount(agent)
@@ -39,7 +39,7 @@ class SendHubInfoRequest:
         self.previousNumAgentsAtSites = []
 
     def addAgent(self, agent):
-        self.agentPhases.append(agent.phase)
+        self.agentPhases.append(agent.getPhaseNumber())
         self.agentStates.append(agent.getState())
         self.incrementPhaseCount(agent)
         self.incrementStateCount(agent)
@@ -52,7 +52,7 @@ class SendHubInfoRequest:
 
     def addAgentToSendRequest(self, agent, agentIndex):
         self.decrementPhaseCount(agentIndex)
-        self.agentPhases[agentIndex] = agent.phase
+        self.agentPhases[agentIndex] = agent.getPhaseNumber()
 
         self.decrementStateCount(agentIndex)
         self.agentStates[agentIndex] = agent.getState()
@@ -87,13 +87,13 @@ class SendHubInfoRequest:
             self.numCarried -= 1
 
     def incrementPhaseCount(self, agent):
-        if agent.phase == EXPLORE:
+        if agent.getPhaseNumber() == EXPLORE:
             self.numExplore += 1
-        elif agent.phase == ASSESS:
+        elif agent.getPhaseNumber() == ASSESS:
             self.numAssess += 1
-        elif agent.phase == CANVAS:
+        elif agent.getPhaseNumber() == CANVAS:
             self.numCanvas += 1
-        elif agent.phase == COMMIT:
+        elif agent.getPhaseNumber() == COMMIT:
             self.numCommit += 1
 
     def incrementStateCount(self, agent):

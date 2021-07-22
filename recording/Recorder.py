@@ -1,5 +1,8 @@
 import json
 
+from phases import Phase
+from states import State
+
 
 class Recorder:
     """ Records essential site information, agent positions, agent states, and agent phases
@@ -29,7 +32,7 @@ class Recorder:
     def recordAgentInfo(self, agent):
         self.recordAgentPosition(agent.getPosition())
         self.recordState(agent.getState())
-        self.recordPhase(agent.phase)
+        self.recordPhase(agent.getPhaseNumber())
         self.recordAssignment(agent.getAssignedSiteIndex())
 
     def recordAgentPosition(self, pos):
@@ -86,13 +89,13 @@ class Recorder:
         self.currentAgentPosIndex += 1
         return self.agentPositions[self.currentAgentPosIndex]
 
-    def getNextState(self):
+    def getNextState(self, agent):
         self.currentStateIndex += 1
-        return self.agentStates[self.currentStateIndex]
+        return State.numToState(self.agentStates[self.currentStateIndex], agent)
 
     def getNextPhase(self):
         self.currentPhaseIndex += 1
-        return self.agentPhases[self.currentPhaseIndex]
+        return Phase.numToPhase(self.agentPhases[self.currentPhaseIndex])
 
     def getNextAssignment(self):
         self.currentAssignmentIndex += 1

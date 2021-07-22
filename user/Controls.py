@@ -6,6 +6,7 @@ import pygame
 from Constants import SITE_RADIUS, EXPLORE, SCREEN_COLOR
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
+from phases.ExplorePhase import ExplorePhase
 from states.SearchState import SearchState
 
 
@@ -191,7 +192,7 @@ class Controls:
             self.selectSite(mousePos)
 
     def selectAgent(self, mousePos):
-        selectedAgents = [s for s in self.agentList if s.agentRect.collidepoint(mousePos)]
+        selectedAgents = [a for a in self.agentList if a.getAgentRect().collidepoint(mousePos)]
 
         if len(selectedAgents) > 0:
             self.selectedAgent = selectedAgents[0]
@@ -243,7 +244,7 @@ class Controls:
         return pygame.draw.rect(self.world.screen, (128, 128, 128), pygame.Rect(left, top, width, height))
 
     def selectAgents(self):
-        self.selectedAgents = [a for a in self.agentList if a.agentRect.colliderect(self.selectRect)]
+        self.selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(self.selectRect)]
 
         for a in self.selectedAgents:
             a.select()
@@ -273,6 +274,9 @@ class Controls:
                 if self.shouldSelectSiteAgents:
                     agent.select()
                     self.selectedAgents.append(agent)
+        if self.shouldSelectSiteAgents and len(self.selectedAgents) > 0:
+            self.selectedAgent = self.selectedAgents[0]
+            self.selectedAgent.isTheSelected = True
 
     def selectAgentsSite(self):
         self.selectedSite = self.selectedAgent.assignedSite
@@ -340,6 +344,7 @@ class Controls:
         sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
         if len(sitesUnderMouse) > 0:
             for a in self.selectedAgents:
+                a.addToKnownSites(sitesUnderMouse[0])
                 a.assignSite(sitesUnderMouse[0])
 
     def speedUp(self):
@@ -376,7 +381,7 @@ class Controls:
         self.world.createSite(position[0], position[1], SITE_RADIUS, 256 / 2)
 
     def createAgent(self, position):
-        agent = Agent(self.world, self.world.hub, startingPosition=position)
+        agent = Agent(self.world, self.world.getHub(), startingPosition=position)
         agent.setState(SearchState(agent))
         agent.angle = random.uniform(0, 2 * np.pi)
         agent.assignedSite.incrementCount()
@@ -392,11 +397,11 @@ class Controls:
             site = self.selectedSites[i]
             print("Deleting: " + str(site))
             for agent in self.agentList:
-                if agent.assignedSite is site and site is not self.world.hub:
-                    agent.assignSite(self.world.hub)
-                    agent.setPhase(EXPLORE)
+                if agent.assignedSite is site and site is not self.world.getHub():
+                    agent.assignSite(self.world.getHub())
+                    agent.setPhase(ExplorePhase())
                     agent.setState(SearchState(agent))
-                if agent.knownSites.__contains__(site) and site is not self.world.hub:
+                if agent.knownSites.__contains__(site) and site is not self.world.getHub():
                     agent.knownSites.remove(site)
             self.world.removeSite(site)
             self.selectedSites.remove(site)
@@ -404,6 +409,8 @@ class Controls:
 
     def deleteSelectedAgents(self):
         self.world.deleteSelectedAgents()
+        self.selectedAgents = []
+        self.selectedAgent = None
 
     def appendNumber(self, number):
         if self.potentialQuality == 0 or self.potentialQuality > 25 or (self.potentialQuality == 25 and number > 5):

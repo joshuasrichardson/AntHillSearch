@@ -84,7 +84,7 @@ class SimulationGraphs:
 
     def drawSelectedSiteInfo(self, site, agentsPositions):
         attributes = ["SELECTED SITE:",
-                      "Position: " + str(site.pos),
+                      "Position: " + str(site.getPosition()),
                       "Quality: " + str(site.getQuality()),
                       "Agent Count: " + str(site.agentCount),
                       "Agents' Positions: "]

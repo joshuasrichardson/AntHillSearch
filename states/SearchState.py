@@ -1,6 +1,7 @@
 import numpy as np
 
 from Constants import *
+from phases.AssessPhase import AssessPhase
 from states.State import State
 
 
@@ -10,7 +11,6 @@ class SearchState(State):
     def __init__(self, agent):
         super().__init__(agent)
         self.state = SEARCH
-        self.color = SEARCH_COLOR
 
     def move(self, state) -> None:
         if state.state != SEARCH:
@@ -22,20 +22,20 @@ class SearchState(State):
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
-        siteWithinRange = self.agent.agentRect.collidelist(self.agent.world.siteRectList)
+        siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
         # If agent finds a site within range then assess it
 
         if self.sightIsInRange(siteWithinRange):
-            self.agent.knownSites.add(self.agent.world.siteList[siteWithinRange])
+            self.agent.addToKnownSites(self.agent.world.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.estimateQuality(self.agent.world.siteList[siteWithinRange]) > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.world.siteList[siteWithinRange])
                 from states.AtNestState import AtNestState
-                self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
-                self.agent.setPhase(ASSESS)
+                self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
+                self.agent.setPhase(AssessPhase())
         elif self.agent.shouldReturnToNest():
             from states.AtNestState import AtNestState
-            self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
+            self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
         elif self.agent.isTooFarAway(self.agent.assignedSite):
             self.goBackTowardSite(self.agent.assignedSite)
 
@@ -46,7 +46,7 @@ class SearchState(State):
                 return
 
     def sightIsInRange(self, siteWithinRange):
-        return siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange] != self.agent.hub
+        return siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange] != self.agent.getHub()
 
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:
@@ -66,3 +66,9 @@ class SearchState(State):
             y = self.agent.getPosition()[1] - 1
         self.agent.setPosition(x, y)
         self.agent.angle = self.agent.angle - (1.1 * np.pi)
+
+    def toString(self):
+        return "SEARCH"
+
+    def getColor(self):
+        return SEARCH_COLOR
