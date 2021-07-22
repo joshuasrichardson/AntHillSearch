@@ -35,5 +35,5 @@ class Phase(ABC):
         pass
 
     @abstractmethod
-    def getSpeed(self, uncommittedSpeed, committedSpeed):
+    def getSpeed(self, uncommittedSpeed, committedSpeed, speedCoefficient):
         pass

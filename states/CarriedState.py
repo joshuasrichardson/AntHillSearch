@@ -22,13 +22,13 @@ class CarriedState(State):
                 self.agent.updateFollowPosition()
         else:
             # if they arrived at a nest or the lead agent got lost and put them down or something:
-            self.agent.knownSites.add(self.agent.leadAgent.assignedSite)
+            self.agent.addToKnownSites(self.agent.leadAgent.assignedSite)
             if self.agent.leadAgent.estimatedQuality > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.leadAgent.assignedSite)
             self.agent.leadAgent = None
             if self.agent.getPhaseNumber() != COMMIT:
                 self.agent.setPhase(AssessPhase())
-            self.setState(AtNestState(self.agent), self.agent.assignedSite.pos)
+            self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
 
     def toString(self):
         return "CARRIED"

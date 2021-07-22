@@ -62,6 +62,9 @@ GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first g
 """ Agent parameters """
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
+# Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.
+FIND_SITES_EASILY = False  # If True, agents will be able to go directly to their assigned site when it is moved.
+#                                    If False, agents will have to search for their site again when it moves.
 # The smaller the max distance is, the faster the simulation ends because agents never get too far away from the sites
 # (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
 MAX_SEARCH_DIST = 2000  # The farthest an agent can get away from the hub while searching.

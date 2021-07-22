@@ -15,7 +15,7 @@ class TransportState(RecruitState):
             self.agent.transportOrReverseTandem(self)
         else:
             from states.SearchState import SearchState
-            self.setState(SearchState(self.agent), self.agent.assignedSite.getPosition())
+            self.setState(SearchState(self.agent), self.agent.getAssignedSitePosition())
 
     def toString(self):
         return "TRANSPORT"

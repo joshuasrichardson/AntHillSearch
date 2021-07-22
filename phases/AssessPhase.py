@@ -13,5 +13,5 @@ class AssessPhase(Phase):
     def getColor(self):
         return ASSESS_COLOR
 
-    def getSpeed(self, uncommittedSpeed, committedSpeed):
-        return uncommittedSpeed
+    def getSpeed(self, uncommittedSpeed, committedSpeed, speedCoefficient):
+        return uncommittedSpeed * speedCoefficient

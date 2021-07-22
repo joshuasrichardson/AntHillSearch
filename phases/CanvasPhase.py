@@ -13,5 +13,5 @@ class CanvasPhase(Phase):
     def getColor(self):
         return CANVAS_COLOR
 
-    def getSpeed(self, uncommittedSpeed, committedSpeed):
-        return uncommittedSpeed
+    def getSpeed(self, uncommittedSpeed, committedSpeed, speedCoefficient):
+        return uncommittedSpeed * speedCoefficient

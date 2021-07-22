@@ -10,7 +10,7 @@ from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
 
 
-# TODO: Add a parameter to make it so that they look for the site if it moves
+# TODO: Add ability to change parameters such as findSitesEasily during the simulation?
 # TODO: Break Agents, Site, and World, into themselves and ""Builder classes
 
 

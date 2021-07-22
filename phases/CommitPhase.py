@@ -13,5 +13,5 @@ class CommitPhase(Phase):
     def getColor(self):
         return COMMIT_COLOR
 
-    def getSpeed(self, uncommittedSpeed, committedSpeed):
-        return committedSpeed
+    def getSpeed(self, uncommittedSpeed, committedSpeed, speedCoefficient):
+        return committedSpeed * speedCoefficient

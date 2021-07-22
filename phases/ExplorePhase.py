@@ -13,5 +13,5 @@ class ExplorePhase(Phase):
     def getColor(self):
         return EXPLORE_COLOR
 
-    def getSpeed(self, uncommittedSpeed, committedSpeed):
-        return uncommittedSpeed
+    def getSpeed(self, uncommittedSpeed, committedSpeed, speedCoefficient):
+        return uncommittedSpeed * speedCoefficient

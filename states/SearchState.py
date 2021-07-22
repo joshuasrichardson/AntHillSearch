@@ -26,16 +26,16 @@ class SearchState(State):
         # If agent finds a site within range then assess it
 
         if self.sightIsInRange(siteWithinRange):
-            self.agent.knownSites.add(self.agent.world.siteList[siteWithinRange])
+            self.agent.addToKnownSites(self.agent.world.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.estimateQuality(self.agent.world.siteList[siteWithinRange]) > self.agent.estimatedQuality:
                 self.agent.assignSite(self.agent.world.siteList[siteWithinRange])
                 from states.AtNestState import AtNestState
-                self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
+                self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
                 self.agent.setPhase(AssessPhase())
         elif self.agent.shouldReturnToNest():
             from states.AtNestState import AtNestState
-            self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())
+            self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
         elif self.agent.isTooFarAway(self.agent.assignedSite):
             self.goBackTowardSite(self.agent.assignedSite)
 

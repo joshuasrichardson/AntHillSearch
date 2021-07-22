@@ -274,6 +274,9 @@ class Controls:
                 if self.shouldSelectSiteAgents:
                     agent.select()
                     self.selectedAgents.append(agent)
+        if self.shouldSelectSiteAgents and len(self.selectedAgents) > 0:
+            self.selectedAgent = self.selectedAgents[0]
+            self.selectedAgent.isTheSelected = True
 
     def selectAgentsSite(self):
         self.selectedSite = self.selectedAgent.assignedSite
@@ -341,6 +344,7 @@ class Controls:
         sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
         if len(sitesUnderMouse) > 0:
             for a in self.selectedAgents:
+                a.addToKnownSites(sitesUnderMouse[0])
                 a.assignSite(sitesUnderMouse[0])
 
     def speedUp(self):
@@ -405,6 +409,8 @@ class Controls:
 
     def deleteSelectedAgents(self):
         self.world.deleteSelectedAgents()
+        self.selectedAgents = []
+        self.selectedAgent = None
 
     def appendNumber(self, number):
         if self.potentialQuality == 0 or self.potentialQuality > 25 or (self.potentialQuality == 25 and number > 5):

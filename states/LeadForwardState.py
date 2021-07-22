@@ -16,7 +16,7 @@ class LeadForwardState(RecruitState):
             self.agent.transportOrReverseTandem(self)
         else:
             from states.AtNestState import AtNestState
-            self.setState(AtNestState(self.agent), self.agent.assignedSite.getPosition())  # Just be at the site and decide what to do next in the AT_NEST state
+            self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())  # Just be at the site and decide what to do next in the AT_NEST state
 
     def toString(self):
         return "LEAD_FORWARD"

@@ -19,13 +19,11 @@ class AtNestState(State):
         self.state = AT_NEST
 
     def changeState(self, neighborList) -> None:
-        self.setState(self, self.agent.assignedSite.getPosition())
+        self.setState(self, self.agent.getAssignedSitePosition())
 
         siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
         # checking the siteWithinRange makes sure they actually get to the site before they search again unless they get lost on the way.
-        if self.agent.shouldSearch() and (siteWithinRange != -1 or self.agent.assignedSite is self.agent.getHub())\
-                and self.agent.world.siteList[siteWithinRange] is self.agent.assignedSite\
-                and not self.agent.shouldGetLost():
+        if self.agent.shouldSearch(siteWithinRange):
             self.setState(SearchState(self.agent), None)
             return
 
@@ -36,7 +34,7 @@ class AtNestState(State):
 
         if self.agent.getPhaseNumber() == CANVAS:
             if self.agent.shouldRecruit():
-                self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
+                self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
                 return
 
         if self.agent.getPhaseNumber() == COMMIT:
@@ -52,7 +50,7 @@ class AtNestState(State):
                 self.tryFollowing(neighborList[i])
                 return
 
-        # If an agent nearby is transporting, get carried by that agent. TODO: If I do end up adding passive agents and brood items, I will get rid of this.
+        # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):
             if neighborList[i].getState() == TRANSPORT:
                 self.getCarried(neighborList[i])
@@ -63,6 +61,10 @@ class AtNestState(State):
             self.agent.estimatedQuality = np.round(self.agent.estimatedQuality - 0.1, 1)
         else:
             self.agent.estimatedQuality = np.round(self.agent.estimatedQuality + 0.1, 1)
+
+        # If the site moves, they might not know where it is
+        if siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange] is self.agent.assignedSite:
+            self.agent.assignedSiteLastKnownPos = self.agent.assignedSite.getPosition()
 
     def tryFollowing(self, leader):
         if leader.numFollowers < MAX_FOLLOWERS:
@@ -81,7 +83,7 @@ class AtNestState(State):
                 # they enter the canvasing phase and start recruiting others.
                 self.agent.setPhase(CanvasPhase())
                 from states.LeadForwardState import LeadForwardState
-                self.setState(LeadForwardState(self.agent), self.agent.assignedSite.getPosition())
+                self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
         else:
             self.agent.setPhase(ExplorePhase())
             from states.SearchState import SearchState

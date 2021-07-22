@@ -12,7 +12,7 @@ class ReverseTandemState(RecruitState):
         self.state = REVERSE_TANDEM
 
     def arriveAtSite(self):
-        self.setState(TransportState(self.agent), self.agent.assignedSite.getPosition())
+        self.setState(TransportState(self.agent), self.agent.getAssignedSitePosition())
 
     def toString(self):
         return "REVERSE_TANDEM"
