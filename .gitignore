@@ -10,3 +10,5 @@ lib
 lib64
 /recording/recording.txt
 /recording/recording.json
+/__pycache__/*
+/venv/

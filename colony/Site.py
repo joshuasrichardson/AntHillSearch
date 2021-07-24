@@ -4,6 +4,7 @@ import pygame as pyg
 from pygame.rect import Rect
 
 from Constants import *
+from colony.myPygameUtils import drawCircleLines
 
 
 class Site:
@@ -66,8 +67,13 @@ class Site:
         if self.isSelected:
             pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
         self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
+        drawCircleLines(self.screen, self.siteRect, (255, 255, 255), self.getDensity())
         img = self.myfont.render(str(self.agentCount), True, self.color)
         self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
+
+    def getDensity(self):
+        print("Density:" + str(int(self.quality / 40)))
+        return int(self.quality / 40) + 4
 
     def getQuality(self):
         return self.quality
