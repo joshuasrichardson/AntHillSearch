@@ -1,4 +1,3 @@
-from Constants import *
 from colony.AbstractColonySimulation import AbstractColonySimulation
 from colony.ColonyExceptions import GameOver
 from colony.World import World
@@ -8,14 +7,14 @@ class RecordingPlayer(AbstractColonySimulation):
     """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
     def __init__(self):
-        super().__init__(shouldReport=False, shouldRecord=False, shouldDraw=True)
+        super().__init__(useRestAPI=False, shouldRecord=False, shouldDraw=True, knowSitePosAtStart=True)
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True):
+                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True, knowSitePosAtStart=True):
         self.recorder.read()
 
         return World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                     siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)
+                     siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart)
 
     def setNextRound(self):
         if not self.recorder.setNextRound():
@@ -37,7 +36,7 @@ class RecordingPlayer(AbstractColonySimulation):
                 self.world.siteRectList[i] = self.world.siteList[i].getSiteRect()
             except IndexError:
                 print("Creating site: " + str(pos))
-                self.world.createSite(pos[0], pos[1], rad, quality)
+                self.world.createSite(pos[0], pos[1], rad, quality, self.shouldDraw)
         for site in self.world.siteList:
             if not newPositions.__contains__(site.getPosition()):
                 print("Removing site: " + str(site.getPosition()))

@@ -17,31 +17,32 @@ from user.Controls import Controls
 class AbstractColonySimulation(ABC):
     """ Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldReport=SHOULD_REPORT,
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, useRestAPI=USE_REST_API,
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
-                 siteNoFartherThan=SITE_NO_FARTHER_THAN):
+                 siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=KNOW_SITE_POS_AT_START):
 
         self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
         self.graphs = SimulationGraphs(self.screen)
         self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                                          siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)  # The world that has all the sites and agents
+                                          siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan,
+                                          shouldDraw, knowSitePosAtStart)  # The world that has all the sites and agents
         self.chosenHome = None  # The site that most of the agents are assigned to when the simulation ends
         self.timeRanOut = False  # Whether there is no more time left in the simulation
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
         self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
 
-        self.shouldReport = shouldReport  # Whether the simulation should periodically report hub information to the rest API
+        self.useRestAPI = useRestAPI  # Whether the simulation should periodically report hub information to the rest API
         self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
 
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the simulation will end
 
     @abstractmethod
-    def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw):
+    def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
+                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart):
         pass
 
     def setAgentList(self, agents):
@@ -76,7 +77,7 @@ class AbstractColonySimulation(ABC):
                 if self.shouldDraw:
                     self.draw()
                 foundNewHome = self.checkIfSimulationEnded()
-        except GameOver:
+        except Exception:
             pass
 
         self.finish()
@@ -96,7 +97,7 @@ class AbstractColonySimulation(ABC):
         self.updateSites()
         self.updateAgents(agentRectList)
         self.save()
-        self.updateRestAPI(agentRectList)
+        self.report(agentRectList)
 
     def draw(self):
         self.graphs.drawStateGraph(self.world.states)
@@ -125,7 +126,7 @@ class AbstractColonySimulation(ABC):
     def updateAgent(self, agent, agentRectList):
         pass
 
-    def updateRestAPI(self, agentRectList):
+    def report(self, agentRectList):
         pass
 
     def checkIfSimulationEnded(self):
@@ -171,7 +172,7 @@ class AbstractColonySimulation(ABC):
             pygame.quit()
             self.timer.cancel()
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255.")
-        if self.shouldReport:
+        if self.useRestAPI:
             self.sendResults(self.chosenHome, simulationTime)
 
     def sendResults(self, chosenSite, simulationTime):

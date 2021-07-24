@@ -10,7 +10,7 @@ from colony.myPygameUtils import drawCircleLines
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
     def __init__(self, surface, hubLocation, x, y, radius, quality, allSiteQualities, siteNoCloserThan, siteNoFartherThan,
-                 shouldDraw):
+                 shouldDraw, knowSitePosAtStart=KNOW_SITE_POS_AT_START):
         """ randomly places site at a 2D location and assigns it a random state """
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font that is used on the value of the site
         self.screen = surface  # The screen on which the site is drawn
@@ -25,14 +25,15 @@ class Site:
         self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub that the sites can be randomly generated
         self.pos = self.initializePosition(x, y)  # Where the site is located when the simulation starts
         self.radius = radius  # The radius of the circle that represents the site
-        if self.shouldDraw:
-            self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)  # The rectangle used to track collisions in the simulation
-        else:
-            self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
+        # if self.shouldDraw:
+        #     self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)  # The rectangle used to track collisions in the simulation
+        # else:
+        self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
         self.siteRect.centerx = self.pos[0]  # The x coordinate of the center of the rectangle
         self.siteRect.centery = self.pos[1]  # The y coordinate of the center of the rectangle
 
         self.agentCount = 0  # The number of agents assigned to the site
+        self.wasFound = knowSitePosAtStart
 
         self.isSelected = False  # Whether the site is selected (helps with user controls)
 
@@ -64,16 +65,16 @@ class Site:
         return [x, y]
 
     def drawSite(self):
-        if self.isSelected:
-            pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
-        self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
-        drawCircleLines(self.screen, self.siteRect, (255, 255, 255), self.getDensity())
-        img = self.myfont.render(str(self.agentCount), True, self.color)
-        self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
+        if self.wasFound:
+            if self.isSelected:
+                pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
+            self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
+            drawCircleLines(self.screen, self.siteRect, (255, 255, 255), self.getDensity())
+            img = self.myfont.render(str(self.agentCount), True, self.color)
+            self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
 
     def getDensity(self):
-        print("Density:" + str(int(self.quality / 40)))
-        return int(self.quality / 40) + 4
+        return int(self.quality / 20) + 2
 
     def getQuality(self):
         return self.quality

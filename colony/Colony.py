@@ -9,8 +9,7 @@ from recording.RecordingPlayer import RecordingPlayer
 from states.AtNestState import AtNestState
 
 
-# TODO: Add textures to indicate the quality of the sites
-# TODO: Don't draw sites until they are discovered, and only draw their estimated quality
+# TODO: only draw their estimated quality, and only update the site position on the screen if it is rediscovered
 # TODO: Make a display with less information that shows what we know from the hub
 # TODO: Add some noise to the reports from the agents. This could be displayed as smear
 # TODO: Make a path where the agents have been that evaporates over time
