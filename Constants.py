@@ -28,7 +28,7 @@ SITE_RADII = []  # The radius of each site. If a site is not assigned a radius h
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
 # Having this set to False makes the simulation a little faster, but not much. However, it does prevent errors from not having the API running.
-USE_REST_API = True  # Whether the simulation sends information about the hub to the rest API
+USE_REST_API = False  # Whether the simulation sends information about the hub to the rest API
 # Having this set to False makes the simulation a little faster because it doesn't have to record all the time.
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
@@ -39,6 +39,8 @@ SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors ar
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
 
 KNOW_SITE_POS_AT_START = False  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
+
+CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_TIME = 5000     # Maximum allowed duration in seconds

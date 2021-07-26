@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 
-from Constants import SITE_RADIUS, SCREEN_COLOR
+from Constants import SITE_RADIUS, SCREEN_COLOR, CAN_SELECT_ANYWHERE
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from phases.ExplorePhase import ExplorePhase
@@ -131,13 +131,7 @@ class Controls:
             raise GameOver("Exited Successfully")
 
     def mouseUp(self, mousePos):
-        if self.dragSite is not None:
-            if self.dragSite.getSiteRect != self.oldRect:
-                self.dragSite.wasFound = False
-            self.world.siteRectList = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.siteRectList]
-        self.dragSite = None
-        self.selectedAgent = None
-        self.selectedSite = None
+        self.putDownDragSite()
         self.unselectAll()
         if self.selectRectCorner is not None and np.abs(mousePos[0] - self.selectRectCorner[0]) > 1\
                 and np.abs(mousePos[1] - self.selectRectCorner[1]) > 1:
@@ -168,7 +162,16 @@ class Controls:
         self.oldRect = self.selectedSite.getSiteRect()
         self.dragSite = self.selectedSite
 
+    def putDownDragSite(self):
+        if self.dragSite is not None:
+            if self.dragSite.getSiteRect is not self.oldRect:
+                self.dragSite.wasFound = False
+            self.world.siteRectList = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.siteRectList]
+        self.dragSite = None
+
     def unselectAll(self):
+        self.selectedAgent = None
+        self.selectedSite = None
         # Unselect all agents and sites
         for a in self.agentList:
             a.unselect()
@@ -180,7 +183,10 @@ class Controls:
 
     def select(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        self.selectAgent(mousePos)
+        if CAN_SELECT_ANYWHERE:
+            self.selectAgent(mousePos)
+        elif self.world.getHub().getSiteRect().collidepoint(mousePos):
+            self.selectAgentsAtHub()
         self.selectSite(mousePos)
 
     def selectAgent(self, mousePos):
@@ -217,7 +223,11 @@ class Controls:
     def wideSelect(self):
         # get a list of all objects that are under the mouse cursor
         self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())
-        agent = self.selectAgents()
+        agent = None
+        if CAN_SELECT_ANYWHERE:
+            agent = self.selectAgents()
+        elif self.selectRect.colliderect(self.world.getHub().getSiteRect()):
+            agent = self.selectAgentsAtHub()
         self.selectSites()
         if self.shouldSelectAgentSites:
             self.selectAgentsSite(agent)
@@ -252,6 +262,17 @@ class Controls:
             return selectedAgents[0]
 
         return None
+
+    def selectAgentsAtHub(self):
+        selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(self.world.getHub().getSiteRect())]
+        if self.shouldSelectAgents:
+            self.selectedAgent = selectedAgents[0]
+            self.selectedAgent.select()
+            self.selectedAgent.isTheSelected = True
+            self.selectedAgents = selectedAgents
+            self.selectedAgentIndex = 0
+
+        return self.selectedAgent
 
     def selectSites(self):
         selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]

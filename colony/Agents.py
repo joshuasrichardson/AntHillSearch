@@ -55,9 +55,7 @@ class Agent:
 
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
         self.knownSitesPositions = [self.getHub().getPosition()]
-        if startingAssignment is not self.getHub():
-            self.knownSites.append(startingAssignment)
-            self.knownSitesPositions.append(startingAssignment.getPosition())
+        self.addToKnownSites(startingAssignment)
         self.siteToRecruitFrom = None  # The site the agent chooses to go recruit from when in the LEAD_FORWARD or TRANSPORT state
         self.recruitSiteLastKnownPos = None
         self.leadAgent = None  # The agent that is leading this agent in the FOLLOW state or carrying it in the BEING_CARRIED state

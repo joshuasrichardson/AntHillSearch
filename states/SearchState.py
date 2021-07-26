@@ -25,7 +25,7 @@ class SearchState(State):
         siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
         # If agent finds a site within range then assess it
 
-        if self.sightIsInRange(siteWithinRange):
+        if siteWithinRange != -1:
             self.agent.addToKnownSites(self.agent.world.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.estimateQuality(self.agent.world.siteList[siteWithinRange]) > self.agent.estimatedQuality:
@@ -44,9 +44,6 @@ class SearchState(State):
             if neighborList[i].getState() == TRANSPORT:
                 self.getCarried(neighborList[i])
                 return
-
-    def sightIsInRange(self, siteWithinRange):
-        return siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange] != self.agent.getHub()
 
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:

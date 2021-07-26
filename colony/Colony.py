@@ -9,13 +9,12 @@ from recording.RecordingPlayer import RecordingPlayer
 from states.AtNestState import AtNestState
 
 
-# TODO: only draw their estimated quality, and only update the site position on the screen if it is rediscovered
+# TODO: only draw their estimated quality
 # TODO: Make a display with less information that shows what we know from the hub
 # TODO: Add some noise to the reports from the agents. This could be displayed as smear
 # TODO: Make a path where the agents have been that evaporates over time
 # TODO: Not erase the select agents sites etc.
 # TODO: Add an option to make it so the hub cannot move.
-# TODO: Fix going back to the hub to recruit.
 
 
 def main():

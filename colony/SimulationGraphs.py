@@ -100,29 +100,30 @@ class SimulationGraphs:
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              shouldShowOptions, paused):
-        self.y = GRAPHS_TOP_LEFT[1]
-        selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
-        img = self.font.render("Select Agents:", True, (0, 0, 0))
-        self.screen.blit(img, (self.x2, self.y))
-        pygame.draw.rect(self.screen, selectAgentsColor, self.selectAgentsRect)
+        if CAN_SELECT_ANYWHERE:
+            self.y = GRAPHS_TOP_LEFT[1]
+            selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
+            img = self.font.render("Select Agents:", True, (0, 0, 0))
+            self.screen.blit(img, (self.x2, self.y))
+            pygame.draw.rect(self.screen, selectAgentsColor, self.selectAgentsRect)
 
-        self.incrementY()
-        selectSitesColor = self.getShouldSelectColor(shouldSelectSites)
-        img = self.font.render("Select Sites:", True, (0, 0, 0))
-        self.screen.blit(img, (self.x2, self.y))
-        pygame.draw.rect(self.screen, selectSitesColor, self.selectSitesRect)
+            self.incrementY()
+            selectSitesColor = self.getShouldSelectColor(shouldSelectSites)
+            img = self.font.render("Select Sites:", True, (0, 0, 0))
+            self.screen.blit(img, (self.x2, self.y))
+            pygame.draw.rect(self.screen, selectSitesColor, self.selectSitesRect)
 
-        self.incrementY()
-        selectAgentsSitesColor = self.getShouldSelectColor(shouldSelectAgentSites)
-        img = self.font.render("Select Agents Sites:", True, (0, 0, 0))
-        self.screen.blit(img, (self.x2, self.y))
-        pygame.draw.rect(self.screen, selectAgentsSitesColor, self.selectAgentsSitesRect)
+            self.incrementY()
+            selectAgentsSitesColor = self.getShouldSelectColor(shouldSelectAgentSites)
+            img = self.font.render("Select Agents Sites:", True, (0, 0, 0))
+            self.screen.blit(img, (self.x2, self.y))
+            pygame.draw.rect(self.screen, selectAgentsSitesColor, self.selectAgentsSitesRect)
 
-        self.incrementY()
-        selectSitesAgentsColor = self.getShouldSelectColor(shouldSelectSiteAgents)
-        img = self.font.render("Select Sites Agents:", True, (0, 0, 0))
-        self.screen.blit(img, (self.x2, self.y))
-        pygame.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
+            self.incrementY()
+            selectSitesAgentsColor = self.getShouldSelectColor(shouldSelectSiteAgents)
+            img = self.font.render("Select Sites Agents:", True, (0, 0, 0))
+            self.screen.blit(img, (self.x2, self.y))
+            pygame.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
 
         if paused:
             self.y = GRAPHS_TOP_LEFT[1]

@@ -1,4 +1,6 @@
+import sys
 import threading
+import traceback
 from abc import ABC, abstractmethod
 
 import pygame
@@ -77,7 +79,7 @@ class AbstractColonySimulation(ABC):
                 if self.shouldDraw:
                     self.draw()
                 foundNewHome = self.checkIfSimulationEnded()
-        except Exception:
+        except GameOver:
             pass
 
         self.finish()
