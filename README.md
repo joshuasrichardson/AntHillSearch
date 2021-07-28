@@ -72,12 +72,14 @@ it is running.
 1. Using the terminal, navigate to the <code>AntHillSearch/</code>
    directory on your computer (It should be the same directory 
    this <code>README.md</code> file is in).
-2. To change parameters from the default parameters, set 
+2. If this is your first time running the program on your machine,
+   enter <code>pip install -r requirements.txt</code>
+3. To change parameters from the default parameters, set 
    parameters in the <code>main()</code> function in 
    <code>colony.Colony.py</code> (see "Parameters" section 
    for more details).
-3. Enter <code>python colony/Colony.py</code> in the terminal.
-4. If desired, try using some of the user controls while the
+4. Enter <code>python colony/Colony.py</code> in the terminal.
+5. If desired, try using some of the user controls while the
    simulation is running (see "Controls" for more details).
 
 ## Parameters
