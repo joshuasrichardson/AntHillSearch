@@ -28,7 +28,7 @@ SITE_RADII = []  # The radius of each site. If a site is not assigned a radius h
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
 # Having this set to False makes the simulation a little faster, but not much. However, it does prevent errors from not having the API running.
-SHOULD_REPORT = False  # Whether the simulation sends information about the hub to the rest API
+USE_REST_API = False  # Whether the simulation sends information about the hub to the rest API
 # Having this set to False makes the simulation a little faster because it doesn't have to record all the time.
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
@@ -37,6 +37,16 @@ SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
 SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
+
+KNOW_SITE_POS_AT_START = False  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
+
+CAN_SELECT_ANYWHERE = False  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
+
+DRAW_ESTIMATES = True  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
+
+HUB_CAN_MOVE = False  # Whether the hub can be moved
+
+DRAW_AGENTS = False  # Whether agents that aren't right by the hub are drawn
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_TIME = 5000     # Maximum allowed duration in seconds
@@ -48,6 +58,7 @@ SCREEN_COLOR = 255, 255, 255  # White
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = None  # Location of the hub, when it is set to None, it is put in the middle of the screen
+HUB_OBSERVE_DIST = 50  # The farthest distance agents can be seen from the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 20  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.

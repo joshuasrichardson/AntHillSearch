@@ -20,11 +20,12 @@ best of N problem).
 In the simulation, the hub (the agents' original home) is 
 represented by a black circle, and the other sites are 
 represented by circles with different shades of red or green
-depending on their quality. The bright green sites are the best, 
-and the bright red sites are the worst. Brownish sites are 
-somewhere in the middle. Agents are represented by smaller 
-circles which have optional colors representing their current 
-phase and state.
+depending on their quality. The bright green sites with fewer 
+stripes are the best, and the bright red sites with many 
+stripes are the worst. Brownish sites with an average number 
+of stripes are somewhere in the middle. Agents are represented 
+by smaller circles which have optional colors representing 
+their current phase and state.
 
 Agents start out in the Explore phase, where they have no 
 knowledge of any site beside the hub. When they come to a new 

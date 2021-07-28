@@ -17,12 +17,12 @@ from net.SendHubInfoRequest import SendHubInfoRequest
 class ColonySimulation(AbstractColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, shouldReport=SHOULD_REPORT,
+    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, useRestAPI=USE_REST_API,
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
-        super().__init__(simulationDuration, numSites, shouldReport, shouldRecord, shouldDraw, convergenceFraction,
+        super().__init__(simulationDuration, numSites, useRestAPI, shouldRecord, shouldDraw, convergenceFraction,
                          hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                          siteRadii, siteNoCloserThan, siteNoFartherThan)
         self.previousSendTime = datetime.datetime.now()
@@ -33,9 +33,10 @@ class ColonySimulation(AbstractColonySimulation):
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True):
+                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True,
+                        knowSitePosAtStart=KNOW_SITE_POS_AT_START):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw)
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart)
         return world
 
     def initializeRequest(self):
@@ -72,18 +73,26 @@ class ColonySimulation(AbstractColonySimulation):
         if self.shouldRecord:
             self.recorder.recordAgentInfo(agent)
 
-    def updateRestAPI(self, agentRectList):
-        if self.shouldReport:
-            hubRect = self.world.getHub().getSiteRect()
-            hubAgentsIndices = hubRect.collidelistall(agentRectList)
-            self.world.request.numAtHub = 0
-            for agentIndex in hubAgentsIndices:
-                self.world.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
-            now = datetime.datetime.now()
-            if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
-                self.previousSendTime = now
-                thread = threading.Thread(target=self.world.request.sendHubInfo)
-                thread.start()
+    def report(self, agentRectList):
+        hubRect = self.world.getHub().getSiteRect()
+        hubAgentsIndices = hubRect.collidelistall(agentRectList)
+        self.world.request.numAtHub = 0
+        for agentIndex in hubAgentsIndices:
+            agent = self.world.agentList[agentIndex]
+            sites = agent.knownSites
+            for siteIndex in range(0, len(sites)):
+                if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
+                    sites[siteIndex].wasFound = True
+            agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
+        if self.useRestAPI:
+            self.updateRestAPI()
+
+    def updateRestAPI(self):
+        now = datetime.datetime.now()
+        if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
+            self.previousSendTime = now
+            thread = threading.Thread(target=self.world.request.sendHubInfo)
+            thread.start()
 
     def save(self):
         if self.shouldRecord:
