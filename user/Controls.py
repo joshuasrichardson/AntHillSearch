@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, CAN_SELECT_ANYWHERE
+from Constants import SITE_RADIUS, SCREEN_COLOR, CAN_SELECT_ANYWHERE, HUB_CAN_MOVE
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from phases.ExplorePhase import ExplorePhase
@@ -159,8 +159,9 @@ class Controls:
             self.startSelectRect(mousePos)
 
     def drag(self):
-        self.oldRect = self.selectedSite.getSiteRect()
-        self.dragSite = self.selectedSite
+        if HUB_CAN_MOVE or self.selectedSite is not self.world.getHub():
+            self.oldRect = self.selectedSite.getSiteRect()
+            self.dragSite = self.selectedSite
 
     def putDownDragSite(self):
         if self.dragSite is not None:
@@ -405,7 +406,7 @@ class Controls:
             site.radius -= 1
 
     def createSite(self, position):
-        self.world.createSite(position[0], position[1], SITE_RADIUS, 256 / 2)
+        self.world.createSite(position[0], position[1], SITE_RADIUS, 256 / 2, self.world.knowSitePosAtStart)
 
     def createAgent(self, position):
         agent = Agent(self.world, self.world.getHub(), startingPosition=position)
@@ -457,6 +458,8 @@ class Controls:
             print("Set quality of " + str(site) + " to " + str(self.potentialQuality))
             site.setQuality(self.potentialQuality)
             site.setColor(self.potentialQuality)
+        self.potentialQuality = 0
+        self.shouldDrawQuality = False
 
     def pause(self):
         self.graphs.drawPause()

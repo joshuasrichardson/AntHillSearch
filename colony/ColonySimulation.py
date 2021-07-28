@@ -83,8 +83,7 @@ class ColonySimulation(AbstractColonySimulation):
             for siteIndex in range(0, len(sites)):
                 if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
                     sites[siteIndex].wasFound = True
-            if self.useRestAPI:
-                self.world.request.addAgentToSendRequest(self.world.agentList[agentIndex], agentIndex)
+            agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
         if self.useRestAPI:
             self.updateRestAPI()
 

@@ -8,11 +8,14 @@ class World:
     """ Represents the world around the ants old home """
 
     def __init__(self, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
-                 siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart):
+                 siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, drawEstimates=DRAW_ESTIMATES):
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
         self.hubLocation = hubLocation  # Where the agents' original home is located
         if hubLocation is None:
-            x, y = screen.get_size()
+            if shouldDraw:
+                x, y = screen.get_size()
+            else:
+                x, y = 0, 0
             self.hubLocation = [x / 2, y / 2]
         self.hubRadius = hubRadius  # The radius of the agent's original home
         self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub a site can randomly be generated
@@ -24,11 +27,13 @@ class World:
         self.siteQualities = siteQualities  # The quality of each site
         self.sitesRadii = siteRadii  # A list of the radius of each site
         self.screen = screen  # The screen to draw the simulation on
+        self.drawEstimates = drawEstimates
 
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
 
-        self.createSites(numSites, knowSitePosAtStart)  # Initializes the site list with sites that match the specified values or random sites by default
+        self.knowSitePosAtStart = knowSitePosAtStart
+        self.createSites(numSites)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
         self.hub = self.createHub()  # The agents' original home
@@ -56,7 +61,7 @@ class World:
         self.siteRectList[siteIndex].centerx = pos[0]
         self.siteRectList[siteIndex].centery = pos[1]
 
-    def createSites(self, numSites, show):
+    def createSites(self, numSites):
         # Create as many sites as required
         for siteIndex in range(0, numSites):
             try:
@@ -76,7 +81,7 @@ class World:
             except IndexError:
                 print("Site radius index out of range. Assigning radius to " + str(SITE_RADIUS))
                 radius = SITE_RADIUS
-            self.createSite(x, y, radius, quality, show)
+            self.createSite(x, y, radius, quality, self.knowSitePosAtStart)
 
     def createSite(self, x, y, radius, quality, show):
         newSite = Site(self.screen, self.hubLocation, x, y, radius, quality, self.siteQualities,
@@ -150,8 +155,12 @@ class World:
             self.phases[ph] += 1
 
     def drawWorldObjects(self):
-        for siteIndex in range(0, len(self.siteList)):
-            self.siteList[siteIndex].drawSite()
+        if self.drawEstimates:
+            for siteIndex in range(0, len(self.siteList)):
+                self.siteList[siteIndex].drawEstimatedSite()
+        else:
+            for siteIndex in range(0, len(self.siteList)):
+                self.siteList[siteIndex].drawSite()
 
     def drawPotentialQuality(self, potentialQuality):
         img = self.myfont.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))

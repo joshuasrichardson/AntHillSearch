@@ -28,7 +28,8 @@ class SearchState(State):
         if siteWithinRange != -1:
             self.agent.addToKnownSites(self.agent.world.siteList[siteWithinRange])
             # If the site is better than the one they were assessing, they assess it instead.
-            if self.agent.estimateQuality(self.agent.world.siteList[siteWithinRange]) > self.agent.estimatedQuality:
+            if self.agent.estimateQuality(self.agent.world.siteList[siteWithinRange]) > self.agent.estimatedQuality\
+                    and self.agent.world.siteList[siteWithinRange] is not self.agent.getHub():
                 self.agent.assignSite(self.agent.world.siteList[siteWithinRange])
                 from states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())

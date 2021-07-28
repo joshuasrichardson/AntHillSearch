@@ -37,6 +37,10 @@ class Site:
 
         self.isSelected = False  # Whether the site is selected (helps with user controls)
 
+        self.estimatedPosition = None
+        self.estimatedQuality = None
+        self.estimatedAgentCount = None
+
     def setQuality(self, quality):
         if quality is None:
             self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality
@@ -69,12 +73,41 @@ class Site:
             if self.isSelected:
                 pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
             self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
-            drawCircleLines(self.screen, self.siteRect, (255, 255, 255), self.getDensity())
+            drawCircleLines(self.screen, self.siteRect, (255, 255, 255), self.getDensity(self.quality))
             img = self.myfont.render(str(self.agentCount), True, self.color)
             self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
 
-    def getDensity(self):
-        return int(self.quality / 20) + 2
+    def setEstimates(self, est):
+        self.estimatedPosition = est[0]
+        self.estimatedQuality = est[1]
+        self.estimatedAgentCount = est[2]
+
+    def drawEstimatedSite(self):
+        if self.wasFound:
+            try:
+                if self.quality == -1:
+                    color = 0, 0, 0
+                    self.estimatedQuality = -1
+                elif self.estimatedQuality < 0:
+                    color = 255, 0, 0
+                    self.estimatedQuality = 0
+                elif self.estimatedQuality > 255:
+                    color = 0, 255, 0
+                else:
+                    color = 255 - self.estimatedQuality, self.estimatedQuality, 0
+                if self.isSelected:
+                    pyg.draw.circle(self.screen, SELECTED_COLOR, self.estimatedPosition, self.radius + 2, 0)
+                # TODO: Estimate the radius as well
+                siteRect = pyg.draw.circle(self.screen, color, self.estimatedPosition, SITE_RADIUS, 0)
+                drawCircleLines(self.screen, siteRect, (255, 255, 255), Site.getDensity(self.estimatedQuality))
+                img = pyg.font.SysFont('Comic Sans MS', 12).render(str(self.estimatedAgentCount), True, color)
+                self.screen.blit(img, (self.estimatedPosition[0] - (img.get_width() / 2), self.estimatedPosition[1] - (SITE_RADIUS + 20), 15, 10))
+            except TypeError:
+                self.drawSite()
+
+    @staticmethod
+    def getDensity(quality):
+        return int(quality / 20) + 2
 
     def getQuality(self):
         return self.quality

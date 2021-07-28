@@ -40,7 +40,13 @@ SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities
 
 KNOW_SITE_POS_AT_START = False  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
 
-CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
+CAN_SELECT_ANYWHERE = False  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
+
+DRAW_ESTIMATES = True  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
+
+HUB_CAN_MOVE = False  # Whether the hub can be moved
+
+DRAW_AGENTS = False  # Whether agents that aren't right by the hub are drawn
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_TIME = 5000     # Maximum allowed duration in seconds
@@ -52,6 +58,7 @@ SCREEN_COLOR = 255, 255, 255  # White
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = None  # Location of the hub, when it is set to None, it is put in the middle of the screen
+HUB_OBSERVE_DIST = 50  # The farthest distance agents can be seen from the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 20  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.

@@ -52,6 +52,7 @@ class Agent:
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assignedSiteLastKnownPos = self.assignedSite.getPosition()
+        self.estimatedSitePosition = self.getHub().getPosition()
 
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
         self.knownSitesPositions = [self.getHub().getPosition()]
@@ -140,24 +141,25 @@ class Agent:
         self.numFollowers += 1
 
     def drawAgent(self, surface):
-        if self.isTheSelected:
-            pygame.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
-        if self.isSelected:
-            pygame.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
-        surface.blit(self.agentHandle, self.agentRect)
+        if DRAW_AGENTS or self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST):
+            if self.isTheSelected:
+                pygame.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
+            if self.isSelected:
+                pygame.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
+            surface.blit(self.agentHandle, self.agentRect)
 
-        if SHOW_AGENT_COLORS:
-            pygame.draw.ellipse(surface, self.state.getColor(), self.agentRect, 4)
-            pygame.draw.ellipse(surface, self.phase.getColor(), self.agentRect, 2)
+            if SHOW_AGENT_COLORS:
+                pygame.draw.ellipse(surface, self.state.getColor(), self.agentRect, 4)
+                pygame.draw.ellipse(surface, self.phase.getColor(), self.agentRect, 2)
 
-        if SHOW_ESTIMATED_QUALITY:
-            img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
-            self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
+            if SHOW_ESTIMATED_QUALITY:
+                img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
+                self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
-    def isClose(self, position):
+    def isClose(self, position, distance):
         from math import isclose
-        closeX = isclose(self.pos[0], position[0], abs_tol=self.assignedSite.radius)
-        closeY = isclose(self.pos[1], position[1], abs_tol=self.assignedSite.radius)
+        closeX = isclose(self.pos[0], position[0], abs_tol=distance)
+        closeY = isclose(self.pos[1], position[1], abs_tol=distance)
         return closeX and closeY
 
     def isTooFarAway(self, site):
@@ -187,14 +189,32 @@ class Agent:
     def assignSite(self, site):
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
-        if site.getPosition() != self.assignedSite.getPosition():
+        if site.getPosition()[0] != self.assignedSite.getPosition()[0] and\
+                site.getPosition()[1] != self.assignedSite.getPosition()[1]:
             self.setPhase(AssessPhase())
             self.estimatedQuality = self.estimateQuality(site)
+            self.estimateSitePosition(site)
+        else:
+            self.estimateSitePositionMoreAccurately()
         self.assignedSite = site
         self.assignedSiteLastKnownPos = site.getPosition()
         self.assignedSite.incrementCount()
         # Take longer to assess lower-quality sites
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
+
+    def estimateSitePosition(self, site):
+        if not HUB_CAN_MOVE and site is self.getHub():
+            self.estimatedSitePosition = self.getHub().getPosition()
+        else:
+            self.estimatedSitePosition = site.getPosition().copy()
+            self.estimatedSitePosition[0] = site.getPosition()[0] + random.randint(-100, 100)
+            self.estimatedSitePosition[1] = site.getPosition()[1] + random.randint(-100, 100)
+
+    def estimateSitePositionMoreAccurately(self):
+        if self.estimatedSitePosition[0] != self.getAssignedSitePosition()[0]:
+            self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + self.getAssignedSitePosition()[0]) / 2
+        if self.estimatedSitePosition[1] != self.getAssignedSitePosition()[1]:
+            self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + self.getAssignedSitePosition()[1]) / 2
 
     def getAssignedSiteIndex(self):
         return self.world.getSiteIndex(self.assignedSite)
@@ -210,7 +230,7 @@ class Agent:
             # When self.findAssignedSiteEasily is False, this will be False everytime.
             # When self.findAssignedSiteEasily is True, this will only be True if the agent is
             # close to where their site was before it moved.
-            if self.isClose(self.getAssignedSitePosition()):
+            if self.isClose(self.getAssignedSitePosition(), self.assignedSite.radius):
                 self.removeKnownSite(self.assignedSite)
                 return True
         if not self.world.siteList[siteWithinRange] is self.assignedSite:
