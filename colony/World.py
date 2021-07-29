@@ -148,11 +148,26 @@ class World:
     def updateStateAndPhaseCounts(self):
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-        for agent in self.agentList:
-            st = agent.getState()
-            self.states[st] += 1
-            ph = agent.getPhaseNumber()
-            self.phases[ph] += 1
+        if DRAW_FAR_AGENTS:
+            for agent in self.agentList:
+                st = agent.getState()
+                self.states[st] += 1
+                ph = agent.getPhaseNumber()
+                self.phases[ph] += 1
+        else:
+            self.states[AT_NEST] = self.request.numAtHub
+            self.states[SEARCH] = self.request.numSearch
+            self.states[CARRIED] = self.request.numCarried
+            self.states[FOLLOW] = self.request.numFollow
+            self.states[LEAD_FORWARD] = self.request.numLeadForward
+            self.states[REVERSE_TANDEM] = self.request.numReverseTandem
+            self.states[TRANSPORT] = self.request.numTransport
+            self.states[GO] = self.request.numGo
+
+            self.phases[EXPLORE] = self.request.numExplore
+            self.phases[ASSESS] = self.request.numAssess
+            self.phases[CANVAS] = self.request.numCanvas
+            self.phases[COMMIT] = self.request.numCommit
 
     def drawWorldObjects(self):
         if self.drawEstimates:

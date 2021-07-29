@@ -38,15 +38,15 @@ SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors ar
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
 
-KNOW_SITE_POS_AT_START = False  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
+KNOW_SITE_POS_AT_START = True  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
 
-CAN_SELECT_ANYWHERE = False  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
+CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
 
 DRAW_ESTIMATES = True  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
 
 HUB_CAN_MOVE = False  # Whether the hub can be moved
 
-DRAW_AGENTS = False  # Whether agents that aren't right by the hub are drawn
+DRAW_FAR_AGENTS = True  # Whether agents that aren't right by the hub are drawn
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_TIME = 5000     # Maximum allowed duration in seconds

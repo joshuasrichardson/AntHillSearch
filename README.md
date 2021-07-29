@@ -310,6 +310,9 @@ be more to come).
   or <code>DELETE</code> key (on some keyboards, the <code>DELETE</code> key
   does not work).</p>
 
+- <strong>Unselect Agents</strong> - <code>ESC</code>:
+  <p>Users can unselect all agents by pressing the escape button.</p>
+
 ### Site Controls
 
 - <strong>Select Site</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
@@ -387,6 +390,23 @@ be more to come).
   <code>MOUSEBUTTONUP</code>:
   <p>Users can move sites by clicking them with the mouse, dragging 
   them to a new location, and releasing the mouse button.</p>
+
+- <strong>Command Agents to Go</strong> - <code>SPACE</code>:
+  <p>Users can set a point where all agents who stop at the selected site must
+  go after arriving by selecting the site and pushing the <code>SPACE</code>
+  bar with the mouse in the position the agents should go to.</p>
+
+- <strong>Command Agents to Be Assigned</strong> - <code>K_a</code>:
+  <p>Users can set a site that all agents who stop at the selected site will
+  be assigned to after arriving by selecting the site and pushing the <code>a</code>
+  key with the mouse positioned over the site the agents should be assigned to.</p>
+
+- <strong>Unselect Sites</strong> - <code>K_ESC</code>:
+  <p>Users can unselect all sites by pressing the escape button.</p>
+
+- <strong>Cancel Site Commands</strong> - <code>K_PERIOD</code>:
+  <p>Users can cancel all selected sites' commands by pressing the 
+  <code>.</code> key.</p>
 
 ### Other Controls
 

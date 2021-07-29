@@ -25,17 +25,17 @@ class Site:
         self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub that the sites can be randomly generated
         self.pos = self.initializePosition(x, y)  # Where the site is located when the simulation starts
         self.radius = radius  # The radius of the circle that represents the site
-        # if self.shouldDraw:
-        #     self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)  # The rectangle used to track collisions in the simulation
-        # else:
         self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
         self.siteRect.centerx = self.pos[0]  # The x coordinate of the center of the rectangle
         self.siteRect.centery = self.pos[1]  # The y coordinate of the center of the rectangle
 
         self.agentCount = 0  # The number of agents assigned to the site
-        self.wasFound = knowSitePosAtStart
+        self.wasFound = False
+        self.knowSitePosAtStart = knowSitePosAtStart
 
         self.isSelected = False  # Whether the site is selected (helps with user controls)
+        self.command = None
+        self.commandPosition = None
 
         self.estimatedPosition = None
         self.estimatedQuality = None
@@ -69,7 +69,7 @@ class Site:
         return [x, y]
 
     def drawSite(self):
-        if self.wasFound:
+        if self.wasFound or self.knowSitePosAtStart:
             if self.isSelected:
                 pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
             self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
@@ -83,7 +83,7 @@ class Site:
         self.estimatedAgentCount = est[2]
 
     def drawEstimatedSite(self):
-        if self.wasFound:
+        if self.wasFound or self.knowSitePosAtStart:
             try:
                 if self.quality == -1:
                     color = 0, 0, 0
@@ -143,3 +143,13 @@ class Site:
 
     def unselect(self):
         self.isSelected = False
+
+    def setCommand(self, command, position):
+        self.command = command
+        self.commandPosition = position
+
+    def executeCommand(self, agent):
+        if self.command is None:
+            return False
+        self.command(agent, self.commandPosition)
+        return True

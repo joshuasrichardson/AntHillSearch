@@ -12,8 +12,11 @@ from states.AtNestState import AtNestState
 # TODO: Make a display with less information that shows what we know from the hub (make the graphs only show hub info, and estimate site radii)
 # TODO: Display the estimated position of sites as a smear that grow more clear as it is visited more
 # TODO: Make a path where the agents have been that evaporates over time
-# TODO: Not erase the select agents sites etc.
 # TODO: Add a setting where commands apply to agents when they arrive at the hub or a site instead of instantly.
+# TODO: When new agents are created, make them the same speed as the others.
+# TODO: Make different interface classes that inherit the simulation.
+# TODO: Show site commands on the screen.
+# TODO: Update the README.md file.
 
 
 def main():

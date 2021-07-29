@@ -22,6 +22,10 @@ class AtNestState(State):
         self.setState(self, self.agent.getAssignedSitePosition())
 
         siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
+
+        if siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange].executeCommand(self.agent):
+            return
+
         # checking the siteWithinRange makes sure they actually get to the site before they search again unless they get lost on the way.
         if self.agent.shouldSearch(siteWithinRange):
             self.setState(SearchState(self.agent), None)

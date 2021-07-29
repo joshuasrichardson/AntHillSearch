@@ -141,7 +141,7 @@ class Agent:
         self.numFollowers += 1
 
     def drawAgent(self, surface):
-        if DRAW_AGENTS or self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST):
+        if DRAW_FAR_AGENTS or self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST):
             if self.isTheSelected:
                 pygame.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
             if self.isSelected:
@@ -171,7 +171,7 @@ class Agent:
     def estimateQuality(self, site):
         return site.getQuality() + \
             (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
-        # TODO: Make a bell curve instead of even distribution
+        # TODO: Make a bell curve instead of even distribution?
 
     def addToKnownSites(self, site):
         if not self.knownSites.__contains__(site):

@@ -38,6 +38,7 @@ class Controls:
         self.shouldSelectSites = True
         self.shouldSelectSiteAgents = False
         self.shouldSelectAgentSites = False
+        self.shouldCommandSiteAgents = False
         self.paused = False
         self.shouldShowOptions = False
 
@@ -65,7 +66,8 @@ class Controls:
         if self.selectRectCorner is not None:
             self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())
         self.graphs.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents,
-                                         self.shouldSelectAgentSites, self.shouldShowOptions, self.paused)
+                                         self.shouldSelectAgentSites, self.shouldCommandSiteAgents, self.shouldShowOptions,
+                                         self.paused)
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -83,9 +85,11 @@ class Controls:
             self.mouseDown(pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             self.go(pygame.mouse.get_pos())
+            self.setSelectedSitesCommand(self.goCommand, pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
             self.go(pygame.mouse.get_pos())
             self.assignSelectedAgents(pygame.mouse.get_pos())
+            self.setSelectedSitesCommand(self.assignCommand, pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
             self.speedUp()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
@@ -111,6 +115,10 @@ class Controls:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE \
                 or event.type == pygame.KEYDOWN and event.key == pygame.K_SLASH:
             self.delete()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_PERIOD:
+            self.setSelectedSitesCommand(None, None)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self.unselectAll()
         if len(self.selectedSites) > 0:
             if event.type == pygame.KEYDOWN and event.unicode.isnumeric():
                 self.appendNumber(int(event.unicode))
@@ -144,6 +152,8 @@ class Controls:
             self.shouldSelectAgentSites = not self.shouldSelectAgentSites
         elif self.graphs.collidesWithSelectSitesAgentsButton(mousePos):
             self.shouldSelectSiteAgents = not self.shouldSelectSiteAgents
+        elif self.graphs.collidesWithCommandSiteAgentsButton(mousePos):
+            self.shouldCommandSiteAgents = not self.shouldCommandSiteAgents
         elif self.graphs.collidesWithOptionsButton(mousePos):
             self.shouldShowOptions = not self.shouldShowOptions
         else:
@@ -362,11 +372,26 @@ class Controls:
                 self.selectedSitesAgentsPositions.append(agent.pos)
 
     def go(self, mousePos):
-        print(str(mousePos))
         for a in self.selectedAgents:
-            a.target = mousePos
-            from states.GoState import GoState
-            a.setState(GoState(a))
+            self.goCommand(a, mousePos)
+
+    @staticmethod
+    def goCommand(agent, mousePos):
+        agent.target = mousePos
+        from states.GoState import GoState
+        agent.setState(GoState(agent))
+
+    @staticmethod
+    def assignCommand(agent, mousePos):
+        sitesUnderMouse = [s for s in agent.world.siteList if s.siteRect.collidepoint(mousePos)]
+        if len(sitesUnderMouse) > 0:
+            agent.addToKnownSites(sitesUnderMouse[0])
+            agent.assignSite(sitesUnderMouse[0])
+
+    def setSelectedSitesCommand(self, command, mousePos):
+        if self.shouldCommandSiteAgents:
+            for site in self.selectedSites:
+                site.setCommand(command, mousePos)
 
     def assignSelectedAgents(self, mousePos):
         sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]

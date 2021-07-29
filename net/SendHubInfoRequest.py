@@ -17,11 +17,12 @@ class SendHubInfoRequest:
         # Agent state count estimates
         self.numAtHub = 0
         self.numSearch = 0
+        self.numCarried = 0
         self.numLeadForward = 0
         self.numFollow = 0
         self.numReverseTandem = 0
         self.numTransport = 0
-        self.numCarried = 0
+        self.numGo = 0
 
         self.agentPhases = []
         self.agentStates = []
@@ -77,6 +78,8 @@ class SendHubInfoRequest:
     def decrementStateCount(self, agentIndex):
         if self.agentStates[agentIndex] == SEARCH:
             self.numSearch -= 1
+        elif self.agentStates[agentIndex] == CARRIED:
+            self.numCarried -= 1
         elif self.agentStates[agentIndex] == LEAD_FORWARD:
             self.numLeadForward -= 1
         elif self.agentStates[agentIndex] == FOLLOW:
@@ -85,8 +88,8 @@ class SendHubInfoRequest:
             self.numReverseTandem -= 1
         elif self.agentStates[agentIndex] == TRANSPORT:
             self.numTransport -= 1
-        elif self.agentStates[agentIndex] == CARRIED:
-            self.numCarried -= 1
+        elif self.agentStates[agentIndex] == GO:
+            self.numGo -= 1
 
     def incrementPhaseCount(self, agent):
         if agent.getPhaseNumber() == EXPLORE:
@@ -103,6 +106,8 @@ class SendHubInfoRequest:
             self.numAtHub += 1
         elif agent.state.state == SEARCH:
             self.numSearch += 1
+        elif agent.state.state == CARRIED:
+            self.numCarried += 1
         elif agent.state.state == LEAD_FORWARD:
             self.numLeadForward += 1
         elif agent.state.state == FOLLOW:
@@ -111,8 +116,8 @@ class SendHubInfoRequest:
             self.numReverseTandem += 1
         elif agent.state.state == TRANSPORT:
             self.numTransport += 1
-        elif agent.state.state == CARRIED:
-            self.numCarried += 1
+        elif agent.state.state == GO:
+            self.numGo += 1
 
     def updateSiteInfo(self, agent):
         if self.siteIsNew(agent.assignedSite.pos):
@@ -209,11 +214,12 @@ class SendHubInfoRequest:
 
                 'numAtHub': self.numAtHub,
                 'numSearch': self.numSearch,
+                'numCarried': self.numCarried,
                 'numLeadForward': self.numLeadForward,
                 'numFollow': self.numFollow,
                 'numReverseTandem': self.numReverseTandem,
                 'numTransport': self.numTransport,
-                'numCarried': self.numCarried,
+                'numGo': self.numGo,
 
                 'sitesPositions': self.sitesPositions,
                 'sitesQualities': self.sitesQualities,

@@ -16,7 +16,7 @@ class SimulationGraphs:
         self.x2 = self.x + 350
         self.x3 = self.x + 490
         self.x4 = self.x + 540
-        self.x5 = self.x + 640
+        self.x5 = self.x + 680
 
         self.y = GRAPHS_TOP_LEFT[1]
 
@@ -24,7 +24,8 @@ class SimulationGraphs:
         self.selectSitesRect = pygame.Rect(self.x3, self.y + 16, 10, 10)
         self.selectAgentsSitesRect = pygame.Rect(self.x3, self.y + 27, 10, 10)
         self.selectSitesAgentsRect = pygame.Rect(self.x3, self.y + 38, 10, 10)
-        self.showOptionsRect = pygame.Rect(self.x5, self.y + 5, 10, 10)
+        self.commandSiteAgentsRect = pygame.Rect(self.x5, self.y + 5, 10, 10)
+        self.showOptionsRect = pygame.Rect(self.x5, self.y + 16, 10, 10)
 
     def incrementY(self):
         self.y += 11
@@ -62,7 +63,7 @@ class SimulationGraphs:
         img = self.font.render("LIKELIHOOD OF CONVERGING TO SITE:", True, (0, 0, 0))
         self.screen.blit(img, (self.x, self.y))
         for siteIndex, site in enumerate(siteList):
-            if site.wasFound:
+            if site.wasFound or site.knowSitePosAtStart:
                 self.incrementY()
                 img = self.font.render("SITE " + str(siteList[siteIndex].getPosition()) + ": " +
                                        str(siteIndex * 10) + "%", True, (0, 0, 0))  # TODO: Insert actual probability here
@@ -99,7 +100,7 @@ class SimulationGraphs:
             self.screen.blit(img, (self.x, self.y))
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
-                             shouldShowOptions, paused):
+                             commandSiteAgents, shouldShowOptions, paused):
         if CAN_SELECT_ANYWHERE:
             self.y = GRAPHS_TOP_LEFT[1]
             selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
@@ -125,8 +126,14 @@ class SimulationGraphs:
             self.screen.blit(img, (self.x2, self.y))
             pygame.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
 
+        self.y = GRAPHS_TOP_LEFT[1]
+        commandSiteAgentsColor = self.getShouldSelectColor(commandSiteAgents)
+        img = self.font.render("Command Site Agents:", True, (0, 0, 0))
+        self.screen.blit(img, (self.x4, self.y))
+        pygame.draw.rect(self.screen, commandSiteAgentsColor, self.commandSiteAgentsRect)
+
         if paused:
-            self.y = GRAPHS_TOP_LEFT[1]
+            self.incrementY()
             showOptionsColor = self.getShouldSelectColor(shouldShowOptions)
             img = self.font.render("Show Options:", True, (0, 0, 0))
             self.screen.blit(img, (self.x4, self.y))
@@ -143,6 +150,9 @@ class SimulationGraphs:
 
     def collidesWithSelectSitesAgentsButton(self, position):
         return self.selectSitesAgentsRect.collidepoint(position[0], position[1])
+
+    def collidesWithCommandSiteAgentsButton(self, position):
+        return self.commandSiteAgentsRect.collidepoint(position[0], position[1])
 
     def collidesWithOptionsButton(self, position):
         return self.showOptionsRect.collidepoint(position[0], position[1])
@@ -179,7 +189,8 @@ class SimulationGraphs:
                         'Move Agent',
                         'Assign Agent to Site',
                         'Create Agent',
-                        'Delete Agent']
+                        'Delete Agent',
+                        'Unselect']
 
         agentOptionButtons = ['- MOUSE_BUTTON (click)',
                               '- MOUSE_BUTTON (drag)',
@@ -191,7 +202,8 @@ class SimulationGraphs:
                               '- SPACE_BAR',
                               '- A',
                               '- X',
-                              '- DEL or /']
+                              '- DEL or /',
+                              '- ESC']
 
         longerListSize = len(agentOptions)
 
@@ -206,7 +218,9 @@ class SimulationGraphs:
                        'Expand Site',
                        'Shrink Site',
                        'Create Site',
-                       'Delete Site']
+                       'Delete Site',
+                       'Tell Agents to Go',
+                       'Unselect']
 
         siteOptionButtons = ['- MOUSE_BUTTON (click)',
                              '- MOUSE_BUTTON (drag)',
@@ -219,7 +233,9 @@ class SimulationGraphs:
                              '- = (+)',
                              '- -',
                              '- C',
-                             '- DEL or /']
+                             '- DEL or /',
+                             '- SPACE_BAR',
+                             '- ESC']
 
         if len(siteOptions) > longerListSize:
             longerListSize = len(siteOptions)
