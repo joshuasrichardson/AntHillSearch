@@ -10,7 +10,8 @@ class RecordingPlayer(AbstractColonySimulation):
         super().__init__(useRestAPI=False, shouldRecord=False, shouldDraw=True, knowSitePosAtStart=True)
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True, knowSitePosAtStart=True):
+                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True, knowSitePosAtStart=True,
+                        hubCanMove=True):
         self.recorder.read()
 
         return World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,

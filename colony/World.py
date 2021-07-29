@@ -8,8 +8,10 @@ class World:
     """ Represents the world around the ants old home """
 
     def __init__(self, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
-                 siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, drawEstimates=DRAW_ESTIMATES):
+                 siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, drawEstimates=DRAW_ESTIMATES,
+                 hubCanMove=HUB_CAN_MOVE):
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
+        self.hubCanMove = hubCanMove
         self.hubLocation = hubLocation  # Where the agents' original home is located
         if hubLocation is None:
             if shouldDraw:
@@ -31,6 +33,7 @@ class World:
 
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
+        self.marker = None
 
         self.knowSitePosAtStart = knowSitePosAtStart
         self.createSites(numSites)  # Initializes the site list with sites that match the specified values or random sites by default
@@ -169,6 +172,12 @@ class World:
             self.phases[CANVAS] = self.request.numCanvas
             self.phases[COMMIT] = self.request.numCommit
 
+        if self.states[GO] == 0:
+            self.marker = None
+
+    def setMarker(self, marker):
+        self.marker = marker
+
     def drawWorldObjects(self):
         if self.drawEstimates:
             for siteIndex in range(0, len(self.siteList)):
@@ -176,6 +185,11 @@ class World:
         else:
             for siteIndex in range(0, len(self.siteList)):
                 self.siteList[siteIndex].drawSite()
+        self.drawMarker()
+
+    def drawMarker(self):
+        if self.marker is not None:
+            self.screen.blit(self.marker[0], self.marker[1])
 
     def drawPotentialQuality(self, potentialQuality):
         img = self.myfont.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))

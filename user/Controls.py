@@ -3,9 +3,10 @@ import random
 import numpy as np
 import pygame
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, CAN_SELECT_ANYWHERE, HUB_CAN_MOVE
+from Constants import SITE_RADIUS, SCREEN_COLOR
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
+from colony.myPygameUtils import getDestinationMarker
 from phases.ExplorePhase import ExplorePhase
 from states.SearchState import SearchState
 
@@ -85,11 +86,11 @@ class Controls:
             self.mouseDown(pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             self.go(pygame.mouse.get_pos())
-            self.setSelectedSitesCommand(self.goCommand, pygame.mouse.get_pos())
+            marker = getDestinationMarker(pygame.mouse.get_pos())
+            self.setSelectedSitesCommand(self.goCommand, pygame.mouse.get_pos(), marker)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
             self.go(pygame.mouse.get_pos())
             self.assignSelectedAgents(pygame.mouse.get_pos())
-            self.setSelectedSitesCommand(self.assignCommand, pygame.mouse.get_pos())
         if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
             self.speedUp()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
@@ -116,7 +117,7 @@ class Controls:
                 or event.type == pygame.KEYDOWN and event.key == pygame.K_SLASH:
             self.delete()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PERIOD:
-            self.setSelectedSitesCommand(None, None)
+            self.setSelectedSitesCommand(None, None, None)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.unselectAll()
         if len(self.selectedSites) > 0:
@@ -169,7 +170,7 @@ class Controls:
             self.startSelectRect(mousePos)
 
     def drag(self):
-        if HUB_CAN_MOVE or self.selectedSite is not self.world.getHub():
+        if self.world.hubCanMove or self.selectedSite is not self.world.getHub():
             self.oldRect = self.selectedSite.getSiteRect()
             self.dragSite = self.selectedSite
 
@@ -181,6 +182,7 @@ class Controls:
         self.dragSite = None
 
     def unselectAll(self):
+        self.world.marker = None
         self.selectedAgent = None
         self.selectedSite = None
         # Unselect all agents and sites
@@ -194,7 +196,7 @@ class Controls:
 
     def select(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        if CAN_SELECT_ANYWHERE:
+        if self.graphs.canSelectAnywhere:
             self.selectAgent(mousePos)
         elif self.world.getHub().getSiteRect().collidepoint(mousePos):
             self.selectAgentsAtHub()
@@ -235,7 +237,7 @@ class Controls:
         # get a list of all objects that are under the mouse cursor
         self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())
         agent = None
-        if CAN_SELECT_ANYWHERE:
+        if self.graphs.canSelectAnywhere:
             agent = self.selectAgents()
         elif self.selectRect.colliderect(self.world.getHub().getSiteRect()):
             agent = self.selectAgentsAtHub()
@@ -372,6 +374,7 @@ class Controls:
                 self.selectedSitesAgentsPositions.append(agent.pos)
 
     def go(self, mousePos):
+        self.world.setMarker(getDestinationMarker(mousePos))
         for a in self.selectedAgents:
             self.goCommand(a, mousePos)
 
@@ -388,10 +391,10 @@ class Controls:
             agent.addToKnownSites(sitesUnderMouse[0])
             agent.assignSite(sitesUnderMouse[0])
 
-    def setSelectedSitesCommand(self, command, mousePos):
+    def setSelectedSitesCommand(self, command, mousePos, marker):
         if self.shouldCommandSiteAgents:
             for site in self.selectedSites:
-                site.setCommand(command, mousePos)
+                site.setCommand(command, mousePos, marker)
 
     def assignSelectedAgents(self, mousePos):
         sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]

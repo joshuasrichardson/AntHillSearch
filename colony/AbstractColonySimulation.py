@@ -1,7 +1,6 @@
-import sys
 import threading
-import traceback
 from abc import ABC, abstractmethod
+from multiprocessing import Process
 
 import pygame
 
@@ -23,20 +22,24 @@ class AbstractColonySimulation(ABC):
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
-                 siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=KNOW_SITE_POS_AT_START):
+                 siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=KNOW_SITE_POS_AT_START,
+                 canSelectAnywhere=CAN_SELECT_ANYWHERE, hubCanMove=HUB_CAN_MOVE):
 
         self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
-        self.graphs = SimulationGraphs(self.screen)
+        self.graphs = SimulationGraphs(self.screen, canSelectAnywhere)
         self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                           siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan,
-                                          shouldDraw, knowSitePosAtStart)  # The world that has all the sites and agents
+                                          shouldDraw, knowSitePosAtStart, hubCanMove)  # The world that has all the sites and agents
         self.chosenHome = None  # The site that most of the agents are assigned to when the simulation ends
         self.timeRanOut = False  # Whether there is no more time left in the simulation
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
         self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
 
         self.useRestAPI = useRestAPI  # Whether the simulation should periodically report hub information to the rest API
+        self.apiThread = None
+        if self.useRestAPI:
+            self.setUpRestAPI()
         self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
 
@@ -44,7 +47,7 @@ class AbstractColonySimulation(ABC):
 
     @abstractmethod
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart):
+                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, hubCanMove):
         pass
 
     def setAgentList(self, agents):
@@ -53,15 +56,22 @@ class AbstractColonySimulation(ABC):
     def initializeAgentList(self, numAgents=NUM_AGENTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                             maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY):
+                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
+                            findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
+                            drawFarAgents=DRAW_FAR_AGENTS):
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 0 and " + str(MAX_AGENTS), numAgents)
         for i in range(0, numAgents):
             agent = Agent(self.world, self.world.getHub(), homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation, maxSearchDist,
-                          findSitesEasily)
+                          findSitesEasily, commitSpeedFactor, drawFarAgents)
             agent.setState(AtNestState(agent))
             self.world.agentList.append(agent)
+
+    def setUpRestAPI(self):
+        from net import RestAPI
+        self.apiThread = Process(target=RestAPI.run)
+        self.apiThread.start()
 
     def runSimulation(self):
         self.initializeRequest()
@@ -152,6 +162,9 @@ class AbstractColonySimulation(ABC):
             self.write()
         self.determineChosenHome()
         self.printResults()
+        if self.useRestAPI:
+            self.apiThread.terminate()
+            self.apiThread.join()
 
     def save(self):
         pass

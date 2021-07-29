@@ -39,4 +39,5 @@ def sendResults():
     return jsonify(result)
 
 
-app.run()
+def run():
+    app.run()

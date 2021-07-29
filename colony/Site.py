@@ -36,6 +36,7 @@ class Site:
         self.isSelected = False  # Whether the site is selected (helps with user controls)
         self.command = None
         self.commandPosition = None
+        self.marker = None
 
         self.estimatedPosition = None
         self.estimatedQuality = None
@@ -70,12 +71,18 @@ class Site:
 
     def drawSite(self):
         if self.wasFound or self.knowSitePosAtStart:
+            pyg.draw.circle(self.screen, (115, 110, 80), self.pos, self.radius + 2, 0)
             if self.isSelected:
                 pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
             self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
-            drawCircleLines(self.screen, self.siteRect, (255, 255, 255), self.getDensity(self.quality))
-            img = self.myfont.render(str(self.agentCount), True, self.color)
+            drawCircleLines(self.screen, self.siteRect, (115, 110, 80), self.getDensity(self.quality))
+            img = self.myfont.render(str(self.agentCount), True, (0, 0, 0))
             self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
+        self.drawMarker()
+
+    def drawMarker(self):
+        if self.marker is not None:
+            self.screen.blit(self.marker[0], self.marker[1])
 
     def setEstimates(self, est):
         self.estimatedPosition = est[0]
@@ -144,9 +151,10 @@ class Site:
     def unselect(self):
         self.isSelected = False
 
-    def setCommand(self, command, position):
+    def setCommand(self, command, position, marker):
         self.command = command
         self.commandPosition = position
+        self.marker = marker
 
     def executeCommand(self, agent):
         if self.command is None:

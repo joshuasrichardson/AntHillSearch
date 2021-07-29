@@ -21,10 +21,11 @@ class ColonySimulation(AbstractColonySimulation):
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
-                 siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
+                 siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
+                 knowSitePosAtStart=KNOW_SITE_POS_AT_START, canSelectAnywhere=CAN_SELECT_ANYWHERE, hubCanMove=HUB_CAN_MOVE):
         super().__init__(simulationDuration, numSites, useRestAPI, shouldRecord, shouldDraw, convergenceFraction,
-                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                         siteRadii, siteNoCloserThan, siteNoFartherThan)
+                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+                         siteNoCloserThan, siteNoFartherThan, knowSitePosAtStart, canSelectAnywhere, hubCanMove)
         self.previousSendTime = datetime.datetime.now()
 
         if simulationDuration < 0 or simulationDuration > MAX_TIME:
@@ -34,9 +35,10 @@ class ColonySimulation(AbstractColonySimulation):
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                         siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True,
-                        knowSitePosAtStart=KNOW_SITE_POS_AT_START):
+                        knowSitePosAtStart=KNOW_SITE_POS_AT_START, hubCanMove=HUB_CAN_MOVE):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart)
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart,
+                      hubCanMove)
         return world
 
     def initializeRequest(self):

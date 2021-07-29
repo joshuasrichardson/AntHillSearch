@@ -5,8 +5,9 @@ from Constants import *
 
 class SimulationGraphs:
 
-    def __init__(self, screen):
+    def __init__(self, screen, canSelectAnywhere=CAN_SELECT_ANYWHERE):
         self.screen = screen
+        self.canSelectAnywhere = canSelectAnywhere
 
         pygame.font.init()
         self.font = pygame.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -32,45 +33,52 @@ class SimulationGraphs:
 
     def drawStateGraph(self, states):
         self.y = GRAPHS_TOP_LEFT[1]
-        img = self.font.render("STATES:", True, (0, 0, 0))
+        # pygame.draw.rect(self.screen, PAUSED_COLOR, pygame.Rect(self.x - 6, self.y - 6, self.x2 - 25, self.y + 11 * len(states) + 8))
+        # pygame.draw.rect(self.screen, (155, 150, 120), pygame.Rect(self.x - 4, self.y - 4, self.x2 - 29, self.y + 11 * len(states) + 4))
+        img = self.font.render("STATES:", True, WORDS_COLOR)
         self.screen.blit(img, (self.x, self.y))
         for state, width in enumerate(states):
             self.incrementY()
+            pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
             pygame.draw.rect(self.screen, STATE_COLORS[state], pygame.Rect(self.x1, self.y + 5, width, 10))
-            img = self.font.render(STATES_LIST[state], True, STATE_COLORS[state])
+            img = self.font.render(STATES_LIST[state], True, WORDS_COLOR)
             self.screen.blit(img, (self.x, self.y))
         self.incrementY()
         self.incrementY()
         self.incrementY()
 
     def drawPhaseGraph(self, phases):
-        img = self.font.render("PHASES:", True, (0, 0, 0))
+        # pygame.draw.rect(self.screen, PAUSED_COLOR, pygame.Rect(self.x - 6, self.y - 6,
+        #                                                         self.x2 - 25, (18 * len(phases))))
+        # pygame.draw.rect(self.screen, (235, 230, 200), pygame.Rect(self.x - 4, self.y - 4, self.x2 - 29, (17 * len(phases))))
+        img = self.font.render("PHASES:", True, WORDS_COLOR)
         self.screen.blit(img, (self.x, self.y))
         for phase, width in enumerate(phases):
             self.incrementY()
+            pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
             pygame.draw.rect(self.screen, PHASE_COLORS[phase], pygame.Rect(self.x1, self.y + 5, width, 10))
-            img = self.font.render(PHASES_LIST[phase], True, PHASE_COLORS[phase])
+            img = self.font.render(PHASES_LIST[phase], True, WORDS_COLOR)
             self.screen.blit(img, (self.x, self.y))
         self.incrementY()
         self.incrementY()
         self.incrementY()
 
     def drawPredictionsGraph(self, siteList):
-        img = self.font.render("PREDICTIONS:", True, (0, 0, 0))
+        img = self.font.render("PREDICTIONS:", True, WORDS_COLOR)
         self.screen.blit(img, (self.x, self.y))
 
         self.incrementY()
-        img = self.font.render("LIKELIHOOD OF CONVERGING TO SITE:", True, (0, 0, 0))
+        img = self.font.render("LIKELIHOOD OF CONVERGING TO SITE:", True, WORDS_COLOR)
         self.screen.blit(img, (self.x, self.y))
         for siteIndex, site in enumerate(siteList):
             if site.wasFound or site.knowSitePosAtStart:
                 self.incrementY()
                 img = self.font.render("SITE " + str(siteList[siteIndex].getPosition()) + ": " +
-                                       str(siteIndex * 10) + "%", True, (0, 0, 0))  # TODO: Insert actual probability here
+                                       str(siteIndex * 10) + "%", True, WORDS_COLOR)  # TODO: Insert actual probability here
                 self.screen.blit(img, (self.x, self.y))
 
         self.incrementY()
-        img = self.font.render("PREDICTED TIME TO COVERAGE: 59 seconds", True, (0, 0, 0))  # TODO: Insert actual predicted time here
+        img = self.font.render("PREDICTED TIME TO COVERAGE: 59 seconds", True, WORDS_COLOR)  # TODO: Insert actual predicted time here
         self.screen.blit(img, (self.x, self.y))
         self.incrementY()
         self.incrementY()
@@ -79,7 +87,7 @@ class SimulationGraphs:
         attributes = agent.getAttributes()
         for i, attribute in enumerate(attributes):
             self.incrementY()
-            img = self.font.render(attribute, True, (0, 0, 0))
+            img = self.font.render(attribute, True, WORDS_COLOR)
             self.screen.blit(img, (self.x, self.y))
         self.incrementY()
         self.incrementY()
@@ -96,46 +104,46 @@ class SimulationGraphs:
 
         for i, attribute in enumerate(attributes):
             self.incrementY()
-            img = self.font.render(attribute, True, (0, 0, 0))
+            img = self.font.render(attribute, True, WORDS_COLOR)
             self.screen.blit(img, (self.x, self.y))
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):
-        if CAN_SELECT_ANYWHERE:
+        if self.canSelectAnywhere:
             self.y = GRAPHS_TOP_LEFT[1]
             selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
-            img = self.font.render("Select Agents:", True, (0, 0, 0))
+            img = self.font.render("Select Agents:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x2, self.y))
             pygame.draw.rect(self.screen, selectAgentsColor, self.selectAgentsRect)
 
             self.incrementY()
             selectSitesColor = self.getShouldSelectColor(shouldSelectSites)
-            img = self.font.render("Select Sites:", True, (0, 0, 0))
+            img = self.font.render("Select Sites:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x2, self.y))
             pygame.draw.rect(self.screen, selectSitesColor, self.selectSitesRect)
 
             self.incrementY()
             selectAgentsSitesColor = self.getShouldSelectColor(shouldSelectAgentSites)
-            img = self.font.render("Select Agents Sites:", True, (0, 0, 0))
+            img = self.font.render("Select Agents Sites:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x2, self.y))
             pygame.draw.rect(self.screen, selectAgentsSitesColor, self.selectAgentsSitesRect)
 
             self.incrementY()
             selectSitesAgentsColor = self.getShouldSelectColor(shouldSelectSiteAgents)
-            img = self.font.render("Select Sites Agents:", True, (0, 0, 0))
+            img = self.font.render("Select Sites Agents:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x2, self.y))
             pygame.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
 
         self.y = GRAPHS_TOP_LEFT[1]
         commandSiteAgentsColor = self.getShouldSelectColor(commandSiteAgents)
-        img = self.font.render("Command Site Agents:", True, (0, 0, 0))
+        img = self.font.render("Command Site Agents:", True, WORDS_COLOR)
         self.screen.blit(img, (self.x4, self.y))
         pygame.draw.rect(self.screen, commandSiteAgentsColor, self.commandSiteAgentsRect)
 
         if paused:
             self.incrementY()
             showOptionsColor = self.getShouldSelectColor(shouldShowOptions)
-            img = self.font.render("Show Options:", True, (0, 0, 0))
+            img = self.font.render("Show Options:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x4, self.y))
             pygame.draw.rect(self.screen, showOptionsColor, self.showOptionsRect)
 
@@ -170,12 +178,12 @@ class SimulationGraphs:
         top = y / 4
         width = x / 2
         height = y / 2
-        pygame.draw.rect(self.screen, (0, 128, 128), pygame.Rect(left - 4, top - 4, width + 8, height + 8))
-        pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect(left, top, width, height))
+        pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(left - 4, top - 4, width + 8, height + 8))
+        pygame.draw.rect(self.screen, SCREEN_COLOR, pygame.Rect(left, top, width, height))
         leftMargin = x / 40
 
         optionsFont = pygame.font.SysFont('Comic Sans MS', 40)
-        img = optionsFont.render("Options", True, (123, 123, 123))
+        img = optionsFont.render("Options", True, WORDS_COLOR)
         self.screen.blit(img, (left * 2 - img.get_width() / 2, top - 60))
         left = left + leftMargin
 
@@ -240,34 +248,36 @@ class SimulationGraphs:
         if len(siteOptions) > longerListSize:
             longerListSize = len(siteOptions)
 
-        img = self.font.render("Agent Options:", True, (0, 0, 0))
+        img = self.font.render("Agent Options:", True, WORDS_COLOR)
         self.screen.blit(img, (left, top + 10))
 
         for i, option in enumerate(agentOptions):
-            img = self.font.render(option, True, (0, 0, 0))
+            img = self.font.render(option, True, WORDS_COLOR)
             self.screen.blit(img, (left, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
         for i, option in enumerate(agentOptionButtons):
-            img = self.font.render(option, True, (0, 0, 0))
+            img = self.font.render(option, True, WORDS_COLOR)
             self.screen.blit(img, (left + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
-        img = self.font.render("Site Options:", True, (0, 0, 0))
+        img = self.font.render("Site Options:", True, WORDS_COLOR)
         self.screen.blit(img, ((x / 2) + (leftMargin / 2), top + 10))
 
         for i, option in enumerate(siteOptions):
-            img = self.font.render(option, True, (0, 0, 0))
+            img = self.font.render(option, True, WORDS_COLOR)
             self.screen.blit(img, ((x / 2) + (leftMargin / 2), top + 25 + (i + 1) * (height / longerListSize - 5)))
 
         for i, option in enumerate(siteOptionButtons):
-            img = self.font.render(option, True, (0, 0, 0))
+            img = self.font.render(option, True, WORDS_COLOR)
             self.screen.blit(img, ((x / 2) + (leftMargin / 2) + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
     def drawPause(self):
         pausedFont = pygame.font.SysFont('Comic Sans MS', 40)
-        img = pausedFont.render("Paused", True, (123, 123, 123))
-        self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2), self.screen.get_size()[1] / 2 - (img.get_height() / 2)))
+        img = pausedFont.render("Paused", True, WORDS_COLOR)
+        self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2),
+                               self.screen.get_size()[1] / 2 - (img.get_height() / 2) - 60))
 
     def drawFinish(self):
         finishFont = pygame.font.SysFont('Comic Sans MS', 40)
-        img = finishFont.render("Finished", True, (123, 123, 123))
-        self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2), self.screen.get_size()[1] / 2 - (img.get_height() / 2)))
+        img = finishFont.render("Finished", True, WORDS_COLOR)
+        self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2),
+                               self.screen.get_size()[1] / 2 - (img.get_height() / 2) -60))

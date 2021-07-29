@@ -3,7 +3,7 @@
 # Having more agents slows down the simulation, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
-NUM_AGENTS = 200    # Total number of agents in the simulation
+NUM_AGENTS = 20    # Total number of agents in the simulation
 # The lower the convergence fraction is, the faster the simulation goes because lower fractions require less agents to go to a site
 CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
@@ -44,7 +44,7 @@ CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere.
 
 DRAW_ESTIMATES = True  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
 
-HUB_CAN_MOVE = False  # Whether the hub can be moved
+HUB_CAN_MOVE = True  # Whether the hub can be moved
 
 DRAW_FAR_AGENTS = True  # Whether agents that aren't right by the hub are drawn
 
@@ -53,7 +53,9 @@ MAX_TIME = 5000     # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
-SCREEN_COLOR = 255, 255, 255  # White
+SCREEN_COLOR = 225, 220, 190  # Light brown
+
+WORDS_COLOR = 0, 100, 0  # Dark green
 
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
@@ -71,6 +73,7 @@ GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first g
 #                             The others all build off of that depending on what is being displayed.
 
 """ Agent parameters """
+AGENT_IMAGE = "copter.png"  # The image that is displayed on the screen to represent an agent
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
 # Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.

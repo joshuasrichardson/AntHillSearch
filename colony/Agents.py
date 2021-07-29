@@ -20,15 +20,16 @@ class Agent:
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION,
                  maxSearchDistance=MAX_SEARCH_DIST, findAssignedSiteEasily=FIND_SITES_EASILY,
-                 commitSpeedFactor=COMMIT_SPEED_FACTOR):
+                 commitSpeedFactor=COMMIT_SPEED_FACTOR, drawFarAgents=DRAW_FAR_AGENTS):
         self.world = world  # The colony the agent lives in
 
         self.prevPos = startingPosition  # Initial position
         self.pos = startingPosition  # Initial position
-        self.agentHandle = pygame.image.load("copter.png")  # Image on screen representing the agent
+        self.agentHandle = pygame.image.load(AGENT_IMAGE)  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
+        self.drawFarAgents = drawFarAgents  # Whether the agent is drawn when it is not by the hub
 
         self.homogenousAgents = homogenousAgents  # Whether all the agents have the same attributes (if false, their attributes vary)
         self.findAssignedSiteEasily = findAssignedSiteEasily
@@ -141,7 +142,7 @@ class Agent:
         self.numFollowers += 1
 
     def drawAgent(self, surface):
-        if DRAW_FAR_AGENTS or self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST):
+        if self.drawFarAgents or self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST):
             if self.isTheSelected:
                 pygame.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
             if self.isSelected:
@@ -203,7 +204,7 @@ class Agent:
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
 
     def estimateSitePosition(self, site):
-        if not HUB_CAN_MOVE and site is self.getHub():
+        if not self.world.hubCanMove and site is self.getHub():
             self.estimatedSitePosition = self.getHub().getPosition()
         else:
             self.estimatedSitePosition = site.getPosition().copy()
