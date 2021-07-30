@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 
-from Constants import SITE_RADIUS, SCREEN_COLOR
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from colony.myPygameUtils import getDestinationMarker
@@ -118,6 +118,8 @@ class Controls:
             self.delete()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PERIOD:
             self.setSelectedSitesCommand(None, None, None)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_g:
+            self.graphs.shouldDrawGraphs = not self.graphs.shouldDrawGraphs  # TODO: Add to readme and options menu
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.unselectAll()
         if len(self.selectedSites) > 0:
@@ -256,7 +258,7 @@ class Controls:
             top = mousePos[1]
         width = np.abs(self.selectRectCorner[0] - mousePos[0])
         height = np.abs(self.selectRectCorner[1] - mousePos[1])
-        return pygame.draw.rect(self.world.screen, (128, 128, 128), pygame.Rect(left, top, width, height))
+        return pygame.draw.rect(self.world.screen, BORDER_COLOR, pygame.Rect(left, top, width, height), 1)
 
     def selectAgents(self):
         selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(self.selectRect)]
@@ -278,7 +280,7 @@ class Controls:
 
     def selectAgentsAtHub(self):
         selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(self.world.getHub().getSiteRect())]
-        if self.shouldSelectAgents:
+        if self.shouldSelectAgents and len(selectedAgents) > 0:
             self.selectedAgent = selectedAgents[0]
             self.selectedAgent.select()
             self.selectedAgent.isTheSelected = True

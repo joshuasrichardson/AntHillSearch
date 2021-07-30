@@ -174,6 +174,9 @@ class Agent:
             (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
         # TODO: Make a bell curve instead of even distribution?
 
+    def estimateAgentCount(self, site):
+        return site.agentCount  # TODO: Actually estimate.
+
     def addToKnownSites(self, site):
         if not self.knownSites.__contains__(site):
             self.knownSites.append(site)
@@ -210,6 +213,7 @@ class Agent:
             self.estimatedSitePosition = site.getPosition().copy()
             self.estimatedSitePosition[0] = site.getPosition()[0] + random.randint(-100, 100)
             self.estimatedSitePosition[1] = site.getPosition()[1] + random.randint(-100, 100)
+        return self.estimatedSitePosition
 
     def estimateSitePositionMoreAccurately(self):
         if self.estimatedSitePosition[0] != self.getAssignedSitePosition()[0]:

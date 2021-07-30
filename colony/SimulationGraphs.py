@@ -28,84 +28,97 @@ class SimulationGraphs:
         self.commandSiteAgentsRect = pygame.Rect(self.x5, self.y + 5, 10, 10)
         self.showOptionsRect = pygame.Rect(self.x5, self.y + 16, 10, 10)
 
+        self.shouldDrawGraphs = True
+
     def incrementY(self):
         self.y += 11
 
     def drawStateGraph(self, states):
-        self.y = GRAPHS_TOP_LEFT[1]
-        # pygame.draw.rect(self.screen, PAUSED_COLOR, pygame.Rect(self.x - 6, self.y - 6, self.x2 - 25, self.y + 11 * len(states) + 8))
-        # pygame.draw.rect(self.screen, (155, 150, 120), pygame.Rect(self.x - 4, self.y - 4, self.x2 - 29, self.y + 11 * len(states) + 4))
-        img = self.font.render("STATES:", True, WORDS_COLOR)
-        self.screen.blit(img, (self.x, self.y))
-        for state, width in enumerate(states):
-            self.incrementY()
-            pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
-            pygame.draw.rect(self.screen, STATE_COLORS[state], pygame.Rect(self.x1, self.y + 5, width, 10))
-            img = self.font.render(STATES_LIST[state], True, WORDS_COLOR)
+        if self.shouldDrawGraphs:
+            self.y = GRAPHS_TOP_LEFT[1]
+            pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, 11 * len(states) + 24), 1)
+            img = self.font.render("STATES:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x, self.y))
-        self.incrementY()
-        self.incrementY()
-        self.incrementY()
+            for state, width in enumerate(states):
+                self.incrementY()
+                pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
+                pygame.draw.rect(self.screen, STATE_COLORS[state], pygame.Rect(self.x1, self.y + 5, width, 10))
+                img = self.font.render(STATES_LIST[state], True, WORDS_COLOR)
+                self.screen.blit(img, (self.x, self.y))
+            self.incrementY()
+            self.incrementY()
+            self.incrementY()
 
     def drawPhaseGraph(self, phases):
-        # pygame.draw.rect(self.screen, PAUSED_COLOR, pygame.Rect(self.x - 6, self.y - 6,
-        #                                                         self.x2 - 25, (18 * len(phases))))
-        # pygame.draw.rect(self.screen, (235, 230, 200), pygame.Rect(self.x - 4, self.y - 4, self.x2 - 29, (17 * len(phases))))
-        img = self.font.render("PHASES:", True, WORDS_COLOR)
-        self.screen.blit(img, (self.x, self.y))
-        for phase, width in enumerate(phases):
-            self.incrementY()
-            pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
-            pygame.draw.rect(self.screen, PHASE_COLORS[phase], pygame.Rect(self.x1, self.y + 5, width, 10))
-            img = self.font.render(PHASES_LIST[phase], True, WORDS_COLOR)
+        if self.shouldDrawGraphs:
+            pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, 11 * len(phases) + 24), 1)
+            img = self.font.render("PHASES:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x, self.y))
-        self.incrementY()
-        self.incrementY()
-        self.incrementY()
+            for phase, width in enumerate(phases):
+                self.incrementY()
+                pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
+                pygame.draw.rect(self.screen, PHASE_COLORS[phase], pygame.Rect(self.x1, self.y + 5, width, 10))
+                img = self.font.render(PHASES_LIST[phase], True, WORDS_COLOR)
+                self.screen.blit(img, (self.x, self.y))
+            self.incrementY()
+            self.incrementY()
+            self.incrementY()
 
     def drawPredictionsGraph(self, siteList):
-        img = self.font.render("PREDICTIONS:", True, WORDS_COLOR)
-        self.screen.blit(img, (self.x, self.y))
+        if self.shouldDrawGraphs:
+            top = self.y - 3
+            img = self.font.render("PREDICTIONS:", True, WORDS_COLOR)
+            self.screen.blit(img, (self.x, self.y))
 
-        self.incrementY()
-        img = self.font.render("LIKELIHOOD OF CONVERGING TO SITE:", True, WORDS_COLOR)
-        self.screen.blit(img, (self.x, self.y))
-        for siteIndex, site in enumerate(siteList):
-            if site.wasFound or site.knowSitePosAtStart:
-                self.incrementY()
-                img = self.font.render("SITE " + str(siteList[siteIndex].getPosition()) + ": " +
-                                       str(siteIndex * 10) + "%", True, WORDS_COLOR)  # TODO: Insert actual probability here
-                self.screen.blit(img, (self.x, self.y))
+            self.incrementY()
+            img = self.font.render("LIKELIHOOD OF CONVERGING TO SITE:", True, WORDS_COLOR)
+            self.screen.blit(img, (self.x, self.y))
+            numFound = 0
+            for siteIndex, site in enumerate(siteList):
+                if site.wasFound or site.knowSitePosAtStart:
+                    numFound += 1
+                    self.incrementY()
+                    img = self.font.render("SITE " + str(siteList[siteIndex].getPosition()) + ": " +
+                                           str(siteIndex * 10) + "%", True, WORDS_COLOR)  # TODO: Insert actual probability here
+                    self.screen.blit(img, (self.x, self.y))
 
-        self.incrementY()
-        img = self.font.render("PREDICTED TIME TO COVERAGE: 59 seconds", True, WORDS_COLOR)  # TODO: Insert actual predicted time here
-        self.screen.blit(img, (self.x, self.y))
-        self.incrementY()
-        self.incrementY()
+            self.incrementY()
+            img = self.font.render("PREDICTED TIME TO COVERAGE: 59 seconds", True, WORDS_COLOR)  # TODO: Insert actual predicted time here
+            self.screen.blit(img, (self.x, self.y))
+            pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * numFound + 46), 1)
+            self.incrementY()
+            self.incrementY()
 
     def drawSelectedAgentInfo(self, agent):
-        attributes = agent.getAttributes()
-        for i, attribute in enumerate(attributes):
+        if self.shouldDrawGraphs:
+            attributes = agent.getAttributes()
+            pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y + 8, self.x2 - 29, 11 * len(attributes) + 13), 1)
+            for i, attribute in enumerate(attributes):
+                self.incrementY()
+                img = self.font.render(attribute, True, WORDS_COLOR)
+                self.screen.blit(img, (self.x, self.y))
             self.incrementY()
-            img = self.font.render(attribute, True, WORDS_COLOR)
-            self.screen.blit(img, (self.x, self.y))
-        self.incrementY()
-        self.incrementY()
+            self.incrementY()
 
     def drawSelectedSiteInfo(self, site, agentsPositions):
-        attributes = ["SELECTED SITE:",
-                      "Position: " + str(site.getPosition()),
-                      "Quality: " + str(site.getQuality()),
-                      "Agent Count: " + str(site.agentCount),
-                      "Agents' Positions: "]
+        if self.shouldDrawGraphs:
+            top = self.y + 8
 
-        for position in agentsPositions:
-            attributes.append(str(position))
+            attributes = ["SELECTED SITE:",
+                          "Position: " + str(site.getPosition()),
+                          "Quality: " + str(site.getQuality()),
+                          "Agent Count: " + str(site.agentCount),
+                          "Agents' Positions: "]
 
-        for i, attribute in enumerate(attributes):
-            self.incrementY()
-            img = self.font.render(attribute, True, WORDS_COLOR)
-            self.screen.blit(img, (self.x, self.y))
+            for position in agentsPositions:
+                attributes.append(str(position))
+
+            for i, attribute in enumerate(attributes):
+                self.incrementY()
+                img = self.font.render(attribute, True, WORDS_COLOR)
+                self.screen.blit(img, (self.x, self.y))
+
+            pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * len(attributes) + 13), 1)
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):

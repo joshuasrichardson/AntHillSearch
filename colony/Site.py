@@ -4,7 +4,7 @@ import pygame as pyg
 from pygame.rect import Rect
 
 from Constants import *
-from colony.myPygameUtils import drawCircleLines
+from colony.myPygameUtils import drawCircleLines, drawDashedLine
 
 
 class Site:
@@ -71,17 +71,18 @@ class Site:
 
     def drawSite(self):
         if self.wasFound or self.knowSitePosAtStart:
-            pyg.draw.circle(self.screen, (115, 110, 80), self.pos, self.radius + 2, 0)
+            self.drawMarker()
+            pyg.draw.circle(self.screen, BORDER_COLOR, self.pos, self.radius + 2, 0)
             if self.isSelected:
                 pyg.draw.circle(self.screen, SELECTED_COLOR, self.pos, self.radius + 2, 0)
             self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
-            drawCircleLines(self.screen, self.siteRect, (115, 110, 80), self.getDensity(self.quality))
+            drawCircleLines(self.screen, self.siteRect, BORDER_COLOR, self.getDensity(self.quality))
             img = self.myfont.render(str(self.agentCount), True, (0, 0, 0))
             self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
-        self.drawMarker()
 
     def drawMarker(self):
         if self.marker is not None:
+            drawDashedLine(self.screen, BORDER_COLOR, self.pos, self.marker[1].center)
             self.screen.blit(self.marker[0], self.marker[1])
 
     def setEstimates(self, est):
@@ -91,26 +92,25 @@ class Site:
 
     def drawEstimatedSite(self):
         if self.wasFound or self.knowSitePosAtStart:
-            try:
-                if self.quality == -1:
-                    color = 0, 0, 0
-                    self.estimatedQuality = -1
-                elif self.estimatedQuality < 0:
-                    color = 255, 0, 0
-                    self.estimatedQuality = 0
-                elif self.estimatedQuality > 255:
-                    color = 0, 255, 0
-                else:
-                    color = 255 - self.estimatedQuality, self.estimatedQuality, 0
-                if self.isSelected:
-                    pyg.draw.circle(self.screen, SELECTED_COLOR, self.estimatedPosition, self.radius + 2, 0)
-                # TODO: Estimate the radius as well
-                siteRect = pyg.draw.circle(self.screen, color, self.estimatedPosition, SITE_RADIUS, 0)
-                drawCircleLines(self.screen, siteRect, (255, 255, 255), Site.getDensity(self.estimatedQuality))
-                img = pyg.font.SysFont('Comic Sans MS', 12).render(str(self.estimatedAgentCount), True, color)
-                self.screen.blit(img, (self.estimatedPosition[0] - (img.get_width() / 2), self.estimatedPosition[1] - (SITE_RADIUS + 20), 15, 10))
-            except TypeError:
-                self.drawSite()
+            self.drawMarker()
+            pyg.draw.circle(self.screen, BORDER_COLOR, self.estimatedPosition, self.radius + 2, 0)
+            if self.quality == -1:
+                color = 0, 0, 0
+                self.estimatedQuality = -1
+            elif self.estimatedQuality < 0:
+                color = 255, 0, 0
+                self.estimatedQuality = 0
+            elif self.estimatedQuality > 255:
+                color = 0, 255, 0
+            else:
+                color = 255 - self.estimatedQuality, self.estimatedQuality, 0
+            if self.isSelected:
+                pyg.draw.circle(self.screen, SELECTED_COLOR, self.estimatedPosition, self.radius + 2, 0)
+            # TODO: Estimate the radius as well
+            siteRect = pyg.draw.circle(self.screen, color, self.estimatedPosition, SITE_RADIUS, 0)
+            drawCircleLines(self.screen, siteRect, BORDER_COLOR, Site.getDensity(self.estimatedQuality))
+            img = pyg.font.SysFont('Comic Sans MS', 12).render(str(self.estimatedAgentCount), True, (0, 0, 0))
+            self.screen.blit(img, (self.estimatedPosition[0] - (img.get_width() / 2), self.estimatedPosition[1] - (SITE_RADIUS + 20), 15, 10))
 
     @staticmethod
     def getDensity(quality):

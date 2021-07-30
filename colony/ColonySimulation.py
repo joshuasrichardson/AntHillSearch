@@ -76,6 +76,11 @@ class ColonySimulation(AbstractColonySimulation):
             self.recorder.recordAgentInfo(agent)
 
     def report(self, agentRectList):
+        self.setSitesEstimates(agentRectList)
+        if self.useRestAPI:
+            self.updateRestAPI()
+
+    def setSitesEstimates(self, agentRectList):
         hubRect = self.world.getHub().getSiteRect()
         hubAgentsIndices = hubRect.collidelistall(agentRectList)
         self.world.request.numAtHub = 0
@@ -85,9 +90,12 @@ class ColonySimulation(AbstractColonySimulation):
             for siteIndex in range(0, len(sites)):
                 if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
                     sites[siteIndex].wasFound = True
+                    # If the site's estimates were not reported before the agent got assigned to another site, report them here.
+                    if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
+                        sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
+                                                       agent.estimateQuality(sites[siteIndex]),
+                                                       agent.estimateAgentCount(sites[siteIndex])])
             agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
-        if self.useRestAPI:
-            self.updateRestAPI()
 
     def updateRestAPI(self):
         now = datetime.datetime.now()
