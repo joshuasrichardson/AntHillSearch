@@ -450,3 +450,6 @@ be more to come).
   on the blue/gray box next to the words "Select Sites Agents:" on the screen. When the box is blue, sites agents 
   selection is enabled. When the box is gray, it is disabled. Enabling sites agents selection can be useful when 
   a user wants to do something like see which agents are assigned to the selected sites.</p>
+
+- <strong>Draw/Erase Graphs</strong> - <code>K_g</code>:
+  <p>Users can have the graphs on the left side of the screen appear or disappear by pressing the <code>G</code> key.</p>

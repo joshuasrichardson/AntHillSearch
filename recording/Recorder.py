@@ -113,8 +113,17 @@ class Recorder:
         self.currentRadiusIndex += 1
         return self.siteRadii[self.currentRadiusIndex]
 
+    def getNumAgents(self):
+        if self.dataIndex >= 0:
+            return len(self.agentPositions)
+        else:
+            return len(self.data[0]['agentPositions'])
+
     def getNumSites(self):
-        return len(self.sitePositions)
+        if self.dataIndex >= 0:
+            return len(self.sitePositions)
+        else:
+            return len(self.data[0]['sitePositions'])
 
     def setNextRound(self):
         self.dataIndex += 1

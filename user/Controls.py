@@ -91,6 +91,8 @@ class Controls:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
             self.go(pygame.mouse.get_pos())
             self.assignSelectedAgents(pygame.mouse.get_pos())
+            marker = getDestinationMarker(pygame.mouse.get_pos())  # TODO: Get a different marker
+            self.setSelectedSitesCommand(self.assignCommand, pygame.mouse.get_pos(), marker)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
             self.speedUp()
         if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
@@ -122,7 +124,7 @@ class Controls:
             self.graphs.shouldDrawGraphs = not self.graphs.shouldDrawGraphs  # TODO: Add to readme and options menu
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.unselectAll()
-        if len(self.selectedSites) > 0:
+        if len(self.selectedSites) > 0 and not pygame.key.get_mods() & pygame.KMOD_SHIFT and not pygame.key.get_mods() & pygame.KMOD_CTRL:  # TODO: Add to readme and options menu
             if event.type == pygame.KEYDOWN and event.unicode.isnumeric():
                 self.appendNumber(int(event.unicode))
             if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
@@ -132,6 +134,13 @@ class Controls:
         else:
             self.potentialQuality = 0
             self.shouldDrawQuality = False
+            if pygame.key.get_mods() & pygame.KMOD_SHIFT and event.type == pygame.KEYDOWN:
+                self.selectAgentGroup(event.key)
+            elif pygame.key.get_mods() & pygame.KMOD_CTRL and event.type == pygame.KEYDOWN:
+                self.updateAgentGroup(event.key)
+            elif event.type == pygame.KEYDOWN and event.unicode.isnumeric():
+                self.unselectAll()
+                self.selectAgentGroup(event.key)
         if self.paused:
             self.draw()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_o:
@@ -200,24 +209,31 @@ class Controls:
         # get a list of all objects that are under the mouse cursor
         if self.graphs.canSelectAnywhere:
             self.selectAgent(mousePos)
+            self.selectSite(mousePos)
         elif self.world.getHub().getSiteRect().collidepoint(mousePos):
             self.selectAgentsAtHub()
-        self.selectSite(mousePos)
+            self.selectHub()
 
     def selectAgent(self, mousePos):
         selectedAgents = [a for a in self.agentList if a.getAgentRect().collidepoint(mousePos)]
 
         if len(selectedAgents) > 0:
+            self.selectAgent2(selectedAgents[0])
+            self.selectedAgents = []
             if self.shouldSelectAgents:
-                self.selectedAgent = selectedAgents[0]
-                self.selectedAgent.select()
                 self.selectedAgent.isTheSelected = True
-                self.selectedAgents = [self.selectedAgent]
-                self.selectedAgentIndex = 0
             if self.shouldSelectAgentSites:
-                self.selectedSite = selectedAgents[0].assignedSite
-                self.selectedSite.select()
                 self.selectedSite.isTheSelected = True
+
+    def selectAgent2(self, agent):
+        if self.shouldSelectAgents:
+            self.selectedAgent = agent
+            self.selectedAgent.select()
+            self.selectedAgents.append(self.selectedAgent)
+            self.selectedAgentIndex = len(self.selectedAgents) - 1
+        if self.shouldSelectAgentSites:
+            self.selectedSite = agent.assignedSite
+            self.selectedSite.select()
 
     def selectSite(self, mousePos):
         selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
@@ -241,11 +257,31 @@ class Controls:
         agent = None
         if self.graphs.canSelectAnywhere:
             agent = self.selectAgents()
+            self.selectSites()
         elif self.selectRect.colliderect(self.world.getHub().getSiteRect()):
             agent = self.selectAgentsAtHub()
-        self.selectSites()
+            self.selectHub()
         if self.shouldSelectAgentSites:
             self.selectAgentsSite(agent)
+
+    def selectAgentGroup(self, key):
+        index = key - 48
+        if not 0 <= index <= 9:
+            return
+        agentGroup = self.world.getGroup(index)
+        for agent in agentGroup:
+            self.selectAgent2(agent)
+        if len(agentGroup) > 0:
+            if self.shouldSelectAgents:
+                self.selectedAgent.isTheSelected = True
+            if self.shouldSelectAgentSites:
+                self.selectedSite.isTheSelected = True
+
+    def updateAgentGroup(self, key):
+        index = key - 48
+        if not 0 <= index <= 9:
+            return
+        self.world.updateGroup(index, self.selectedAgents)
 
     def drawSelectRect(self, mousePos):
         if self.selectRectCorner[0] < mousePos[0]:
@@ -288,6 +324,13 @@ class Controls:
             self.selectedAgentIndex = 0
 
         return self.selectedAgent
+
+    def selectHub(self):
+        self.selectedSite = self.world.getHub()
+        self.selectedSite.select()
+        self.selectedSite.isTheSelected = True
+        self.selectedSites = [self.selectedSite]
+        self.selectedSiteIndex = 0
 
     def selectSites(self):
         selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
@@ -443,6 +486,8 @@ class Controls:
         agent.setState(SearchState(agent))
         agent.angle = random.uniform(0, 2 * np.pi)
         agent.assignedSite.incrementCount()
+        agent.speedCoefficient = self.world.agentList[0].speedCoefficient
+        agent.speed = self.world.agentList[0].uncommittedSpeed * agent.speedCoefficient
         self.world.addAgent(agent)
 
     def delete(self):

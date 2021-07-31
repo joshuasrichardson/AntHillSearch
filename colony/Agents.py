@@ -53,7 +53,8 @@ class Agent:
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.assignedSiteLastKnownPos = self.assignedSite.getPosition()
-        self.estimatedSitePosition = self.getHub().getPosition()
+        self.estimatedSitePosition = self.assignedSite.getPosition()
+        print(self.estimatedSitePosition)
 
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
         self.knownSitesPositions = [self.getHub().getPosition()]

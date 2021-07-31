@@ -38,8 +38,6 @@ class AbstractColonySimulation(ABC):
 
         self.useRestAPI = useRestAPI  # Whether the simulation should periodically report hub information to the rest API
         self.apiThread = None
-        if self.useRestAPI:
-            self.setUpRestAPI()
         self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
 
@@ -67,11 +65,7 @@ class AbstractColonySimulation(ABC):
                           findSitesEasily, commitSpeedFactor, drawFarAgents)
             agent.setState(AtNestState(agent))
             self.world.agentList.append(agent)
-
-    def setUpRestAPI(self):
-        from net import RestAPI
-        self.apiThread = Process(target=RestAPI.run)
-        self.apiThread.start()
+            self.world.agentGroups[i % 10].append(agent)
 
     def runSimulation(self):
         self.initializeRequest()
@@ -162,9 +156,6 @@ class AbstractColonySimulation(ABC):
             self.write()
         self.determineChosenHome()
         self.printResults()
-        if self.useRestAPI:
-            self.apiThread.terminate()
-            self.apiThread.join()
 
     def save(self):
         pass

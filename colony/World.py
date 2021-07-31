@@ -17,7 +17,7 @@ class World:
             if shouldDraw:
                 x, y = screen.get_size()
             else:
-                x, y = 0, 0
+                x, y = 1300, 800
             self.hubLocation = [x / 2, y / 2]
         self.hubRadius = hubRadius  # The radius of the agent's original home
         self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub a site can randomly be generated
@@ -39,6 +39,7 @@ class World:
         self.createSites(numSites)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
+        self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.hub = self.createHub()  # The agents' original home
         self.request = None  # The request, used to sent information to a rest API
 
@@ -196,3 +197,9 @@ class World:
         for site in self.siteList:
             if site.isSelected:
                 self.screen.blit(img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
+
+    def updateGroup(self, index, agents):
+        self.agentGroups[index] = agents
+
+    def getGroup(self, index):
+        return self.agentGroups[index]

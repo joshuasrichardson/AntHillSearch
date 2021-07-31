@@ -3,7 +3,7 @@
 # Having more agents slows down the simulation, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
-NUM_AGENTS = 100    # Total number of agents in the simulation
+NUM_AGENTS = 130    # Total number of agents in the simulation
 # The lower the convergence fraction is, the faster the simulation goes because lower fractions require less agents to go to a site
 CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.

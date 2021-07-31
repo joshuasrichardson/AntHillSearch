@@ -1,3 +1,4 @@
+from Constants import *
 from colony.AbstractColonySimulation import AbstractColonySimulation
 from colony.ColonyExceptions import GameOver
 from colony.World import World
@@ -9,12 +10,21 @@ class RecordingPlayer(AbstractColonySimulation):
     def __init__(self):
         super().__init__(useRestAPI=False, shouldRecord=False, shouldDraw=True, knowSitePosAtStart=True)
 
+    def initializeAgentList(self, numAgents=NUM_AGENTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
+                            maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                            minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
+                            findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
+                            drawFarAgents=DRAW_FAR_AGENTS):
+        numAgents = self.recorder.getNumAgents()
+        super().initializeAgentList(numAgents=numAgents)
+
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                         siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True, knowSitePosAtStart=True,
                         hubCanMove=True):
         self.recorder.read()
 
-        return World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
+        return World(numSites, self.screen, hubLocation, hubRadius, self.recorder.getNumAgents(), sitePositions,
                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, False)
 
     def setNextRound(self):
