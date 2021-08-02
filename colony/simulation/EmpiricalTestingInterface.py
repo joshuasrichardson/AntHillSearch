@@ -3,7 +3,7 @@
 # import psutil
 
 from Constants import *
-from colony.ColonySimulation import ColonySimulation
+from colony.simulation.ColonySimulation import ColonySimulation
 
 
 class EmpiricalTestingInterface(ColonySimulation):

@@ -1,5 +1,5 @@
 from Constants import *
-from colony.AbstractColonySimulation import AbstractColonySimulation
+from colony.simulation.AbstractColonySimulation import AbstractColonySimulation
 from colony.ColonyExceptions import GameOver
 from colony.World import World
 
@@ -15,7 +15,7 @@ class RecordingPlayer(AbstractColonySimulation):
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                             maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
                             findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
-                            drawFarAgents=DRAW_FAR_AGENTS):
+                            drawFarAgents=DRAW_FAR_AGENTS, showAgentColors=SHOW_AGENT_COLORS):
         numAgents = self.recorder.getNumAgents()
         super().initializeAgentList(numAgents=numAgents)
 

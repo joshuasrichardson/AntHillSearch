@@ -7,10 +7,6 @@ from phases.AssessPhase import AssessPhase
 from phases.ExplorePhase import ExplorePhase
 
 
-# TODO: Consider separating the probability of changing states in different phases
-#  (i.e. SEARCH -> AT_NEST in COMMIT_PHASE is less likely than SEARCH -> AT_NEST in EXPLORE_PHASE or something like that)
-
-
 class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
     phases and states"""
@@ -20,16 +16,19 @@ class Agent:
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION,
                  maxSearchDistance=MAX_SEARCH_DIST, findAssignedSiteEasily=FIND_SITES_EASILY,
-                 commitSpeedFactor=COMMIT_SPEED_FACTOR, drawFarAgents=DRAW_FAR_AGENTS):
+                 commitSpeedFactor=COMMIT_SPEED_FACTOR, drawFarAgents=DRAW_FAR_AGENTS,
+                 showAgentColors=SHOW_AGENT_COLORS):
         self.world = world  # The colony the agent lives in
 
         self.prevPos = startingPosition  # Initial position
         self.pos = startingPosition  # Initial position
+        self.path = []
         self.agentHandle = pygame.image.load(AGENT_IMAGE)  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
         self.drawFarAgents = drawFarAgents  # Whether the agent is drawn when it is not by the hub
+        self.showAgentColors = showAgentColors
 
         self.homogenousAgents = homogenousAgents  # Whether all the agents have the same attributes (if false, their attributes vary)
         self.findAssignedSiteEasily = findAssignedSiteEasily
@@ -52,9 +51,10 @@ class Agent:
 
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
+        self.estimatedAgentCount = self.getHub().agentCount
+        self.estimatedRadius = self.getHub().radius
         self.assignedSiteLastKnownPos = self.assignedSite.getPosition()
         self.estimatedSitePosition = self.assignedSite.getPosition()
-        print(self.estimatedSitePosition)
 
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
         self.knownSitesPositions = [self.getHub().getPosition()]
@@ -133,6 +133,11 @@ class Agent:
         else:
             return self.recruitSiteLastKnownPos
 
+    def updatePath(self):
+        self.path.append(self.pos)
+        if len(self.path) > 50:
+            self.path.pop(0)
+
     def getHub(self):
         return self.world.getHub()
 
@@ -142,21 +147,29 @@ class Agent:
     def incrementFollowers(self):
         self.numFollowers += 1
 
+    def drawPath(self, surface):
+        color = SCREEN_COLOR
+        for pos in self.path:
+            color = color[0] - 1,  color[1] - 1, color[2] - 1
+            pygame.draw.circle(surface, color, pos, 8)
+
     def drawAgent(self, surface):
-        if self.drawFarAgents or self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST):
+        if not self.drawFarAgents and self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST):
+            self.drawPath(surface)
+        if self.drawFarAgents or self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST):
             if self.isTheSelected:
-                pygame.draw.circle(self.world.screen, THE_SELECTED_COLOR, self.pos, 15, 0)
+                pygame.draw.circle(surface, THE_SELECTED_COLOR, self.pos, 15, 0)
             if self.isSelected:
-                pygame.draw.circle(self.world.screen, SELECTED_COLOR, self.pos, 12, 0)
+                pygame.draw.circle(surface, SELECTED_COLOR, self.pos, 12, 0)
             surface.blit(self.agentHandle, self.agentRect)
 
-            if SHOW_AGENT_COLORS:
+            if self.showAgentColors:
                 pygame.draw.ellipse(surface, self.state.getColor(), self.agentRect, 4)
                 pygame.draw.ellipse(surface, self.phase.getColor(), self.agentRect, 2)
 
             if SHOW_ESTIMATED_QUALITY:
                 img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
-                self.world.screen.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
+                surface.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
 
     def isClose(self, position, distance):
         from math import isclose
@@ -173,10 +186,15 @@ class Agent:
     def estimateQuality(self, site):
         return site.getQuality() + \
             (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
-        # TODO: Make a bell curve instead of even distribution?
 
     def estimateAgentCount(self, site):
-        return site.agentCount  # TODO: Actually estimate.
+        return site.agentCount
+
+    def estimateRadius(self, site):
+        estimate = site.radius + ((self.estimationAccuracy / 4) if random.randint(0, 2) == 1 else (-(self.estimationAccuracy / 4)))
+        if estimate < 0:
+            estimate = 1
+        return estimate
 
     def addToKnownSites(self, site):
         if not self.knownSites.__contains__(site):
@@ -198,7 +216,9 @@ class Agent:
                 site.getPosition()[1] != self.assignedSite.getPosition()[1]:
             self.setPhase(AssessPhase())
             self.estimatedQuality = self.estimateQuality(site)
-            self.estimateSitePosition(site)
+            self.estimatedAgentCount = self.estimateAgentCount(site)
+            self.estimatedRadius = self.estimateRadius(site)
+            self.estimatedSitePosition = self.estimateSitePosition(site)
         else:
             self.estimateSitePositionMoreAccurately()
         self.assignedSite = site
@@ -209,12 +229,12 @@ class Agent:
 
     def estimateSitePosition(self, site):
         if not self.world.hubCanMove and site is self.getHub():
-            self.estimatedSitePosition = self.getHub().getPosition()
+            estimatedSitePosition = self.getHub().getPosition()
         else:
-            self.estimatedSitePosition = site.getPosition().copy()
-            self.estimatedSitePosition[0] = site.getPosition()[0] + random.randint(-100, 100)
-            self.estimatedSitePosition[1] = site.getPosition()[1] + random.randint(-100, 100)
-        return self.estimatedSitePosition
+            estimatedSitePosition = site.getPosition().copy()
+            estimatedSitePosition[0] = site.getPosition()[0] + random.randint(-100, 100)
+            estimatedSitePosition[1] = site.getPosition()[1] + random.randint(-100, 100)
+        return estimatedSitePosition
 
     def estimateSitePositionMoreAccurately(self):
         if self.estimatedSitePosition[0] != self.getAssignedSitePosition()[0]:

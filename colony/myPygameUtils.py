@@ -64,6 +64,19 @@ def drawDashedLine(surface, color, startPos, endPos, width=1, dashLength=10, exc
             for n in range(int(excludeCorners), numDashes - int(excludeCorners), 2)]
 
 
+def getBlurredImage(surface, amount):
+    """ Blur the given surface by the given 'amount'.  Only values 1 and greater
+    are valid.  Value 1 = no blur. """
+    if amount < 1.0:
+        raise ValueError("Arg 'amount' must be greater than 1.0, passed in value is %s" % amount)
+    scale = 1.0 / float(amount)
+    surfSize = surface.get_size()
+    scaleSize = (int(surfSize[0] * scale), int(surfSize[1] * scale))
+    surf = pygame.transform.smoothscale(surface, scaleSize)
+    surf = pygame.transform.smoothscale(surf, surfSize)
+    return surf
+
+
 # def blitRotate(surf, image, pos, originPos, angle):
 #
 #     # calcaulate the axis aligned bounding box of the rotated image

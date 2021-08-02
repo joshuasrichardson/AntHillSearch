@@ -1,10 +1,8 @@
 """ Colony Simulation Environment """
 import datetime
 import threading
-import sys
-sys.path.append("")
 from colony.ColonyExceptions import *
-from colony.AbstractColonySimulation import AbstractColonySimulation
+from colony.simulation.AbstractColonySimulation import AbstractColonySimulation
 from colony.Agents import *
 from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
@@ -35,10 +33,11 @@ class ColonySimulation(AbstractColonySimulation):
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                         siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True,
-                        knowSitePosAtStart=KNOW_SITE_POS_AT_START, hubCanMove=HUB_CAN_MOVE):
+                        knowSitePosAtStart=KNOW_SITE_POS_AT_START, hubCanMove=HUB_CAN_MOVE,
+                        shouldDrawPaths=SHOULD_DRAW_PATHS):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
                       siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart,
-                      hubCanMove)
+                      hubCanMove, shouldDrawPaths)
         return world
 
     def initializeRequest(self):
@@ -94,8 +93,10 @@ class ColonySimulation(AbstractColonySimulation):
                     if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
                         sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
                                                        agent.estimateQuality(sites[siteIndex]),
-                                                       agent.estimateAgentCount(sites[siteIndex])])
+                                                       agent.estimateAgentCount(sites[siteIndex]),
+                                                       agent.estimateRadius(sites[siteIndex])])
             agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
+            agent.assignedSite.updateBlur()
 
     def updateRestAPI(self):
         now = datetime.datetime.now()

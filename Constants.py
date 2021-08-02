@@ -33,6 +33,8 @@ USE_REST_API = False  # Whether the simulation sends information about the hub t
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
+# Having this false makes the simulation faster because the paths do not have to be drawn on the screen so much.
+SHOULD_DRAW_PATHS = False
 # Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
 SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
@@ -62,9 +64,9 @@ BORDER_COLOR = 115, 110, 80  # Dark Brown
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = None  # Location of the hub, when it is set to None, it is put in the middle of the screen
-HUB_OBSERVE_DIST = 50  # The farthest distance agents can be seen from the hub
+HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outside edge of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
-SITE_RADIUS = 20  # The default radius of the sites.
+SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.

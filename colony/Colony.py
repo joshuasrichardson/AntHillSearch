@@ -4,32 +4,31 @@ February 2019
 Joshua Richardson
 Summer 2021 """
 
-from ColonySimulation import *
-from colony.EmpiricalTestingInterface import EmpiricalTestingInterface
-from colony.EngineerInferface import EngineerInterface
-from colony.UserInterface import UserInterface
+import sys
+sys.path.append("")
+
+from colony.simulation.ColonySimulation import *
+from colony.simulation.EngineerInferface import EngineerInterface
+from colony.simulation.UserInterface import UserInterface
+from colony.simulation.EmpiricalTestingInterface import EmpiricalTestingInterface
 from recording.RecordingPlayer import RecordingPlayer
-from states.AtNestState import AtNestState
 
 
-# TODO: Estimate site radii
-# TODO: Display the estimated position of sites as a smear that grow more clear as it is visited more
-# TODO: Make a path where the agents have been that evaporates over time
-# TODO: Update the README.md file.
+# TODO: Update the README.md file, add more comments throughout the code, and refactor a bunch.
 
 
 def main():
     try:
         # colony = ColonySimulation()
-        colony = EngineerInterface()
-        # colony = UserInterface()
+        # colony = EngineerInterface()
+        colony = UserInterface()
         # colony = EmpiricalTestingInterface()  # TODO: Make it so you don't have to start RestAPI separately from this program
 
         # RecordingPlayer does not take any parameters, because all the positions, assignments, states, etc. are set by the recording.json file.
         # colony = RecordingPlayer()
 
         # (numAgents, state, phase, siteIndex)
-        # colony.addAgents(20, AtNestState, AssessPhase(), 2)
+        # colony.addAgents(20, AtNestState, AssessPhase(), 1)
 
         colony.initializeAgentList()
 

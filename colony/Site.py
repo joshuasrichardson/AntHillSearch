@@ -4,7 +4,7 @@ import pygame as pyg
 from pygame.rect import Rect
 
 from Constants import *
-from colony.myPygameUtils import drawCircleLines, drawDashedLine
+from colony.myPygameUtils import drawCircleLines, drawDashedLine, getBlurredImage
 
 
 class Site:
@@ -41,6 +41,10 @@ class Site:
         self.estimatedPosition = None
         self.estimatedQuality = None
         self.estimatedAgentCount = None
+        self.estimatedRadius = None
+
+        self.blurAmount = 8
+        self.blurRadiusDiff = 10
 
     def setQuality(self, quality):
         if quality is None:
@@ -81,36 +85,63 @@ class Site:
             self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
 
     def drawMarker(self):
+        # Draw a marker on the screen representing the command that will be applied to agents that come to the site
         if self.marker is not None:
+            # Draw a dashed line from the site to the marker
             drawDashedLine(self.screen, BORDER_COLOR, self.pos, self.marker[1].center)
+            # Draw the marker
             self.screen.blit(self.marker[0], self.marker[1])
 
     def setEstimates(self, est):
         self.estimatedPosition = est[0]
         self.estimatedQuality = est[1]
         self.estimatedAgentCount = est[2]
+        self.estimatedRadius = est[3]
 
     def drawEstimatedSite(self):
+        # Only draw the site if it has been found, or if the site positions are all known at the start of the simulation
         if self.wasFound or self.knowSitePosAtStart:
             self.drawMarker()
-            pyg.draw.circle(self.screen, BORDER_COLOR, self.estimatedPosition, self.radius + 2, 0)
-            if self.quality == -1:
-                color = 0, 0, 0
-                self.estimatedQuality = -1
-            elif self.estimatedQuality < 0:
-                color = 255, 0, 0
-                self.estimatedQuality = 0
-            elif self.estimatedQuality > 255:
-                color = 0, 255, 0
-            else:
-                color = 255 - self.estimatedQuality, self.estimatedQuality, 0
+            # Draw a background behind the site to make it blend with the screen better
+            self.drawBlurredSite(self.estimatedPosition, BORDER_COLOR, self.radius * 4,
+                                 self.estimatedRadius + self.blurRadiusDiff + 2, self.blurAmount + 0.7)
+
             if self.isSelected:
-                pyg.draw.circle(self.screen, SELECTED_COLOR, self.estimatedPosition, self.radius + 2, 0)
-            # TODO: Estimate the radius as well
-            siteRect = pyg.draw.circle(self.screen, color, self.estimatedPosition, SITE_RADIUS, 0)
-            drawCircleLines(self.screen, siteRect, BORDER_COLOR, Site.getDensity(self.estimatedQuality))
-            img = pyg.font.SysFont('Comic Sans MS', 12).render(str(self.estimatedAgentCount), True, (0, 0, 0))
-            self.screen.blit(img, (self.estimatedPosition[0] - (img.get_width() / 2), self.estimatedPosition[1] - (SITE_RADIUS + 20), 15, 10))
+                self.drawBlurredSite(self.estimatedPosition, SELECTED_COLOR, self.radius * 4,
+                                     self.estimatedRadius + self.blurRadiusDiff + 2, self.blurAmount)
+
+            color = self.getEstimatedColor()
+            self.drawBlurredSiteWithLines(self.estimatedPosition, color, self.radius * 4,
+                                          self.estimatedRadius + self.blurRadiusDiff, self.blurAmount)
+
+            img = pyg.font.SysFont('Comic Sans MS', 12).render(str(int(self.estimatedAgentCount)), True, BORDER_COLOR)
+            self.screen.blit(img, (self.estimatedPosition[0] - (img.get_width() / 2),
+                                   self.estimatedPosition[1] - (self.estimatedRadius + self.blurRadiusDiff + 24), 15, 10))
+
+    def drawBlurredSite(self, pos, color, size, radius, blurAmount):
+        image = pyg.Surface([size, size], pyg.SRCALPHA, 32)
+        image = image.convert_alpha()
+        pyg.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
+        blur = getBlurredImage(image, blurAmount)
+        self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2), 15, 10))
+
+    def drawBlurredSiteWithLines(self, pos, color, size, radius, blurAmount):
+        image = pyg.Surface([size, size], pyg.SRCALPHA, 32)
+        image = image.convert_alpha()
+        siteRect = pyg.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
+        drawCircleLines(image, siteRect, BORDER_COLOR, Site.getDensity(self.estimatedQuality))
+        blur = getBlurredImage(image, blurAmount)
+        self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2), 15, 10))
+
+    def updateBlur(self):
+        if self.blurAmount > 1.05:
+            self.blurAmount -= 0.05
+        elif self.blurAmount > 1:
+            self.blurAmount = 1
+        if self.blurRadiusDiff > 0.05:
+            self.blurRadiusDiff -= 0.05
+        elif self.blurRadiusDiff > 0:
+            self.blurRadiusDiff = 0
 
     @staticmethod
     def getDensity(quality):
@@ -135,6 +166,19 @@ class Site:
 
     def getColor(self):
         return self.color
+
+    def getEstimatedColor(self):
+        if self.quality == -1:
+            color = 0, 0, 0
+            self.estimatedQuality = -1
+        elif self.estimatedQuality < 0:
+            color = 255, 0, 0
+            self.estimatedQuality = 0
+        elif self.estimatedQuality > 255:
+            color = 0, 255, 0
+        else:
+            color = 255 - self.estimatedQuality, self.estimatedQuality, 0
+        return color
 
     def getSiteRect(self):
         return self.siteRect

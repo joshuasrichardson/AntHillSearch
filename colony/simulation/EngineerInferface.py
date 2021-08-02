@@ -1,9 +1,9 @@
 from Constants import *
-from colony.ColonySimulation import ColonySimulation
+from colony.simulation.ColonySimulation import ColonySimulation
 from colony.World import World
 
 
-class UserInterface(ColonySimulation):
+class EngineerInterface(ColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
     def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, useRestAPI=USE_REST_API,
@@ -11,17 +11,17 @@ class UserInterface(ColonySimulation):
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
-                 knowSitePosAtStart=False, canSelectAnywhere=False, hubCanMove=False):
+                 knowSitePosAtStart=True, canSelectAnywhere=True, hubCanMove=True):
         super().__init__(simulationDuration, numSites, useRestAPI, shouldRecord, shouldDraw, convergenceFraction,
                          hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
                          siteNoCloserThan, siteNoFartherThan, knowSitePosAtStart, canSelectAnywhere, hubCanMove)
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                         siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True,
-                        knowSitePosAtStart=False, hubCanMove=False):
+                        knowSitePosAtStart=True, hubCanMove=True, shouldDrawPaths=SHOULD_DRAW_PATHS):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, False,
-                      True, False)
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw,
+                      knowSitePosAtStart, False, hubCanMove, shouldDrawPaths)
         return world
 
     def initializeAgentList(self, numAgents=NUM_AGENTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
@@ -29,7 +29,7 @@ class UserInterface(ColonySimulation):
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                             maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
                             findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
-                            drawFarAgents=False):
+                            drawFarAgents=True, showAgentColors=True):
         super().initializeAgentList(numAgents, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                                     minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist,
-                                    findSitesEasily, commitSpeedFactor, drawFarAgents)
+                                    findSitesEasily, commitSpeedFactor, drawFarAgents, showAgentColors)

@@ -1,14 +1,13 @@
 import threading
 from abc import ABC, abstractmethod
-from multiprocessing import Process
 
 import pygame
 
 from Constants import *
 from colony.Agents import Agent
 from colony.ColonyExceptions import InputError, GameOver
-from colony.SimulationGraphs import SimulationGraphs
-from colony.SimulationTimer import SimulationTimer
+from colony.Graphs import SimulationGraphs
+from colony.Timer import SimulationTimer
 from colony.myPygameUtils import createScreen
 from recording.Recorder import Recorder
 from states.AtNestState import AtNestState
@@ -45,7 +44,8 @@ class AbstractColonySimulation(ABC):
 
     @abstractmethod
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, hubCanMove):
+                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, hubCanMove,
+                        shouldDrawPaths):
         pass
 
     def setAgentList(self, agents):
@@ -56,13 +56,13 @@ class AbstractColonySimulation(ABC):
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                             maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
                             findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
-                            drawFarAgents=DRAW_FAR_AGENTS):
+                            drawFarAgents=DRAW_FAR_AGENTS, showAgentColors=SHOW_AGENT_COLORS):
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 0 and " + str(MAX_AGENTS), numAgents)
         for i in range(0, numAgents):
             agent = Agent(self.world, self.world.getHub(), homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation, maxSearchDist,
-                          findSitesEasily, commitSpeedFactor, drawFarAgents)
+                          findSitesEasily, commitSpeedFactor, drawFarAgents, showAgentColors)
             agent.setState(AtNestState(agent))
             self.world.agentList.append(agent)
             self.world.agentGroups[i % 10].append(agent)
@@ -106,12 +106,15 @@ class AbstractColonySimulation(ABC):
         self.report(agentRectList)
 
     def draw(self):
+        self.world.drawWorldObjects()
+        self.drawGraphs()
+        self.userControls.drawChanges()
+        pygame.display.flip()
+
+    def drawGraphs(self):
         self.graphs.drawStateGraph(self.world.states)
         self.graphs.drawPhaseGraph(self.world.phases)
         self.graphs.drawPredictionsGraph(self.world.siteList)
-        self.world.drawWorldObjects()
-        self.userControls.drawChanges()
-        pygame.display.flip()
 
     def setNextRound(self):
         pass
@@ -123,8 +126,7 @@ class AbstractColonySimulation(ABC):
         for agent in self.world.agentList:
             try:
                 self.updateAgent(agent, agentRectList)
-                if self.shouldDraw:
-                    agent.drawAgent(self.screen)
+                self.world.updatePaths(agent)
             except IndexError:
                 self.world.removeAgent(agent)
 

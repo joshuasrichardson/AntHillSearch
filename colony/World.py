@@ -9,7 +9,7 @@ class World:
 
     def __init__(self, numSites, screen, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
                  siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, drawEstimates=DRAW_ESTIMATES,
-                 hubCanMove=HUB_CAN_MOVE):
+                 hubCanMove=HUB_CAN_MOVE, shouldDrawPaths=SHOULD_DRAW_PATHS):
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
         self.hubCanMove = hubCanMove
         self.hubLocation = hubLocation  # Where the agents' original home is located
@@ -30,6 +30,7 @@ class World:
         self.sitesRadii = siteRadii  # A list of the radius of each site
         self.screen = screen  # The screen to draw the simulation on
         self.drawEstimates = drawEstimates
+        self.shouldDrawPaths = shouldDrawPaths
 
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -39,6 +40,7 @@ class World:
         self.createSites(numSites)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
+        self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.hub = self.createHub()  # The agents' original home
         self.request = None  # The request, used to sent information to a rest API
@@ -176,10 +178,22 @@ class World:
         if self.states[GO] == 0:
             self.marker = None
 
+    def updatePaths(self, agent):
+        if self.shouldDrawPaths:
+            self.paths.append(agent.getPosition())
+            if len(self.paths) > 50 * len(self.agentList):
+                for i in range(len(self.agentList)):
+                    self.paths.pop(0)
+        else:
+            agent.updatePath()
+
     def setMarker(self, marker):
         self.marker = marker
 
     def drawWorldObjects(self):
+        if self.shouldDrawPaths:
+            self.drawPaths()
+        self.drawAgents()
         if self.drawEstimates:
             for siteIndex in range(0, len(self.siteList)):
                 self.siteList[siteIndex].drawEstimatedSite()
@@ -187,6 +201,17 @@ class World:
             for siteIndex in range(0, len(self.siteList)):
                 self.siteList[siteIndex].drawSite()
         self.drawMarker()
+
+    def drawPaths(self):
+        color = SCREEN_COLOR
+        for posIndex, pos in enumerate(self.paths):
+            if posIndex % len(self.agentList) == 0:
+                color = color[0] - 1,  color[1] - 1, color[2] - 1
+            pyg.draw.circle(self.screen, color, pos, 8)
+
+    def drawAgents(self):
+        for agent in self.agentList:
+            agent.drawAgent(self.screen)
 
     def drawMarker(self):
         if self.marker is not None:

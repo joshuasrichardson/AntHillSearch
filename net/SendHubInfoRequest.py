@@ -40,6 +40,8 @@ class SendHubInfoRequest:
         self.sitesPreviousNQualities = []
         self.numAgentsAtSites = []
         self.previousNumAgentsAtSites = []
+        self.sitesRadii = []
+        self.sitesPreviousNRadii = []
 
     def addAgent(self, agent):
         self.agentPhases.append(agent.getPhaseNumber())
@@ -128,10 +130,13 @@ class SendHubInfoRequest:
             self.sitesPreviousNQualities.append([agent.estimatedQuality])
             self.numAgentsAtSites.append(agent.assignedSite.agentCount)
             self.previousNumAgentsAtSites.append([agent.assignedSite.agentCount])
+            self.sitesRadii.append(agent.estimatedRadius)
+            self.sitesPreviousNRadii.append([agent.estimatedRadius])
 
             return self.sitesEstimatedPositions[len(self.sitesEstimatedPositions) - 1], \
                 self.sitesQualities[len(self.sitesQualities) - 1], \
-                self.numAgentsAtSites[len(self.numAgentsAtSites) - 1]
+                self.numAgentsAtSites[len(self.numAgentsAtSites) - 1], \
+                self.sitesRadii[len(self.sitesRadii) - 1]
         else:
             siteIndex = 0
             for i in range(0, len(self.sitesPositions)):
@@ -142,10 +147,12 @@ class SendHubInfoRequest:
             self.updateSitePosition(siteIndex, agent.estimatedSitePosition)
             self.updateSiteQuality(siteIndex, agent.estimatedQuality)
             self.updateSiteNumAgents(siteIndex, agent.assignedSite.agentCount)
+            self.updateSiteRadius(siteIndex, agent.estimatedRadius)
 
             return self.sitesEstimatedPositions[siteIndex], \
                 self.sitesQualities[siteIndex], \
-                self.numAgentsAtSites[siteIndex]
+                self.numAgentsAtSites[siteIndex], \
+                self.sitesRadii[siteIndex]
 
     def siteIsNew(self, sitePosition):
         for sitePos in self.sitesPositions:
@@ -162,11 +169,19 @@ class SendHubInfoRequest:
 
     def updateSiteQuality(self, siteIndex, estimatedQuality):
         self.sitesPreviousNQualities[siteIndex].append(estimatedQuality)
-        n = 10
-        self.sitesQualities[siteIndex] = self.getAverageOfLastNEstimates(n, siteIndex)
+        n = 50
+        self.sitesQualities[siteIndex] = self.getAverageOfLastNQualities(n, siteIndex)
 
-    def getAverageOfLastNEstimates(self, n, siteIndex):
+    def getAverageOfLastNQualities(self, n, siteIndex):
         return self.getAverageOfLastN(n, siteIndex, self.sitesPreviousNQualities)
+
+    def updateSiteRadius(self, siteIndex, estimatedRadius):
+        self.sitesPreviousNRadii[siteIndex].append(estimatedRadius)
+        n = 80
+        self.sitesRadii[siteIndex] = self.getAverageOfLastNRadii(n, siteIndex)
+
+    def getAverageOfLastNRadii(self, n, siteIndex):
+        return self.getAverageOfLastN(n, siteIndex, self.sitesPreviousNRadii)
 
     def updateSiteNumAgents(self, siteIndex, agentCount):
         self.previousNumAgentsAtSites[siteIndex].append(agentCount)
@@ -223,7 +238,8 @@ class SendHubInfoRequest:
 
                 'sitesPositions': self.sitesPositions,
                 'sitesQualities': self.sitesQualities,
-                'numAgentsAtSites': self.numAgentsAtSites}
+                'numAgentsAtSites': self.numAgentsAtSites,
+                'sitesRadii': self.sitesRadii}
 
     @staticmethod
     def sendResults(chosenSite, simulationTime):

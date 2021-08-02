@@ -122,43 +122,44 @@ class SimulationGraphs:
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):
-        if self.canSelectAnywhere:
+        if self.shouldDrawGraphs:
+            if self.canSelectAnywhere:
+                self.y = GRAPHS_TOP_LEFT[1]
+                selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
+                img = self.font.render("Select Agents:", True, WORDS_COLOR)
+                self.screen.blit(img, (self.x2, self.y))
+                pygame.draw.rect(self.screen, selectAgentsColor, self.selectAgentsRect)
+
+                self.incrementY()
+                selectSitesColor = self.getShouldSelectColor(shouldSelectSites)
+                img = self.font.render("Select Sites:", True, WORDS_COLOR)
+                self.screen.blit(img, (self.x2, self.y))
+                pygame.draw.rect(self.screen, selectSitesColor, self.selectSitesRect)
+
+                self.incrementY()
+                selectAgentsSitesColor = self.getShouldSelectColor(shouldSelectAgentSites)
+                img = self.font.render("Select Agents Sites:", True, WORDS_COLOR)
+                self.screen.blit(img, (self.x2, self.y))
+                pygame.draw.rect(self.screen, selectAgentsSitesColor, self.selectAgentsSitesRect)
+
+                self.incrementY()
+                selectSitesAgentsColor = self.getShouldSelectColor(shouldSelectSiteAgents)
+                img = self.font.render("Select Sites Agents:", True, WORDS_COLOR)
+                self.screen.blit(img, (self.x2, self.y))
+                pygame.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
+
             self.y = GRAPHS_TOP_LEFT[1]
-            selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
-            img = self.font.render("Select Agents:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x2, self.y))
-            pygame.draw.rect(self.screen, selectAgentsColor, self.selectAgentsRect)
-
-            self.incrementY()
-            selectSitesColor = self.getShouldSelectColor(shouldSelectSites)
-            img = self.font.render("Select Sites:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x2, self.y))
-            pygame.draw.rect(self.screen, selectSitesColor, self.selectSitesRect)
-
-            self.incrementY()
-            selectAgentsSitesColor = self.getShouldSelectColor(shouldSelectAgentSites)
-            img = self.font.render("Select Agents Sites:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x2, self.y))
-            pygame.draw.rect(self.screen, selectAgentsSitesColor, self.selectAgentsSitesRect)
-
-            self.incrementY()
-            selectSitesAgentsColor = self.getShouldSelectColor(shouldSelectSiteAgents)
-            img = self.font.render("Select Sites Agents:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x2, self.y))
-            pygame.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
-
-        self.y = GRAPHS_TOP_LEFT[1]
-        commandSiteAgentsColor = self.getShouldSelectColor(commandSiteAgents)
-        img = self.font.render("Command Site Agents:", True, WORDS_COLOR)
-        self.screen.blit(img, (self.x4, self.y))
-        pygame.draw.rect(self.screen, commandSiteAgentsColor, self.commandSiteAgentsRect)
-
-        if paused:
-            self.incrementY()
-            showOptionsColor = self.getShouldSelectColor(shouldShowOptions)
-            img = self.font.render("Show Options:", True, WORDS_COLOR)
+            commandSiteAgentsColor = self.getShouldSelectColor(commandSiteAgents)
+            img = self.font.render("Command Site Agents:", True, WORDS_COLOR)
             self.screen.blit(img, (self.x4, self.y))
-            pygame.draw.rect(self.screen, showOptionsColor, self.showOptionsRect)
+            pygame.draw.rect(self.screen, commandSiteAgentsColor, self.commandSiteAgentsRect)
+
+            if paused:
+                self.incrementY()
+                showOptionsColor = self.getShouldSelectColor(shouldShowOptions)
+                img = self.font.render("Show Options:", True, WORDS_COLOR)
+                self.screen.blit(img, (self.x4, self.y))
+                pygame.draw.rect(self.screen, showOptionsColor, self.showOptionsRect)
 
     def collidesWithSelectAgentsButton(self, position):
         return self.selectAgentsRect.collidepoint(position[0], position[1])
