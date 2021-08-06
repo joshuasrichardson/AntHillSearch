@@ -79,7 +79,18 @@ class Site:
             self.siteRect = pyg.draw.circle(self.screen, self.color, self.pos, self.radius, 0)
             drawCircleLines(self.screen, self.siteRect, BORDER_COLOR, self.getDensity(self.quality))
             img = pyg.font.SysFont('Comic Sans MS', 12).render(str(self.agentCount), True, BORDER_COLOR)
-            self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20), 15, 10))
+            self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (self.radius + 20)))
+            if self.isSelected:
+                self.drawQuality()
+
+    def drawQuality(self):
+        img = pyg.font.SysFont('Comic Sans MS', 15).render("MM", True, WORDS_COLOR)
+        rect = img.get_rect()
+        pyg.draw.rect(img, SCREEN_COLOR, rect)
+        pyg.draw.rect(img, BORDER_COLOR, rect, 1)
+        words = pyg.font.SysFont('Comic Sans MS', 12).render(str(self.quality), True, WORDS_COLOR)
+        img.blit(words, [((img.get_width() / 2) - (words.get_width() / 2)), ((img.get_height() / 2) - (words.get_height() / 2))])
+        self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (img.get_height() / 2)))
 
     def drawMarker(self):
         # Draw a marker on the screen representing the command that will be applied to agents that come to the site
@@ -113,14 +124,14 @@ class Site:
 
             img = pyg.font.SysFont('Comic Sans MS', 12).render(str(int(self.estimatedAgentCount)), True, BORDER_COLOR)
             self.screen.blit(img, (self.estimatedPosition[0] - (img.get_width() / 2),
-                                   self.estimatedPosition[1] - (self.estimatedRadius + self.blurRadiusDiff + 24), 15, 10))
+                                   self.estimatedPosition[1] - (self.estimatedRadius + self.blurRadiusDiff + 24)))
 
     def drawBlurredSite(self, pos, color, size, radius, blurAmount):
         image = pyg.Surface([size, size], pyg.SRCALPHA, 32)
         image = image.convert_alpha()
         pyg.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
         blur = getBlurredImage(image, blurAmount)
-        self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2), 15, 10))
+        self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
 
     def drawBlurredSiteWithLines(self, pos, color, size, radius, blurAmount):
         image = pyg.Surface([size, size], pyg.SRCALPHA, 32)
@@ -128,7 +139,7 @@ class Site:
         siteRect = pyg.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
         drawCircleLines(image, siteRect, BORDER_COLOR, Site.getDensity(self.estimatedQuality))
         blur = getBlurredImage(image, blurAmount)
-        self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2), 15, 10))
+        self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
 
     def updateBlur(self):
         if self.blurAmount > 1.05:

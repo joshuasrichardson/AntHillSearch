@@ -60,10 +60,8 @@ class Controls:
     def drawChanges(self):
         if self.selectedAgent is not None:
             self.graphs.drawSelectedAgentInfo(self.selectedAgent)
-        if self.selectedSite is not None:
-            self.graphs.drawSelectedSiteInfo(self.selectedSite, self.selectedSitesAgentsPositions)
-            if self.shouldDrawQuality:
-                self.world.drawPotentialQuality(self.potentialQuality)
+        if self.selectedSite is not None and self.shouldDrawQuality:
+            self.world.drawPotentialQuality(self.potentialQuality)
         if self.selectRectCorner is not None:
             self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())
         self.graphs.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents,

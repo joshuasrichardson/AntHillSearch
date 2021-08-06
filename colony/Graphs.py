@@ -102,25 +102,6 @@ class SimulationGraphs:
             self.incrementY()
             self.incrementY()
 
-    def drawSelectedSiteInfo(self, site, agentsPositions):
-        if self.shouldDrawGraphs:
-            top = self.y + 8
-
-            attributes = ["SELECTED SITE:",
-                          "Position: " + str(site.getPosition()),
-                          "Quality: " + str(site.getQuality()),
-                          "Agent Count: " + str(site.agentCount),
-                          "Agents' Positions: "]
-
-            for position in agentsPositions:
-                attributes.append(str(position))
-
-            for i, attribute in enumerate(attributes):
-                self.incrementY()
-                self.write(attribute)
-
-            pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * len(attributes) + 13), 1)
-
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):
         if self.shouldDrawGraphs:
