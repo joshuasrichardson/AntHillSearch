@@ -5,7 +5,7 @@ from Constants import *
 
 class SimulationGraphs:
 
-    def __init__(self, screen, canSelectAnywhere=CAN_SELECT_ANYWHERE):
+    def __init__(self, screen, canSelectAnywhere=DRAW_FAR_AGENTS):
         self.screen = screen
         self.canSelectAnywhere = canSelectAnywhere
 
@@ -105,15 +105,15 @@ class SimulationGraphs:
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):
         if self.shouldDrawGraphs:
+            self.y = GRAPHS_TOP_LEFT[1]
+            self.write2("Select Agents:")
+            self.drawSelectBox(shouldSelectAgents, self.selectAgentsRect)
+
+            self.incrementY()
+            self.write2("Select Sites:")
+            self.drawSelectBox(shouldSelectSites, self.selectSitesRect)
+
             if self.canSelectAnywhere:
-                self.y = GRAPHS_TOP_LEFT[1]
-                self.write2("Select Agents:")
-                self.drawSelectBox(shouldSelectAgents, self.selectAgentsRect)
-
-                self.incrementY()
-                self.write2("Select Sites:")
-                self.drawSelectBox(shouldSelectSites, self.selectSitesRect)
-
                 self.incrementY()
                 self.write2("Select Agents Sites:")
                 self.drawSelectBox(shouldSelectAgentSites, self.selectAgentsSitesRect)

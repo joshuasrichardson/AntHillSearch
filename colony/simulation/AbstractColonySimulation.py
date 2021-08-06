@@ -21,8 +21,8 @@ class AbstractColonySimulation(ABC):
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
-                 siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=KNOW_SITE_POS_AT_START,
-                 canSelectAnywhere=CAN_SELECT_ANYWHERE, hubCanMove=HUB_CAN_MOVE):
+                 siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=DRAW_ESTIMATES,
+                 canSelectAnywhere=DRAW_FAR_AGENTS, hubCanMove=HUB_CAN_MOVE):
 
         self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
         self.graphs = SimulationGraphs(self.screen, canSelectAnywhere)
@@ -57,13 +57,13 @@ class AbstractColonySimulation(ABC):
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                             maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
                             findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
-                            drawFarAgents=DRAW_FAR_AGENTS, showAgentColors=SHOW_AGENT_COLORS):
+                            drawFarAgents=DRAW_FAR_AGENTS):
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 0 and " + str(MAX_AGENTS), numAgents)
         for i in range(0, numAgents):
             agent = Agent(self.world, self.world.getHub(), homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation, maxSearchDist,
-                          findSitesEasily, commitSpeedFactor, drawFarAgents, showAgentColors)
+                          findSitesEasily, commitSpeedFactor, drawFarAgents)
             agent.setState(AtNestState(agent))
             self.world.agentList.append(agent)
             self.world.agentGroups[i % 10].append(agent)

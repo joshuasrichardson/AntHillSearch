@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, HUB_OBSERVE_DIST
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
 from colony.PygameUtils import getDestinationMarker
@@ -78,11 +78,12 @@ class Controls:
     def handleEvent(self, event):
         if self.dragSite is not None:
             self.world.setSitePosition(self.dragSite, pygame.mouse.get_pos())
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.mouseUp(pygame.mouse.get_pos())
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.mouseDown(pygame.mouse.get_pos())
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE or\
+                event.type == pygame.MOUSEBUTTONUP and event.button == 3:
             self.go(pygame.mouse.get_pos())
             marker = getDestinationMarker(pygame.mouse.get_pos())
             self.setSelectedSitesCommand(self.goCommand, pygame.mouse.get_pos(), marker)
@@ -191,7 +192,7 @@ class Controls:
         self.dragSite = None
 
     def unselectAll(self):
-        self.world.marker = None
+        self.world.setMarker(None)
         self.selectedAgent = None
         self.selectedSite = None
         # Unselect all agents and sites
@@ -205,12 +206,9 @@ class Controls:
 
     def select(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        if self.graphs.canSelectAnywhere:
+        if self.graphs.canSelectAnywhere or self.getHubObserveRect().collidepoint(mousePos):
             self.selectAgent(mousePos)
             self.selectSite(mousePos)
-        elif self.world.getHub().getSiteRect().collidepoint(mousePos):
-            self.selectAgentsAtHub()
-            self.selectHub()
 
     def selectAgent(self, mousePos):
         selectedAgents = [a for a in self.agentList if a.getAgentRect().collidepoint(mousePos)]
@@ -253,12 +251,9 @@ class Controls:
         # get a list of all objects that are under the mouse cursor
         self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())
         agent = None
-        if self.graphs.canSelectAnywhere:
+        if self.graphs.canSelectAnywhere or self.selectRect.colliderect(self.getHubObserveRect()):
             agent = self.selectAgents()
             self.selectSites()
-        elif self.selectRect.colliderect(self.world.getHub().getSiteRect()):
-            agent = self.selectAgentsAtHub()
-            self.selectHub()
         if self.shouldSelectAgentSites:
             self.selectAgentsSite(agent)
 
@@ -312,23 +307,11 @@ class Controls:
 
         return None
 
-    def selectAgentsAtHub(self):
-        selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(self.world.getHub().getSiteRect())]
-        if self.shouldSelectAgents and len(selectedAgents) > 0:
-            self.selectedAgent = selectedAgents[0]
-            self.selectedAgent.select()
-            self.selectedAgent.isTheSelected = True
-            self.selectedAgents = selectedAgents
-            self.selectedAgentIndex = 0
-
-        return self.selectedAgent
-
-    def selectHub(self):
-        self.selectedSite = self.world.getHub()
-        self.selectedSite.select()
-        self.selectedSite.isTheSelected = True
-        self.selectedSites = [self.selectedSite]
-        self.selectedSiteIndex = 0
+    def getHubObserveRect(self):
+        hubRect = self.world.getHub().getSiteRect()
+        r = self.world.getHub().radius
+        return pygame.Rect(hubRect.left - (r + HUB_OBSERVE_DIST), hubRect.top - (r + HUB_OBSERVE_DIST),
+                           hubRect.width + ((r + HUB_OBSERVE_DIST) * 2), hubRect.height + ((r + HUB_OBSERVE_DIST) * 2))
 
     def selectSites(self):
         selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]

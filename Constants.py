@@ -35,12 +35,8 @@ SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assig
 SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
 # Having this false makes the simulation faster because the paths do not have to be drawn on the screen so much.
 SHOULD_DRAW_PATHS = True
-# Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
-SHOW_AGENT_COLORS = False  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
-
-KNOW_SITE_POS_AT_START = False  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
 
 CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
 
@@ -78,7 +74,7 @@ GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first g
 #                             The others all build off of that depending on what is being displayed.
 
 """ Agent parameters """
-AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
+AGENT_IMAGE = "resources/copter.png"  # The image that is displayed on the screen to represent an agent
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
 # Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.

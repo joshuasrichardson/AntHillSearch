@@ -20,7 +20,7 @@ class ColonySimulation(AbstractColonySimulation):
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
-                 knowSitePosAtStart=KNOW_SITE_POS_AT_START, canSelectAnywhere=CAN_SELECT_ANYWHERE, hubCanMove=HUB_CAN_MOVE):
+                 knowSitePosAtStart=DRAW_ESTIMATES, canSelectAnywhere=DRAW_FAR_AGENTS, hubCanMove=HUB_CAN_MOVE):
         super().__init__(simulationDuration, numSites, useRestAPI, shouldRecord, shouldDraw, convergenceFraction,
                          hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
                          siteNoCloserThan, siteNoFartherThan, knowSitePosAtStart, canSelectAnywhere, hubCanMove)
@@ -33,7 +33,7 @@ class ColonySimulation(AbstractColonySimulation):
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                         siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True,
-                        knowSitePosAtStart=KNOW_SITE_POS_AT_START, hubCanMove=HUB_CAN_MOVE,
+                        knowSitePosAtStart=DRAW_ESTIMATES, hubCanMove=HUB_CAN_MOVE,
                         shouldDrawPaths=SHOULD_DRAW_PATHS):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
                       siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart,

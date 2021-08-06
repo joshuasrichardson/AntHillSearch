@@ -177,7 +177,7 @@ class World:
             self.phases[COMMIT] = self.request.numCommit
 
         if self.states[GO] == 0:
-            self.marker = None
+            self.setMarker(None)
 
     def updatePaths(self, agent):
         if self.shouldDrawPaths:

@@ -10,7 +10,7 @@ from colony.PygameUtils import drawCircleLines, drawDashedLine, getBlurredImage
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
     def __init__(self, surface, hubLocation, x, y, radius, quality, siteNoCloserThan, siteNoFartherThan,
-                 knowSitePosAtStart=KNOW_SITE_POS_AT_START):
+                 knowSitePosAtStart=DRAW_ESTIMATES):
         """ randomly places site at a 2D location and assigns it a random state """
         self.screen = surface  # The screen on which the site is drawn
 
@@ -39,6 +39,7 @@ class Site:
         self.estimatedQuality = None
         self.estimatedAgentCount = None
         self.estimatedRadius = None
+        self.estimatedSiteRect = None
 
         self.blurAmount = INITIAL_BLUR
         self.blurRadiusDiff = INITIAL_BLUR
@@ -88,7 +89,7 @@ class Site:
         rect = img.get_rect()
         pyg.draw.rect(img, SCREEN_COLOR, rect)
         pyg.draw.rect(img, BORDER_COLOR, rect, 1)
-        words = pyg.font.SysFont('Comic Sans MS', 12).render(str(self.quality), True, WORDS_COLOR)
+        words = pyg.font.SysFont('Comic Sans MS', 12).render(str(int(self.quality)), True, WORDS_COLOR)
         img.blit(words, [((img.get_width() / 2) - (words.get_width() / 2)), ((img.get_height() / 2) - (words.get_height() / 2))])
         self.screen.blit(img, (self.pos[0] - (img.get_width() / 2), self.pos[1] - (img.get_height() / 2)))
 
@@ -99,6 +100,31 @@ class Site:
             drawDashedLine(self.screen, BORDER_COLOR, self.pos, self.marker[1].center)
             # Draw the marker
             self.screen.blit(self.marker[0], self.marker[1])
+
+    def drawAssignmentMarker(self, fromPos, color):
+        drawDashedLine(self.screen, color, fromPos, self.pos)
+        if self.knowSitePosAtStart:
+            self.drawAssignmentMarker2(self.siteRect, color)
+        else:
+            self.drawAssignmentMarker2(self.estimatedSiteRect, color)
+
+    def drawAssignmentMarker2(self, rect, color):
+        pyg.draw.polygon(self.screen, color,
+                         [[rect.centerx, rect.top - 5],
+                          [rect.centerx - 10, rect.top - 20],
+                          [rect.centerx + 10, rect.top - 20]])
+        pyg.draw.polygon(self.screen, color,
+                         [[rect.centerx, rect.bottom + 5],
+                          [rect.centerx - 10, rect.bottom + 20],
+                          [rect.centerx + 10, rect.bottom + 20]])
+        pyg.draw.polygon(self.screen, color,
+                         [[rect.left - 5, rect.centery],
+                          [rect.left - 20, rect.centery - 10],
+                          [rect.left - 20, rect.centery + 10]])
+        pyg.draw.polygon(self.screen, color,
+                         [[rect.right + 5, rect.centery],
+                          [rect.right + 20, rect.centery - 10],
+                          [rect.right + 20, rect.centery + 10]])
 
     def setEstimates(self, est):
         self.estimatedPosition = est[0]
@@ -136,10 +162,10 @@ class Site:
     def drawBlurredSiteWithLines(self, pos, color, size, radius, blurAmount):
         image = pyg.Surface([size, size], pyg.SRCALPHA, 32)
         image = image.convert_alpha()
-        siteRect = pyg.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
-        drawCircleLines(image, siteRect, BORDER_COLOR, Site.getDensity(self.estimatedQuality))
+        rect = pyg.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
+        drawCircleLines(image, rect, BORDER_COLOR, Site.getDensity(self.estimatedQuality))
         blur = getBlurredImage(image, blurAmount)
-        self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
+        self.estimatedSiteRect = self.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
 
     def updateBlur(self):
         if self.blurAmount > 1.05:

@@ -29,7 +29,7 @@ class EngineerInterface(ColonySimulation):
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                             maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
                             findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
-                            drawFarAgents=True, showAgentColors=True):
+                            drawFarAgents=True):
         super().initializeAgentList(numAgents, homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                                     minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist,
-                                    findSitesEasily, commitSpeedFactor, drawFarAgents, showAgentColors)
+                                    findSitesEasily, commitSpeedFactor, drawFarAgents)

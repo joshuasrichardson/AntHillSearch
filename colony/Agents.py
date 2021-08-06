@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pygame
 from Constants import *
-from colony.PygameUtils import getAgentImage, rotateImage
+from colony.PygameUtils import getAgentImage, rotateImage, getDestinationMarker, drawDashedLine
 from phases.AssessPhase import AssessPhase
 from phases.ExplorePhase import ExplorePhase
 
@@ -17,8 +17,7 @@ class Agent:
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION,
                  maxSearchDistance=MAX_SEARCH_DIST, findAssignedSiteEasily=FIND_SITES_EASILY,
-                 commitSpeedFactor=COMMIT_SPEED_FACTOR, drawFarAgents=DRAW_FAR_AGENTS,
-                 showAgentColors=SHOW_AGENT_COLORS):
+                 commitSpeedFactor=COMMIT_SPEED_FACTOR, drawFarAgents=DRAW_FAR_AGENTS):
         self.world = world  # The colony the agent lives in
 
         self.prevPos = startingPosition  # Initial position
@@ -29,7 +28,6 @@ class Agent:
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
         self.drawFarAgents = drawFarAgents  # Whether the agent is drawn when it is not by the hub
-        self.showAgentColors = showAgentColors
 
         self.homogenousAgents = homogenousAgents  # Whether all the agents have the same attributes (if false, their attributes vary)
         self.findAssignedSiteEasily = findAssignedSiteEasily
@@ -69,6 +67,7 @@ class Agent:
 
         self.isSelected = False  # Whether the user clicked on the agent or its site most recently.
         self.isTheSelected = False  # Whether the agent is the one with its information shown.
+        self.marker = None
 
     def initializeAttribute(self, minimum, maximum):
         if self.homogenousAgents:
@@ -157,26 +156,40 @@ class Agent:
             color = color[0] - 1,  color[1] - 1, color[2] - 1
             pygame.draw.circle(surface, color, pos, 2)
 
+    def drawKnownSiteMarkers(self, surface):
+        for pos in self.knownSitesPositions:
+            pygame.draw.circle(surface, FOLLOW_COLOR, pos, SITE_RADIUS + 8, 2)
+
+    def drawAssignedSite(self):
+        self.assignedSite.drawAssignmentMarker(self.pos, self.getPhaseColor())
+
+    def drawTarget(self, surface):
+        if self.target is not None:
+            self.marker = getDestinationMarker(self.target)
+            self.drawMarker(surface)
+
+    def drawMarker(self, surface):
+        if self.marker is not None:
+            drawDashedLine(surface, BORDER_COLOR, self.pos, self.marker[1].center)
+            surface.blit(self.marker[0], self.marker[1])
+
     def drawAgent(self, surface):
         if not self.drawFarAgents and self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST):
             self.drawPath(surface)
         if self.drawFarAgents or self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST):
             if self.isTheSelected:
-                pygame.draw.circle(surface, THE_SELECTED_COLOR, self.pos, 15, 0)
+                self.drawKnownSiteMarkers(surface)
+                self.drawAssignedSite()
+                self.drawTarget(surface)
             if self.isSelected:
-                pygame.draw.circle(surface, SELECTED_COLOR, self.pos, 12, 0)
-            # surface.blit(self.agentHandle, self.agentRect)
+                pygame.draw.circle(surface, self.state.getColor(), self.agentRect.center, self.agentHandle.get_width() * 3 / 5, 2)
+                pygame.draw.circle(surface, self.phase.getColor(), self.agentRect.center, self.agentHandle.get_width() * 3 / 4, 2)
             w, h = self.agentHandle.get_size()
-            rotateImage(surface, self.agentHandle, self.pos, [w / 2, h / 2], (-self.angle * 180 / np.pi) + 45)
-
-            if self.showAgentColors:
-                pygame.draw.ellipse(surface, self.state.getColor(), self.agentRect, 4)
-                pygame.draw.ellipse(surface, self.phase.getColor(), self.agentRect, 2)
+            rotateImage(surface, self.agentHandle, self.pos, [w / 2, h / 2], (-self.angle * 180 / np.pi) - 132)
 
             if SHOW_ESTIMATED_QUALITY:
                 img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
                 surface.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
-        pass
 
     def isClose(self, position, distance):
         from math import isclose
@@ -220,7 +233,8 @@ class Agent:
         if self.assignedSite is not None:
             self.assignedSite.decrementCount()
         if site.getPosition()[0] != self.assignedSite.getPosition()[0] and\
-                site.getPosition()[1] != self.assignedSite.getPosition()[1]:
+                site.getPosition()[1] != self.assignedSite.getPosition()[1] and\
+                site is not self.assignedSite:
             self.setPhase(AssessPhase())
             self.estimatedQuality = self.estimateQuality(site)
             self.estimatedAgentCount = self.estimateAgentCount(site)
@@ -311,25 +325,14 @@ class Agent:
         knownSitesPositions = []
         for site in self.knownSites:
             knownSitesPositions.append(site.getPosition())
-        siteToRecruitFromPos = None
-        if self.siteToRecruitFrom is not None:
-            siteToRecruitFromPos = self.siteToRecruitFrom.getPosition()
 
         return ["SELECTED AGENT:",
-                "Position: " + str(self.pos),
-                "Assigned Site: " + str(self.assignedSite.getPosition()),
-                "Thinks Assigned Site is at: " + str(self.getAssignedSitePosition()),
                 "Estimated Quality: " + str(self.estimatedQuality),
-                "Target: " + str(self.target),
                 "Speed: " + str(self.speed),
                 "Decisiveness: " + str(self.decisiveness),
                 "Navigation skills: " + str(self.navigationSkills),
                 "Known Sites: " + str(knownSitesPositions),
                 "Thinks Known Sites are at: " + str(self.knownSitesPositions),
-                "Site to Recruit from: " + str(siteToRecruitFromPos),
-                "State: " + self.state.toString(),
-                "Phase: " + self.phase.toString(),
                 "Assessment Threshold: " + str(self.assessmentThreshold),
                 "Lead Agent: " + str(self.leadAgent),
-                "Number of followers: " + str(self.numFollowers),
-                "Going to recruit: " + ("Yes" if self.goingToRecruit else "No")]
+                "Number of followers: " + str(self.numFollowers)]
