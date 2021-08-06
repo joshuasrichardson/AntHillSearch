@@ -24,8 +24,8 @@ from recording.RecordingPlayer import RecordingPlayer
 def main():
     try:
         # colony = ColonySimulation()
-        colony = EngineerInterface()
-        # colony = UserInterface()
+        # colony = EngineerInterface()
+        colony = UserInterface()
         # colony = EmpiricalTestingInterface()  # TODO: Make it so you don't have to start RestAPI separately from this program
 
         # RecordingPlayer does not take any parameters, because all the positions, assignments, states, etc. are set by the recording.json file.

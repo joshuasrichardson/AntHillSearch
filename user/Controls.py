@@ -58,8 +58,6 @@ class Controls:
         pygame.display.flip()
 
     def drawChanges(self):
-        if self.selectedAgent is not None:
-            self.graphs.drawSelectedAgentInfo(self.selectedAgent)
         if self.selectedSite is not None and self.shouldDrawQuality:
             self.world.drawPotentialQuality(self.potentialQuality)
         if self.selectRectCorner is not None:
@@ -214,8 +212,8 @@ class Controls:
         selectedAgents = [a for a in self.agentList if a.getAgentRect().collidepoint(mousePos)]
 
         if len(selectedAgents) > 0:
-            self.selectAgent2(selectedAgents[0])
             self.selectedAgents = []
+            self.selectAgent2(selectedAgents[0])
             if self.shouldSelectAgents:
                 self.selectedAgent.isTheSelected = True
             if self.shouldSelectAgentSites:

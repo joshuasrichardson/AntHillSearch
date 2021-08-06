@@ -63,6 +63,7 @@ class ColonySimulation(AbstractColonySimulation):
 
     def updateAgent(self, agent, agentRectList):
         agent.updatePosition(None)
+        agent.clearFog()
 
         agentRect = agent.getAgentRect()
         possibleNeighborList = agentRect.collidelistall(agentRectList)

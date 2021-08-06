@@ -31,7 +31,8 @@ class World:
         self.screen = screen  # The screen to draw the simulation on
         self.drawEstimates = drawEstimates
         self.shouldDrawPaths = shouldDrawPaths
-        self.onlyDrawExploredArea = True
+        self.shouldDrawFog = True
+        self.fog = self.getPositions()
 
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -104,6 +105,13 @@ class World:
             self.siteList.pop(index)
             self.siteRectList.pop(index)
             del site
+
+    def getPositions(self):
+        positions = []
+        for i in range(60):
+            for j in range(30):
+                positions.append([int((self.screen.get_width() / 60) * i), int((self.screen.get_height() / 30) * j)])
+        return positions
 
     def addAgent(self, agent):
         self.agentList.append(agent)
@@ -202,8 +210,8 @@ class World:
             for siteIndex in range(0, len(self.siteList)):
                 self.siteList[siteIndex].drawSite()
         self.drawMarker()
-        # if self.onlyDrawExploredArea:
-            # self.drawUnexploredDarkness()
+        if self.shouldDrawFog:
+            self.drawFog()
 
     def drawPaths(self):
         color = SCREEN_COLOR
@@ -220,9 +228,15 @@ class World:
         if self.marker is not None:
             self.screen.blit(self.marker[0], self.marker[1])
 
-    def drawUnexploredDarkness(self):
-        darkness = pyg.Surface(self.screen.get_size())
-        self.screen.blit(darkness, [0, 0])
+    def eraseFog(self, rect):
+        for pos in self.fog:
+            if rect.colliderect(pos[0] - 10, pos[1] - 10, 50, 50):
+                self.fog.remove(pos)
+
+    def drawFog(self):
+        pass
+        for pos in self.fog:
+            self.screen.blit(pyg.Surface([self.screen.get_width() / 60 + 2, self.screen.get_height() / 30 + 2]), pos)
 
     def drawPotentialQuality(self, potentialQuality):
         img = self.myfont.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))

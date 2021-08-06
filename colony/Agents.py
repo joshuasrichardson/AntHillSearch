@@ -141,6 +141,9 @@ class Agent:
         if len(self.path) > 50:
             self.path.pop(0)
 
+    def clearFog(self):
+        self.world.eraseFog(self.agentRect)
+
     def getHub(self):
         return self.world.getHub()
 
@@ -320,19 +323,3 @@ class Agent:
     def unselect(self):
         self.isSelected = False
         self.isTheSelected = False
-
-    def getAttributes(self):
-        knownSitesPositions = []
-        for site in self.knownSites:
-            knownSitesPositions.append(site.getPosition())
-
-        return ["SELECTED AGENT:",
-                "Estimated Quality: " + str(self.estimatedQuality),
-                "Speed: " + str(self.speed),
-                "Decisiveness: " + str(self.decisiveness),
-                "Navigation skills: " + str(self.navigationSkills),
-                "Known Sites: " + str(knownSitesPositions),
-                "Thinks Known Sites are at: " + str(self.knownSitesPositions),
-                "Assessment Threshold: " + str(self.assessmentThreshold),
-                "Lead Agent: " + str(self.leadAgent),
-                "Number of followers: " + str(self.numFollowers)]
