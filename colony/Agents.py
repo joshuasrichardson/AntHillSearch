@@ -3,6 +3,7 @@ import random
 import numpy as np
 import pygame
 from Constants import *
+from colony.PygameUtils import getAgentImage, rotateImage
 from phases.AssessPhase import AssessPhase
 from phases.ExplorePhase import ExplorePhase
 
@@ -23,7 +24,7 @@ class Agent:
         self.prevPos = startingPosition  # Initial position
         self.pos = startingPosition  # Initial position
         self.path = []
-        self.agentHandle = pygame.image.load(AGENT_IMAGE)  # Image on screen representing the agent
+        self.agentHandle = getAgentImage(self.pos)  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
@@ -83,6 +84,9 @@ class Agent:
 
     def getState(self):
         return self.state.state
+
+    def setAngle(self, angle):
+        self.angle = angle
 
     def getStateColor(self):
         return self.state.getColor()
@@ -151,7 +155,7 @@ class Agent:
         color = SCREEN_COLOR
         for pos in self.path:
             color = color[0] - 1,  color[1] - 1, color[2] - 1
-            pygame.draw.circle(surface, color, pos, 8)
+            pygame.draw.circle(surface, color, pos, 2)
 
     def drawAgent(self, surface):
         if not self.drawFarAgents and self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST):
@@ -161,7 +165,9 @@ class Agent:
                 pygame.draw.circle(surface, THE_SELECTED_COLOR, self.pos, 15, 0)
             if self.isSelected:
                 pygame.draw.circle(surface, SELECTED_COLOR, self.pos, 12, 0)
-            surface.blit(self.agentHandle, self.agentRect)
+            # surface.blit(self.agentHandle, self.agentRect)
+            w, h = self.agentHandle.get_size()
+            rotateImage(surface, self.agentHandle, self.pos, [w / 2, h / 2], (-self.angle * 180 / np.pi) + 45)
 
             if self.showAgentColors:
                 pygame.draw.ellipse(surface, self.state.getColor(), self.agentRect, 4)
@@ -170,6 +176,7 @@ class Agent:
             if SHOW_ESTIMATED_QUALITY:
                 img = self.world.font.render(str(self.estimatedQuality), True, self.assignedSite.color)
                 surface.blit(img, (self.pos[0] + 10, self.pos[1] + 5, 15, 10))
+        pass
 
     def isClose(self, position, distance):
         from math import isclose

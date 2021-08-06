@@ -18,7 +18,7 @@ class SearchState(State):
         else:
             # If going from search to search, just update angle
             self.agent.angularVelocity += np.random.normal(0, np.pi / 1000)
-            self.agent.angle = self.agent.angle + self.agent.angularVelocity
+            self.agent.setAngle(self.agent.angle + self.agent.angularVelocity)
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
@@ -63,7 +63,7 @@ class SearchState(State):
         else:
             y = self.agent.getPosition()[1] - 1
         self.agent.setPosition(x, y)
-        self.agent.angle = self.agent.angle - (1.1 * np.pi)
+        self.agent.setAngle(self.agent.angle - (1.1 * np.pi))
 
     def toString(self):
         return "SEARCH"

@@ -6,7 +6,7 @@ import pygame
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR
 from colony.Agents import Agent
 from colony.ColonyExceptions import GameOver
-from colony.myPygameUtils import getDestinationMarker
+from colony.PygameUtils import getDestinationMarker
 from phases.ExplorePhase import ExplorePhase
 from states.SearchState import SearchState
 
@@ -460,15 +460,13 @@ class Controls:
 
     def raiseQuality(self):
         for site in self.selectedSites:
-            if site.quality < 255:
-                site.quality += 1
-                site.color = 255 - site.quality, site.quality, 0
+            site.setQuality(site.getQuality() + 1)
+            site.setColor(site.getQuality())
 
     def lowerQuality(self):
         for site in self.selectedSites:
-            if site.quality > 0:
-                site.quality -= 1
-                site.color = 255 - site.quality, site.quality, 0
+            site.setQuality(site.getQuality() - 1)
+            site.setColor(site.getQuality())
 
     def expand(self):
         for site in self.selectedSites:
@@ -484,7 +482,7 @@ class Controls:
     def createAgent(self, position):
         agent = Agent(self.world, self.world.getHub(), startingPosition=position)
         agent.setState(SearchState(agent))
-        agent.angle = random.uniform(0, 2 * np.pi)
+        agent.setAngle(random.uniform(0, 2 * np.pi))
         agent.assignedSite.incrementCount()
         agent.speedCoefficient = self.world.agentList[0].speedCoefficient
         agent.speed = self.world.agentList[0].uncommittedSpeed * agent.speedCoefficient

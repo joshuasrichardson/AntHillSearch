@@ -3,6 +3,8 @@ import numpy
 import numpy as np
 import pygame
 
+from Constants import AGENT_IMAGE
+
 
 def createScreen(shouldDraw):
     if shouldDraw:
@@ -37,16 +39,23 @@ def drawHorizontalCircleLines(screen, circle, color, inc):
         y += inc
 
 
-def getDestinationMarker(pos):
-    arrow = pygame.image.load("arrows.png")
-    arrow = pygame.transform.scale(arrow, (30, 30))
-    rect = arrow.get_rect().move(pos)
+def getAgentImage(pos):
+    agent = pygame.image.load(AGENT_IMAGE)
+    agent = pygame.transform.scale(agent, (30, 30))
+    rect = agent.get_rect().move(pos)
     rect.center = pos
-    return arrow, rect
+    return agent
+
+
+def getDestinationMarker(pos):
+    arrows = pygame.image.load("resources/arrows.png")
+    arrows = pygame.transform.scale(arrows, (30, 30))
+    rect = arrows.get_rect().move(pos)
+    rect.center = pos
+    return arrows, rect
 
 
 def drawDashedLine(surface, color, startPos, endPos, width=1, dashLength=10, excludeCorners=True):
-
     # convert tuples to numpy arrays
     startPos = np.array(startPos)
     endPos = np.array(endPos)
@@ -65,8 +74,8 @@ def drawDashedLine(surface, color, startPos, endPos, width=1, dashLength=10, exc
 
 
 def getBlurredImage(surface, amount):
-    """ Blur the given surface by the given 'amount'.  Only values 1 and greater
-    are valid.  Value 1 = no blur. """
+    """ Blur the given surface by the given 'amount'. Only values 1 and greater
+    are valid. Value 1 = no blur. """
     if amount < 1.0:
         raise ValueError("Arg 'amount' must be greater than 1.0, passed in value is %s" % amount)
     scale = 1.0 / float(amount)
@@ -77,28 +86,22 @@ def getBlurredImage(surface, amount):
     return surf
 
 
-# def blitRotate(surf, image, pos, originPos, angle):
-#
-#     # calcaulate the axis aligned bounding box of the rotated image
-#     w, h       = image.get_size()
-#     box        = [pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]]
-#     box_rotate = [p.rotate(angle) for p in box]
-#     min_box    = (min(box_rotate, key=lambda p: p[0])[0], min(box_rotate, key=lambda p: p[1])[1])
-#     max_box    = (max(box_rotate, key=lambda p: p[0])[0], max(box_rotate, key=lambda p: p[1])[1])
-#
-#     # calculate the translation of the pivot
-#     pivot        = pygame.math.Vector2(originPos[0], -originPos[1])
-#     pivot_rotate = pivot.rotate(angle)
-#     pivot_move   = pivot_rotate - pivot
-#
-#     # calculate the upper left origin of the rotated image
-#     origin = (pos[0] - originPos[0] + min_box[0] - pivot_move[0], pos[1] - originPos[1] - max_box[1] + pivot_move[1])
-#
-#     # get a rotated image
-#     rotated_image = pygame.transform.rotate(image, angle)
-#
-#     # rotate and blit the image
-#     surf.blit(rotated_image, origin)
-#
-#     # draw rectangle around the image
-#     pygame.draw.rect(surf, (255, 0, 0), (*origin, *rotated_image.get_size()),2)
+def rotateImage(surf, image, pos, originPos, angle):
+    # calculate the axis aligned bounding box of the rotated image
+    w, h = image.get_size()
+    box = [pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]]
+    boxRotate = [p.rotate(angle) for p in box]
+    minBox = (min(boxRotate, key=lambda p: p[0])[0], min(boxRotate, key=lambda p: p[1])[1])
+    maxBox = (max(boxRotate, key=lambda p: p[0])[0], max(boxRotate, key=lambda p: p[1])[1])
+
+    # calculate the translation of the pivot
+    pivot = pygame.math.Vector2(originPos[0], -originPos[1])
+    pivotRotate = pivot.rotate(angle)
+    pivotMove = pivotRotate - pivot
+
+    # calculate the upper left origin of the rotated image
+    origin = (pos[0] - originPos[0] + minBox[0] - pivotMove[0], pos[1] - originPos[1] - maxBox[1] + pivotMove[1])
+    # get a rotated image
+    rotatedImage = pygame.transform.rotate(image, angle)
+    # rotate and blit the image
+    surf.blit(rotatedImage, origin)

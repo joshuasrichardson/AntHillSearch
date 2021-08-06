@@ -34,17 +34,17 @@ SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assig
 # Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
 # Having this false makes the simulation faster because the paths do not have to be drawn on the screen so much.
-SHOULD_DRAW_PATHS = False
+SHOULD_DRAW_PATHS = True
 # Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
-SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
+SHOW_AGENT_COLORS = False  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
 
-KNOW_SITE_POS_AT_START = True  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
+KNOW_SITE_POS_AT_START = False  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
 
 CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
 
-DRAW_ESTIMATES = True  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
+DRAW_ESTIMATES = False  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
 
 HUB_CAN_MOVE = True  # Whether the hub can be moved
 
@@ -71,13 +71,14 @@ SITE_RADIUS = 30  # The default radius of the sites.
 SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
+INITIAL_BLUR = 8  # How blurry the sites are when they are found
 
 # Does not affect simulation besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
 #                             The others all build off of that depending on what is being displayed.
 
 """ Agent parameters """
-AGENT_IMAGE = "copter.png"  # The image that is displayed on the screen to represent an agent
+AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
 # Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.

@@ -8,7 +8,7 @@ from colony.Agents import Agent
 from colony.ColonyExceptions import InputError, GameOver
 from colony.Graphs import SimulationGraphs
 from colony.Timer import SimulationTimer
-from colony.myPygameUtils import createScreen
+from colony.PygameUtils import createScreen
 from recording.Recorder import Recorder
 from states.AtNestState import AtNestState
 from user.Controls import Controls
@@ -39,6 +39,7 @@ class AbstractColonySimulation(ABC):
         self.apiThread = None
         self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
+        self.onlyDrawExploredArea = True
 
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the simulation will end
 

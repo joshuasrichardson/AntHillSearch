@@ -31,6 +31,7 @@ class World:
         self.screen = screen  # The screen to draw the simulation on
         self.drawEstimates = drawEstimates
         self.shouldDrawPaths = shouldDrawPaths
+        self.onlyDrawExploredArea = True
 
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -90,13 +91,13 @@ class World:
             self.createSite(x, y, radius, quality, self.knowSitePosAtStart)
 
     def createSite(self, x, y, radius, quality, show):
-        newSite = Site(self.screen, self.hubLocation, x, y, radius, quality, self.siteQualities,
-                       self.siteNoCloserThan, self.siteNoFartherThan, self.shouldDraw, show)
+        newSite = Site(self.screen, self.hubLocation, x, y, radius, quality,
+                       self.siteNoCloserThan, self.siteNoFartherThan, show)
         self.siteList.append(newSite)
         self.siteRectList.append(newSite.getSiteRect())
 
     def removeSite(self, site):
-        if site.quality == -1 and site.agentCount > 0:
+        if site.getQuality() == -1 and site.agentCount > 0:
             print("Cannot delete the hub")
         else:
             index = self.siteList.index(site, 0, len(self.siteList))
@@ -138,11 +139,11 @@ class World:
         zero = minValue
         span = maxValue - minValue
         for siteIndex in range(0, len(self.siteList)):
-            self.siteList[siteIndex].normalizeQuality(span, zero)
+            self.siteList[siteIndex].normalizeQuality(span, zero, self.siteQualities)
 
     def createHub(self):
         hubSite = Site(self.screen, self.hubLocation, self.hubLocation[0], self.hubLocation[1], self.hubRadius, -1,
-                       self.siteQualities, self.siteNoCloserThan, self.siteNoFartherThan, self.shouldDraw, True)
+                       self.siteNoCloserThan, self.siteNoFartherThan, True)
         self.siteList.append(hubSite)
         self.siteRectList.append(hubSite.getSiteRect())
         hubSite.agentCount = self.initialHubAgentCount
@@ -201,13 +202,15 @@ class World:
             for siteIndex in range(0, len(self.siteList)):
                 self.siteList[siteIndex].drawSite()
         self.drawMarker()
+        # if self.onlyDrawExploredArea:
+            # self.drawUnexploredDarkness()
 
     def drawPaths(self):
         color = SCREEN_COLOR
         for posIndex, pos in enumerate(self.paths):
             if posIndex % len(self.agentList) == 0:
                 color = color[0] - 1,  color[1] - 1, color[2] - 1
-            pyg.draw.circle(self.screen, color, pos, 8)
+            pyg.draw.circle(self.screen, color, pos, 2)
 
     def drawAgents(self):
         for agent in self.agentList:
@@ -216,6 +219,10 @@ class World:
     def drawMarker(self):
         if self.marker is not None:
             self.screen.blit(self.marker[0], self.marker[1])
+
+    def drawUnexploredDarkness(self):
+        darkness = pyg.Surface(self.screen.get_size())
+        self.screen.blit(darkness, [0, 0])
 
     def drawPotentialQuality(self, potentialQuality):
         img = self.myfont.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))

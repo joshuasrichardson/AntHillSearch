@@ -21,7 +21,7 @@ class RecordingPlayer(AbstractColonySimulation):
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                         siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True, knowSitePosAtStart=True,
-                        hubCanMove=True):
+                        hubCanMove=True, shouldDrawPaths=True):
         self.recorder.read()
 
         return World(numSites, self.screen, hubLocation, hubRadius, self.recorder.getNumAgents(), sitePositions,
@@ -41,7 +41,7 @@ class RecordingPlayer(AbstractColonySimulation):
 
             try:
                 self.world.siteList[i].setPosition(pos)
-                self.world.siteList[i].quality = quality
+                self.world.siteList[i].setQuality(quality)
                 self.world.siteList[i].radius = rad
                 self.world.siteList[i].setColor(quality)
                 self.world.siteRectList[i] = self.world.siteList[i].getSiteRect()

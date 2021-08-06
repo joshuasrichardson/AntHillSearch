@@ -33,18 +33,28 @@ class SimulationGraphs:
     def incrementY(self):
         self.y += 11
 
+    def write(self, words):
+        img = self.font.render(words, True, WORDS_COLOR)
+        self.screen.blit(img, (self.x, self.y))
+
+    def write2(self, words):
+        img = self.font.render(words, True, WORDS_COLOR)
+        self.screen.blit(img, (self.x2, self.y))
+
+    def write4(self, words):
+        img = self.font.render(words, True, WORDS_COLOR)
+        self.screen.blit(img, (self.x4, self.y))
+
     def drawStateGraph(self, states):
         if self.shouldDrawGraphs:
             self.y = GRAPHS_TOP_LEFT[1]
             pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, 11 * len(states) + 24), 1)
-            img = self.font.render("STATES:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x, self.y))
+            self.write("STATES:")
             for state, width in enumerate(states):
                 self.incrementY()
                 pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
                 pygame.draw.rect(self.screen, STATE_COLORS[state], pygame.Rect(self.x1, self.y + 5, width, 10))
-                img = self.font.render(STATES_LIST[state], True, WORDS_COLOR)
-                self.screen.blit(img, (self.x, self.y))
+                self.write(STATES_LIST[state])
             self.incrementY()
             self.incrementY()
             self.incrementY()
@@ -52,14 +62,12 @@ class SimulationGraphs:
     def drawPhaseGraph(self, phases):
         if self.shouldDrawGraphs:
             pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, 11 * len(phases) + 24), 1)
-            img = self.font.render("PHASES:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x, self.y))
+            self.write("PHASES:")
             for phase, width in enumerate(phases):
                 self.incrementY()
                 pygame.draw.rect(self.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
                 pygame.draw.rect(self.screen, PHASE_COLORS[phase], pygame.Rect(self.x1, self.y + 5, width, 10))
-                img = self.font.render(PHASES_LIST[phase], True, WORDS_COLOR)
-                self.screen.blit(img, (self.x, self.y))
+                self.write(PHASES_LIST[phase])
             self.incrementY()
             self.incrementY()
             self.incrementY()
@@ -67,24 +75,19 @@ class SimulationGraphs:
     def drawPredictionsGraph(self, siteList):
         if self.shouldDrawGraphs:
             top = self.y - 3
-            img = self.font.render("PREDICTIONS:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x, self.y))
+            self.write("PREDICTIONS:")
 
             self.incrementY()
-            img = self.font.render("LIKELIHOOD OF CONVERGING TO SITE:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x, self.y))
+            self.write("LIKELIHOOD OF CONVERGING TO SITE:")
             numFound = 0
             for siteIndex, site in enumerate(siteList):
                 if site.wasFound or site.knowSitePosAtStart:
                     numFound += 1
                     self.incrementY()
-                    img = self.font.render("SITE " + str(siteList[siteIndex].getPosition()) + ": " +
-                                           str(siteIndex * 10) + "%", True, WORDS_COLOR)  # TODO: Insert actual probability here
-                    self.screen.blit(img, (self.x, self.y))
+                    self.write("SITE " + str(siteList[siteIndex].getPosition()) + ": " + str(siteIndex * 10) + "%")  # TODO: Insert actual prediction here
 
             self.incrementY()
-            img = self.font.render("PREDICTED TIME TO COVERAGE: 59 seconds", True, WORDS_COLOR)  # TODO: Insert actual predicted time here
-            self.screen.blit(img, (self.x, self.y))
+            self.write("PREDICTED TIME TO COVERAGE: 59 seconds")  # TODO: Insert actual predicted time here
             pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * numFound + 46), 1)
             self.incrementY()
             self.incrementY()
@@ -95,8 +98,7 @@ class SimulationGraphs:
             pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y + 8, self.x2 - 29, 11 * len(attributes) + 13), 1)
             for i, attribute in enumerate(attributes):
                 self.incrementY()
-                img = self.font.render(attribute, True, WORDS_COLOR)
-                self.screen.blit(img, (self.x, self.y))
+                self.write(attribute)
             self.incrementY()
             self.incrementY()
 
@@ -115,8 +117,7 @@ class SimulationGraphs:
 
             for i, attribute in enumerate(attributes):
                 self.incrementY()
-                img = self.font.render(attribute, True, WORDS_COLOR)
-                self.screen.blit(img, (self.x, self.y))
+                self.write(attribute)
 
             pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * len(attributes) + 13), 1)
 
@@ -125,41 +126,29 @@ class SimulationGraphs:
         if self.shouldDrawGraphs:
             if self.canSelectAnywhere:
                 self.y = GRAPHS_TOP_LEFT[1]
-                selectAgentsColor = self.getShouldSelectColor(shouldSelectAgents)
-                img = self.font.render("Select Agents:", True, WORDS_COLOR)
-                self.screen.blit(img, (self.x2, self.y))
-                pygame.draw.rect(self.screen, selectAgentsColor, self.selectAgentsRect)
+                self.write2("Select Agents:")
+                self.drawSelectBox(shouldSelectAgents, self.selectAgentsRect)
 
                 self.incrementY()
-                selectSitesColor = self.getShouldSelectColor(shouldSelectSites)
-                img = self.font.render("Select Sites:", True, WORDS_COLOR)
-                self.screen.blit(img, (self.x2, self.y))
-                pygame.draw.rect(self.screen, selectSitesColor, self.selectSitesRect)
+                self.write2("Select Sites:")
+                self.drawSelectBox(shouldSelectSites, self.selectSitesRect)
 
                 self.incrementY()
-                selectAgentsSitesColor = self.getShouldSelectColor(shouldSelectAgentSites)
-                img = self.font.render("Select Agents Sites:", True, WORDS_COLOR)
-                self.screen.blit(img, (self.x2, self.y))
-                pygame.draw.rect(self.screen, selectAgentsSitesColor, self.selectAgentsSitesRect)
+                self.write2("Select Agents Sites:")
+                self.drawSelectBox(shouldSelectAgentSites, self.selectAgentsSitesRect)
 
                 self.incrementY()
-                selectSitesAgentsColor = self.getShouldSelectColor(shouldSelectSiteAgents)
-                img = self.font.render("Select Sites Agents:", True, WORDS_COLOR)
-                self.screen.blit(img, (self.x2, self.y))
-                pygame.draw.rect(self.screen, selectSitesAgentsColor, self.selectSitesAgentsRect)
+                self.write2("Select Sites Agents:")
+                self.drawSelectBox(shouldSelectSiteAgents, self.selectSitesAgentsRect)
 
             self.y = GRAPHS_TOP_LEFT[1]
-            commandSiteAgentsColor = self.getShouldSelectColor(commandSiteAgents)
-            img = self.font.render("Command Site Agents:", True, WORDS_COLOR)
-            self.screen.blit(img, (self.x4, self.y))
-            pygame.draw.rect(self.screen, commandSiteAgentsColor, self.commandSiteAgentsRect)
+            self.write4("Command Site Agents:")
+            self.drawSelectBox(commandSiteAgents, self.commandSiteAgentsRect)
 
             if paused:
                 self.incrementY()
-                showOptionsColor = self.getShouldSelectColor(shouldShowOptions)
-                img = self.font.render("Show Options:", True, WORDS_COLOR)
-                self.screen.blit(img, (self.x4, self.y))
-                pygame.draw.rect(self.screen, showOptionsColor, self.showOptionsRect)
+                self.write4("Show Options:")
+                self.drawSelectBox(shouldShowOptions, self.showOptionsRect)
 
     def collidesWithSelectAgentsButton(self, position):
         return self.selectAgentsRect.collidepoint(position[0], position[1])
@@ -179,12 +168,16 @@ class SimulationGraphs:
     def collidesWithOptionsButton(self, position):
         return self.showOptionsRect.collidepoint(position[0], position[1])
 
+    def drawSelectBox(self, shouldSelect, rectangle):
+        color = self.getShouldSelectColor(shouldSelect)
+        pygame.draw.rect(self.screen, color, rectangle)
+
     @staticmethod
     def getShouldSelectColor(shouldSelect):
         if shouldSelect:
             return 0, 0, 255
         else:
-            return 120, 120, 120
+            return BORDER_COLOR
 
     def drawOptions(self):
         x, y = self.screen.get_size()
@@ -284,14 +277,14 @@ class SimulationGraphs:
             img = self.font.render(option, True, WORDS_COLOR)
             self.screen.blit(img, ((x / 2) + (leftMargin / 2) + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
-    def drawPause(self):
-        pausedFont = pygame.font.SysFont('Comic Sans MS', 40)
-        img = pausedFont.render("Paused", True, WORDS_COLOR)
+    def writeBigCenter(self, words):
+        font = pygame.font.SysFont('Comic Sans MS', 40)
+        img = font.render(words, True, WORDS_COLOR)
         self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2),
                                self.screen.get_size()[1] / 2 - (img.get_height() / 2) - 60))
 
+    def drawPause(self):
+        self.writeBigCenter("Paused")
+
     def drawFinish(self):
-        finishFont = pygame.font.SysFont('Comic Sans MS', 40)
-        img = finishFont.render("Finished", True, WORDS_COLOR)
-        self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2),
-                               self.screen.get_size()[1] / 2 - (img.get_height() / 2) -60))
+        self.writeBigCenter("Finish")
