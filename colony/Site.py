@@ -106,7 +106,10 @@ class Site:
         if self.knowSitePosAtStart:
             self.drawAssignmentMarker2(self.siteRect, color)
         else:
-            self.drawAssignmentMarker2(self.estimatedSiteRect, color)
+            try:
+                self.drawAssignmentMarker2(self.estimatedSiteRect, color)
+            except:
+                pass
 
     def drawAssignmentMarker2(self, rect, color):
         pyg.draw.polygon(self.screen, color,

@@ -68,6 +68,7 @@ class Agent:
         self.isSelected = False  # Whether the user clicked on the agent or its site most recently.
         self.isTheSelected = False  # Whether the agent is the one with its information shown.
         self.marker = None
+        self.eraseFogCommands = []
 
     def initializeAttribute(self, minimum, maximum):
         if self.homogenousAgents:
@@ -142,7 +143,14 @@ class Agent:
             self.path.pop(0)
 
     def clearFog(self):
-        self.world.eraseFog(self.agentRect)
+        if self.world.knowSitePosAtStart and len(self.world.fog) > 0:
+            self.world.eraseFog(self.agentRect)
+        elif self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST):
+            for command in self.eraseFogCommands:
+                command[0](command[1])
+            self.eraseFogCommands = []
+        elif len(self.world.fog) > 0:
+            self.eraseFogCommands.append([self.world.eraseFog, self.agentRect.copy()])
 
     def getHub(self):
         return self.world.getHub()

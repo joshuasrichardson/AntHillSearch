@@ -32,7 +32,6 @@ class World:
         self.drawEstimates = drawEstimates
         self.shouldDrawPaths = shouldDrawPaths
         self.shouldDrawFog = True
-        self.fog = self.getPositions()
 
         pyg.font.init()
         self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -45,6 +44,7 @@ class World:
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.hub = self.createHub()  # The agents' original home
+        self.fog = self.getInitialFog()
         self.request = None  # The request, used to sent information to a rest API
 
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
@@ -106,12 +106,26 @@ class World:
             self.siteRectList.pop(index)
             del site
 
-    def getPositions(self):
-        positions = []
-        for i in range(60):
-            for j in range(30):
-                positions.append([int((self.screen.get_width() / 60) * i), int((self.screen.get_height() / 30) * j)])
-        return positions
+    def getInitialFog(self):
+        rects = []
+        w = self.screen.get_width()
+        h = self.screen.get_height()
+        for i in range(NUM_FOG_BLOCKS_X):
+            for j in range(NUM_FOG_BLOCKS_Y):
+                pos = [int((w / NUM_FOG_BLOCKS_X) * i), int((h / NUM_FOG_BLOCKS_Y) * j)]
+                rect = Rect(int(w * i / NUM_FOG_BLOCKS_X),
+                            int(h * j / NUM_FOG_BLOCKS_Y),
+                            int(w / NUM_FOG_BLOCKS_X + 1),
+                            int(h / NUM_FOG_BLOCKS_Y + 1))
+                if not self.isClose(self.hub.getSiteRect(), pos):
+                    rects.append(rect)
+        return rects
+
+    def isClose(self, rect, pos):
+        return rect.colliderect(pos[0] - (rect.width + HUB_OBSERVE_DIST) / 2,
+                                pos[1] - (rect.height + HUB_OBSERVE_DIST) / 2,
+                                (self.screen.get_width() / NUM_FOG_BLOCKS_X) + rect.width + HUB_OBSERVE_DIST,
+                                (self.screen.get_height() / NUM_FOG_BLOCKS_Y) + rect.height + HUB_OBSERVE_DIST)
 
     def addAgent(self, agent):
         self.agentList.append(agent)
@@ -229,14 +243,37 @@ class World:
             self.screen.blit(self.marker[0], self.marker[1])
 
     def eraseFog(self, rect):
-        for pos in self.fog:
-            if rect.colliderect(pos[0] - 10, pos[1] - 10, 50, 50):
-                self.fog.remove(pos)
+        fogIndices = rect.collidelist(self.fog)
+        while fogIndices != -1:
+            self.fog.pop(fogIndices)
+            fogIndices = rect.collidelist(self.fog)
 
     def drawFog(self):
-        pass
-        for pos in self.fog:
-            self.screen.blit(pyg.Surface([self.screen.get_width() / 60 + 2, self.screen.get_height() / 30 + 2]), pos)
+        r = 30
+        b = 30
+        g = 30
+        up = True
+        for i in range(len(self.fog)):
+            # Uncomment for a fun time
+            # if up:
+            #     if r < 255:
+            #         r += 1
+            #     elif b < 255:
+            #         b += 1
+            #     elif g < 255:
+            #         g += 1
+            #     else:
+            #         up = False
+            # else:
+            #     if r > 0:
+            #         r -= 1
+            #     elif b > 0:
+            #         b -= 1
+            #     elif g > 0:
+            #         g -= 1
+            #     else:
+            #         up = True
+            pyg.draw.rect(self.screen, (r, b, g), self.fog[i])
 
     def drawPotentialQuality(self, potentialQuality):
         img = self.myfont.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))

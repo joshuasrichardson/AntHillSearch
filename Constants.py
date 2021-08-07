@@ -68,13 +68,16 @@ SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
+# If these numbers are too high, the simulation gets really slow. If they are too low, the blocks are really big and don't look as good. 200, 100 seems to be pretty good.
+NUM_FOG_BLOCKS_X = 200  # The initial number of fog rectangles from left to right on the screen
+NUM_FOG_BLOCKS_Y = 100  # The initial number of fog rectangles from top to bottom on the screen
 
 # Does not affect simulation besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
 #                             The others all build off of that depending on what is being displayed.
 
 """ Agent parameters """
-AGENT_IMAGE = "resources/copter.png"  # The image that is displayed on the screen to represent an agent
+AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
 # Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.

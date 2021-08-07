@@ -73,24 +73,25 @@ class SimulationGraphs:
             self.incrementY()
 
     def drawPredictionsGraph(self, siteList):
-        if self.shouldDrawGraphs:
-            top = self.y - 3
-            self.write("PREDICTIONS:")
-
-            self.incrementY()
-            self.write("LIKELIHOOD OF CONVERGING TO SITE:")
-            numFound = 0
-            for siteIndex, site in enumerate(siteList):
-                if site.wasFound or site.knowSitePosAtStart:
-                    numFound += 1
-                    self.incrementY()
-                    self.write("SITE " + str(siteList[siteIndex].getPosition()) + ": " + str(siteIndex * 10) + "%")  # TODO: Insert actual prediction here
-
-            self.incrementY()
-            self.write("PREDICTED TIME TO COVERAGE: 59 seconds")  # TODO: Insert actual predicted time here
-            pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * numFound + 46), 1)
-            self.incrementY()
-            self.incrementY()
+        pass
+        # if self.shouldDrawGraphs:
+        #     top = self.y - 3
+        #     self.write("PREDICTIONS:")
+        #
+        #     self.incrementY()
+        #     self.write("LIKELIHOOD OF CONVERGING TO SITE:")
+        #     numFound = 0
+        #     for siteIndex, site in enumerate(siteList):
+        #         if site.wasFound or site.knowSitePosAtStart:
+        #             numFound += 1
+        #             self.incrementY()
+        #             self.write("SITE " + str(siteList[siteIndex].getPosition()) + ": " + str(siteIndex * 10) + "%")  # TODO: Insert actual prediction here
+        #
+        #     self.incrementY()
+        #     self.write("PREDICTED TIME TO COVERAGE: 59 seconds")  # TODO: Insert actual predicted time here
+        #     pygame.draw.rect(self.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * numFound + 46), 1)
+        #     self.incrementY()
+        #     self.incrementY()
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):
