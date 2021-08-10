@@ -9,6 +9,7 @@ class SimulationGraphs:
         self.screen = screen
         self.canSelectAnywhere = canSelectAnywhere
         self.executedCommands = []
+        self.scrollIndex = -1
 
         pygame.font.init()
         self.font = pygame.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -261,19 +262,34 @@ class SimulationGraphs:
 
     def addExecutedCommand(self, command):
         self.executedCommands.append(command)
+        self.scrollIndex = len(self.executedCommands) - 1
 
     def drawExecutedCommands(self):
         if self.shouldDrawGraphs:
             self.y2 = self.commandHistBox.top + 4
             pygame.draw.rect(self.screen, BORDER_COLOR, self.commandHistBox, 1)
 
-            for i in range(len(self.executedCommands) - 1, -1, -1):
+            if self.scrollIndex != len(self.executedCommands) - 1:
+                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.top + 10],
+                                 [self.commandHistBox.right - 12, self.commandHistBox.top + 6])
+                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.top + 6],
+                                 [self.commandHistBox.right - 8, self.commandHistBox.top + 10])
+
+            lastIndex = self.scrollIndex
+            for i in range(self.scrollIndex, -1, -1):
                 if self.y2 + 15 > self.commandHistBox.bottom:
                     break
+                lastIndex = i
                 command = self.executedCommands[i]
                 img = self.font.render(command, True, WORDS_COLOR)
                 self.screen.blit(img, (self.x, self.y2))
                 self.y2 += 11
+
+            if lastIndex > 0:
+                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.bottom - 10],
+                                 [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6])
+                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6],
+                                 [self.commandHistBox.right - 8, self.commandHistBox.bottom - 10])
 
     def collidesWithCommandHistBoxTop(self, pos):
         return abs(pos[1] - self.commandHistBox.top) < 3 and \
@@ -282,6 +298,14 @@ class SimulationGraphs:
     def setHistBoxTop(self, top):
         self.commandHistBox = pygame.Rect(self.commandHistBox.left, top, self.commandHistBox.width,
                                           self.commandHistBox.height + self.commandHistBox.top - top)
+
+    def scrollUp(self):
+        if self.scrollIndex < len(self.executedCommands) - 1:
+            self.scrollIndex += 1
+
+    def scrollDown(self):
+        if self.scrollIndex > 0:
+            self.scrollIndex -= 1
 
     def drawPause(self):
         self.writeBigCenter("Paused")

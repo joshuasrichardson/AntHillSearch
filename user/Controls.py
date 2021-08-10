@@ -87,6 +87,8 @@ class Controls:
                 self.mouseUp(mousePos)
             elif event.button == 3:
                 self.go(mousePos)
+            else:
+                self.scroll(event)
         elif event.type == MOUSEBUTTONDOWN and event.button == 1:
             self.mouseDown(mousePos)
         elif event.type == KEYDOWN:
@@ -191,6 +193,12 @@ class Controls:
         else:
             self.startSelectRect(mousePos)
 
+    def scroll(self, event):
+        if event.button == 4:
+            self.graphs.scrollUp()
+        elif event.button == 5:
+            self.graphs.scrollDown()
+
     def drag(self):
         if self.world.hubCanMove or self.selectedSite is not self.world.getHub():
             self.oldRect = self.selectedSite.getSiteRect().copy()
@@ -287,9 +295,9 @@ class Controls:
 
     def updateAgentGroup(self, key):
         index = key - 48
-        self.addToExecutedEvents("Set agent group " + str(index) + " to have " + str(len(self.selectedAgents)) + " agents.")
         if not 0 <= index <= 9:
             return
+        self.addToExecutedEvents("Set agent group " + str(index) + " to have " + str(len(self.selectedAgents)) + " agents.")
         self.world.updateGroup(index, self.selectedAgents)
 
     def drawSelectRect(self, mousePos):
