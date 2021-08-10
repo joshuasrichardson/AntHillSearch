@@ -15,9 +15,7 @@ from recording.RecordingPlayer import RecordingPlayer
 
 
 # TODO: Update the README.md file, add more comments throughout the code, and refactor.
-# TODO: Find a format to show the information on the left without having the users need to read it.
 # TODO: Save a list of the commands the user executed, and show that on the screen. How can we differentiate between the permanent and temporary commands and show them differently?
-# TODO: Show where agents have explored
 # TODO: Make the recordings look better with the angle, knownSitePositions, and target
 
 

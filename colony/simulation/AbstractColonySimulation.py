@@ -22,14 +22,14 @@ class AbstractColonySimulation(ABC):
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
                  siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=DRAW_ESTIMATES,
-                 canSelectAnywhere=DRAW_FAR_AGENTS, hubCanMove=HUB_CAN_MOVE):
+                 canSelectAnywhere=DRAW_FAR_AGENTS, hubCanMove=HUB_CAN_MOVE, shouldDrawPaths=SHOULD_DRAW_PATHS):
 
         self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
         self.graphs = SimulationGraphs(self.screen, canSelectAnywhere)
         self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                           siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan,
-                                          shouldDraw, knowSitePosAtStart, hubCanMove)  # The world that has all the sites and agents
+                                          shouldDraw, knowSitePosAtStart, hubCanMove, shouldDrawPaths)  # The world that has all the sites and agents
         self.chosenHome = None  # The site that most of the agents are assigned to when the simulation ends
         self.timeRanOut = False  # Whether there is no more time left in the simulation
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
@@ -116,6 +116,7 @@ class AbstractColonySimulation(ABC):
         self.graphs.drawStateGraph(self.world.states)
         self.graphs.drawPhaseGraph(self.world.phases)
         self.graphs.drawPredictionsGraph(self.world.siteList)
+        self.graphs.drawExecutedCommands()
 
     def setNextRound(self):
         pass

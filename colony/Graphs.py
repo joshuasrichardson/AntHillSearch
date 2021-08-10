@@ -8,6 +8,7 @@ class SimulationGraphs:
     def __init__(self, screen, canSelectAnywhere=DRAW_FAR_AGENTS):
         self.screen = screen
         self.canSelectAnywhere = canSelectAnywhere
+        self.executedCommands = []
 
         pygame.font.init()
         self.font = pygame.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -20,6 +21,9 @@ class SimulationGraphs:
         self.x5 = self.x + 680
 
         self.y = GRAPHS_TOP_LEFT[1]
+        self.y2 = self.screen.get_height() - 100
+        self.commandHistBox = pygame.draw.rect(self.screen, BORDER_COLOR,
+                                               pygame.Rect(self.x - 5, self.y2, self.x2 - 29, 50), 1)
 
         self.selectAgentsRect = pygame.Rect(self.x3, self.y + 5, 10, 10)
         self.selectSitesRect = pygame.Rect(self.x3, self.y + 16, 10, 10)
@@ -254,6 +258,30 @@ class SimulationGraphs:
         img = font.render(words, True, WORDS_COLOR)
         self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2),
                                self.screen.get_size()[1] / 2 - (img.get_height() / 2) - 60))
+
+    def addExecutedCommand(self, command):
+        self.executedCommands.append(command)
+
+    def drawExecutedCommands(self):
+        if self.shouldDrawGraphs:
+            self.y2 = self.commandHistBox.top + 4
+            pygame.draw.rect(self.screen, BORDER_COLOR, self.commandHistBox, 1)
+
+            for i in range(len(self.executedCommands) - 1, -1, -1):
+                if self.y2 + 15 > self.commandHistBox.bottom:
+                    break
+                command = self.executedCommands[i]
+                img = self.font.render(command, True, WORDS_COLOR)
+                self.screen.blit(img, (self.x, self.y2))
+                self.y2 += 11
+
+    def collidesWithCommandHistBoxTop(self, pos):
+        return abs(pos[1] - self.commandHistBox.top) < 3 and \
+               abs(pos[0] - self.commandHistBox.centerx) <= (self.commandHistBox.width / 2)
+
+    def setHistBoxTop(self, top):
+        self.commandHistBox = pygame.Rect(self.commandHistBox.left, top, self.commandHistBox.width,
+                                          self.commandHistBox.height + self.commandHistBox.top - top)
 
     def drawPause(self):
         self.writeBigCenter("Paused")
