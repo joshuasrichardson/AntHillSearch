@@ -68,6 +68,7 @@ class Controls:
         self.graphs.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents,
                                          self.shouldSelectAgentSites, self.shouldCommandSiteAgents, self.shouldShowOptions,
                                          self.paused)
+        # self.world.screen.blit(self.cursorImage, self.cursorRect)  # draw the cursor
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -82,7 +83,9 @@ class Controls:
             self.world.setSitePosition(self.dragSite, mousePos)
         if self.shouldMoveHistBoxTop:
             self.graphs.setHistBoxTop(mousePos[1])
-        if event.type == MOUSEBUTTONUP:
+        if event.type == MOUSEMOTION:
+            self.mouseMotion(mousePos)
+        elif event.type == MOUSEBUTTONUP:
             if event.button == 1:
                 self.mouseUp(mousePos)
             elif event.button == 3:
@@ -128,7 +131,7 @@ class Controls:
             elif key == K_ESCAPE:
                 self.unselectAll()
             elif len(self.selectedSites) > 0 and not pygame.key.get_mods() & KMOD_SHIFT and \
-                    not pygame.key.get_mods() & KMOD_CTRL:  # TODO: Add to readme and options menu
+                    not pygame.key.get_mods() & KMOD_CTRL:  # TODO: Add to readme
                 if event.unicode.isnumeric():
                     self.appendNumber(int(event.unicode))
                 elif key == K_BACKSPACE:
@@ -153,6 +156,15 @@ class Controls:
             pygame.quit()
             self.timer.cancel()
             raise GameOver("Exited Successfully")
+
+    def mouseMotion(self, mousePos):
+        if self.graphs.collidesWithCommandHistBoxTop(mousePos):
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
+        elif self.world.collidesWithSite(mousePos) or self.world.collidesWithAgent(mousePos) or \
+                self.graphs.collidesWithAnyButton(mousePos):
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        else:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     def addToExecutedEvents(self, eventName):
         now = datetime.now()
@@ -377,7 +389,9 @@ class Controls:
                 self.selectedAgents.remove(self.selectedAgents[i])
 
     def next(self):
-        if len(self.selectedAgents) > 1:
+        if self.paused and self.shouldShowOptions:
+            self.graphs.nextScreen()
+        elif len(self.selectedAgents) > 1:
             self.nextAgent()
         else:
             self.nextSite()
@@ -395,6 +409,8 @@ class Controls:
             self.selectedSite = self.selectedSites[self.selectedSiteIndex % len(self.selectedSites)]
 
     def previous(self):
+        if self.paused and self.shouldShowOptions:
+            self.graphs.previousScreen()
         if len(self.selectedAgents) > 1:
             self.previousAgent()
         else:

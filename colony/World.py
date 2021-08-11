@@ -252,27 +252,7 @@ class World:
         r = 30
         b = 30
         g = 30
-        up = True
         for i in range(len(self.fog)):
-            # Uncomment for a fun time
-            # if up:
-            #     if r < 255:
-            #         r += 1
-            #     elif b < 255:
-            #         b += 1
-            #     elif g < 255:
-            #         g += 1
-            #     else:
-            #         up = False
-            # else:
-            #     if r > 0:
-            #         r -= 1
-            #     elif b > 0:
-            #         b -= 1
-            #     elif g > 0:
-            #         g -= 1
-            #     else:
-            #         up = True
             pyg.draw.rect(self.screen, (r, b, g), self.fog[i])
 
     def drawPotentialQuality(self, potentialQuality):
@@ -286,3 +266,15 @@ class World:
 
     def getGroup(self, index):
         return self.agentGroups[index]
+
+    def collidesWithSite(self, mousePos):
+        for site in self.siteList:
+            if site.wasFound and site.getSiteRect().collidepoint(mousePos):
+                return True
+        return False
+
+    def collidesWithAgent(self, mousePos):
+        for agent in self.agentList:
+            if agent.getAgentRect().collidepoint(mousePos):
+                return True
+        return False

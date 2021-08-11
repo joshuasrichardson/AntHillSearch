@@ -15,7 +15,7 @@ from recording.RecordingPlayer import RecordingPlayer
 
 
 # TODO: Update the README.md file, add more comments throughout the code, and refactor.
-# TODO: Save a list of the commands the user executed, and show that on the screen. How can we differentiate between the permanent and temporary commands and show them differently?
+# TODO: How can we differentiate between the permanent and temporary commands and show them differently?
 # TODO: Make the recordings look better with the angle, knownSitePositions, and target
 
 

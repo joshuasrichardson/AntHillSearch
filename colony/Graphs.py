@@ -10,6 +10,7 @@ class SimulationGraphs:
         self.canSelectAnywhere = canSelectAnywhere
         self.executedCommands = []
         self.scrollIndex = -1
+        self.pageNumber = 0
 
         pygame.font.init()
         self.font = pygame.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
@@ -127,6 +128,14 @@ class SimulationGraphs:
                 self.write4("Show Options:")
                 self.drawSelectBox(shouldShowOptions, self.showOptionsRect)
 
+    def collidesWithAnyButton(self, position):
+        return self.collidesWithSelectAgentsButton(position) or \
+                    self.collidesWithSelectSitesButton(position) or \
+                    self.collidesWithSelectAgentsSitesButton(position) or \
+                    self.collidesWithSelectSitesAgentsButton(position) or \
+                    self.collidesWithCommandSiteAgentsButton(position) or \
+                    self.collidesWithOptionsButton(position)
+
     def collidesWithSelectAgentsButton(self, position):
         return self.selectAgentsRect.collidepoint(position[0], position[1])
 
@@ -156,6 +165,12 @@ class SimulationGraphs:
         else:
             return BORDER_COLOR
 
+    def nextScreen(self):
+        self.pageNumber = 1
+
+    def previousScreen(self):
+        self.pageNumber = 0
+
     def drawOptions(self):
         x, y = self.screen.get_size()
         left = x / 4
@@ -170,9 +185,20 @@ class SimulationGraphs:
         img = optionsFont.render("Options", True, WORDS_COLOR)
         self.screen.blit(img, (left * 2 - img.get_width() / 2, top - 60))
         left = left + leftMargin
+        if self.pageNumber == 0:
+            self.drawOptionsPage0(left, top, height, leftMargin, x)
+            img = self.font.render("NEXT >", True, WORDS_COLOR)
+            self.screen.blit(img, (x * 3 / 4 - 2 * img.get_width(), top + height - 25))
+        else:
+            self.drawOptionsPage1(left, top, height)
+            img = self.font.render("< PREVIOUS", True, WORDS_COLOR)
+            self.screen.blit(img, (x * 1 / 4 + img.get_width() / 2, top + height - 25))
 
+    def drawOptionsPage0(self, left, top, height, leftMargin, x):
         agentOptions = ['Select Agent',
                         'Wide Select',
+                        'Set Agent Group',
+                        'Select Agent Group',
                         'Half',
                         'Next Agent',
                         'Previous Agent',
@@ -184,14 +210,16 @@ class SimulationGraphs:
                         'Delete Agent',
                         'Unselect']
 
-        agentOptionButtons = ['- MOUSE_BUTTON (click)',
-                              '- MOUSE_BUTTON (drag)',
+        agentOptionButtons = ['- LEFT CLICK',
+                              '- DRAG LEFT CLICK',
+                              '- CTRL + 0-9',
+                              '- 0-9',
                               '- H',
-                              '- RIGHT_ARROW',
-                              '- LEFT_ARROW',
+                              '- RIGHT ARROW',
+                              '- LEFT ARROW',
                               '- F',
                               '- S',
-                              '- SPACE_BAR',
+                              '- SPACE or RIGHT CLICK',
                               '- A',
                               '- X',
                               '- DEL or /',
@@ -211,22 +239,26 @@ class SimulationGraphs:
                        'Shrink Site',
                        'Create Site',
                        'Delete Site',
-                       'Tell Agents to Go',
+                       'Set Go Point',
+                       'Set Assign Site',
+                       'Remove Command',
                        'Unselect']
 
-        siteOptionButtons = ['- MOUSE_BUTTON (click)',
-                             '- MOUSE_BUTTON (drag)',
-                             '- RIGHT_ARROW',
-                             '- LEFT_ARROW',
-                             '- MOUSE_BUTTON (drag)',
-                             '- 0-9 (BACKSPACE)',
-                             '- UP_ARROW',
-                             '- DOWN_ARROW',
+        siteOptionButtons = ['- LEFT CLICK',
+                             '- DRAG LEFT CLICK',
+                             '- RIGHT ARROW',
+                             '- LEFT ARROW',
+                             '- DRAG LEFT CLICK',
+                             '- 0-9/BACKSPACE + RETURN',
+                             '- UP ARROW',
+                             '- DOWN ARROW',
                              '- = (+)',
                              '- -',
                              '- C',
                              '- DEL or /',
-                             '- SPACE_BAR',
+                             '- SPACE or RIGHT CLICK',
+                             '- A',
+                             '- .',
                              '- ESC']
 
         if len(siteOptions) > longerListSize:
@@ -254,6 +286,30 @@ class SimulationGraphs:
             img = self.font.render(option, True, WORDS_COLOR)
             self.screen.blit(img, ((x / 2) + (leftMargin / 2) + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
+    def drawOptionsPage1(self, left, top, height):
+        options = ['Pause',
+                   'Show/Hide Graphs',
+                   'Show/Hide Options',
+                   'Expand/Shrink History Box',
+                   'Scroll Through History']
+
+        optionButtons = ['- P',
+                         '- G',
+                         '- O',
+                         '- DRAG LEFT CLICK',
+                         '- MOUSE WHEEL UP/DOWN']
+
+        img = self.font.render("Other Options:", True, WORDS_COLOR)
+        self.screen.blit(img, (left, top + 10))
+
+        for i, option in enumerate(options):
+            img = self.font.render(option, True, WORDS_COLOR)
+            self.screen.blit(img, (left, top + 25 + (i + 1) * (height / 16 - 5)))
+
+        for i, option in enumerate(optionButtons):
+            img = self.font.render(option, True, WORDS_COLOR)
+            self.screen.blit(img, (left + 120, top + 25 + (i + 1) * (height / 16 - 5)))
+
     def writeBigCenter(self, words):
         font = pygame.font.SysFont('Comic Sans MS', 40)
         img = font.render(words, True, WORDS_COLOR)
@@ -270,10 +326,7 @@ class SimulationGraphs:
             pygame.draw.rect(self.screen, BORDER_COLOR, self.commandHistBox, 1)
 
             if self.scrollIndex != len(self.executedCommands) - 1:
-                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.top + 10],
-                                 [self.commandHistBox.right - 12, self.commandHistBox.top + 6])
-                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.top + 6],
-                                 [self.commandHistBox.right - 8, self.commandHistBox.top + 10])
+                self.drawScrollUpArrow()
 
             lastIndex = self.scrollIndex
             for i in range(self.scrollIndex, -1, -1):
@@ -286,10 +339,19 @@ class SimulationGraphs:
                 self.y2 += 11
 
             if lastIndex > 0:
-                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.bottom - 10],
-                                 [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6])
-                pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6],
-                                 [self.commandHistBox.right - 8, self.commandHistBox.bottom - 10])
+                self.drawScrollDownArrow()
+
+    def drawScrollUpArrow(self):
+        pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.top + 10],
+                         [self.commandHistBox.right - 12, self.commandHistBox.top + 6])
+        pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.top + 6],
+                         [self.commandHistBox.right - 8, self.commandHistBox.top + 10])
+
+    def drawScrollDownArrow(self):
+        pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.bottom - 10],
+                         [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6])
+        pygame.draw.line(self.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6],
+                         [self.commandHistBox.right - 8, self.commandHistBox.bottom - 10])
 
     def collidesWithCommandHistBoxTop(self, pos):
         return abs(pos[1] - self.commandHistBox.top) < 3 and \
