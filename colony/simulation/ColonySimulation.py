@@ -1,17 +1,11 @@
 """ Colony Simulation Environment """
 import datetime
 import threading
-import sys
-sys.path.append("")
 from colony.ColonyExceptions import *
-from colony.AbstractColonySimulation import AbstractColonySimulation
+from colony.simulation.AbstractColonySimulation import AbstractColonySimulation
 from colony.Agents import *
 from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
-
-
-# TODO: Add ability to change parameters such as findSitesEasily during the simulation?
-# TODO: Break Agents, Site, and World, into themselves and ""Builder classes
 
 
 class ColonySimulation(AbstractColonySimulation):
@@ -21,10 +15,11 @@ class ColonySimulation(AbstractColonySimulation):
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
-                 siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN):
+                 siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
+                 knowSitePosAtStart=DRAW_ESTIMATES, canSelectAnywhere=DRAW_FAR_AGENTS, hubCanMove=HUB_CAN_MOVE):
         super().__init__(simulationDuration, numSites, useRestAPI, shouldRecord, shouldDraw, convergenceFraction,
-                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                         siteRadii, siteNoCloserThan, siteNoFartherThan)
+                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+                         siteNoCloserThan, siteNoFartherThan, knowSitePosAtStart, canSelectAnywhere, hubCanMove)
         self.previousSendTime = datetime.datetime.now()
 
         if simulationDuration < 0 or simulationDuration > MAX_TIME:
@@ -34,9 +29,11 @@ class ColonySimulation(AbstractColonySimulation):
 
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                         siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True,
-                        knowSitePosAtStart=KNOW_SITE_POS_AT_START):
+                        knowSitePosAtStart=DRAW_ESTIMATES, hubCanMove=HUB_CAN_MOVE,
+                        shouldDrawPaths=SHOULD_DRAW_PATHS):
         world = World(numSites, self.screen, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart)
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart,
+                      hubCanMove, shouldDrawPaths)
         return world
 
     def initializeRequest(self):
@@ -62,6 +59,8 @@ class ColonySimulation(AbstractColonySimulation):
 
     def updateAgent(self, agent, agentRectList):
         agent.updatePosition(None)
+        if self.shouldDraw:
+            agent.clearFog()
 
         agentRect = agent.getAgentRect()
         possibleNeighborList = agentRect.collidelistall(agentRectList)
@@ -74,6 +73,11 @@ class ColonySimulation(AbstractColonySimulation):
             self.recorder.recordAgentInfo(agent)
 
     def report(self, agentRectList):
+        self.setSitesEstimates(agentRectList)
+        if self.useRestAPI:
+            self.updateRestAPI()
+
+    def setSitesEstimates(self, agentRectList):
         hubRect = self.world.getHub().getSiteRect()
         hubAgentsIndices = hubRect.collidelistall(agentRectList)
         self.world.request.numAtHub = 0
@@ -83,9 +87,14 @@ class ColonySimulation(AbstractColonySimulation):
             for siteIndex in range(0, len(sites)):
                 if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
                     sites[siteIndex].wasFound = True
+                    # If the site's estimates were not reported before the agent got assigned to another site, report them here.
+                    if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
+                        sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
+                                                       agent.estimateQuality(sites[siteIndex]),
+                                                       agent.estimateAgentCount(sites[siteIndex]),
+                                                       agent.estimateRadius(sites[siteIndex])])
             agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
-        if self.useRestAPI:
-            self.updateRestAPI()
+            agent.assignedSite.updateBlur()
 
     def updateRestAPI(self):
         now = datetime.datetime.now()

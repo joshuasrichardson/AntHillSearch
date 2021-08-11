@@ -3,12 +3,12 @@
 # Having more agents slows down the simulation, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
-NUM_AGENTS = 200    # Total number of agents in the simulation
+NUM_AGENTS = 130    # Total number of agents in the simulation
 # The lower the convergence fraction is, the faster the simulation goes because lower fractions require less agents to go to a site
 CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 300  # Time of the simulation in seconds
+SIM_DURATION = 200  # Time of the simulation in seconds
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 4       # Number of total sites
 # Setting these, especially the good ones, closer to the hub location makes the simulation end sooner
@@ -33,44 +33,51 @@ USE_REST_API = False  # Whether the simulation sends information about the hub t
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
-# Having this false makes the simulation faster because the colors do not have to be drawn on the screen so much.
-SHOW_AGENT_COLORS = True  # Whether or not the agents' phase and state colors are drawn on the simulation screen.
+# Having this false makes the simulation faster because the paths do not have to be drawn on the screen so much.
+SHOULD_DRAW_PATHS = True
 # Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
 SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
 
-KNOW_SITE_POS_AT_START = False  # Whether the site positions are known at the start of the simulation. If not, they will be drawn after agents find them and report back to the hub.
+CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
 
-CAN_SELECT_ANYWHERE = False  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
+DRAW_ESTIMATES = False  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
 
-DRAW_ESTIMATES = True  # If True, only estimates of sites' qualities, positions, sizes, etc. will be drawn. If False, exact values will be drawn.
+HUB_CAN_MOVE = True  # Whether the hub can be moved
 
-HUB_CAN_MOVE = False  # Whether the hub can be moved
-
-DRAW_AGENTS = False  # Whether agents that aren't right by the hub are drawn
+DRAW_FAR_AGENTS = True  # Whether agents that aren't right by the hub are drawn
 
 MAX_AGENTS = 200    # Maximum allowed number of agents
 MAX_TIME = 5000     # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
-SCREEN_COLOR = 255, 255, 255  # White
+SCREEN_COLOR = 225, 220, 190  # Light brown
+
+WORDS_COLOR = 0, 100, 0  # Dark green
+
+BORDER_COLOR = 115, 110, 80  # Dark Brown
 
 """ Define colony size, hub location, and distribution parameters for sites """
 # The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
 HUB_LOCATION = None  # Location of the hub, when it is set to None, it is put in the middle of the screen
-HUB_OBSERVE_DIST = 50  # The farthest distance agents can be seen from the hub
+HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outside edge of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
-SITE_RADIUS = 20  # The default radius of the sites.
+SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
+INITIAL_BLUR = 8  # How blurry the sites are when they are found
+# If these numbers are too high, the simulation gets really slow. If they are too low, the blocks are really big and don't look as good. 200, 100 seems to be pretty good.
+NUM_FOG_BLOCKS_X = 200  # The initial number of fog rectangles from left to right on the screen
+NUM_FOG_BLOCKS_Y = 100  # The initial number of fog rectangles from top to bottom on the screen
 
 # Does not affect simulation besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
 #                             The others all build off of that depending on what is being displayed.
 
 """ Agent parameters """
+AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
 # Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.

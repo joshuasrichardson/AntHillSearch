@@ -17,11 +17,12 @@ class SendHubInfoRequest:
         # Agent state count estimates
         self.numAtHub = 0
         self.numSearch = 0
+        self.numCarried = 0
         self.numLeadForward = 0
         self.numFollow = 0
         self.numReverseTandem = 0
         self.numTransport = 0
-        self.numCarried = 0
+        self.numGo = 0
 
         self.agentPhases = []
         self.agentStates = []
@@ -39,6 +40,8 @@ class SendHubInfoRequest:
         self.sitesPreviousNQualities = []
         self.numAgentsAtSites = []
         self.previousNumAgentsAtSites = []
+        self.sitesRadii = []
+        self.sitesPreviousNRadii = []
 
     def addAgent(self, agent):
         self.agentPhases.append(agent.getPhaseNumber())
@@ -77,6 +80,8 @@ class SendHubInfoRequest:
     def decrementStateCount(self, agentIndex):
         if self.agentStates[agentIndex] == SEARCH:
             self.numSearch -= 1
+        elif self.agentStates[agentIndex] == CARRIED:
+            self.numCarried -= 1
         elif self.agentStates[agentIndex] == LEAD_FORWARD:
             self.numLeadForward -= 1
         elif self.agentStates[agentIndex] == FOLLOW:
@@ -85,8 +90,8 @@ class SendHubInfoRequest:
             self.numReverseTandem -= 1
         elif self.agentStates[agentIndex] == TRANSPORT:
             self.numTransport -= 1
-        elif self.agentStates[agentIndex] == CARRIED:
-            self.numCarried -= 1
+        elif self.agentStates[agentIndex] == GO:
+            self.numGo -= 1
 
     def incrementPhaseCount(self, agent):
         if agent.getPhaseNumber() == EXPLORE:
@@ -103,6 +108,8 @@ class SendHubInfoRequest:
             self.numAtHub += 1
         elif agent.state.state == SEARCH:
             self.numSearch += 1
+        elif agent.state.state == CARRIED:
+            self.numCarried += 1
         elif agent.state.state == LEAD_FORWARD:
             self.numLeadForward += 1
         elif agent.state.state == FOLLOW:
@@ -111,11 +118,11 @@ class SendHubInfoRequest:
             self.numReverseTandem += 1
         elif agent.state.state == TRANSPORT:
             self.numTransport += 1
-        elif agent.state.state == CARRIED:
-            self.numCarried += 1
+        elif agent.state.state == GO:
+            self.numGo += 1
 
     def updateSiteInfo(self, agent):
-        if self.siteIsNew(agent.assignedSite.pos):
+        if self.siteIsNew(agent.assignedSite.pos):  # The first time a site is found, just add the current agent's estimated values
             self.sitesPositions.append(agent.assignedSite.pos)
             self.sitesEstimatedPositions.append(agent.estimatedSitePosition)
             self.sitesPreviousNPositions.append([agent.estimatedSitePosition])
@@ -123,11 +130,14 @@ class SendHubInfoRequest:
             self.sitesPreviousNQualities.append([agent.estimatedQuality])
             self.numAgentsAtSites.append(agent.assignedSite.agentCount)
             self.previousNumAgentsAtSites.append([agent.assignedSite.agentCount])
+            self.sitesRadii.append(agent.estimatedRadius)
+            self.sitesPreviousNRadii.append([agent.estimatedRadius])
 
             return self.sitesEstimatedPositions[len(self.sitesEstimatedPositions) - 1], \
                 self.sitesQualities[len(self.sitesQualities) - 1], \
-                self.numAgentsAtSites[len(self.numAgentsAtSites) - 1]
-        else:
+                self.numAgentsAtSites[len(self.numAgentsAtSites) - 1], \
+                self.sitesRadii[len(self.sitesRadii) - 1]
+        else:  # If it's not the first time encountering a site, the estimated values need to be averaged out
             siteIndex = 0
             for i in range(0, len(self.sitesPositions)):
                 if agent.assignedSite.pos[0] == self.sitesPositions[i][0] \
@@ -137,12 +147,15 @@ class SendHubInfoRequest:
             self.updateSitePosition(siteIndex, agent.estimatedSitePosition)
             self.updateSiteQuality(siteIndex, agent.estimatedQuality)
             self.updateSiteNumAgents(siteIndex, agent.assignedSite.agentCount)
+            self.updateSiteRadius(siteIndex, agent.estimatedRadius)
 
             return self.sitesEstimatedPositions[siteIndex], \
                 self.sitesQualities[siteIndex], \
-                self.numAgentsAtSites[siteIndex]
+                self.numAgentsAtSites[siteIndex], \
+                self.sitesRadii[siteIndex]
 
     def siteIsNew(self, sitePosition):
+        """ Determines whether the site is new or not based on its position """
         for sitePos in self.sitesPositions:
             if sitePosition[0] == sitePos[0] and sitePosition[1] == sitePos[1]:
                 return False
@@ -157,11 +170,19 @@ class SendHubInfoRequest:
 
     def updateSiteQuality(self, siteIndex, estimatedQuality):
         self.sitesPreviousNQualities[siteIndex].append(estimatedQuality)
-        n = 10
-        self.sitesQualities[siteIndex] = self.getAverageOfLastNEstimates(n, siteIndex)
+        n = 50
+        self.sitesQualities[siteIndex] = self.getAverageOfLastNQualities(n, siteIndex)
 
-    def getAverageOfLastNEstimates(self, n, siteIndex):
+    def getAverageOfLastNQualities(self, n, siteIndex):
         return self.getAverageOfLastN(n, siteIndex, self.sitesPreviousNQualities)
+
+    def updateSiteRadius(self, siteIndex, estimatedRadius):
+        self.sitesPreviousNRadii[siteIndex].append(estimatedRadius)
+        n = 80
+        self.sitesRadii[siteIndex] = self.getAverageOfLastNRadii(n, siteIndex)
+
+    def getAverageOfLastNRadii(self, n, siteIndex):
+        return self.getAverageOfLastN(n, siteIndex, self.sitesPreviousNRadii)
 
     def updateSiteNumAgents(self, siteIndex, agentCount):
         self.previousNumAgentsAtSites[siteIndex].append(agentCount)
@@ -209,15 +230,17 @@ class SendHubInfoRequest:
 
                 'numAtHub': self.numAtHub,
                 'numSearch': self.numSearch,
+                'numCarried': self.numCarried,
                 'numLeadForward': self.numLeadForward,
                 'numFollow': self.numFollow,
                 'numReverseTandem': self.numReverseTandem,
                 'numTransport': self.numTransport,
-                'numCarried': self.numCarried,
+                'numGo': self.numGo,
 
                 'sitesPositions': self.sitesPositions,
                 'sitesQualities': self.sitesQualities,
-                'numAgentsAtSites': self.numAgentsAtSites}
+                'numAgentsAtSites': self.numAgentsAtSites,
+                'sitesRadii': self.sitesRadii}
 
     @staticmethod
     def sendResults(chosenSite, simulationTime):

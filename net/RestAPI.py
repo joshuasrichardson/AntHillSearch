@@ -39,4 +39,5 @@ def sendResults():
     return jsonify(result)
 
 
-app.run()
+if __name__ == '__main__':
+    app.run()

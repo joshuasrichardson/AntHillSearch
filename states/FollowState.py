@@ -15,6 +15,7 @@ class FollowState(State):
         siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
         if (self.agent.leadAgent.getState() == LEAD_FORWARD or self.agent.leadAgent.getState() == REVERSE_TANDEM)\
                 and self.agent.world.siteList[siteWithinRange] != self.agent.leadAgent.assignedSite:
+            self.setState(self, self.agent.leadAgent.getPosition())
             if self.agent.shouldGetLost():
                 self.agent.leadAgent = None
                 self.setState(SearchState(self.agent), None)
@@ -24,8 +25,8 @@ class FollowState(State):
                 if self.agent.getPhaseNumber() == COMMIT and self.agent.leadAgent.getState() == REVERSE_TANDEM\
                         and self.agent.leadAgent.comingWithFollowers and self.agent.assignedSite == self.agent.leadAgent.assignedSite:
                     # they also start recruiting from that site.
-                    self.agent.siteToRecruitFrom = self.agent.leadAgent.siteToRecruitFrom
-                    self.agent.addToKnownSites(self.agent.siteToRecruitFrom)
+                    self.agent.recruitSite = self.agent.leadAgent.recruitSite
+                    self.agent.addToKnownSites(self.agent.recruitSite)
                     self.agent.leadAgent = None
                     self.agent.transportOrReverseTandem(self)
         else:

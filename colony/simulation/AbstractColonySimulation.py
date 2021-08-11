@@ -1,6 +1,4 @@
-import sys
 import threading
-import traceback
 from abc import ABC, abstractmethod
 
 import pygame
@@ -8,9 +6,9 @@ import pygame
 from Constants import *
 from colony.Agents import Agent
 from colony.ColonyExceptions import InputError, GameOver
-from colony.SimulationGraphs import SimulationGraphs
-from colony.SimulationTimer import SimulationTimer
-from colony.myPygameUtils import createScreen
+from colony.Graphs import SimulationGraphs
+from colony.Timer import SimulationTimer
+from colony.PygameUtils import createScreen
 from recording.Recorder import Recorder
 from states.AtNestState import AtNestState
 from user.Controls import Controls
@@ -23,28 +21,35 @@ class AbstractColonySimulation(ABC):
                  shouldRecord=SHOULD_RECORD, shouldDraw=SHOULD_DRAW, convergenceFraction=CONVERGENCE_FRACTION,
                  hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS, sitePositions=SITE_POSITIONS,
                  siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
-                 siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=KNOW_SITE_POS_AT_START):
+                 siteNoFartherThan=SITE_NO_FARTHER_THAN, knowSitePosAtStart=DRAW_ESTIMATES,
+                 canSelectAnywhere=DRAW_FAR_AGENTS, hubCanMove=HUB_CAN_MOVE, shouldDrawPaths=SHOULD_DRAW_PATHS):
 
         self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
-        self.graphs = SimulationGraphs(self.screen)
+        if shouldDraw:
+            self.graphs = SimulationGraphs(self.screen, canSelectAnywhere)
+        else:
+            self.graphs = None
         self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                           siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan,
-                                          shouldDraw, knowSitePosAtStart)  # The world that has all the sites and agents
+                                          shouldDraw, knowSitePosAtStart, hubCanMove, shouldDrawPaths)  # The world that has all the sites and agents
         self.chosenHome = None  # The site that most of the agents are assigned to when the simulation ends
         self.timeRanOut = False  # Whether there is no more time left in the simulation
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the simulation is paused or ends
         self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
 
         self.useRestAPI = useRestAPI  # Whether the simulation should periodically report hub information to the rest API
+        self.apiThread = None
         self.shouldRecord = shouldRecord  # Whether the simulation should be recorded
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
+        self.onlyDrawExploredArea = True
 
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the simulation will end
 
     @abstractmethod
     def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart):
+                        siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, hubCanMove,
+                        shouldDrawPaths):
         pass
 
     def setAgentList(self, agents):
@@ -53,15 +58,18 @@ class AbstractColonySimulation(ABC):
     def initializeAgentList(self, numAgents=NUM_AGENTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                             maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                             minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY):
+                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
+                            findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR,
+                            drawFarAgents=DRAW_FAR_AGENTS):
         if numAgents < 0 or numAgents > MAX_AGENTS:
             raise InputError("Number of agents must be between 0 and " + str(MAX_AGENTS), numAgents)
         for i in range(0, numAgents):
             agent = Agent(self.world, self.world.getHub(), homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.hubLocation, maxSearchDist,
-                          findSitesEasily)
+                          findSitesEasily, commitSpeedFactor, drawFarAgents)
             agent.setState(AtNestState(agent))
             self.world.agentList.append(agent)
+            self.world.agentGroups[i % 10].append(agent)
 
     def runSimulation(self):
         self.initializeRequest()
@@ -102,12 +110,16 @@ class AbstractColonySimulation(ABC):
         self.report(agentRectList)
 
     def draw(self):
+        self.world.drawWorldObjects()
+        self.drawGraphs()
+        self.userControls.drawChanges()
+        pygame.display.flip()
+
+    def drawGraphs(self):
         self.graphs.drawStateGraph(self.world.states)
         self.graphs.drawPhaseGraph(self.world.phases)
         self.graphs.drawPredictionsGraph(self.world.siteList)
-        self.world.drawWorldObjects()
-        self.userControls.drawChanges()
-        pygame.display.flip()
+        self.graphs.drawExecutedCommands()
 
     def setNextRound(self):
         pass
@@ -119,8 +131,7 @@ class AbstractColonySimulation(ABC):
         for agent in self.world.agentList:
             try:
                 self.updateAgent(agent, agentRectList)
-                if self.shouldDraw:
-                    agent.drawAgent(self.screen)
+                self.world.updatePaths(agent)
             except IndexError:
                 self.world.removeAgent(agent)
 

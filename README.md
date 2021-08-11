@@ -5,6 +5,7 @@
 - Introduction
 - Running the Program
 - Parameters
+- Interfaces
 - Controls
 
 ## Introduction
@@ -79,7 +80,7 @@ it is running.
    <code>colony.Colony.py</code> (see "Parameters" section 
    for more details).
 4. Enter <code>python colony/Colony.py</code> in the terminal.
-5. If desired, try using some of the user controls while the
+5. If desired, try using some user controls while the
    simulation is running (see "Controls" for more details).
 
 ## Parameters
@@ -92,6 +93,10 @@ passing something else in as a parameter in
 <code>colony.Colony.py</code>'s <code>main()</code> method. 
 Important methods and their parameters to know about are listed 
 below.
+
+Using the interfaces mentioned in the "Interfaces" Section below 
+is an easy way to change many of these parameters at the same time
+to fit the purposes of the interfaces.
 
 ### <code>ColonySimulation()</code>
 
@@ -136,6 +141,16 @@ The constructor for the <code>ColonySimulation</code> class (the class that runs
   site can be from the hub at the start of the simulation. This is overridden by
   positions that users set with <code>sitePositions</code> as well as the "Move
   Site" command (see "Site Controls" below).
+  
+- <code>knowSitePosAtStart</code>: Boolean that determines whether sites are drawn on the screen
+  at the start of the simulation or only after they have been found by the agents.
+  
+- <code>canSelectAnywhere</code>: Boolean that determines whether agents and sites that are not
+  right next to the hub can be selected.
+  
+- <code>hubCanMove</code>: Boolean that determines whether the user can move the hub from its
+  starting position.
+  
   
 ### <code>RecordingPlayer()</code>
 
@@ -189,14 +204,22 @@ any agents.
 - <code>maxSearchDist</code>: Integer representing the farthest distance agents can go away 
   from their assigned site or the hub before they are forced to come a little closer to their 
   assigned site or the hub.
-
+  
+- <code>findSitesEasily</code>: Boolean that determines whether agents know where their sites
+  are even after they have been moved.
+  
+- <code>commitSpeedFactor</code>: Number that determines how much faster agents get when they 
+  commit.
+  
+- <code>drawFarAgents</code>: Boolean that determines whether agents that are not right by the
+  hub are drawn on the screen. 
+  
 ### <code>ColonySimulation.randomizeInitialState()</code>
 
 Assigns each agent in the simulation a random site to start from.
 
-This method has no parameters, but note that it can only 
-be called with the ColonySimulation (not with the 
-RecordingPlayer).
+This method has no parameters, but note that it cannot be called with the 
+RecordingPlayer.
 
 ### <code>ColonySimulation.addAgents()</code>
 
@@ -218,6 +241,65 @@ These agents can be given specific starting states, phases, locations, and assig
 Note that this method can only 
 be called with the ColonySimulation
 (not with the RecordingPlayer).
+
+## Interfaces
+
+There are currently 5 different interfaces available.
+
+### ColonySimulation 
+
+This interface is the original interface where many parameters
+can be set by the user by specifying them in the constructor or
+letting the default values in <code>Constants.py</code> apply.
+This is the most flexible interface, but it requires the most
+specification of parameters to match what the user might be
+looking for. (See the "Parameters" section above for more
+information on what parameters can be set.)
+
+### EngineerInterface
+
+This interface is the one that shows the most information. When
+there is a choice between drawing something and not drawing it,
+this interface usually draws it. It also provides accurate info
+about where agents are and site values. This interface also
+allows more user controls than the other interfaces. All parameters
+can still be manually set by the user as is shown for the 
+ColonySimulation in the "Parameters" section above, but different
+default values apply.
+
+### UserInterface
+
+This interface does not show as much information as the Engineering 
+Interface. Agents and their paths are only drawn when they are close 
+to the hub, and sites drawn only reflect what the agents that have
+returned to the hub have estimated about them. This interface allows
+some user controls, but they are limited to what can be done from the 
+hub. All parameters can still be manually set by the user as is shown 
+for the ColonySimulation in the "Parameters" section above, but 
+different default values apply.
+
+### EmpiricalTestingInterface
+
+This interface is the one that shows the least information. Nothing
+is drawn on the screen, and the user has no control over what happens. 
+The most important information is simply sent to a Rest API once every
+5 seconds. This information is not the complete accurate information in
+the Engineer Interface; it is what is known from the hub like in the
+User Interface. With nothing being drawn, this interface is faster than
+the others and allows users to run more simulations in a shorter time
+to gather empirical data. All parameters can still be manually set
+by the user as is shown for the ColonySimulation in the "Parameters" 
+section above, but different default values apply.
+
+Note that when running the EmpiricalTestingInterface, the RestAPI needs
+to be started before the simulation is started.
+
+### RecordingPlayer
+
+This interface shows about as much information as the Engineering
+Interface, but users have no control over what happens. Parameters
+have no effect on the simulation because all the information comes
+from the <code>recording.json</code> file.
 
 ## Controls
 
@@ -248,15 +330,28 @@ be more to come).
   When a group of agents is selected and the "Move Agent,"
   "Assign Agent to Site," or "Delete Agent" command is used,
   the command applies to all the selected agents.</p>
+
+- <strong>Set Agent Group</strong> - <code>CTRL</code>, <code>0-9</code>:
+  <p>Users can set the selected agents to be a group that can 
+  easily be selected again later (see "Select Agent Group" below)
+  by holding down the <code>CTRL</code> key and pushing a number key.</p>
   
-- <strong>Half</strong> - <code>K_h</code>:
+- <strong>Select Agent Group</strong> - <code>0-9</code>:
+  <p>Users can select a set group of agents (see "Set Agent Group" above)
+  by pressing the corresponding number key. This does not work if
+  a site is selected because the "Set Site Quality" control will 
+  apply. Additional agent groups can be selected by holding down 
+  <code>SHIFT</code> and selecting the other groups numbers. By 
+  default, 10% of the agents are assigned to each number group to start.</p>
+
+- <strong>Half</strong> - <code>h</code>:
   <p>Users can unselect half of the selected agents by pressing the 
   <code>h</code> key. The agent that is surrounded by a red circle and
   whose information shows up on the side of the screen will not be
   unselected by this, but other than that, there is no way to predict
   which agents will be unselected.</p>
 
-- <strong>Next Agent</strong> - <code>K_RIGHT</code>:
+- <strong>Next Agent</strong> - <code>RIGHT</code>:
   <p>When users have selected a group of agents with "Wide Select,"
   they can see information about the next agent in the list of agents
   by pushing the right arrow key. This action will also move the outer 
@@ -264,7 +359,7 @@ be more to come).
   surrounds the agent whose information appears on the left side of 
   the screen.</p>
 
-- <strong>Previous Agent</strong> - <code>K_LEFT</code>:
+- <strong>Previous Agent</strong> - <code>LEFT</code>:
   <p>When users have selected a group of agents with "Wide Select,"
   they can see information about the previous agent in the list of agents
   by pushing the left arrow key. This action will also move the outer 
@@ -272,19 +367,19 @@ be more to come).
   surrounds the agent whose information appears on the left side of 
   the screen.</p>
 
-- <strong>Speed Up</strong> - <code>K_f</code>:
+- <strong>Speed Up</strong> - <code>f</code>:
   <p>Users can cause the agents to move faster by pushing the 
   <code>f</code> key. This is not the same as fast forwarding 
   the simulation because the time still runs at the same speed.
   It is just a way to make each agent move faster.</p>
 
-- <strong>Slow Down</strong> - <code>K_s</code>:
+- <strong>Slow Down</strong> - <code>s</code>:
   <p>Users can cause the agents to move slower by pushing the 
   <code>s</code> key. This is not the same as slowing the whole 
   simulation down because the time still runs at the same speed.
   It is just a way to make each agent move slower.</p>
 
-- <strong>Move Agent</strong> - <code>SPACE</code>:
+- <strong>Move Agent</strong> - <code>SPACE</code> or <code>RIGHT_CLICK</code>:
   <p>Users can tell agents where to go by selecting the agents 
   (see "Select Agent" and "Wide Select" above), moving the mouse
   to the position they want the agent to go to, and pushing the
@@ -292,7 +387,7 @@ be more to come).
   toward the indicated spot until they get there. When they arrive, 
   they transition into the Search state.</p>
 
-- <strong>Assign Agent to Site</strong> - <code>K_a</code>:
+- <strong>Assign Agent to Site</strong> - <code>a</code>:
   <p>Users can assign agents to a site by selecting the agents 
   (see "Select Agent" and "Wide Select" above), moving the mouse
   over the site they want the agent to be assigned to, and pushing the
@@ -300,15 +395,18 @@ be more to come).
   toward the indicated site until they get there. When they arrive, 
   they transition into the At Nest state.</p>
 
-- <strong>Create Agent</strong> - <code>K_x</code>:
+- <strong>Create Agent</strong> - <code>x</code>:
   <p>Users can create new agents during the simulation by pressing
   the <code>x</code> key. A new agent will appear where the mouse is
   and start moving in a random direction in the Search state.</p>
 
-- <strong>Delete Agents</strong> - <code>K_SLASH</code> or <code>K_DELETE</code>:
+- <strong>Delete Agents</strong> - <code>SLASH</code> or <code>DELETE</code>:
   <p>Users can delete all the selected agents by pressing the <code>/</code> 
   or <code>DELETE</code> key (on some keyboards, the <code>DELETE</code> key
   does not work).</p>
+
+- <strong>Unselect Agents</strong> - <code>ESC</code>:
+  <p>Users can unselect all agents by pressing the escape button.</p>
 
 ### Site Controls
 
@@ -332,27 +430,27 @@ be more to come).
   "Lower Quqlity," or "Set Quality" command is used,
   the command applies to all the selected sites.</p>
 
-- <strong>Next Site</strong> - <code>K_RIGHT</code>:
+- <strong>Next Site</strong> - <code>RIGHT</code>:
   <p>When users have selected a group of sites with "Wide Select,"
   they can see information about the next site in the list of sites
   by pushing the right arrow key.</p>
 
-- <strong>Previous Site</strong> - <code>K_LEFT</code>:
+- <strong>Previous Site</strong> - <code>LEFT</code>:
   <p>When users have selected a group of sites with "Wide Select,"
   they can see information about the previous site in the list of sites
   by pushing the left arrow key.</p>
 
-- <strong>Raise Quality</strong> - <code>K_UP</code>:
+- <strong>Raise Quality</strong> - <code>UP</code>:
   <p>When users have selected a site (sites) they can raise the quality
   (qualities) by one point by pushing the up arrow key. If the quality 
   is already at its max (255), this action will not do anything.</p>
 
-- <strong>Lower Quality</strong> - <code>K_DOWN</code>:
+- <strong>Lower Quality</strong> - <code>DOWN</code>:
   <p>When users have selected a site (sites) they can lower the quality
   (qualities) by one point by pushing the down arrow key. If the quality 
   is already at its min (0), this action will not do anything.</p>
 
-- <strong>Set Quality</strong> - <code>0-9</code> or <code>BACKSPACE</code> and <code>K_RETURN</code>:
+- <strong>Set Quality</strong> - <code>0-9</code> or <code>BACKSPACE</code> and <code>RETURN</code>:
   <p>When users have selected a site (sites) they can set the quality
   (qualities) by typing any number and pushing <code>ENTER</code>.
   When they start typing, "Set Quality:" with the value to set the
@@ -365,21 +463,21 @@ be more to come).
   remains and <code>BACKSPACE</code> is pushed, the "Set Quality:" 
   display disappears.</p>
 
-- <strong>Create Site</strong> - <code>K_c</code>:
+- <strong>Create Site</strong> - <code>c</code>:
   <p>Users can create new sites during the simulation by pressing
   the <code>c</code> key. A new site will appear where the mouse is
   with the default quality (which is set in the Constants.py file).</p>
 
-- <strong>Delete Site</strong> - <code>K_SLASH</code> or <code>K_DELETE</code>:
+- <strong>Delete Site</strong> - <code>SLASH</code> or <code>DELETE</code>:
   <p>Users can delete all the selected sites by pressing the <code>/</code> 
   or <code>DELETE</code> key (on some keyboards, the <code>DELETE</code> key
   does not work).</p>
 
-- <strong>Expand Site</strong> - <code>K_EQUALS</code>:
+- <strong>Expand Site</strong> - <code>EQUALS (PLUS)</code>:
   <p>Users can increase the size of the selected sites by pressing the 
   <code>=</code> (<code>+</code>) key.</p>
 
-- <strong>Shrink Site</strong> - <code>K_MINUS</code>:
+- <strong>Shrink Site</strong> - <code>MINUS</code>:
   <p>Users can decrease the size of the selected sites by pressing the 
   <code>-</code> key.</p>
 
@@ -388,15 +486,32 @@ be more to come).
   <p>Users can move sites by clicking them with the mouse, dragging 
   them to a new location, and releasing the mouse button.</p>
 
+- <strong>Command Agents to Go</strong> - <code>SPACE</code> or <code>RIGHT_CLICK</code>:
+  <p>Users can set a point where all agents who stop at the selected site must
+  go after arriving by selecting the site and pushing the <code>SPACE</code>
+  bar with the mouse in the position the agents should go to.</p>
+
+- <strong>Command Agents to Be Assigned</strong> - <code>a</code>:
+  <p>Users can set a site that all agents who stop at the selected site will
+  be assigned to after arriving by selecting the site and pushing the <code>a</code>
+  key with the mouse positioned over the site the agents should be assigned to.</p>
+
+- <strong>Unselect Sites</strong> - <code>ESC</code>:
+  <p>Users can unselect all sites by pressing the escape button.</p>
+
+- <strong>Cancel Site Commands</strong> - <code>PERIOD</code>:
+  <p>Users can cancel all selected sites' commands by pressing the 
+  <code>.</code> key.</p>
+
 ### Other Controls
 
-- <strong>Pause</strong> - <code>K_p</code>:
+- <strong>Pause</strong> - <code>p</code>:
   <p>Users can pause and unpause the simulation by pressing the <code>p</code> key. 
   While the simulation is paused, all user interactions are still possible.
   However, agents who are told to go somewhere (see "Move Agent" above) will
   not start moving until the simulation resumes.</p>
 
-- <strong>View Options</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code> or <code>K_o</code>:
+- <strong>Show/Hide Options</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code> or <code>o</code>:
   <p>Users can view the options mentioned above ("Agent Controls" and "Site Controls")
   by clicking on the gray box next to the words "Show Options:" on the screen, or by 
   pressing the <code>o</code> key while the simulation is paused. A list of the
@@ -430,3 +545,30 @@ be more to come).
   on the blue/gray box next to the words "Select Sites Agents:" on the screen. When the box is blue, sites agents 
   selection is enabled. When the box is gray, it is disabled. Enabling sites agents selection can be useful when 
   a user wants to do something like see which agents are assigned to the selected sites.</p>
+
+- <strong>Enable/Disable Site Commands</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
+  <p>Users can enable or disable site commands by clickingon the blue/gray box next 
+  to the words "Command Site Agents:" on the screen. When the box is blue, site commands 
+  are enabled. When the box is gray, they is disabled.</p>
+
+- <strong>Show/Hide Graphs</strong> - <code>g</code>:
+  <p>Users can have the graphs on the left side of the screen appear or disappear by pressing the <code>G</code> key.</p>
+
+- <strong>Expand/Shrink Command History Box</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, <code>MOUSEBUTTONUP</code>:
+  <p>Users can expand or shrink the box that shows a history of all the commands executed throughout the 
+  simulation by left clicking on the top of it and dragging it up or down. This will cause more or less
+  commands to be displayed.</p>
+
+- <strong>Scroll Command History Box</strong> - <code>MOUSEWHEEL</code>:
+  <p>Users can view commands executed earlier by scrolling down and commands executed more recently
+  by scrolling up. When there are more executed commands that are not already displayed on the screen,
+  an arrow will be drawn on the side of the box pointing in the direction of the commands that are not
+  being displayed.</p>
+
+- <strong>Show Next Page of Options</strong> - <code>RIGHT</code>:
+  <p>Users can view the second page of options by pushing the right arrow key 
+  while the simulation is paused and the option menu is showing.</p>
+
+- <strong>Show Previous Page of Options</strong> - <code>LEFT</code>:
+  <p>Users can view the first page of options by pushing the left arrow key 
+  while the simulation is paused and the option menu is showing.</p>

@@ -10,6 +10,7 @@ class Recorder:
 
     def __init__(self):
         self.agentPositions = []
+        self.agentAngles = []
         self.agentStates = []
         self.agentPhases = []
         self.agentAssignments = []
@@ -20,6 +21,7 @@ class Recorder:
         self.data = []
 
         self.currentAgentPosIndex = -1
+        self.currentAgentAngleIndex = -1
         self.currentStateIndex = -1
         self.currentPhaseIndex = -1
         self.currentAssignmentIndex = -1
@@ -31,12 +33,16 @@ class Recorder:
 
     def recordAgentInfo(self, agent):
         self.recordAgentPosition(agent.getPosition())
+        self.recordAgentAngle(agent.getAngle())
         self.recordState(agent.getState())
         self.recordPhase(agent.getPhaseNumber())
         self.recordAssignment(agent.getAssignedSiteIndex())
 
     def recordAgentPosition(self, pos):
         self.agentPositions.append(pos)
+
+    def recordAgentAngle(self, angle):
+        self.agentAngles.append(float(angle))
 
     def recordState(self, state):
         self.agentStates.append(state)
@@ -63,6 +69,7 @@ class Recorder:
 
     def save(self):
         self.data.append({'agentPositions': self.agentPositions,
+                          'agentAngles': self.agentAngles,
                           'agentStates': self.agentStates,
                           'agentPhases': self.agentPhases,
                           'agentAssignments': self.agentAssignments,
@@ -70,6 +77,7 @@ class Recorder:
                           'siteQualities': self.siteQualities,
                           'siteRadii': self.siteRadii})
         self.agentPositions = []
+        self.agentAngles = []
         self.agentStates = []
         self.agentPhases = []
         self.agentAssignments = []
@@ -88,6 +96,10 @@ class Recorder:
     def getNextAgentPosition(self):
         self.currentAgentPosIndex += 1
         return self.agentPositions[self.currentAgentPosIndex]
+
+    def getNextAgentAngle(self):
+        self.currentAgentAngleIndex += 1
+        return self.agentAngles[self.currentAgentAngleIndex]
 
     def getNextState(self, agent):
         self.currentStateIndex += 1
@@ -113,13 +125,23 @@ class Recorder:
         self.currentRadiusIndex += 1
         return self.siteRadii[self.currentRadiusIndex]
 
+    def getNumAgents(self):
+        if self.dataIndex >= 0:
+            return len(self.agentPositions)
+        else:
+            return len(self.data[0]['agentPositions'])
+
     def getNumSites(self):
-        return len(self.sitePositions)
+        if self.dataIndex >= 0:
+            return len(self.sitePositions)
+        else:
+            return len(self.data[0]['sitePositions'])
 
     def setNextRound(self):
         self.dataIndex += 1
 
         self.currentAgentPosIndex = -1
+        self.currentAgentAngleIndex = -1
         self.currentStateIndex = -1
         self.currentPhaseIndex = -1
         self.currentAssignmentIndex = -1
@@ -129,6 +151,7 @@ class Recorder:
 
         if len(self.data) > self.dataIndex:
             self.agentPositions = self.data[self.dataIndex]['agentPositions']
+            self.agentAngles = self.data[self.dataIndex]['agentAngles']
             self.agentStates = self.data[self.dataIndex]['agentStates']
             self.agentPhases = self.data[self.dataIndex]['agentPhases']
             self.agentAssignments = self.data[self.dataIndex]['agentAssignments']
