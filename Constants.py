@@ -3,12 +3,12 @@
 # Having more agents slows down the simulation, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it doesn't have a great effect on where they end up.
-NUM_AGENTS = 130    # Total number of agents in the simulation
+NUM_AGENTS = 400    # Total number of agents in the simulation
 # The lower the convergence fraction is, the faster the simulation goes because lower fractions require less agents to go to a site
 CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 200  # Time of the simulation in seconds
+SIM_DURATION = 45  # Time of the simulation in seconds
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 4       # Number of total sites
 # Setting these, especially the good ones, closer to the hub location makes the simulation end sooner
@@ -46,7 +46,7 @@ HUB_CAN_MOVE = True  # Whether the hub can be moved
 
 DRAW_FAR_AGENTS = True  # Whether agents that aren't right by the hub are drawn
 
-MAX_AGENTS = 200    # Maximum allowed number of agents
+MAX_AGENTS = 800    # Maximum allowed number of agents
 MAX_TIME = 5000     # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
@@ -69,8 +69,8 @@ SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 # If these numbers are too high, the simulation gets really slow. If they are too low, the blocks are really big and don't look as good. 200, 100 seems to be pretty good.
-NUM_FOG_BLOCKS_X = 200  # The initial number of fog rectangles from left to right on the screen
-NUM_FOG_BLOCKS_Y = 100  # The initial number of fog rectangles from top to bottom on the screen
+NUM_FOG_BLOCKS_X = 2  # The initial number of fog rectangles from left to right on the screen
+NUM_FOG_BLOCKS_Y = 1  # The initial number of fog rectangles from top to bottom on the screen
 
 # Does not affect simulation besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.

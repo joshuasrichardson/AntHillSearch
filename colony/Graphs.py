@@ -374,5 +374,10 @@ class SimulationGraphs:
     def drawPause(self):
         self.writeBigCenter("Paused")
 
+    # def drawRemainingTime(self):
+    #     img = self.font.render(str(self.remainingTime), True, WORDS_COLOR)
+    #     self.screen.blit(img, (self.screen.get_size()[0] / 2 - (img.get_width() / 2),
+    #                            self.screen.get_size()[1] / 2 - (img.get_height() / 2) - 60))
+
     def drawFinish(self):
         self.writeBigCenter("Finish")

@@ -26,13 +26,13 @@ from states.AtNestState import AtNestState
 
 def main():
     try:
+        
         # colony = ColonySimulation()  # The general interface where all parameters can be set how the programmer wants
         # colony = EngineerInterface()  # The interface that shows lots of information about the simulation and gives lots of control over what happens
-        # colony = UserInterface()  # The interface that only shows what is known from the hub and has limited control
-        # colony = EmpiricalTestingInterface()  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+        colony = UserInterface()  # The interface that only shows what is known from the hub and has limited control
 
         # RecordingPlayer does not take any parameters, because all the positions, assignments, states, etc. are set by the recording.json file.
-        colony = RecordingPlayer()  # The interface with almost no control that simply plays a recording from the recording.json file
+        # colony = RecordingPlayer()  # The interface with almost no control that simply plays a recording from the recording.json file
 
         # (numAgents, state, phase, siteIndex)
         # colony.addAgents(20, AtNestState, AssessPhase(), 1)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
@@ -41,10 +41,29 @@ def main():
 
         # colony.randomizeInitialState()  # You can optionally randomize which site each agent starts from in some of the interfaces
 
-        colony.runSimulation()  # Starts the simulation
+        results = colony.runSimulation()  # Starts the simulation
+        
         print("Success!")
+
+        # runEmpiricalTestingInterface(5)
+        
     except GameOver:
         pass
 
+def runEmpiricalTestingInterface(numSimulations=1):
+    chosenSiteQualities = []
+    convergenceTimes = []
+    for i in range(numSimulations):
+        print("Simulation " + str(i + 1) + ":")
+        colony = EmpiricalTestingInterface(shouldRecord=False, useRestAPI=False)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+        colony.initializeAgentList()  # Create the agents that will be used in the simulation
+        results = colony.runSimulation()  # Starts the simulation
+        chosenSiteQualities.append(results[0])
+        convergenceTimes.append(results[1])
+        # print("The agents' chose a site with quality: " + str(results[0]) + ".")
+        # print("The " + str(i) + " simulation took " + str(results[1]) + " seconds to complete.")
+        print()
+    print("Qualities: " + str(chosenSiteQualities))
+    print("Durations: " + str(convergenceTimes))
 
 main()
