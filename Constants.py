@@ -77,7 +77,7 @@ GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first g
 #                             The others all build off of that depending on what is being displayed.
 
 """ Agent parameters """
-AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
+AGENT_IMAGE = "resources/copter.png"  # The image that is displayed on the screen to represent an agent
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
 # Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.
