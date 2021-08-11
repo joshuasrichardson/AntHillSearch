@@ -308,7 +308,7 @@ class SimulationGraphs:
 
         for i, option in enumerate(optionButtons):
             img = self.font.render(option, True, WORDS_COLOR)
-            self.screen.blit(img, (left + 120, top + 25 + (i + 1) * (height / 16 - 5)))
+            self.screen.blit(img, (left + 180, top + 25 + (i + 1) * (height / 16 - 5)))
 
     def writeBigCenter(self, words):
         font = pygame.font.SysFont('Comic Sans MS', 40)

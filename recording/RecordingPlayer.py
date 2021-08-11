@@ -62,6 +62,8 @@ class RecordingPlayer(AbstractColonySimulation):
     def updateAgent(self, agent, agentRectList):
         pos = self.recorder.getNextAgentPosition()
         agent.updatePosition(pos)
+        angle = self.recorder.getNextAgentAngle()
+        agent.setAngle(angle)
 
         agentRect = agent.getAgentRect()
         possibleNeighborList = agentRect.collidelistall(agentRectList)

@@ -101,6 +101,9 @@ class Agent:
     def getPhaseNumber(self):
         return self.phase.getNumber()
 
+    def getAngle(self):
+        return self.angle
+
     def getPosition(self):
         self.pos = [self.agentRect.centerx, self.agentRect.centery]
         return self.pos
