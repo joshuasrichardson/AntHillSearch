@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 
 def numToPhase(num):
+    """ Returns the phase associated with the given number """
     from Constants import EXPLORE
     if num == EXPLORE:
         from phases.ExplorePhase import ExplorePhase
@@ -21,6 +22,7 @@ def numToPhase(num):
 
 
 class Phase(ABC):
+    """ Agent phases or levels of commitment on their way to finding the best new site """
 
     @abstractmethod
     def getNumber(self):

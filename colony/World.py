@@ -11,7 +11,7 @@ class World:
                  siteNoCloserThan, siteNoFartherThan, shouldDraw, knowSitePosAtStart, drawEstimates=DRAW_ESTIMATES,
                  hubCanMove=HUB_CAN_MOVE, shouldDrawPaths=SHOULD_DRAW_PATHS):
         self.shouldDraw = shouldDraw  # Whether the simulation should be drawn on the screen
-        self.hubCanMove = hubCanMove
+        self.hubCanMove = hubCanMove  # Whether the hub can be moved by the user
         self.hubLocation = hubLocation  # Where the agents' original home is located
         if hubLocation is None:
             if shouldDraw:
@@ -29,28 +29,27 @@ class World:
         self.siteQualities = siteQualities  # The quality of each site
         self.sitesRadii = siteRadii  # A list of the radius of each site
         self.screen = screen  # The screen to draw the simulation on
-        self.drawEstimates = drawEstimates
-        self.shouldDrawPaths = shouldDrawPaths
-        self.shouldDrawFog = True
+        self.drawEstimates = drawEstimates  # Whether estimates are drawn (if False, actual values are drawn)
+        self.shouldDrawPaths = shouldDrawPaths  # Whether paths behind the agents are drawn
+        self.shouldDrawFog = True  # Whether the screen is initially filled with dark gray fog
+        self.marker = None  # A marker drawn in the world representing a user's command
 
-        pyg.font.init()
-        self.myfont = pyg.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
-        self.marker = None
-
-        self.knowSitePosAtStart = knowSitePosAtStart
+        self.knowSitePosAtStart = knowSitePosAtStart  # Whether the user knows site positions at the start of the simulation
         self.createSites(numSites)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.hub = self.createHub()  # The agents' original home
-        self.fog = self.getInitialFog()
+        if self.shouldDraw:
+            self.fog = self.getInitialFog()  # A list of rectangles where the agents have not yet explored
         self.request = None  # The request, used to sent information to a rest API
 
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
     def randomizeState(self):
+        """ Sets all the agents at random sites """
         for agent in self.agentList:
             site = self.siteList[random.randint(0, len(self.siteList) - 1)]
             agent.addToKnownSites(site)
@@ -61,6 +60,7 @@ class World:
         return self.siteList
 
     def getSiteIndex(self, site):
+        """ Returns the position of the site in the world's site list """
         return self.siteList.index(site)
 
     def setSitePosition(self, site, pos):
@@ -70,34 +70,36 @@ class World:
         self.siteRectList[siteIndex].centery = pos[1]
 
     def createSites(self, numSites):
-        # Create as many sites as required
+        """ Create as many sites as required """
         for siteIndex in range(0, numSites):
-            try:
+            try:  # Try setting the position to match the position in the specified positions list
                 x = self.sitePositions[siteIndex][0]
                 y = self.sitePositions[siteIndex][1]
-            except IndexError:
+            except IndexError:  # If the positions are not specified they will be randomized
                 print("Site position index out of range. Assigning random position.")
                 x = None
                 y = None
-            try:
+            try:  # Try setting the quality to match the quality in the specified qualities list
                 quality = self.siteQualities[siteIndex]
-            except IndexError:
+            except IndexError:  # If the qualities are not specified they will be randomized
                 print("Site quality index out of range. Assigning random quality")
                 quality = None
-            try:
+            try:  # Try setting the radius to match the radius in the specified radii list
                 radius = self.sitesRadii[siteIndex]
-            except IndexError:
+            except IndexError:  # If the radii are not specified they will be randomized
                 print("Site radius index out of range. Assigning radius to " + str(SITE_RADIUS))
                 radius = SITE_RADIUS
             self.createSite(x, y, radius, quality, self.knowSitePosAtStart)
 
     def createSite(self, x, y, radius, quality, show):
+        """ Creates a site with specified values. If values are none, then default values will apply """
         newSite = Site(self.screen, self.hubLocation, x, y, radius, quality,
                        self.siteNoCloserThan, self.siteNoFartherThan, show)
-        self.siteList.append(newSite)
+        self.siteList.append(newSite)  # Add the site to the world's list of sites
         self.siteRectList.append(newSite.getSiteRect())
 
     def removeSite(self, site):
+        """ Deletes the site unless it is the hub """
         if site.getQuality() == -1 and site.agentCount > 0:
             print("Cannot delete the hub")
         else:
@@ -107,6 +109,7 @@ class World:
             del site
 
     def getInitialFog(self):
+        """ Gets a list of rectangles that cover the entire screen except for the area around the hub """
         rects = []
         w = self.screen.get_width()
         h = self.screen.get_height()
@@ -122,6 +125,7 @@ class World:
         return rects
 
     def isClose(self, rect, pos):
+        """ Returns whether the position and rectangle are close to each other """
         return rect.colliderect(pos[0] - (rect.width + HUB_OBSERVE_DIST) / 2,
                                 pos[1] - (rect.height + HUB_OBSERVE_DIST) / 2,
                                 (self.screen.get_width() / NUM_FOG_BLOCKS_X) + rect.width + HUB_OBSERVE_DIST,
@@ -175,6 +179,7 @@ class World:
         return self.hub
 
     def updateStateAndPhaseCounts(self):
+        """ Counts the phase and state of each agent so they can be displayed to the user """
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         if DRAW_FAR_AGENTS:
@@ -198,22 +203,23 @@ class World:
             self.phases[CANVAS] = self.request.numCanvas
             self.phases[COMMIT] = self.request.numCommit
 
-        if self.states[GO] == 0:
-            self.setMarker(None)
+        if self.states[GO] == 0:  # If all the agents have reached the destination they were commanded to go to,
+            self.setMarker(None)  # then the marker should go away.
 
     def updatePaths(self, agent):
-        if self.shouldDrawPaths:
+        if self.shouldDrawPaths:  # If the paths should be drawn anywhere, the world can keep track of all of them
             self.paths.append(agent.getPosition())
             if len(self.paths) > 50 * len(self.agentList):
                 for i in range(len(self.agentList)):
                     self.paths.pop(0)
-        else:
+        else:  # The agents will need to keep track of their paths so they can report it when they get to the hub an no other time.
             agent.updatePath()
 
     def setMarker(self, marker):
         self.marker = marker
 
     def drawWorldObjects(self):
+        """ Draws the paths, agents, sites, markers, and fog in the world"""
         if self.shouldDrawPaths:
             self.drawPaths()
         self.drawAgents()
@@ -249,31 +255,34 @@ class World:
             fogIndices = rect.collidelist(self.fog)
 
     def drawFog(self):
-        r = 30
-        b = 30
-        g = 30
+        r, g, b = 30, 30, 30
         for i in range(len(self.fog)):
-            pyg.draw.rect(self.screen, (r, b, g), self.fog[i])
+            pyg.draw.rect(self.screen, (r, g, b), self.fog[i])
 
-    def drawPotentialQuality(self, potentialQuality):
-        img = self.myfont.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))
+    def drawPotentialQuality(self, potentialQuality, font):
+        """ Draws the value the selected sites will be set to if the user pushes Enter """
+        img = font.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))
         for site in self.siteList:
             if site.isSelected:
                 self.screen.blit(img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
 
     def updateGroup(self, index, agents):
+        """ Sets an easily selectable group of agents to the specified agents """
         self.agentGroups[index] = agents
 
     def getGroup(self, index):
+        """ Gets the group of agents that was set to the specified index """
         return self.agentGroups[index]
 
     def collidesWithSite(self, mousePos):
+        """ Returns whether the mouse cursor is over any site in the world """
         for site in self.siteList:
             if site.wasFound and site.getSiteRect().collidepoint(mousePos):
                 return True
         return False
 
     def collidesWithAgent(self, mousePos):
+        """" Returns whether the mouse cursor is over any agent in the world """
         for agent in self.agentList:
             if agent.getAgentRect().collidepoint(mousePos):
                 return True

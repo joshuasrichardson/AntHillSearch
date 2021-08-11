@@ -122,7 +122,7 @@ class SendHubInfoRequest:
             self.numGo += 1
 
     def updateSiteInfo(self, agent):
-        if self.siteIsNew(agent.assignedSite.pos):
+        if self.siteIsNew(agent.assignedSite.pos):  # The first time a site is found, just add the current agent's estimated values
             self.sitesPositions.append(agent.assignedSite.pos)
             self.sitesEstimatedPositions.append(agent.estimatedSitePosition)
             self.sitesPreviousNPositions.append([agent.estimatedSitePosition])
@@ -137,7 +137,7 @@ class SendHubInfoRequest:
                 self.sitesQualities[len(self.sitesQualities) - 1], \
                 self.numAgentsAtSites[len(self.numAgentsAtSites) - 1], \
                 self.sitesRadii[len(self.sitesRadii) - 1]
-        else:
+        else:  # If it's not the first time encountering a site, the estimated values need to be averaged out
             siteIndex = 0
             for i in range(0, len(self.sitesPositions)):
                 if agent.assignedSite.pos[0] == self.sitesPositions[i][0] \
@@ -155,6 +155,7 @@ class SendHubInfoRequest:
                 self.sitesRadii[siteIndex]
 
     def siteIsNew(self, sitePosition):
+        """ Determines whether the site is new or not based on its position """
         for sitePos in self.sitesPositions:
             if sitePosition[0] == sitePos[0] and sitePosition[1] == sitePos[1]:
                 return False

@@ -25,7 +25,10 @@ class AbstractColonySimulation(ABC):
                  canSelectAnywhere=DRAW_FAR_AGENTS, hubCanMove=HUB_CAN_MOVE, shouldDrawPaths=SHOULD_DRAW_PATHS):
 
         self.screen = createScreen(shouldDraw)  # The screen that the simulation is drawn on
-        self.graphs = SimulationGraphs(self.screen, canSelectAnywhere)
+        if shouldDraw:
+            self.graphs = SimulationGraphs(self.screen, canSelectAnywhere)
+        else:
+            self.graphs = None
         self.recorder = Recorder()  # The recorder that either records a live simulation or plays a recorded simulation
         self.world = self.initializeWorld(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
                                           siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan,

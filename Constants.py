@@ -8,7 +8,7 @@ NUM_AGENTS = 130    # Total number of agents in the simulation
 CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a simulation duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 300  # Time of the simulation in seconds
+SIM_DURATION = 200  # Time of the simulation in seconds
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 4       # Number of total sites
 # Setting these, especially the good ones, closer to the hub location makes the simulation end sooner

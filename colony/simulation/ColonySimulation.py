@@ -8,10 +8,6 @@ from colony.World import World
 from net.SendHubInfoRequest import SendHubInfoRequest
 
 
-# TODO: Add ability to change parameters such as findSitesEasily during the simulation?
-# TODO: Break Agents, Site, and World, into themselves and ""Builder classes
-
-
 class ColonySimulation(AbstractColonySimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke """
 
@@ -63,7 +59,8 @@ class ColonySimulation(AbstractColonySimulation):
 
     def updateAgent(self, agent, agentRectList):
         agent.updatePosition(None)
-        agent.clearFog()
+        if self.shouldDraw:
+            agent.clearFog()
 
         agentRect = agent.getAgentRect()
         possibleNeighborList = agentRect.collidelistall(agentRectList)

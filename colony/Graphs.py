@@ -233,8 +233,8 @@ class SimulationGraphs:
                        'Previous Site',
                        'Move Site',
                        'Set Quality',
-                       'Increase Quality',
-                       'Decrease Quality',
+                       'Raise Quality',
+                       'Lower Quality',
                        'Expand Site',
                        'Shrink Site',
                        'Create Site',
@@ -290,12 +290,14 @@ class SimulationGraphs:
         options = ['Pause',
                    'Show/Hide Graphs',
                    'Show/Hide Options',
+                   'Enable/Disable',
                    'Expand/Shrink History Box',
                    'Scroll Through History']
 
         optionButtons = ['- P',
                          '- G',
                          '- O',
+                         '- LEFT CLICK (the corresponding box on the screen)',
                          '- DRAG LEFT CLICK',
                          '- MOUSE WHEEL UP/DOWN']
 

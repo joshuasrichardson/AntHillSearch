@@ -17,15 +17,15 @@ class RecruitState(State):
         if self.agent.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there.
             self.setState(self, self.agent.getRecruitSitePosition())
             if not self.agent.findAssignedSiteEasily and self.arrivedAtOrPassedSite(self.agent.getRecruitSitePosition())\
-                    and not self.arrivedAtOrPassedSite(self.agent.siteToRecruitFrom.getPosition()):
+                    and not self.arrivedAtOrPassedSite(self.agent.recruitSite.getPosition()):
                 self.agent.goingToRecruit = False
-                self.agent.removeKnownSite(self.agent.siteToRecruitFrom)
+                self.agent.removeKnownSite(self.agent.recruitSite)
                 from states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
-            if self.arrivedAtOrPassedSite(self.agent.siteToRecruitFrom.getPosition()):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
+            if self.arrivedAtOrPassedSite(self.agent.recruitSite.getPosition()):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
                 self.agent.goingToRecruit = False  # The agent is now going to head back to the new site
                 self.agent.comingWithFollowers = True
-                self.agent.recruitSiteLastKnownPos = self.agent.siteToRecruitFrom.getPosition()
+                self.agent.recruitSiteLastKnownPos = self.agent.recruitSite.getPosition()
                 self.setState(self, self.agent.getAssignedSitePosition())  # Go back to the new site with the new follower(s).
             return
 
@@ -71,12 +71,12 @@ class RecruitState(State):
 
     def chooseSiteToRecruitFrom(self):  # Todo: Figure out why they don't go recruit from the hub when it has moved, but they do from the other sites that have moved once they have found them again.
         indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
-        self.agent.siteToRecruitFrom = self.agent.knownSites[indexOfSiteToRecruitFrom]
-        while self.agent.siteToRecruitFrom == self.agent.assignedSite:
+        self.agent.recruitSite = self.agent.knownSites[indexOfSiteToRecruitFrom]
+        while self.agent.recruitSite == self.agent.assignedSite:
             indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
-            self.agent.siteToRecruitFrom = self.agent.knownSites[indexOfSiteToRecruitFrom]
+            self.agent.recruitSite = self.agent.knownSites[indexOfSiteToRecruitFrom]
         if self.agent.findAssignedSiteEasily:
-            self.agent.recruitSiteLastKnownPos = self.agent.siteToRecruitFrom.getPosition()
+            self.agent.recruitSiteLastKnownPos = self.agent.recruitSite.getPosition()
         else:
             self.agent.recruitSiteLastKnownPos = self.agent.knownSitesPositions[indexOfSiteToRecruitFrom]
         self.agent.goingToRecruit = True

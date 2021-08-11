@@ -25,8 +25,8 @@ class FollowState(State):
                 if self.agent.getPhaseNumber() == COMMIT and self.agent.leadAgent.getState() == REVERSE_TANDEM\
                         and self.agent.leadAgent.comingWithFollowers and self.agent.assignedSite == self.agent.leadAgent.assignedSite:
                     # they also start recruiting from that site.
-                    self.agent.siteToRecruitFrom = self.agent.leadAgent.siteToRecruitFrom
-                    self.agent.addToKnownSites(self.agent.siteToRecruitFrom)
+                    self.agent.recruitSite = self.agent.leadAgent.recruitSite
+                    self.agent.addToKnownSites(self.agent.recruitSite)
                     self.agent.leadAgent = None
                     self.agent.transportOrReverseTandem(self)
         else:

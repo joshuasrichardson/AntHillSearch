@@ -13,9 +13,6 @@ from phases.ExplorePhase import ExplorePhase
 from states.SearchState import SearchState
 
 
-# TODO: Break into multiple classes (such as AgentControls, SiteControls and Controls)
-
-
 class Controls:
     """ Lets the user interact with the simulation """
 
@@ -62,13 +59,12 @@ class Controls:
 
     def drawChanges(self):
         if self.selectedSite is not None and self.shouldDrawQuality:
-            self.world.drawPotentialQuality(self.potentialQuality)
+            self.world.drawPotentialQuality(self.potentialQuality, self.graphs.font)
         if self.selectRectCorner is not None:
             self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())
         self.graphs.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents,
                                          self.shouldSelectAgentSites, self.shouldCommandSiteAgents, self.shouldShowOptions,
                                          self.paused)
-        # self.world.screen.blit(self.cursorImage, self.cursorRect)  # draw the cursor
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -127,7 +123,7 @@ class Controls:
             elif key == K_PERIOD:
                 self.setSelectedSitesCommand(None, None, None)
             elif key == K_g:
-                self.graphs.shouldDrawGraphs = not self.graphs.shouldDrawGraphs  # TODO: Add to readme and options menu
+                self.graphs.shouldDrawGraphs = not self.graphs.shouldDrawGraphs
             elif key == K_ESCAPE:
                 self.unselectAll()
             elif len(self.selectedSites) > 0 and not pygame.key.get_mods() & KMOD_SHIFT and \
