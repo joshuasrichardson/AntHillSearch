@@ -90,7 +90,7 @@ class AbstractColonySimulation(ABC):
         except GameOver:
             pass
 
-        self.finish()
+        return self.finish()
 
     def initializeRequest(self):
         pass  # The method is overridden by simulations that send requests to rest APIs
@@ -162,7 +162,7 @@ class AbstractColonySimulation(ABC):
         if self.shouldRecord:
             self.write()
         self.determineChosenHome()
-        self.printResults()
+        return self.printResults()
 
     def save(self):
         pass
@@ -187,6 +187,7 @@ class AbstractColonySimulation(ABC):
         print("Their home is ranked " + str(self.chosenHome.getQuality()) + "/255.")
         if self.useRestAPI:
             self.sendResults(self.chosenHome, simulationTime)
+        return self.chosenHome.getQuality(), simulationTime
 
     def sendResults(self, chosenSite, simulationTime):
         pass

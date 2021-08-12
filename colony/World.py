@@ -76,18 +76,18 @@ class World:
                 x = self.sitePositions[siteIndex][0]
                 y = self.sitePositions[siteIndex][1]
             except IndexError:  # If the positions are not specified they will be randomized
-                print("Site position index out of range. Assigning random position.")
+                # print("Site position index out of range. Assigning random position.")
                 x = None
                 y = None
             try:  # Try setting the quality to match the quality in the specified qualities list
                 quality = self.siteQualities[siteIndex]
             except IndexError:  # If the qualities are not specified they will be randomized
-                print("Site quality index out of range. Assigning random quality")
+                # print("Site quality index out of range. Assigning random quality")
                 quality = None
             try:  # Try setting the radius to match the radius in the specified radii list
                 radius = self.sitesRadii[siteIndex]
             except IndexError:  # If the radii are not specified they will be randomized
-                print("Site radius index out of range. Assigning radius to " + str(SITE_RADIUS))
+                # print("Site radius index out of range. Assigning radius to " + str(SITE_RADIUS))
                 radius = SITE_RADIUS
             self.createSite(x, y, radius, quality, self.knowSitePosAtStart)
 
