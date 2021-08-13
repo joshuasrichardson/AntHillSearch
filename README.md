@@ -79,7 +79,7 @@ it is running.
    parameters in the <code>main()</code> function in 
    <code>colony.Colony.py</code> (see "Parameters" section 
    for more details).
-4. Enter <code>python colony/Colony.py</code> in the terminal.
+4. Enter <code>python Colony.py</code> in the terminal.
 5. If desired, try using some user controls while the
    simulation is running (see "Controls" for more details).
 
@@ -98,9 +98,11 @@ Using the interfaces mentioned in the "Interfaces" Section below
 is an easy way to change many of these parameters at the same time
 to fit the purposes of the interfaces.
 
-### <code>ColonySimulation()</code>
+### <code>LiveSimulation()</code>
 
-The constructor for the <code>ColonySimulation</code> class (the class that runs the simulation).
+The constructor for the <code>LiveSimulation</code> class (the class that runs the simulation).
+This is an abstract class and cannot be run without implementing a few methods, but the parameters
+shown here can be changed in the inheriting classes.
 
 - <code>simulationDuration</code>: Integer that sets the max time of the simulation in seconds. 
   The simulation can end before this time runs out if all the agents converge to the same site.
@@ -111,9 +113,7 @@ The constructor for the <code>ColonySimulation</code> class (the class that runs
 - <code>shouldReport</code>: Boolean that decides whether information about the hub is sent to a Rest API.
   
 - <code>shouldRecord</code>: Boolean that decides whether the simulation is recorded to the recording.json file.
-  
-- <code>shouldDraw</code>: Boolean that decides whether the simulation is drawn onto the screen.
-  
+ 
 - <code>convergenceFraction</code>: Float that sets the percentage of agents that need to be assigned to 
   one site before the simulation will end.
   
@@ -142,12 +142,6 @@ The constructor for the <code>ColonySimulation</code> class (the class that runs
   positions that users set with <code>sitePositions</code> as well as the "Move
   Site" command (see "Site Controls" below).
   
-- <code>knowSitePosAtStart</code>: Boolean that determines whether sites are drawn on the screen
-  at the start of the simulation or only after they have been found by the agents.
-  
-- <code>canSelectAnywhere</code>: Boolean that determines whether agents and sites that are not
-  right next to the hub can be selected.
-  
 - <code>hubCanMove</code>: Boolean that determines whether the user can move the hub from its
   starting position.
   
@@ -155,12 +149,12 @@ The constructor for the <code>ColonySimulation</code> class (the class that runs
 ### <code>RecordingPlayer()</code>
 
 Constructor for the <code>RecordingPlayer</code> class. This class can be used instead of the 
-<code>ColonySimulation</code> to replay a previously recorded simulation from the recording.json
+<code>LiveSimulation</code> to replay a previously recorded simulation from the recording.json
 file.
 
 This method has no parameters because everything is determined by the recording.json file.
 
-### <code>ColonySimulation.initializeAgentList()</code>
+### <code>Simulation.initializeAgentList()</code>
 
 Generates a list of agents with the specified attributes.
 
@@ -211,17 +205,14 @@ any agents.
 - <code>commitSpeedFactor</code>: Number that determines how much faster agents get when they 
   commit.
   
-- <code>drawFarAgents</code>: Boolean that determines whether agents that are not right by the
-  hub are drawn on the screen. 
-  
-### <code>ColonySimulation.randomizeInitialState()</code>
+### <code>LiveSimulation.randomizeInitialState()</code>
 
 Assigns each agent in the simulation a random site to start from.
 
 This method has no parameters, but note that it cannot be called with the 
 RecordingPlayer.
 
-### <code>ColonySimulation.addAgents()</code>
+### <code>LiveSimulation.addAgents()</code>
 
 Adds agents to the simulation (in addition to the "numAgents" specified in the constructor).
 These agents can be given specific starting states, phases, locations, and assignments.
@@ -239,22 +230,12 @@ These agents can be given specific starting states, phases, locations, and assig
 - <code>startingPosition</code>: Ordered pair that sets where the agents start in the simulation.
 
 Note that this method can only 
-be called with the ColonySimulation
+be called with the LiveSimulation
 (not with the RecordingPlayer).
 
 ## Interfaces
 
-There are currently 5 different interfaces available.
-
-### ColonySimulation 
-
-This interface is the original interface where many parameters
-can be set by the user by specifying them in the constructor or
-letting the default values in <code>Constants.py</code> apply.
-This is the most flexible interface, but it requires the most
-specification of parameters to match what the user might be
-looking for. (See the "Parameters" section above for more
-information on what parameters can be set.)
+There are currently 4 different interfaces available.
 
 ### EngineerInterface
 
@@ -264,7 +245,7 @@ this interface usually draws it. It also provides accurate info
 about where agents are and site values. This interface also
 allows more user controls than the other interfaces. All parameters
 can still be manually set by the user as is shown for the 
-ColonySimulation in the "Parameters" section above, but different
+LiveSimulation in the "Parameters" section above, but different
 default values apply.
 
 ### UserInterface
@@ -275,7 +256,7 @@ to the hub, and sites drawn only reflect what the agents that have
 returned to the hub have estimated about them. This interface allows
 some user controls, but they are limited to what can be done from the 
 hub. All parameters can still be manually set by the user as is shown 
-for the ColonySimulation in the "Parameters" section above, but 
+for the LiveSimulation in the "Parameters" section above, but 
 different default values apply.
 
 ### EmpiricalTestingInterface
@@ -288,7 +269,7 @@ the Engineer Interface; it is what is known from the hub like in the
 User Interface. With nothing being drawn, this interface is faster than
 the others and allows users to run more simulations in a shorter time
 to gather empirical data. All parameters can still be manually set
-by the user as is shown for the ColonySimulation in the "Parameters" 
+by the user as is shown for the LiveSimulation in the "Parameters" 
 section above, but different default values apply.
 
 Note that when running the EmpiricalTestingInterface, the RestAPI needs
