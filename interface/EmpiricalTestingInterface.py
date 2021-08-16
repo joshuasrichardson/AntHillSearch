@@ -9,13 +9,13 @@ from interface.LiveSimulation import LiveSimulation
 class EmpiricalTestingInterface(LiveSimulation):
     """ A class to run the interface for ants finding their new home after the old one broke """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, useRestAPI=True,
+    def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES, useRestAPI=True,
                  shouldRecord=SHOULD_RECORD, convergenceFraction=CONVERGENCE_FRACTION,
-                 hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
+                 hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII, hubAgentCounts=HUB_AGENT_COUNTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN, hubCanMove=False):
-        super().__init__(simulationDuration, numSites, useRestAPI, shouldRecord, convergenceFraction,
-                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+        super().__init__(simulationDuration, numHubs, numSites, useRestAPI, shouldRecord, convergenceFraction,
+                         hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
                          siteNoCloserThan, siteNoFartherThan, hubCanMove)
 
     def getScreen(self):
@@ -29,6 +29,9 @@ class EmpiricalTestingInterface(LiveSimulation):
 
     def getShouldDrawPaths(self):
         return False
+
+    def getGraphs(self):
+        return None
 
     # def runSimulation(self):
     #     print("1")

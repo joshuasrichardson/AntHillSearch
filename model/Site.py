@@ -6,7 +6,7 @@ from Constants import INITIAL_BLUR
 
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
-    def __init__(self, hubLocation, x, y, radius, quality, siteNoCloserThan, siteNoFartherThan):
+    def __init__(self, hubLocation, numHubs, x, y, radius, quality, siteNoCloserThan, siteNoFartherThan):
         self.quality = self.setQuality(quality)  # The quality of a site on a scale of 0 - 255
         self.color = self.setColor(self.quality)  # The color of the site, representing its quality
 
@@ -20,6 +20,7 @@ class Site:
         self.siteRect.centery = self.pos[1]  # The y coordinate of the center of the rectangle
 
         self.agentCount = 0  # The number of agents assigned to the site
+        self.agentCounts = self.initAgentCounts(numHubs)  # The number of agents assigned to the site from each hub
         self.wasFound = False  # Whether the agents have visited the site yet
 
         self.isSelected = False  # Whether the site is selected (helps with user controls)
@@ -35,6 +36,12 @@ class Site:
 
         self.blurAmount = INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
         self.blurRadiusDiff = INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
+
+    def initAgentCounts(self, numHubs):
+        agentCounts = []
+        for i in range(numHubs):
+            agentCounts.append(0)
+        return agentCounts
 
     def setQuality(self, quality):
         """ Sets the quality to the specified value unless it is outside the range 0 - 255 """
@@ -96,7 +103,7 @@ class Site:
     def normalizeQuality(self, span, zero, siteQualities):
         """ Sets the qualities to have a max of 255 and a min of 0 and adjusts qualities in between the min and max
          to be spaced out accordingly """
-        if siteQualities.count(self.quality) == 0:  # Only normalize if the quality was not manually set
+        if siteQualities.count(self.quality) == 0 and self.quality >= 0:  # Only normalize if the quality was not manually set
             self.quality = int(round((self.quality - zero) / span * 255))
             # 255 is the maximum color range
             self.color = 255 - self.quality, self.quality, 0
@@ -128,11 +135,13 @@ class Site:
     def getSiteRect(self):
         return self.siteRect
 
-    def incrementCount(self):
+    def incrementCount(self, hubIndex):
         self.agentCount += 1
+        self.agentCounts[hubIndex] = self.agentCounts[hubIndex] + 1
 
-    def decrementCount(self):
+    def decrementCount(self, hubIndex):
         self.agentCount -= 1
+        self.agentCounts[hubIndex] = self.agentCounts[hubIndex] - 1
 
     def select(self):
         self.isSelected = True

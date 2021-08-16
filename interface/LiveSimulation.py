@@ -15,28 +15,28 @@ from net.SendHubInfoRequest import SendHubInfoRequest
 class LiveSimulation(AbstractColonySimulation, ABC):
     """ A class to run the interface for ants finding their new home after the old one broke """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numSites=NUM_SITES, useRestAPI=USE_REST_API,
+    def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES, useRestAPI=USE_REST_API,
                  shouldRecord=SHOULD_RECORD, convergenceFraction=CONVERGENCE_FRACTION,
-                 hubLocation=HUB_LOCATION, hubRadius=SITE_RADIUS, hubAgentCount=NUM_AGENTS,
+                 hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII, hubAgentCounts=HUB_AGENT_COUNTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
                  hubCanMove=HUB_CAN_MOVE):
-        super().__init__(simulationDuration, numSites, useRestAPI, shouldRecord, convergenceFraction,
-                         hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
+        super().__init__(simulationDuration, numHubs, numSites, shouldRecord, convergenceFraction,
+                         hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
                          siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.previousSendTime = datetime.datetime.now()
+        self.useRestAPI = useRestAPI
 
         if simulationDuration < 0 or simulationDuration > MAX_TIME:
             raise InputError("Simulation too short or too long", simulationDuration)
         if numSites < 0 or numSites > MAX_NUM_SITES:
             raise InputError("Can't be more sites than maximum value", numSites)
 
-    def initializeWorld(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, shouldDraw=True,
-                        knowSitePosAtStart=DRAW_ESTIMATES, hubCanMove=HUB_CAN_MOVE):
-        world = World(numSites, hubLocation, hubRadius, hubAgentCount, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan,
-                      hubCanMove)
+    def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
+                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove=HUB_CAN_MOVE):
+        world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
+                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove)
+        world.initSitesAgentsCounts()
         return world
 
     def initializeRequest(self):
@@ -61,7 +61,7 @@ class LiveSimulation(AbstractColonySimulation, ABC):
                 self.recorder.recordSiteInfo(site)
 
     def updateAgent(self, agent, agentRectList):
-        agent.updatePosition(None)
+        agent.updatePosition()
         if Display.shouldDraw:
             agent.clearFog()
 
@@ -81,23 +81,24 @@ class LiveSimulation(AbstractColonySimulation, ABC):
             self.updateRestAPI()
 
     def setSitesEstimates(self, agentRectList):
-        hubRect = self.world.getHub().getSiteRect()
-        hubAgentsIndices = hubRect.collidelistall(agentRectList)
-        self.world.request.numAtHub = 0
-        for agentIndex in hubAgentsIndices:
-            agent = self.world.agentList[agentIndex]
-            sites = agent.knownSites
-            for siteIndex in range(0, len(sites)):
-                if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
-                    sites[siteIndex].wasFound = True
-                    # If the site's estimates were not reported before the agent got assigned to another site, report them here.
-                    if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
-                        sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
-                                                       agent.estimateQuality(sites[siteIndex]),
-                                                       agent.estimateAgentCount(sites[siteIndex]),
-                                                       agent.estimateRadius(sites[siteIndex])])
-            agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
-            agent.assignedSite.updateBlur()
+        hubRects = self.world.getHubsRects()
+        for hubRect in hubRects:
+            hubAgentsIndices = hubRect.collidelistall(agentRectList)
+            self.world.request.numAtHub = 0
+            for agentIndex in hubAgentsIndices:
+                agent = self.world.agentList[agentIndex]
+                sites = agent.knownSites
+                for siteIndex in range(0, len(sites)):
+                    if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
+                        sites[siteIndex].wasFound = True
+                        # If the site's estimates were not reported before the agent got assigned to another site, report them here.
+                        if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
+                            sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
+                                                           agent.estimateQuality(sites[siteIndex]),
+                                                           agent.estimateAgentCount(sites[siteIndex]),
+                                                           agent.estimateRadius(sites[siteIndex])])
+                agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
+                agent.assignedSite.updateBlur()
 
     def updateRestAPI(self):
         now = datetime.datetime.now()
@@ -114,6 +115,12 @@ class LiveSimulation(AbstractColonySimulation, ABC):
         if self.shouldRecord:
             self.recorder.write()
 
-    def sendResults(self, chosenSite, simulationTime):
+    def sendResults(self, chosenSites, simulationTime):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
-        self.world.request.sendResults(chosenSite, simulationTime)
+        if self.useRestAPI:
+            positions = []
+            qualities = []
+            for site in chosenSites:
+                positions.append(site.getPosition())
+                qualities.append(site.getQuality())
+            self.world.request.sendResults(positions, qualities, simulationTime)

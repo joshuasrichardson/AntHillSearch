@@ -37,8 +37,8 @@ class SearchState(State):
         elif self.agent.shouldReturnToNest():
             from model.states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
-        elif self.agent.isTooFarAway(self.agent.assignedSite):
-            self.goBackTowardSite(self.agent.assignedSite)
+        elif self.agent.isTooFarAway(self.agent.getHub()):
+            self.goBackTowardSite(self.agent.getHub())
 
         # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):

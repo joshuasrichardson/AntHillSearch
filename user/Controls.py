@@ -5,7 +5,7 @@ import numpy as np
 import pygame
 from pygame.constants import *
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, HUB_OBSERVE_DIST
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS
 from display import Display
 from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
@@ -219,7 +219,7 @@ class Controls:
             self.graphs.scrollDown()
 
     def drag(self):
-        if self.world.hubCanMove or self.selectedSite is not self.world.getHub():
+        if self.world.hubCanMove or not self.world.getHubs().__contains__(self.selectedSite):
             self.oldRect = self.selectedSite.getSiteRect().copy()
             self.dragSite = self.selectedSite
 
@@ -229,6 +229,7 @@ class Controls:
                 self.addToExecutedEvents("Moved site from " + str(self.oldRect.center) + " to " + str(self.dragSite.getPosition()))
                 self.dragSite.wasFound = False
             self.world.siteRectList = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.siteRectList]
+            self.world.hubsRects = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.hubsRects]
         self.dragSite = None
 
     def unselectAll(self):
@@ -248,9 +249,15 @@ class Controls:
 
     def select(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        if Display.canSelectAnywhere or self.getHubObserveRect().collidepoint(mousePos):
+        if Display.canSelectAnywhere or self.byAHub(mousePos):
             self.selectAgent(mousePos)
             self.selectSite(mousePos)
+
+    def byAHub(self, pos):
+        for rect in self.world.getHubsObserveRects():
+            if rect.collidepoint(pos):
+                return True
+        return False
 
     def selectAgent(self, mousePos):
         selectedAgents = [a for a in self.agentList if a.getAgentRect().collidepoint(mousePos)]
@@ -281,7 +288,7 @@ class Controls:
                 self.selectedSite = selectedSites[0]
                 self.selectedSite.select()
                 self.selectedSites = [self.selectedSite]
-            self.selectSite2()
+            self.selectSite2(self.selectedSite)
             if len(self.selectedAgents) > 0:
                 self.selectedAgent = self.selectedAgents[0]
                 self.selectedAgent.isTheSelected = True
@@ -294,7 +301,7 @@ class Controls:
         # get a list of all objects that are under the mouse cursor
         self.selectRect = self.drawSelectRect(mousePos)
         agent = None
-        if Display.canSelectAnywhere or self.selectRect.colliderect(self.getHubObserveRect()):
+        if Display.canSelectAnywhere or self.selectRect.collidelist(self.world.getHubsObserveRects()) != -1:
             agent = self.selectAgents()
             self.selectSites()
         if self.shouldSelectAgentSites:
@@ -351,12 +358,6 @@ class Controls:
 
         return None
 
-    def getHubObserveRect(self):
-        hubRect = self.world.getHub().getSiteRect()
-        r = self.world.getHub().radius
-        return pygame.Rect(hubRect.left - (r + HUB_OBSERVE_DIST), hubRect.top - (r + HUB_OBSERVE_DIST),
-                           hubRect.width + ((r + HUB_OBSERVE_DIST) * 2), hubRect.height + ((r + HUB_OBSERVE_DIST) * 2))
-
     def selectSites(self):
         selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
         if self.shouldSelectSites:
@@ -367,20 +368,20 @@ class Controls:
 
         if len(selectedSites) > 0:
             self.selectedSite = selectedSites[0]
-            self.selectSite2()
+            self.selectSite2(selectedSites)
 
-    def selectSite2(self):
+    def selectSite2(self, sites):
         if self.shouldSelectSites:
             self.selectedSite.isTheSelected = True
             self.selectedSiteIndex = 0
-        for agent in self.agentList:
-            if agent.assignedSite is self.selectedSite:
-                if self.shouldSelectSiteAgents:
+        if self.shouldSelectSiteAgents:
+            for agent in self.agentList:
+                if sites.__contains__(agent.assignedSite):
                     agent.select()
                     self.selectedAgents.append(agent)
-        if self.shouldSelectSiteAgents and len(self.selectedAgents) > 0:
-            self.selectedAgent = self.selectedAgents[0]
-            self.selectedAgent.isTheSelected = True
+            if len(self.selectedAgents) > 0:
+                self.selectedAgent = self.selectedAgents[0]
+                self.selectedAgent.isTheSelected = True
         if not self.shouldSelectSites:
             self.selectedSite = None
 
@@ -391,10 +392,17 @@ class Controls:
             self.selectedSite.select()
 
     def half(self):
-        for i in range(len(self.selectedAgents) - 1, int(np.round(len(self.selectedAgents) / 2) - 1), -1):
-            if self.selectedAgents[i] is not self.selectedAgent:
-                self.selectedAgents[i].unselect()
-                self.selectedAgents.remove(self.selectedAgents[i])
+        start = len(self.selectedAgents) - 1
+        end = int(np.round(len(self.selectedAgents) / 2) - 1)
+        try:
+            for i in range(start, end, -1):
+                if self.selectedAgents[i] is not self.selectedAgent:
+                    self.selectedAgents[i].unselect()
+                    self.selectedAgents.remove(self.selectedAgents[i])
+                else:
+                    end += 1
+        except IndexError:
+            pass
 
     def next(self):
         if self.paused and self.shouldShowOptions:
@@ -419,7 +427,7 @@ class Controls:
     def previous(self):
         if self.paused and self.shouldShowOptions:
             self.graphs.previousScreen()
-        if len(self.selectedAgents) > 1:
+        elif len(self.selectedAgents) > 1:
             self.previousAgent()
         else:
             self.previousSite()
@@ -510,14 +518,14 @@ class Controls:
             self.addToExecutedEvents("Shrunk site at " + str(site.getPosition()) + "'s radius to " + str(site.radius))
 
     def createSite(self, position):
-        self.world.createSite(position[0], position[1], SITE_RADIUS, 128)
+        self.world.createSite(position[0], position[1], SITE_RADIUS, 128, NUM_HUBS)
         self.addToExecutedEvents("Created site at " + str(position))
 
     def createAgent(self, position):
-        agent = Agent(self.world, self.world.getHub(), startingPosition=position)
+        agent = Agent(self.world, self.world.getHubs()[0], startingPosition=position)  # TODO: Make more flexible
         agent.setState(SearchState(agent))
         agent.setAngle(random.uniform(0, 2 * np.pi))
-        agent.assignedSite.incrementCount()
+        agent.assignedSite.incrementCount(agent.getHubIndex())
         agent.speedCoefficient = self.world.agentList[0].speedCoefficient
         agent.speed = self.world.agentList[0].uncommittedSpeed * agent.speedCoefficient
         self.world.addAgent(agent)
@@ -534,12 +542,13 @@ class Controls:
             if site.getQuality() >= 0:
                 self.addToExecutedEvents("Deleted site at " + str(site.getPosition()))
             for agent in self.agentList:
-                if agent.assignedSite is site and site is not self.world.getHub():
-                    agent.assignSite(self.world.getHub())
-                    agent.setPhase(ExplorePhase())
-                    agent.setState(SearchState(agent))
-                if agent.knownSites.__contains__(site) and site is not self.world.getHub():
-                    agent.knownSites.remove(site)
+                if not self.world.getHubs().__contains__(site):
+                    if agent.assignedSite is site:
+                        agent.assignSite(agent.getHub())
+                        agent.setPhase(ExplorePhase())
+                        agent.setState(SearchState(agent))
+                    if agent.knownSites.__contains__(site):
+                        agent.knownSites.remove(site)
             self.world.removeSite(site)
             self.selectedSites.remove(site)
         self.selectedSite = None

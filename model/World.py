@@ -5,49 +5,54 @@ import numpy as np
 from pygame import Rect
 
 from Constants import *
-from display import AgentDisplay, Display
+from display import Display
 from model.Site import Site
 
 
 class World:
     """ Represents the world around the ants old home """
 
-    def __init__(self, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities, siteRadii,
-                 siteNoCloserThan, siteNoFartherThan, drawEstimates=DRAW_ESTIMATES,
-                 hubCanMove=HUB_CAN_MOVE):
+    def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
+                 siteNoCloserThan, siteNoFartherThan, hubCanMove=HUB_CAN_MOVE):
         self.hubCanMove = hubCanMove  # Whether the hub can be moved by the user
-        self.hubLocation = hubLocation  # Where the agents' original home is located
-        if hubLocation is None:
-            if Display.shouldDraw:
-                x, y = Display.screen.get_size()
-            else:
-                x, y = 1300, 800
-            self.hubLocation = [x / 2, y / 2]
-        self.hubRadius = hubRadius  # The radius of the agent's original home
+        self.hubLocations = hubLocations  # Where the agents' original homes are located
+        self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub a site can randomly be generated
         self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub a site can randomly be generated
-        self.initialHubAgentCount = hubAgentCount  # The number of agents at the start of the interface
+        self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
+        self.checkHubs(numHubs)
         self.siteList = []  # The sites in the world
         self.siteRectList = []  # List of site rectangles
         self.sitePositions = sitePositions  # Where the sites are located
         self.siteQualities = siteQualities  # The quality of each site
         self.sitesRadii = siteRadii  # A list of the radius of each site
-        self.drawEstimates = drawEstimates  # Whether estimates are drawn (if False, actual values are drawn)
         self.shouldDrawFog = True  # Whether the screen is initially filled with dark gray fog
         self.marker = None  # A marker drawn in the world representing a user's command
 
-        self.createSites(numSites)  # Initializes the site list with sites that match the specified values or random sites by default
+        self.hubsRects = []
+        self.hubsObserveRects = []
+        self.hubs = self.createHubs(numHubs, self.hubLocations, self.hubRadii, self.initialHubAgentCounts)  # The agents' original home
+        self.createSites(numSites, numHubs)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
-        self.hub = self.createHub()  # The agents' original home
         if Display.shouldDraw:
             self.fog = self.getInitialFog()  # A list of rectangles where the agents have not yet explored
         self.request = None  # The request, used to sent information to a rest API
 
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
+
+    def checkHubs(self, numHubs):
+        if len(self.hubLocations) == 0 and numHubs == 1:
+            self.hubLocations.append([650, 325])
+        while len(self.hubLocations) < numHubs:
+            self.hubLocations.append([random.randint(0, 1250), random.randint(0, 650)])
+        while len(self.hubRadii) < numHubs:
+            self.hubRadii.append(SITE_RADIUS)
+        while len(self.initialHubAgentCounts) < numHubs:
+            self.initialHubAgentCounts.append(random.randint(1, 50))
 
     def randomizeState(self):
         """ Sets all the agents at random sites """
@@ -70,9 +75,9 @@ class World:
         self.siteRectList[siteIndex].centerx = pos[0]
         self.siteRectList[siteIndex].centery = pos[1]
 
-    def createSites(self, numSites):
+    def createSites(self, numSites, numHubs):
         """ Create as many sites as required """
-        for siteIndex in range(0, numSites):
+        for siteIndex in range(numSites):
             try:  # Try setting the position to match the position in the specified positions list
                 x = self.sitePositions[siteIndex][0]
                 y = self.sitePositions[siteIndex][1]
@@ -87,24 +92,29 @@ class World:
                 radius = self.sitesRadii[siteIndex]
             except IndexError:  # If the radii are not specified they will be randomized
                 radius = SITE_RADIUS
-            self.createSite(x, y, radius, quality)
+            self.createSite(x, y, radius, quality, numHubs)
 
-    def createSite(self, x, y, radius, quality):
+    def createSite(self, x, y, radius, quality, numHubs):
         """ Creates a site with specified values. If values are none, then default values will apply """
-        newSite = Site(self.hubLocation, x, y, radius, quality,
+        newSite = Site(self.hubLocations[random.randint(0, len(self.hubLocations) - 1)], numHubs, x, y, radius, quality,
                        self.siteNoCloserThan, self.siteNoFartherThan)
         self.siteList.append(newSite)  # Add the site to the world's list of sites
         self.siteRectList.append(newSite.getSiteRect())
 
     def removeSite(self, site):
         """ Deletes the site unless it is the hub """
-        if site.getQuality() == -1 and site.agentCount > 0:
+        if site.getQuality() == -1:
             print("Cannot delete the hub")
         else:
             index = self.siteList.index(site, 0, len(self.siteList))
             self.siteList.pop(index)
             self.siteRectList.pop(index)
             del site
+
+    def initSitesAgentsCounts(self):
+        for site in self.siteList:
+            for i in range(len(self.hubLocations)):
+                site.agentCounts.append(0)
 
     def getInitialFog(self):
         """ Gets a list of rectangles that cover the entire screen except for the area around the hub """
@@ -113,12 +123,11 @@ class World:
         h = Display.screen.get_height()
         for i in range(NUM_FOG_BLOCKS_X):
             for j in range(NUM_FOG_BLOCKS_Y):
-                pos = [int((w / NUM_FOG_BLOCKS_X) * i), int((h / NUM_FOG_BLOCKS_Y) * j)]
                 rect = Rect(int(w * i / NUM_FOG_BLOCKS_X),
                             int(h * j / NUM_FOG_BLOCKS_Y),
                             int(w / NUM_FOG_BLOCKS_X + 1),
                             int(h / NUM_FOG_BLOCKS_Y + 1))
-                if not self.isClose(self.hub.getSiteRect(), pos):
+                if rect.collidelist(self.hubsObserveRects) == -1:
                     rects.append(rect)
         return rects
 
@@ -132,6 +141,7 @@ class World:
 
     def addAgent(self, agent):
         self.agentList.append(agent)
+        self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] + 1
         if self.request is not None:
             self.request.addAgent(agent)
 
@@ -147,8 +157,13 @@ class World:
                 i += 1
 
     def removeAgent(self, agent):
-        agent.assignedSite.decrementCount()
+        agent.assignedSite.decrementCount(agent.getHubIndex())
         self.agentList.remove(agent)
+        for group in self.agentGroups:
+            if group.__contains__(agent):
+                group.remove(agent)
+        self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] - 1
+        del agent
 
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """
@@ -166,25 +181,42 @@ class World:
         for siteIndex in range(0, len(self.siteList)):
             self.siteList[siteIndex].normalizeQuality(span, zero, self.siteQualities)
 
-    def createHub(self):
-        hubSite = Site(self.hubLocation, self.hubLocation[0], self.hubLocation[1], self.hubRadius, -1,
-                       self.siteNoCloserThan, self.siteNoFartherThan)
-        hubSite.agentCount = self.initialHubAgentCount
-        hubSite.setEstimates([self.hubLocation, -1, hubSite.agentCount, hubSite.radius])
-        hubSite.blurAmount = 1
-        hubSite.blurRadiusDiff = 0
-        self.siteList.append(hubSite)
-        self.siteRectList.append(hubSite.getSiteRect())
-        return hubSite
+    def createHubs(self, numHubs, locations, radii, agentCounts):
+        hubs = []
+        for i in range(numHubs):
+            pos = locations[i]
+            rad = radii[i]
+            hubSite = Site(pos, numHubs, pos[0], pos[1], rad, -1,
+                           self.siteNoCloserThan, self.siteNoFartherThan)
+            count = agentCounts[i]
+            hubSite.agentCount = count
+            hubSite.setEstimates([pos, -1, count, rad])
+            hubSite.blurAmount = 1
+            hubSite.blurRadiusDiff = 0
+            self.siteList.append(hubSite)
+            self.siteRectList.append(hubSite.getSiteRect())
+            hubs.append(hubSite)
+        for hub in hubs:
+            hubRect = hub.getSiteRect()
+            self.hubsRects.append(hubRect)
+            self.hubsObserveRects.append((hubRect.left - HUB_OBSERVE_DIST, hubRect.top - HUB_OBSERVE_DIST,
+                                          hubRect.width + 2 * HUB_OBSERVE_DIST, hubRect.height + 2 * HUB_OBSERVE_DIST))
+        return hubs
 
-    def getHub(self):
-        return self.hub
+    def getHubs(self):
+        return self.hubs
+
+    def getHubsRects(self):
+        return self.hubsRects
+
+    def getHubsObserveRects(self):
+        return self.hubsObserveRects
 
     def updateStateAndPhaseCounts(self):
         """ Counts the phase and state of each agent so they can be displayed to the user """
         self.states = np.zeros((NUM_POSSIBLE_STATES,))
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-        if DRAW_FAR_AGENTS:
+        if Display.drawFarAgents:
             for agent in self.agentList:
                 st = agent.getState()
                 self.states[st] += 1
@@ -209,7 +241,7 @@ class World:
             self.setMarker(None)  # then the marker should go away.
 
     def updatePaths(self, agent):
-        if Display.shouldDrawPaths and AgentDisplay.drawFarAgents:  # If the paths should be drawn anywhere, the world can keep track of all of them
+        if Display.shouldDrawPaths and Display.drawFarAgents:  # If the paths should be drawn anywhere, the world can keep track of all of them
             self.paths.append(agent.getPosition())
             if len(self.paths) > 50 * len(self.agentList):
                 for i in range(len(self.agentList)):

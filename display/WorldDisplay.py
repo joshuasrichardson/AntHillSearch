@@ -12,7 +12,7 @@ def drawWorldObjects(world):
     if Display.shouldDrawPaths:
         drawPaths(world)
     drawAgents(world)
-    if world.drawEstimates:
+    if not Display.drawFarAgents:
         for siteIndex in range(0, len(world.siteList)):
             drawEstimatedSite(world.siteList[siteIndex])
     else:

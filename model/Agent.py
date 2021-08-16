@@ -14,10 +14,11 @@ class Agent:
     def __init__(self, world, startingAssignment, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                  maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=HUB_LOCATION,
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=None,
                  maxSearchDistance=MAX_SEARCH_DIST, findAssignedSiteEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR):
         self.world = world  # The colony the agent lives in
+        self.hub = startingAssignment
 
         self.prevPos = startingPosition  # Initial position
         self.pos = startingPosition  # Initial position
@@ -117,7 +118,7 @@ class Agent:
         self.agentRect.centery = y
         self.pos = [x, y]
 
-    def updatePosition(self, position):
+    def updatePosition(self, position=None):
         self.prevPos = self.pos
         if position is None:  # If the position is not specified, continue moving along the same path as before
             self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
@@ -164,7 +165,7 @@ class Agent:
             self.eraseFogCommands.append([self.world.eraseFog, self.agentRect.copy()])  # Add their current position and erase fog command to a list to be executed when they get back to the hub.
 
     def getHub(self):
-        return self.world.getHub()
+        return self.hub
 
     def getAgentRect(self):
         return self.agentRect
@@ -220,7 +221,7 @@ class Agent:
     def assignSite(self, site):
         """ Sets the site the agent will be assessing or recruiting to """
         if self.assignedSite is not None:
-            self.assignedSite.decrementCount()
+            self.assignedSite.decrementCount(self.getHubIndex())
         if site.getPosition()[0] != self.assignedSite.getPosition()[0] and\
                 site.getPosition()[1] != self.assignedSite.getPosition()[1] and\
                 site is not self.assignedSite:  # If the site they are assigned to is not the one they came from
@@ -233,7 +234,7 @@ class Agent:
             self.estimateSitePositionMoreAccurately()
         self.assignedSite = site
         self.assignedSiteLastKnownPos = site.getPosition()
-        self.assignedSite.incrementCount()
+        self.assignedSite.incrementCount(self.getHubIndex())
         # Take longer to assess lower-quality sites
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
 
@@ -262,9 +263,12 @@ class Agent:
         """ Returns whether the agent is ready to make a decision to accept or reject their assigned site """
         return np.random.exponential() * self.decisiveness > self.assessmentThreshold
 
+    def getHubIndex(self):
+        return self.world.getHubs().index(self.getHub())
+
     def quorumMet(self):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
-        return self.assignedSite.agentCount > QUORUM_SIZE  # TODO: Base this off of the number of agents at the site
+        return self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND  # TODO: Base this off of the number of agents at the site
 
     def shouldSearch(self, siteWithinRange):
         """ Returns whether the agent is ready to go out searching the area """

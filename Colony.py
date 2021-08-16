@@ -18,15 +18,11 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Make boundary around agents round instead of square
 # TODO: Make the orange circle disappear when the agents are sent to a site's old position
 # TODO: Think about how to display predictions
-# TODO: Add multiple hubs on one screen. Make the search distance only be measured from the hub
 # TODO: Make font flexible
 # TODO: Make laziness and trust parameters
+# TODO: Ensure that each hub has a site to move to
 # Numba
 
-# TODO: With selectSitesAgents, make it select for all the sites in the selectRect, not just one
-# TODO: Make it easier to turn the restAPI on
-# TODO: Change the half control to select half instead of like 60%
-# TODO: Don't select the previous agent when the options screen is showing
 # TODO: Read articles about ants, especially how they find homes
 # TODO: Make more realistic
 # TODO: Limit control in the User interface more (get rid of ability to set quality of hub and command agents who are selected and have moved away from the hub
@@ -35,6 +31,7 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Break Agents, Site, and World, into themselves and AgentBuilder, SiteBuilder, and WorldBuilder classes?
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls)?
 # TODO: Combine agent.assignedSiteLastKnownPos and agent.estimatedSitePosition into one variable?
+# TODO: Move screen around with mouse
 
 
 def main():
@@ -62,7 +59,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
     convergenceTimes = []
     for i in range(numSimulations):
         print("Simulation " + str(i + 1) + ":")
-        colony = EmpiricalTestingInterface(shouldRecord=False, useRestAPI=False)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+        colony = EmpiricalTestingInterface(shouldRecord=False, useRestAPI=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
         colony.initializeAgentList()  # Create the agents that will be used in the interface
         results = colony.runSimulation()  # Starts the interface
         chosenSiteQualities.append(results[0])

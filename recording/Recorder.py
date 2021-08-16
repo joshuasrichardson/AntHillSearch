@@ -109,9 +109,19 @@ class Recorder:
         self.currentPhaseIndex += 1
         return Phase.numToPhase(self.agentPhases[self.currentPhaseIndex])
 
+    def getOriginalAssignments(self):
+        return self.data[0]['agentAssignments']
+
     def getNextAssignment(self):
         self.currentAssignmentIndex += 1
         return self.agentAssignments[self.currentAssignmentIndex]
+
+    def getNumHubs(self):
+        numHubs = 0
+        for quality in self.data[0]['siteQualities']:
+            if quality == -1:
+                numHubs += 1
+        return numHubs
 
     def getNextSitePosition(self):
         self.currentSitePosIndex += 1

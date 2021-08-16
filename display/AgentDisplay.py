@@ -1,20 +1,17 @@
-""" Settings and methods related to the agents' display """
+""" Methods related to the agents' display """
 import numpy as np
 import pygame
 
-from Constants import HUB_OBSERVE_DIST, SHOW_ESTIMATED_QUALITY, BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, \
-    DRAW_FAR_AGENTS
+from Constants import SHOW_ESTIMATED_QUALITY, BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS
+from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
 
 
-drawFarAgents = DRAW_FAR_AGENTS
-
-
 def drawAgent(agent, surface):
-    if not drawFarAgents and agent.isClose(agent.getHub().getPosition(), agent.getHub().radius + HUB_OBSERVE_DIST):
-        drawPath(agent, surface)  # If we are only drawing close agents, then only show their path when they are close to the hub and can report it. Else this part is taken care of in the world class.
-    if drawFarAgents or agent.isClose(agent.getHub().getPosition(), agent.getHub().radius + HUB_OBSERVE_DIST):
+    if not Display.drawFarAgents and agent.getAgentRect().collidelist(agent.world.getHubsObserveRects()) != -1:
+        drawPath(agent, surface)  # If we are only drawing close agents, then only show their path when they are close to the hub and can report it. Else this part is taken care of in the world display class.
+    if Display.drawFarAgents or agent.getAgentRect().collidelist(agent.world.getHubsObserveRects()) != -1:
         if agent.isTheSelected:  # Only draw the following for one of the selected agents
             drawKnownSiteMarkers(agent, surface)
             drawAssignedSite(agent)

@@ -243,9 +243,10 @@ class SendHubInfoRequest:
                 'sitesRadii': self.sitesRadii}
 
     @staticmethod
-    def sendResults(chosenSite, simulationTime):
-        data = {'chosenSitePosition': chosenSite.getPosition(),
-                'chosenSiteQuality': chosenSite.getQuality(),
+    def sendResults(positions, qualities, simulationTime):
+
+        data = {'chosenSitesPositions': positions,
+                'chosenSitesQualities': qualities,
                 'simulationTime': simulationTime}
         response = requests.post('http://localhost:5000/sendResults', data=data)
         print("Simulation Results: {}".format(response.text))

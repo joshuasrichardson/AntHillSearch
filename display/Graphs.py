@@ -390,17 +390,19 @@ class SimulationGraphs:
             self.scrollIndex -= 1
 
     def drawPauseButton(self):
-        pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
-        pygame.draw.rect(Display.screen, WORDS_COLOR, (self.pauseButton.left + 4, self.pauseButton.top + 3,
-                                                       self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
-        pygame.draw.rect(Display.screen, WORDS_COLOR, (self.pauseButton.left + 11, self.pauseButton.top + 3,
-                                                       self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
+        if self.shouldDrawGraphs:
+            pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
+            pygame.draw.rect(Display.screen, WORDS_COLOR, (self.pauseButton.left + 4, self.pauseButton.top + 3,
+                                                           self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
+            pygame.draw.rect(Display.screen, WORDS_COLOR, (self.pauseButton.left + 11, self.pauseButton.top + 3,
+                                                           self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
 
     def drawPlayButton(self):
-        pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
-        pygame.draw.polygon(Display.screen, WORDS_COLOR, [[self.pauseButton.left + 4, self.pauseButton.top + 4],
-                                                          [self.pauseButton.right - 4, self.pauseButton.centery],
-                                                          [self.pauseButton.left + 4, self.pauseButton.bottom - 4]])
+        if self.shouldDrawGraphs:
+            pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
+            pygame.draw.polygon(Display.screen, WORDS_COLOR, [[self.pauseButton.left + 4, self.pauseButton.top + 4],
+                                                              [self.pauseButton.right - 4, self.pauseButton.centery],
+                                                              [self.pauseButton.left + 4, self.pauseButton.bottom - 4]])
 
     def setRemainingTime(self, seconds):
         self.remainingTime = seconds

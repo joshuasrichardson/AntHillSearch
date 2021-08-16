@@ -36,7 +36,7 @@ class SimulationTimer:
         self.timer = threading.Timer(remainingTime, self.timeOut)
         self.timer.start()
 
-    def getRemainingTime(self, now):
+    def getRemainingTime(self, now=None):
         """ Returns the time left in the interface """
         if now is None:
             now = time.time()

@@ -9,6 +9,7 @@ screen = None
 shouldDraw = SHOULD_DRAW
 shouldDrawPaths = SHOULD_DRAW_PATHS
 canSelectAnywhere = DRAW_FAR_AGENTS
+drawFarAgents = DRAW_FAR_AGENTS
 
 
 def createScreen():
