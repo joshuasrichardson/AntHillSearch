@@ -27,6 +27,7 @@ class EngineerInterface(LiveSimulation):
     def update(self, agentRectList):
         self.graphs.setRemainingTime(self.timer.getRemainingTime())
         super().update(agentRectList)
+        self.userControls.moveScreen()
 
     def getScreen(self):
         return Display.createScreen()

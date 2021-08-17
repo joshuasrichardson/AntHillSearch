@@ -6,13 +6,13 @@ CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assign
 # Shorter durations increase the likeliness that the colony will be split.
 SIM_DURATION = 200  # Time of the interface in seconds
 
-NUM_HUBS = 3
+NUM_HUBS = 1
 HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it usually doesn't have a great effect on where they end up.
-HUB_AGENT_COUNTS = [75, 80, 10]
+HUB_AGENT_COUNTS = [100]
 
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 4       # Number of total sites
@@ -71,7 +71,7 @@ SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 # If these numbers are too high, the interface gets really slow. If they are too low, the blocks are really big and don't look as good. 200, 100 seems to be pretty good.
 NUM_FOG_BLOCKS_X = 200  # The initial number of fog rectangles from left to right on the screen
-NUM_FOG_BLOCKS_Y = 100  # The initial number of fog rectangles from top to bottom on the screen
+NUM_FOG_BLOCKS_Y = 100 # The initial number of fog rectangles from top to bottom on the screen
 
 # Does not affect interface besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
@@ -86,7 +86,7 @@ FIND_SITES_EASILY = False  # If True, agents will be able to go directly to thei
 #                                    If False, agents will have to search for their site again when it moves.
 # The smaller the max distance is, the faster the interface ends because agents never get too far away from the sites
 # (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
-MAX_SEARCH_DIST = 200  # The farthest an agent can get away from the hub while searching.
+MAX_SEARCH_DIST = 600  # The farthest an agent can get away from the hub while searching.
 # Setting the speed too high actually makes the interface take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the interface take longer just because the agents aren't moving as fast.

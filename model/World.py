@@ -199,8 +199,8 @@ class World:
         for hub in hubs:
             hubRect = hub.getSiteRect()
             self.hubsRects.append(hubRect)
-            self.hubsObserveRects.append((hubRect.left - HUB_OBSERVE_DIST, hubRect.top - HUB_OBSERVE_DIST,
-                                          hubRect.width + 2 * HUB_OBSERVE_DIST, hubRect.height + 2 * HUB_OBSERVE_DIST))
+            self.hubsObserveRects.append(Rect(hubRect.left - HUB_OBSERVE_DIST, hubRect.top - HUB_OBSERVE_DIST,
+                                         hubRect.width + 2 * HUB_OBSERVE_DIST, hubRect.height + 2 * HUB_OBSERVE_DIST))
         return hubs
 
     def getHubs(self):

@@ -20,8 +20,8 @@ class Agent:
         self.world = world  # The colony the agent lives in
         self.hub = startingAssignment
 
-        self.prevPos = startingPosition  # Initial position
-        self.pos = startingPosition  # Initial position
+        self.prevPos = list(startingPosition)  # Initial position
+        self.pos = list(startingPosition)  # Initial position
         self.path = []  # A list of the positions the agent has recently come from
         self.agentHandle = getAgentImage(self.pos)  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
@@ -39,7 +39,7 @@ class Agent:
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
-        self.target = startingPosition  # The position the agent is going to
+        self.target = list(startingPosition)  # The position the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
         self.maxSearchDistance = maxSearchDistance  # The farthest distance an agent can go away from their assigned site while searching
@@ -110,13 +110,13 @@ class Agent:
         return self.angle
 
     def getPosition(self):
-        self.pos = [self.agentRect.centerx, self.agentRect.centery]
+        self.pos = list([self.agentRect.centerx, self.agentRect.centery])
         return self.pos
 
     def setPosition(self, x, y):
         self.agentRect.centerx = x
         self.agentRect.centery = y
-        self.pos = [x, y]
+        self.pos = list([x, y])
 
     def updatePosition(self, position=None):
         self.prevPos = self.pos
@@ -126,13 +126,13 @@ class Agent:
         else:  # Else, update the position to match the parameter
             self.agentRect.centerx = position[0]
             self.agentRect.centery = position[1]
-        self.pos = [self.agentRect.centerx, self.agentRect.centery]
+        self.pos = list([self.agentRect.centerx, self.agentRect.centery])
 
     def updateFollowPosition(self):
         """ Updates the agent's position to be just behind their lead agent """
         self.agentRect.centerx = int(np.round(float(self.leadAgent.pos[0]) - self.leadAgent.speed * np.cos(self.leadAgent.angle)))
         self.agentRect.centery = int(np.round(float(self.leadAgent.pos[1]) - self.leadAgent.speed * np.sin(self.leadAgent.angle)))
-        self.pos = [self.agentRect.centerx, self.agentRect.centery]
+        self.pos = list([self.agentRect.centerx, self.agentRect.centery])
 
     def getAssignedSitePosition(self):
         if self.findAssignedSiteEasily:

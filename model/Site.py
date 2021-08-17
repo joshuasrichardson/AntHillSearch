@@ -72,7 +72,7 @@ class Site:
             x = int(self.hubLocation[0] + np.round(radius * np.cos(angle)))
         if y is None:
             y = int(self.hubLocation[1] + np.round(radius * np.sin(angle)))
-        return [x, y]
+        return list([x, y])
 
     def setEstimates(self, est):
         """ Takes an array with each values' estimate and updates the site's estimated values """
@@ -112,7 +112,7 @@ class Site:
         return [self.siteRect.centerx, self.siteRect.centery]
 
     def setPosition(self, pos):
-        self.pos = pos
+        self.pos = list(pos)
         self.siteRect.centerx = self.pos[0]
         self.siteRect.centery = self.pos[1]
 
@@ -151,7 +151,7 @@ class Site:
 
     def setCommand(self, command, position, marker):
         self.command = command
-        self.commandPosition = position
+        self.commandPosition = list(position)
         self.marker = marker
 
     def executeCommand(self, agent):

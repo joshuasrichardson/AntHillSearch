@@ -1,6 +1,4 @@
 """ Methods related to the world's display """
-import pygame
-
 from Constants import SCREEN_COLOR
 from display import Display
 from display.AgentDisplay import drawAgent
@@ -29,7 +27,7 @@ def drawPaths(world):
         for posIndex, pos in enumerate(world.paths):
             if posIndex % len(world.agentList) == 0:
                 color = color[0] - 1,  color[1] - 1, color[2] - 1
-            pygame.draw.circle(Display.screen, color, pos, 2)
+            Display.drawCircle(Display.screen, color, pos, 2)
     except ZeroDivisionError:
         pass
 
@@ -41,13 +39,13 @@ def drawAgents(world):
 
 def drawMarker(world):
     if world.marker is not None:
-        Display.screen.blit(world.marker[0], world.marker[1])
+        Display.blitImage(Display.screen, world.marker[0], world.marker[1])
 
 
 def drawFog(world):
     r, g, b = 30, 30, 30
     for i in range(len(world.fog)):
-        pygame.draw.rect(Display.screen, (r, g, b), world.fog[i])
+        Display.drawRect(Display.screen, (r, g, b), world.fog[i])
 
 
 def drawPotentialQuality(world, potentialQuality, font):
@@ -55,7 +53,7 @@ def drawPotentialQuality(world, potentialQuality, font):
     img = font.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0))
     for site in world.siteList:
         if site.isSelected:
-            Display.screen.blit(img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
+            Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
 
 
 def collidesWithSite(world, mousePos):

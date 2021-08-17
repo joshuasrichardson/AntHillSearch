@@ -31,7 +31,6 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Break Agents, Site, and World, into themselves and AgentBuilder, SiteBuilder, and WorldBuilder classes?
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls)?
 # TODO: Combine agent.assignedSiteLastKnownPos and agent.estimatedSitePosition into one variable?
-# TODO: Move screen around with mouse
 
 
 def main():
@@ -59,7 +58,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
     convergenceTimes = []
     for i in range(numSimulations):
         print("Simulation " + str(i + 1) + ":")
-        colony = EmpiricalTestingInterface(shouldRecord=False, useRestAPI=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+        colony = EmpiricalTestingInterface(shouldRecord=True, useRestAPI=False)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
         colony.initializeAgentList()  # Create the agents that will be used in the interface
         results = colony.runSimulation()  # Starts the interface
         chosenSiteQualities.append(results[0])

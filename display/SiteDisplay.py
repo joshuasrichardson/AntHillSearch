@@ -13,13 +13,14 @@ def drawSite(site):
     """ Draws the site and some things associated with it on the screen """
     if site.wasFound or knowSitePosAtStart:  # If the agents have already discovered the site
         drawMarker(site)  # Draw a marker if the site has one
-        pygame.draw.circle(Display.screen, BORDER_COLOR, site.pos, site.radius + 2, 0)  # Draw a background for the site that blends with the surface better than the site color
+        Display.drawCircle(Display.screen, BORDER_COLOR, site.pos, site.radius + 2, 0)  # Draw a background for the site that blends with the surface better than the site color
         if site.isSelected:
-            pygame.draw.circle(Display.screen, SELECTED_COLOR, site.pos, site.radius + 2, 0)  # Draw a circle over the background showing that the site is selected
-        site.siteRect = pygame.draw.circle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
+            Display.drawCircle(Display.screen, SELECTED_COLOR, site.pos, site.radius + 2, 0)  # Draw a circle over the background showing that the site is selected
+        site.siteRect = pygame.Rect(site.pos[0] - site.radius, site.pos[1] - site.radius, site.radius * 2, site.radius * 2)
+        Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
         drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
         img = pygame.font.SysFont('Comic Sans MS', 12).render(str(site.agentCount), True, BORDER_COLOR)
-        Display.screen.blit(img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20)))  # Show the number of agents assigned to the site above the site
+        Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20)))  # Show the number of agents assigned to the site above the site
         if site.isSelected:
             drawQuality(site)  # Draw the site's quality right in the middle of it if it is selected.
 
@@ -28,11 +29,12 @@ def drawQuality(site):
     """ Draw the quality of the site directly on top of the site """
     img = pygame.font.SysFont('Comic Sans MS', 15).render("MM", True, WORDS_COLOR)  # Make this image for all the sites to get a consistently sized rectangle
     rect = img.get_rect()
-    pygame.draw.rect(img, SCREEN_COLOR, rect)  # Draw a rectangle on top of the site so the quality will be easier to read
-    pygame.draw.rect(img, BORDER_COLOR, rect, 1)  # Draw a nice little border around that rectangle
+    newRect = pygame.Rect(rect.left - Display.displacementX, rect.top - Display.displacementY, rect.width, rect.height)
+    Display.drawRect(img, SCREEN_COLOR, newRect)  # Draw a rectangle on top of the site so the quality will be easier to read
+    Display.drawRect(img, BORDER_COLOR, newRect, 1)  # Draw a nice little border around that rectangle
     words = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.quality)), True, WORDS_COLOR)  # Draw the quality
-    img.blit(words, [((img.get_width() / 2) - (words.get_width() / 2)), ((img.get_height() / 2) - (words.get_height() / 2))])  # on the rectangle
-    Display.screen.blit(img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (img.get_height() / 2)))  # Draw the rectangle with the quality on it on the screen
+    Display.blitImage(img, words, [((img.get_width() / 2) - (words.get_width() / 2)) - Display.displacementX, ((img.get_height() / 2) - (words.get_height() / 2)) - Display.displacementY])  # on the rectangle
+    Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (img.get_height() / 2)))  # Draw the rectangle with the quality on it on the screen
 
 
 def drawMarker(site):
@@ -41,7 +43,7 @@ def drawMarker(site):
         # Draw a dashed line from the site to the marker
         drawDashedLine(Display.screen, BORDER_COLOR, site.pos, site.marker[1].center)
         # Draw the marker
-        Display.screen.blit(site.marker[0], site.marker[1])
+        Display.blitImage(Display.screen, site.marker[0], site.marker[1])
 
 
 def drawAssignmentMarker(site, fromPos, color):
@@ -57,19 +59,19 @@ def drawAssignmentMarker(site, fromPos, color):
 
 def drawAssignmentMarker2(rect, color):
     """ Draw triangles around the site that point in toward the site """
-    pygame.draw.polygon(Display.screen, color,
+    Display.drawPolygon(Display.screen, color,
                         [[rect.centerx, rect.top - 5],
                          [rect.centerx - 10, rect.top - 20],
                          [rect.centerx + 10, rect.top - 20]])
-    pygame.draw.polygon(Display.screen, color,
+    Display.drawPolygon(Display.screen, color,
                         [[rect.centerx, rect.bottom + 5],
                          [rect.centerx - 10, rect.bottom + 20],
                          [rect.centerx + 10, rect.bottom + 20]])
-    pygame.draw.polygon(Display.screen, color,
+    Display.drawPolygon(Display.screen, color,
                         [[rect.left - 5, rect.centery],
                          [rect.left - 20, rect.centery - 10],
                          [rect.left - 20, rect.centery + 10]])
-    pygame.draw.polygon(Display.screen, color,
+    Display.drawPolygon(Display.screen, color,
                         [[rect.right + 5, rect.centery],
                          [rect.right + 20, rect.centery - 10],
                          [rect.right + 20, rect.centery + 10]])
@@ -93,8 +95,8 @@ def drawEstimatedSite(site):
                         site.estimatedRadius + site.blurRadiusDiff, site.blurAmount)  # Draws the site with lines representing the quality and blurriness representing how well known the site is
 
         img = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.estimatedAgentCount)), True, BORDER_COLOR)  # Draw the estimated number of agents assigned to the site
-        Display.screen.blit(img, (site.estimatedPosition[0] - (img.get_width() / 2),
-                                  site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 24)))
+        Display.blitImage(Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
+                          site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 24)))
 
 
 def drawBlurredCircle(pos, color, size, radius, blurAmount):
@@ -103,7 +105,7 @@ def drawBlurredCircle(pos, color, size, radius, blurAmount):
     image = image.convert_alpha()
     pygame.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
     blur = getBlurredImage(image, blurAmount)
-    Display.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
+    Display.blitImage(Display.screen, blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
 
 
 def drawBlurredSite(site, pos, color, size, radius, blurAmount):
@@ -111,9 +113,10 @@ def drawBlurredSite(site, pos, color, size, radius, blurAmount):
     image = pygame.Surface([size, size], pygame.SRCALPHA, 32)
     image = image.convert_alpha()
     rect = pygame.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
-    drawCircleLines(image, rect, BORDER_COLOR, getDensity(site.estimatedQuality))
+    drawCircleLines(image, rect, BORDER_COLOR, getDensity(site.estimatedQuality), False)
     blur = getBlurredImage(image, blurAmount)
-    site.estimatedSiteRect = Display.screen.blit(blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
+    site.estimatedSiteRect = (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2))
+    Display.blitImage(Display.screen, blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
 
 
 def getDensity(quality):
