@@ -6,19 +6,15 @@ from pygame import Rect
 
 from Constants import *
 from display import Display
-from model.Site import Site
+from model.builder import SiteBuilder
 
 
 class World:
     """ Represents the world around the ants old home """
 
-    def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
-                 siteNoCloserThan, siteNoFartherThan, hubCanMove=HUB_CAN_MOVE):
-        self.hubCanMove = hubCanMove  # Whether the hub can be moved by the user
+    def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
-        self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub a site can randomly be generated
-        self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub a site can randomly be generated
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
         self.checkHubs(numHubs)
         self.siteList = []  # The sites in the world
@@ -26,7 +22,6 @@ class World:
         self.sitePositions = sitePositions  # Where the sites are located
         self.siteQualities = siteQualities  # The quality of each site
         self.sitesRadii = siteRadii  # A list of the radius of each site
-        self.shouldDrawFog = True  # Whether the screen is initially filled with dark gray fog
         self.marker = None  # A marker drawn in the world representing a user's command
 
         self.hubsRects = []
@@ -96,8 +91,7 @@ class World:
 
     def createSite(self, x, y, radius, quality, numHubs):
         """ Creates a site with specified values. If values are none, then default values will apply """
-        newSite = Site(self.hubLocations[random.randint(0, len(self.hubLocations) - 1)], numHubs, x, y, radius, quality,
-                       self.siteNoCloserThan, self.siteNoFartherThan)
+        newSite = SiteBuilder.getNewSite(numHubs, x, y, radius, quality, self.hubLocations)
         self.siteList.append(newSite)  # Add the site to the world's list of sites
         self.siteRectList.append(newSite.getSiteRect())
 
@@ -186,8 +180,7 @@ class World:
         for i in range(numHubs):
             pos = locations[i]
             rad = radii[i]
-            hubSite = Site(pos, numHubs, pos[0], pos[1], rad, -1,
-                           self.siteNoCloserThan, self.siteNoFartherThan)
+            hubSite = SiteBuilder.getNewSite(numHubs, pos[0], pos[1], rad, -1)
             count = agentCounts[i]
             hubSite.agentCount = count
             hubSite.setEstimates([pos, -1, count, rad])

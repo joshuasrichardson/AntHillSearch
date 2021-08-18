@@ -8,8 +8,7 @@ from display import Display, SiteDisplay
 from display.WorldDisplay import drawWorldObjects
 from ColonyExceptions import GameOver
 from model.Timer import SimulationTimer
-from model.builder import AgentBuilder
-from model.builder.AgentSettings import AgentSettings
+from model.builder import AgentBuilder, AgentSettings, SiteSettings
 from recording.Recorder import Recorder
 from model.states.AtNestState import AtNestState
 from user.Controls import Controls
@@ -30,22 +29,22 @@ class Simulation(ABC):
         self.setDisplayVariables()
         self.graphs = self.getGraphs()
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
+        SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                                          siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove)  # The world that has all the sites and agents
+                                          siteQualities, siteRadii)  # The world that has all the sites and agents
         self.chosenHomes = self.initChosenHomes(len(hubLocations))  # The site that most of the agents are assigned to when the interface ends
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
-        self.agentSettings = AgentSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
-                                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist,
-                                           findSitesEasily, commitSpeedFactor)
-        self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs, self.agentSettings)  # And object to handle events dealing with user interactions
+        AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
+                                  maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
+        self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
 
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove):
+                        siteRadii):
         pass
 
     def setAgentList(self, agents):
@@ -55,7 +54,7 @@ class Simulation(ABC):
         hubIndex = 0
         for count in hubAgentCounts:
             for i in range(count):
-                agent = AgentBuilder.getNewAgent(self.agentSettings, self.world, self.world.getHubs()[hubIndex])
+                agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[hubIndex])
                 agent.setState(AtNestState(agent))
                 self.world.agentList.append(agent)
                 self.world.agentGroups[i % 10].append(agent)

@@ -11,7 +11,7 @@ from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker
-from model.builder import AgentBuilder
+from model.builder import AgentBuilder, SiteSettings
 from model.phases.ExplorePhase import ExplorePhase
 from model.states.SearchState import SearchState
 
@@ -19,8 +19,7 @@ from model.states.SearchState import SearchState
 class Controls:
     """ Lets the user interact with the interface """
 
-    def __init__(self, timer, agentList, world, graphs, agentSettings):
-        self.agentSettings = agentSettings
+    def __init__(self, timer, agentList, world, graphs):
         self.graphs = graphs
         self.timer = timer
         self.agentList = agentList
@@ -171,7 +170,8 @@ class Controls:
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
-    def moveScreen(self):
+    @staticmethod
+    def moveScreen():
         mousePos = pygame.mouse.get_pos()
         if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -MAX_SEARCH_DIST:
             Display.displacementX -= 25
@@ -234,7 +234,7 @@ class Controls:
             self.graphs.scrollDown()
 
     def drag(self):
-        if self.world.hubCanMove or not self.world.getHubs().__contains__(self.selectedSite):
+        if SiteSettings.hubCanMove or not self.world.getHubs().__contains__(self.selectedSite):
             self.oldRect = self.selectedSite.getSiteRect().copy()
             self.dragSite = self.selectedSite
 
@@ -541,7 +541,7 @@ class Controls:
         self.addToExecutedEvents("Created site at " + str(position))
 
     def createAgent(self, position):
-        agent = AgentBuilder.getNewAgent(self.agentSettings, self.world, self.world.getHubs()[0], position)  # TODO: Make more flexible
+        agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[0], position)  # TODO: Make more flexible
         agent.setState(SearchState(agent))
         agent.setAngle(random.uniform(0, 2 * np.pi))
         agent.assignedSite.incrementCount(agent.getHubIndex())

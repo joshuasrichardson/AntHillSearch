@@ -17,8 +17,7 @@ def drawWorldObjects(world):
         for siteIndex in range(0, len(world.siteList)):
             drawSite(world.siteList[siteIndex])
     drawMarker(world)
-    if world.shouldDrawFog:
-        drawFog(world)
+    drawFog(world)
 
 
 def drawPaths(world):

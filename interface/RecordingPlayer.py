@@ -17,11 +17,11 @@ class RecordingPlayer(Simulation):
         super().initializeAgentList(self.hubAgentCounts)
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                        siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove=HUB_CAN_MOVE):
+                        siteRadii):
         self.recorder.read()
         self.initHubsAgentCounts()
         world = World(numHubs, numSites, hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan)
+                      siteQualities, siteRadii)
 
         world.fog = []
 

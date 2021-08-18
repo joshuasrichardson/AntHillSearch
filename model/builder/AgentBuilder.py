@@ -1,14 +1,15 @@
 import random
 from model.Agent import Agent
+from model.builder import AgentSettings
 
 
-def getNewAgent(settings, world, startingAssignment, startingPosition=None):
+def getNewAgent(world, startingAssignment, startingPosition=None):
     if startingPosition is None:
         startingPosition = startingAssignment.getPosition()
-    speed = initializeAttribute(settings.homogenousAgents, settings.minSpeed, settings.maxSpeed)  # Speed the agent moves on the screen
-    decisiveness = initializeAttribute(settings.homogenousAgents, settings.minDecisiveness, settings.maxDecisiveness)  # Influences how quickly an agent can assess
-    navSkills = initializeAttribute(settings.homogenousAgents, settings.minNavSkills, settings.maxNavSkills)  # Influences how likely an agent is to get lost
-    estAccuracy = initializeAttribute(settings.homogenousAgents, settings.minEstAccuracy, settings.maxEstAccuracy)  # How far off an agent's estimate of the quality of a site will be on average.
+    speed = initializeAttribute(AgentSettings.homogenousAgents, AgentSettings.minSpeed, AgentSettings.maxSpeed)  # Speed the agent moves on the screen
+    decisiveness = initializeAttribute(AgentSettings.homogenousAgents, AgentSettings.minDecisiveness, AgentSettings.maxDecisiveness)  # Influences how quickly an agent can assess
+    navSkills = initializeAttribute(AgentSettings.homogenousAgents, AgentSettings.minNavSkills, AgentSettings.maxNavSkills)  # Influences how likely an agent is to get lost
+    estAccuracy = initializeAttribute(AgentSettings.homogenousAgents, AgentSettings.minEstAccuracy, AgentSettings.maxEstAccuracy)  # How far off an agent's estimate of the quality of a site will be on average.
     return Agent(world, startingAssignment, startingPosition, speed, decisiveness, navSkills, estAccuracy)
 
 

@@ -6,14 +6,11 @@ from Constants import INITIAL_BLUR
 
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
-    def __init__(self, hubLocation, numHubs, x, y, radius, quality, siteNoCloserThan, siteNoFartherThan):
+    def __init__(self, numHubs, pos, radius, quality):
         self.quality = self.setQuality(quality)  # The quality of a site on a scale of 0 - 255
         self.color = self.setColor(self.quality)  # The color of the site, representing its quality
 
-        self.hubLocation = hubLocation  # Where the agents' original home is
-        self.siteNoCloserThan = siteNoCloserThan  # The closest to the hub that the sites can be randomly generated
-        self.siteNoFartherThan = siteNoFartherThan  # The furthest to the hub that the sites can be randomly generated
-        self.pos = self.initializePosition(x, y)  # Where the site is located when the interface starts
+        self.pos = pos  # Where the site is located when the interface starts
         self.radius = radius  # The radius of the circle that represents the site
         self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
         self.siteRect.centerx = self.pos[0]  # The x coordinate of the center of the rectangle
@@ -63,17 +60,6 @@ class Site:
         else:
             self.color = 255 - quality, quality, 0
         return self.color
-
-    def initializePosition(self, x, y):
-        """ Sets the site in its starting position at a random distance from the hub that is within the range
-        specified with the initialization of the class or to the (x, y) coordinates if they are specified """
-        angle = np.random.uniform(0, np.pi * 2)
-        radius = np.random.uniform(self.siteNoCloserThan, self.siteNoFartherThan)
-        if x is None:
-            x = int(self.hubLocation[0] + np.round(radius * np.cos(angle)))
-        if y is None:
-            y = int(self.hubLocation[1] + np.round(radius * np.sin(angle)))
-        return list([x, y])
 
     def setEstimates(self, est):
         """ Takes an array with each values' estimate and updates the site's estimated values """

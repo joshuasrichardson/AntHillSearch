@@ -3,7 +3,7 @@ import numpy as np
 from Constants import *
 from display import SiteDisplay
 from display.Display import getAgentImage
-from model.builder import AgentSettings
+from model.builder import AgentSettings, SiteSettings
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ExplorePhase import ExplorePhase
 
@@ -225,7 +225,7 @@ class Agent:
 
     def estimateSitePosition(self, site):
         """ Returns an estimate of a site position that is within estimationAccuracy * 2 pixels from the actual position """
-        if not self.world.hubCanMove and site is self.getHub():
+        if not SiteSettings.hubCanMove and site is self.getHub():
             estimatedSitePosition = self.getHub().getPosition()
         else:
             estimatedSitePosition = site.getPosition().copy()

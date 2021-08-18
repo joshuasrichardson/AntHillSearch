@@ -39,9 +39,9 @@ class LiveSimulation(Simulation, ABC):
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                        siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove=HUB_CAN_MOVE):
+                        siteQualities, siteRadii):
         world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove)
+                      siteQualities, siteRadii)
         world.initSitesAgentsCounts()
         return world
 
@@ -55,7 +55,7 @@ class LiveSimulation(Simulation, ABC):
         if startingPosition is None:
             startingPosition = self.world.siteList[assignedSiteIndex].getPosition()
         for i in range(0, numAgents):
-            agent = AgentBuilder.getNewAgent(self.agentSettings, self.world, self.world.siteList[assignedSiteIndex], startingPosition)
+            agent = AgentBuilder.getNewAgent(self.world, self.world.siteList[assignedSiteIndex], startingPosition)
             agent.assignedSite.agentCount += 1
             agent.setState(state(agent))
             agent.setPhase(phase)

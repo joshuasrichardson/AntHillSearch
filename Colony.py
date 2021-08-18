@@ -28,17 +28,17 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Limit control in the User interface more (get rid of ability to set quality of hub and command agents who are selected and have moved away from the hub
 # TODO: Unselect agents that go out of the range of the hub in UI
 # TODO: Add more comments to net, recording, states, and user packages
-# TODO: Break Site and World, into themselves and SiteBuilder and WorldBuilder classes
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls)?
 # TODO: Combine agent.assignedSiteLastKnownPos and agent.estimatedSitePosition into one variable?
+# TODO: Make faster, especially the fog when it extends beyond the screen
 
 
 def main():
     try:
-        runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
-        # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
+        runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:
         pass
 
