@@ -12,11 +12,17 @@ class EngineerInterface(LiveSimulation):
                  hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII, hubAgentCounts=HUB_AGENT_COUNTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
-                 hubCanMove=True):
+                 hubCanMove=True, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
+                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
+                 findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR):
         Display.drawFarAgents = True
         super().__init__(simulationDuration, numHubs, numSites, useRestAPI, shouldRecord, convergenceFraction,
                          hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
-                         siteNoCloserThan, siteNoFartherThan, hubCanMove)
+                         siteNoCloserThan, siteNoFartherThan, hubCanMove, homogenousAgents, minSpeed,
+                         maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
+                         maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
 
     def runNextRound(self):
         self.userControls.handleEvents()

@@ -6,22 +6,27 @@ import pygame
 from Constants import *
 from display import Display, SiteDisplay
 from display.WorldDisplay import drawWorldObjects
-from model.Agent import Agent
 from ColonyExceptions import GameOver
 from model.Timer import SimulationTimer
+from model.builder import AgentBuilder
+from model.builder.AgentSettings import AgentSettings
 from recording.Recorder import Recorder
 from model.states.AtNestState import AtNestState
 from user.Controls import Controls
 
 
-class AbstractColonySimulation(ABC):
+class Simulation(ABC):
     """ Runs most of the colony interface but leaves some details to classes that inherit this class """
 
     def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES, shouldRecord=SHOULD_RECORD,
                  convergenceFraction=CONVERGENCE_FRACTION, hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII,
                  hubAgentCounts=HUB_AGENT_COUNTS, sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES,
-                 siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
-                 siteNoFartherThan=SITE_NO_FARTHER_THAN, hubCanMove=HUB_CAN_MOVE):
+                 siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
+                 hubCanMove=HUB_CAN_MOVE, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
+                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
+                 commitSpeedFactor=COMMIT_SPEED_FACTOR):
         self.setDisplayVariables()
         self.graphs = self.getGraphs()
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
@@ -30,7 +35,10 @@ class AbstractColonySimulation(ABC):
         self.chosenHomes = self.initChosenHomes(len(hubLocations))  # The site that most of the agents are assigned to when the interface ends
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
-        self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
+        self.agentSettings = AgentSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
+                                           minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist,
+                                           findSitesEasily, commitSpeedFactor)
+        self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs, self.agentSettings)  # And object to handle events dealing with user interactions
 
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
@@ -43,17 +51,11 @@ class AbstractColonySimulation(ABC):
     def setAgentList(self, agents):
         self.world.agentList = agents
 
-    def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
-                            maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
-                            minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
-                            findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR):
+    def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS):
         hubIndex = 0
         for count in hubAgentCounts:
             for i in range(count):
-                agent = Agent(self.world, self.world.getHubs()[hubIndex], homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness,
-                              minNavSkills, maxNavSkills, minEstAccuracy, maxEstAccuracy, self.world.getHubs()[hubIndex].pos, maxSearchDist,
-                              findSitesEasily, commitSpeedFactor)
+                agent = AgentBuilder.getNewAgent(self.agentSettings, self.world, self.world.getHubs()[hubIndex])
                 agent.setState(AtNestState(agent))
                 self.world.agentList.append(agent)
                 self.world.agentGroups[i % 10].append(agent)

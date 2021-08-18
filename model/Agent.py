@@ -3,6 +3,7 @@ import numpy as np
 from Constants import *
 from display import SiteDisplay
 from display.Display import getAgentImage
+from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ExplorePhase import ExplorePhase
 
@@ -11,12 +12,7 @@ class Agent:
     """ Represents an agent that works to find a new nest when the old one is broken by going through different
     phases and states"""
 
-    def __init__(self, world, startingAssignment, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
-                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
-                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, startingPosition=None,
-                 maxSearchDistance=MAX_SEARCH_DIST, findAssignedSiteEasily=FIND_SITES_EASILY,
-                 commitSpeedFactor=COMMIT_SPEED_FACTOR):
+    def __init__(self, world, startingAssignment, startingPosition, speed, decisiveness, navSkills, estAccuracy):
         self.world = world  # The colony the agent lives in
         self.hub = startingAssignment
 
@@ -28,21 +24,18 @@ class Agent:
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
 
-        self.homogenousAgents = homogenousAgents  # Whether all the agents have the same attributes (if false, their attributes vary)
-        self.findAssignedSiteEasily = findAssignedSiteEasily  # Whether the agents know where their sites are even after they have moved
-        self.speed = self.initializeAttribute(minSpeed, maxSpeed)  # Speed the agent moves on the screen
+        self.speed = speed  # Speed the agent moves on the screen
         self.uncommittedSpeed = self.speed  # The speed of the agents outside the committed phase
-        self.committedSpeed = self.speed * commitSpeedFactor  # The speed of the agents in the committed phase
-        self.decisiveness = self.initializeAttribute(minDecisiveness, maxDecisiveness)  # Influences how quickly an agent can assess
-        self.navigationSkills = self.initializeAttribute(minNavSkills, maxNavSkills)  # Influences how likely an agent is to get lost
-        self.estimationAccuracy = self.initializeAttribute(minEstAccuracy, maxEstAccuracy)  # How far off an agent's estimate of the quality of a site will be on average.
+        self.committedSpeed = self.speed * AgentSettings.commitSpeedFactor  # The speed of the agents in the committed phase
+        self.decisiveness = decisiveness  # Influences how quickly an agent can assess
+        self.navigationSkills = navSkills  # Influences how likely an agent is to get lost
+        self.estimationAccuracy = estAccuracy  # How far off an agent's estimate of the quality of a site will be on average.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.target = list(startingPosition)  # The position the agent is going to
         self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
         self.angularVelocity = 0  # Speed the agent is changing direction
-        self.maxSearchDistance = maxSearchDistance  # The farthest distance an agent can go away from their assigned site while searching
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
@@ -69,14 +62,6 @@ class Agent:
         self.isTheSelected = False  # Whether the agent is the one with its information shown
         self.marker = None  # A marker to be drawn on the screen representing an action the agent will perform
         self.eraseFogCommands = []  # A list of eraseFog methods and agentRects used to clear fog after an agent has returned to the hub
-
-    def initializeAttribute(self, minimum, maximum):
-        """ Sets all the attribute value to maximum if agents are all the same or a random number in the
-        range if agents are different """
-        if self.homogenousAgents:
-            return maximum
-        else:
-            return random.uniform(minimum, maximum)
 
     def setState(self, state):
         self.state = state
@@ -135,13 +120,13 @@ class Agent:
         self.pos = list([self.agentRect.centerx, self.agentRect.centery])
 
     def getAssignedSitePosition(self):
-        if self.findAssignedSiteEasily:
+        if AgentSettings.findAssignedSiteEasily:
             return self.assignedSite.getPosition()  # Return the actual position of the site
         else:
             return self.assignedSiteLastKnownPos  # Return where they last saw the site (it could have moved from there)
 
     def getRecruitSitePosition(self):
-        if self.findAssignedSiteEasily:
+        if AgentSettings.findAssignedSiteEasily:
             return self.recruitSite.getPosition()  # Return the actual position of the site
         else:
             return self.recruitSiteLastKnownPos  # Return where they last saw the site (it could have moved from there)
@@ -183,8 +168,8 @@ class Agent:
     def isTooFarAway(self, site):
         """ Returns a boolean representing whether the agent is outside their searching area """
         from math import isclose
-        tooFarX = not isclose(self.pos[0], site.getPosition()[0], abs_tol=self.maxSearchDistance)
-        tooFarY = not isclose(self.pos[1], site.getPosition()[1], abs_tol=self.maxSearchDistance)
+        tooFarX = not isclose(self.pos[0], site.getPosition()[0], abs_tol=AgentSettings.maxSearchDistance)
+        tooFarY = not isclose(self.pos[1], site.getPosition()[1], abs_tol=AgentSettings.maxSearchDistance)
         return tooFarX or tooFarY
 
     def estimateQuality(self, site):

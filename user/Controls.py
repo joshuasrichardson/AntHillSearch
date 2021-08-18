@@ -9,9 +9,9 @@ from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEA
 from display import Display
 from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
-from model.Agent import Agent
 from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker
+from model.builder import AgentBuilder
 from model.phases.ExplorePhase import ExplorePhase
 from model.states.SearchState import SearchState
 
@@ -19,7 +19,8 @@ from model.states.SearchState import SearchState
 class Controls:
     """ Lets the user interact with the interface """
 
-    def __init__(self, timer, agentList, world, graphs):
+    def __init__(self, timer, agentList, world, graphs, agentSettings):
+        self.agentSettings = agentSettings
         self.graphs = graphs
         self.timer = timer
         self.agentList = agentList
@@ -172,13 +173,13 @@ class Controls:
 
     def moveScreen(self):
         mousePos = pygame.mouse.get_pos()
-        if mousePos[0] >= Display.screen.get_width() - 15 and Display.displacementX >= -MAX_SEARCH_DIST:
+        if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -MAX_SEARCH_DIST:
             Display.displacementX -= 25
-        if mousePos[1] <= 15 and Display.displacementY <= MAX_SEARCH_DIST:
+        if mousePos[1] <= 3 and Display.displacementY <= MAX_SEARCH_DIST:
             Display.displacementY += 25
-        if mousePos[0] <= 15 and Display.displacementX <= MAX_SEARCH_DIST:
+        if mousePos[0] <= 3 and Display.displacementX <= MAX_SEARCH_DIST:
             Display.displacementX += 25
-        if mousePos[1] >= Display.screen.get_height() - 100 and Display.displacementY >= -MAX_SEARCH_DIST:
+        if mousePos[1] >= Display.screen.get_height() - 30 and Display.displacementY >= -MAX_SEARCH_DIST:
             Display.displacementY -= 25
 
     def addToExecutedEvents(self, eventName):
@@ -540,7 +541,7 @@ class Controls:
         self.addToExecutedEvents("Created site at " + str(position))
 
     def createAgent(self, position):
-        agent = Agent(self.world, self.world.getHubs()[0], startingPosition=position)  # TODO: Make more flexible
+        agent = AgentBuilder.getNewAgent(self.agentSettings, self.world, self.world.getHubs()[0], position)  # TODO: Make more flexible
         agent.setState(SearchState(agent))
         agent.setAngle(random.uniform(0, 2 * np.pi))
         agent.assignedSite.incrementCount(agent.getHubIndex())

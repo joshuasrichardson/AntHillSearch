@@ -3,6 +3,7 @@ from abc import abstractmethod
 import numpy as np
 from pygame import Rect
 
+from model.builder import AgentSettings
 from model.states.State import State
 
 
@@ -16,7 +17,7 @@ class RecruitState(State):
         # Choose a site to recruit from
         if self.agent.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there.
             self.setState(self, self.agent.getRecruitSitePosition())
-            if not self.agent.findAssignedSiteEasily and self.arrivedAtOrPassedSite(self.agent.getRecruitSitePosition())\
+            if not AgentSettings.findAssignedSiteEasily and self.arrivedAtOrPassedSite(self.agent.getRecruitSitePosition())\
                     and not self.arrivedAtOrPassedSite(self.agent.recruitSite.getPosition()):
                 self.agent.goingToRecruit = False
                 self.agent.removeKnownSite(self.agent.recruitSite)
@@ -31,7 +32,7 @@ class RecruitState(State):
 
         if self.agent.comingWithFollowers:
             self.setState(self, self.agent.getAssignedSitePosition())
-            if not self.agent.findAssignedSiteEasily and self.arrivedAtOrPassedSite(self.agent.getAssignedSitePosition())\
+            if not AgentSettings.findAssignedSiteEasily and self.arrivedAtOrPassedSite(self.agent.getAssignedSitePosition())\
                     and not self.arrivedAtOrPassedSite(self.agent.assignedSite.getPosition()):  # If they get to where they thought the site was
                 self.agent.numFollowers = 0
                 self.agent.comingWithFollowers = False
@@ -75,7 +76,7 @@ class RecruitState(State):
         while self.agent.recruitSite == self.agent.assignedSite:
             indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
             self.agent.recruitSite = self.agent.knownSites[indexOfSiteToRecruitFrom]
-        if self.agent.findAssignedSiteEasily:
+        if AgentSettings.findAssignedSiteEasily:
             self.agent.recruitSiteLastKnownPos = self.agent.recruitSite.getPosition()
         else:
             self.agent.recruitSiteLastKnownPos = self.agent.knownSitesPositions[indexOfSiteToRecruitFrom]

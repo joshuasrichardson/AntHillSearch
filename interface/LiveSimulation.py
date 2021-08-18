@@ -6,13 +6,13 @@ from abc import ABC
 from ColonyExceptions import *
 from Constants import *
 from display import Display
-from interface.Simulation import AbstractColonySimulation
-from model.Agent import Agent
+from interface.Simulation import Simulation
 from model.World import World
+from model.builder import AgentBuilder
 from net.SendHubInfoRequest import SendHubInfoRequest
 
 
-class LiveSimulation(AbstractColonySimulation, ABC):
+class LiveSimulation(Simulation, ABC):
     """ A class to run the interface for ants finding their new home after the old one broke """
 
     def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES, useRestAPI=USE_REST_API,
@@ -20,10 +20,16 @@ class LiveSimulation(AbstractColonySimulation, ABC):
                  hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII, hubAgentCounts=HUB_AGENT_COUNTS,
                  sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
                  siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
-                 hubCanMove=HUB_CAN_MOVE):
+                 hubCanMove=HUB_CAN_MOVE, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
+                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
+                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
+                 findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR):
         super().__init__(simulationDuration, numHubs, numSites, shouldRecord, convergenceFraction,
                          hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
-                         siteNoCloserThan, siteNoFartherThan, hubCanMove)
+                         siteNoCloserThan, siteNoFartherThan, hubCanMove, homogenousAgents, minSpeed,
+                         maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
+                         maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
         self.previousSendTime = datetime.datetime.now()
         self.useRestAPI = useRestAPI
 
@@ -49,7 +55,7 @@ class LiveSimulation(AbstractColonySimulation, ABC):
         if startingPosition is None:
             startingPosition = self.world.siteList[assignedSiteIndex].getPosition()
         for i in range(0, numAgents):
-            agent = Agent(self.world, self.world.siteList[assignedSiteIndex], startingPosition=startingPosition)
+            agent = AgentBuilder.getNewAgent(self.agentSettings, self.world, self.world.siteList[assignedSiteIndex], startingPosition)
             agent.assignedSite.agentCount += 1
             agent.setState(state(agent))
             agent.setPhase(phase)

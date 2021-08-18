@@ -37,7 +37,8 @@ class Site:
         self.blurAmount = INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
         self.blurRadiusDiff = INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
 
-    def initAgentCounts(self, numHubs):
+    @staticmethod
+    def initAgentCounts(numHubs):
         agentCounts = []
         for i in range(numHubs):
             agentCounts.append(0)

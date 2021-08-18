@@ -1,24 +1,20 @@
 from Constants import *
 from display import Display
 from display.Graphs import SimulationGraphs
-from interface.Simulation import AbstractColonySimulation
+from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
 from model.World import World
 
 
-class RecordingPlayer(AbstractColonySimulation):
+class RecordingPlayer(Simulation):
     """ Runs the colony interface for a previously recorded interface using the data stored in recording.txt """
 
     def __init__(self):
         self.hubAgentCounts = []
         super().__init__(shouldRecord=False)
 
-    def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS, numHubs=NUM_HUBS, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
-                            maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
-                            minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                            maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
-                            findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR):
-        super().initializeAgentList(hubAgentCounts=self.hubAgentCounts)
+    def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS):
+        super().initializeAgentList(self.hubAgentCounts)
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
                         siteRadii, siteNoCloserThan, siteNoFartherThan, hubCanMove=HUB_CAN_MOVE):
