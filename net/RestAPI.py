@@ -5,8 +5,6 @@ from flask import request, jsonify
 app = flask.Flask(__name__)
 
 hubInfo = None
-chosenHome = None
-simulationDuration = 0
 
 
 @app.route('/', methods=['GET'])
@@ -24,8 +22,9 @@ def addHubInfo():
     # Pull down data and convert binary string to regular string
     data = request.get_data().decode('ascii')
 
-    newHubInfo = urllib.parse.parse_qs(data)
-    hubInfo = newHubInfo
+    global hubInfo
+    hubInfo = urllib.parse.parse_qs(data)
+
     print("Added hub info: {}".format(hubInfo))
     return jsonify(hubInfo)
 

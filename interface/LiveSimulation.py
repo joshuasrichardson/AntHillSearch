@@ -43,6 +43,8 @@ class LiveSimulation(Simulation, ABC):
         world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                       siteQualities, siteRadii)
         world.initSitesAgentsCounts()
+        if not SHOULD_DRAW_FOG:
+            world.fog = []
         return world
 
     def initializeRequest(self):
@@ -88,9 +90,9 @@ class LiveSimulation(Simulation, ABC):
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()
+        self.world.request.numAtHub = 0
         for hubRect in hubRects:
             hubAgentsIndices = hubRect.collidelistall(agentRectList)
-            self.world.request.numAtHub = 0
             for agentIndex in hubAgentsIndices:
                 agent = self.world.agentList[agentIndex]
                 sites = agent.knownSites

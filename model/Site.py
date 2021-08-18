@@ -6,7 +6,7 @@ from Constants import INITIAL_BLUR
 
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
-    def __init__(self, numHubs, pos, radius, quality):
+    def __init__(self, numHubs, pos, radius, quality, numAgents=0):
         self.quality = self.setQuality(quality)  # The quality of a site on a scale of 0 - 255
         self.color = self.setColor(self.quality)  # The color of the site, representing its quality
 
@@ -16,7 +16,7 @@ class Site:
         self.siteRect.centerx = self.pos[0]  # The x coordinate of the center of the rectangle
         self.siteRect.centery = self.pos[1]  # The y coordinate of the center of the rectangle
 
-        self.agentCount = 0  # The number of agents assigned to the site
+        self.agentCount = numAgents  # The number of agents assigned to the site
         self.agentCounts = self.initAgentCounts(numHubs)  # The number of agents assigned to the site from each hub
         self.wasFound = False  # Whether the agents have visited the site yet
 
@@ -43,6 +43,11 @@ class Site:
 
     def setQuality(self, quality):
         """ Sets the quality to the specified value unless it is outside the range 0 - 255 """
+        try:  # Prevent the hub's quality from being changed
+            if self.quality < 0 or self.quality >= 0 > quality:
+                return self.quality
+        except AttributeError:
+            pass
         if quality is None:
             self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality
         elif quality > 255:  # If the quality is greater than the max,
@@ -55,6 +60,11 @@ class Site:
 
     def setColor(self, quality):
         """ Sets the color based on the given quality """
+        try:  # Prevent the hub's quality from being changed
+            if self.quality < 0 or self.quality >= 0 > quality:
+                return self.color
+        except AttributeError:
+            pass
         if quality < 0:  # If the quality is less than the min, set the color to black (just for the hub)
             self.color = (0, 0, 0)
         else:
@@ -124,11 +134,11 @@ class Site:
 
     def incrementCount(self, hubIndex):
         self.agentCount += 1
-        self.agentCounts[hubIndex] = self.agentCounts[hubIndex] + 1
+        self.agentCounts[hubIndex] += 1
 
     def decrementCount(self, hubIndex):
         self.agentCount -= 1
-        self.agentCounts[hubIndex] = self.agentCounts[hubIndex] - 1
+        self.agentCounts[hubIndex] -= 1
 
     def select(self):
         self.isSelected = True

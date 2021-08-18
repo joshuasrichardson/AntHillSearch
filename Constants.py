@@ -4,9 +4,9 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 200  # Time of the interface in seconds
+SIM_DURATION = 25  # Time of the interface in seconds
 
-NUM_HUBS = 1
+NUM_HUBS = 4
 HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
@@ -69,6 +69,7 @@ SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
+SHOULD_DRAW_FOG = False
 # If these numbers are too high, the interface gets really slow. If they are too low, the blocks are really big and don't look as good. 200, 100 seems to be pretty good.
 NUM_FOG_BLOCKS_X = 200  # The initial number of fog rectangles from left to right on the screen
 NUM_FOG_BLOCKS_Y = 100 # The initial number of fog rectangles from top to bottom on the screen

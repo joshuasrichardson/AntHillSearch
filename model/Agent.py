@@ -3,7 +3,7 @@ import numpy as np
 from Constants import *
 from display import SiteDisplay
 from display.Display import getAgentImage
-from model.builder import AgentSettings, SiteSettings
+from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ExplorePhase import ExplorePhase
 
@@ -174,8 +174,9 @@ class Agent:
 
     def estimateQuality(self, site):
         """ Returns an estimate of a site quality that is within estimationAccuracy units from the actual quality """
-        return site.getQuality() + \
-            (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
+        if site.quality == -1:
+            return -1
+        return site.getQuality() + (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
 
     def estimateAgentCount(self, site):
         self.estimatedAgentCount = site.agentCount  # TODO: Actually estimate the count
@@ -183,6 +184,8 @@ class Agent:
 
     def estimateRadius(self, site):
         """ Returns an estimate of a site radius that is within estimationAccuracy/4 pixels from the actual radius """
+        if site.quality == -1:
+            return site.radius
         estimate = site.radius + ((self.estimationAccuracy / 4) if random.randint(0, 2) == 1 else (-(self.estimationAccuracy / 4)))
         if estimate <= 0:  # The radius cannot be negative or zero.
             estimate = 1
@@ -225,7 +228,7 @@ class Agent:
 
     def estimateSitePosition(self, site):
         """ Returns an estimate of a site position that is within estimationAccuracy * 2 pixels from the actual position """
-        if not SiteSettings.hubCanMove and site is self.getHub():
+        if site is self.getHub():
             estimatedSitePosition = self.getHub().getPosition()
         else:
             estimatedSitePosition = site.getPosition().copy()

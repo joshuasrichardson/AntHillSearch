@@ -25,8 +25,7 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 # TODO: Read articles about ants, especially how they find homes
 # TODO: Make more realistic
-# TODO: Limit control in the User interface more (get rid of ability to set quality of hub and command agents who are selected and have moved away from the hub
-# TODO: Unselect agents that go out of the range of the hub in UI
+# TODO: Limit control in the User interface more (get rid of ability to command agents who are selected and have moved away from the hub and dont move or select sites anywhere)
 # TODO: Add more comments to net, recording, states, and user packages
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls)?
 # TODO: Combine agent.assignedSiteLastKnownPos and agent.estimatedSitePosition into one variable?
@@ -58,8 +57,8 @@ def runEmpiricalTestingInterface(numSimulations=1):
     convergenceTimes = []
     for i in range(numSimulations):
         print("Simulation " + str(i + 1) + ":")
-        colony = EmpiricalTestingInterface(shouldRecord=True, useRestAPI=False)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
-        colony.initializeAgentList()  # Create the agents that will be used in the interface
+        colony = EmpiricalTestingInterface(hubAgentCounts=[20, 20, 20, 20], shouldRecord=True, useRestAPI=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+        colony.initializeAgentList(hubAgentCounts=[20, 20, 20, 20])  # Create the agents that will be used in the interface
         results = colony.runSimulation()  # Starts the interface
         chosenSiteQualities.append(results[0])
         convergenceTimes.append(results[1])

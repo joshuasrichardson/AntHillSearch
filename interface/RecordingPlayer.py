@@ -22,7 +22,6 @@ class RecordingPlayer(Simulation):
         self.initHubsAgentCounts()
         world = World(numHubs, numSites, hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
                       siteQualities, siteRadii)
-
         world.fog = []
 
         return world
