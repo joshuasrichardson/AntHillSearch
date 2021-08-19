@@ -1,12 +1,12 @@
 import json
 
-from phases import Phase
-from states import State
+from model.phases import Phase
+from model.states import State
 
 
 class Recorder:
     """ Records essential site information, agent positions, agent states, and agent phases
-    in recording.txt so that the same simulation can be played over again """
+    in recording.txt so that the same interface can be played over again """
 
     def __init__(self):
         self.agentPositions = []
@@ -109,9 +109,19 @@ class Recorder:
         self.currentPhaseIndex += 1
         return Phase.numToPhase(self.agentPhases[self.currentPhaseIndex])
 
+    def getOriginalAssignments(self):
+        return self.data[0]['agentAssignments']
+
     def getNextAssignment(self):
         self.currentAssignmentIndex += 1
         return self.agentAssignments[self.currentAssignmentIndex]
+
+    def getNumHubs(self):
+        numHubs = 0
+        for quality in self.data[0]['siteQualities']:
+            if quality == -1:
+                numHubs += 1
+        return numHubs
 
     def getNextSitePosition(self):
         self.currentSitePosIndex += 1

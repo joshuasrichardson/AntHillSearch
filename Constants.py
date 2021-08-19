@@ -1,42 +1,45 @@
-""" Global constants used in swarm simulation program """
+""" Global constants used in swarm interface program """
 
-# Having more agents slows down the simulation, but overall, the behavior is pretty similar.
-# They can go to more various sites and things like that with lots of agents,
-# but it doesn't have a great effect on where they end up.
-NUM_AGENTS = 400    # Total number of agents in the simulation
-# The lower the convergence fraction is, the faster the simulation goes because lower fractions require less agents to go to a site
-CONVERGENCE_FRACTION = 1.00  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
-# Not having a simulation duration leads to all agents eventually ending up at the same nest.
+# The lower the convergence fraction is, the faster the interface goes because lower fractions require less agents to go to a site
+CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
+# Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 45  # Time of the simulation in seconds
+SIM_DURATION = 200  # Time of the interface in seconds
+
+NUM_HUBS = 4
+HUB_LOCATIONS = [[100, 100]]
+HUB_RADII = []
+# Having more agents slows down the interface, but overall, the behavior is pretty similar.
+# They can go to more various sites and things like that with lots of agents,
+# but it usually doesn't have a great effect on where they end up.
+HUB_AGENT_COUNTS = [100]
+
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 4       # Number of total sites
-# Setting these, especially the good ones, closer to the hub location makes the simulation end sooner
+# Setting these, especially the good ones, closer to the hub location makes the interface end sooner
 # [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100], [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
 SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a position here,
-#                      it will be assigned a random position in the simulation.
-# Setting these more spread apart makes the simulation end sooner and having them close together makes it take longer
+#                      it will be assigned a random position in the interface.
+# Setting these more spread apart makes the interface end sooner and having them close together makes it take longer
 #                      because the agents have a harder time deciding between more similar sites.
 # [256, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 230, 240, 250, 255]
 SITE_QUALITIES = []  # The quality of each site. If a site is not assigned a quality here,
-#                      it will be assigned a random quality in the simulation. If quality is set outside the range,
+#                      it will be assigned a random quality in the interface. If quality is set outside the range,
 #                      it will be set the the closest number in the range.
-# Setting these, especially good ones, bigger makes the simulation end sooner
+# Setting these, especially good ones, bigger makes the interface end sooner
 SITE_RADII = []  # The radius of each site. If a site is not assigned a radius here,
 #                  it will be assigned to the SITE_SIZE.
-# Does not affect the simulation, but the lower it is, the harder the computer will have to work to execute all the threads
+# Does not affect the interface, but the lower it is, the harder the computer will have to work to execute all the threads
 SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending information to the rest API and sending more information
 
-# Having this set to False makes the simulation a little faster, but not much. However, it does prevent errors from not having the API running.
-USE_REST_API = False  # Whether the simulation sends information about the hub to the rest API
-# Having this set to False makes the simulation a little faster because it doesn't have to record all the time.
+# Having this set to False makes the interface a little faster, but not much. However, it does prevent errors from not having the API running.
+USE_REST_API = False  # Whether the interface sends information about the hub to the rest API
+# Having this set to False makes the interface a little faster because it doesn't have to record all the time.
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
-# Having this set to False makes the simulation a little faster because it doesn't have to draw all the time.
-SHOULD_DRAW = True  # Whether the simulation is drawn on the screen
-# Having this false makes the simulation faster because the paths do not have to be drawn on the screen so much.
-SHOULD_DRAW_PATHS = True
-# Having this false makes the simulation faster because the numbers do not have to be drawn on the screen so much.
-SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the simulation screen.
+# Having this set to False makes the interface a little faster because it doesn't have to draw all the time.
+SHOULD_DRAW = True  # Whether the interface is drawn on the screen
+# Having this false makes the interface faster because the paths do not have to be drawn on the screen so much.
+SHOULD_DRAW_PATHS = False
 
 CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
 
@@ -46,10 +49,8 @@ HUB_CAN_MOVE = True  # Whether the hub can be moved
 
 DRAW_FAR_AGENTS = True  # Whether agents that aren't right by the hub are drawn
 
-MAX_AGENTS = 800    # Maximum allowed number of agents
 MAX_TIME = 5000     # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
-MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
 SCREEN_COLOR = 225, 220, 190  # Light brown
 
@@ -57,9 +58,9 @@ WORDS_COLOR = 0, 100, 0  # Dark green
 
 BORDER_COLOR = 115, 110, 80  # Dark Brown
 
+TRANSPARENT = 60, 60, 60
+
 """ Define colony size, hub location, and distribution parameters for sites """
-# The closer it is to the center, the more likely the agents will go to various sites on their way to the site(s) they end up at
-HUB_LOCATION = None  # Location of the hub, when it is set to None, it is put in the middle of the screen
 HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outside edge of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 30  # The default radius of the sites.
@@ -68,11 +69,9 @@ SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
-# If these numbers are too high, the simulation gets really slow. If they are too low, the blocks are really big and don't look as good. 200, 100 seems to be pretty good.
-NUM_FOG_BLOCKS_X = 2  # The initial number of fog rectangles from left to right on the screen
-NUM_FOG_BLOCKS_Y = 1  # The initial number of fog rectangles from top to bottom on the screen
+SHOULD_DRAW_FOG = True
 
-# Does not affect simulation besides making it easier to see what's happening
+# Does not affect interface besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
 #                             The others all build off of that depending on what is being displayed.
 
@@ -80,15 +79,19 @@ GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first g
 AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
-# Having this set to True helps the simulation go faster if user controls are used. If they are not used, it makes no difference.
+# Having this set to True helps the interface go faster if user controls are used. If they are not used, it makes no difference.
 FIND_SITES_EASILY = False  # If True, agents will be able to go directly to their assigned site when it is moved.
 #                                    If False, agents will have to search for their site again when it moves.
-# The smaller the max distance is, the faster the simulation ends because agents never get too far away from the sites
+# The smaller the max distance is, the faster the interface ends because agents never get too far away from the sites
 # (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
-MAX_SEARCH_DIST = 2000  # The farthest an agent can get away from the hub while searching.
-# Setting the speed too high actually makes the simulation take longer because the agents don't turn as
+MAX_SEARCH_DIST = 400  # The farthest an agent can get away from the hub while searching.
+HUB_MIN_X = 0  # The farthest left a hub can randomly be placed.
+HUB_MIN_Y = 0  # The farthest left a hub can randomly be placed.
+HUB_MAX_X = 1250  # The farthest right a hub can randomly be placed.
+HUB_MAX_Y = 650  # The farthest right a hub can randomly be placed.
+# Setting the speed too high actually makes the interface take longer because the agents don't turn as
 # sharp and find sites as easily.
-# Setting it low makes the simulation take longer just because the agents aren't moving as fast.
+# Setting it low makes the interface take longer just because the agents aren't moving as fast.
 # Somewhere in the middle (about 4 ~ 25 when DEFAULT_SITE_SIZE is 20) leads to faster simulations.
 MIN_AGENT_SPEED = 10  # The slowest possible agent's initial speed
 # Each agent's speed will be between these two numbers v^
@@ -97,13 +100,14 @@ MIN_AGENT_SPEED = 10  # The slowest possible agent's initial speed
 MAX_AGENT_SPEED = 12  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
 # The higher this is, the more their speeds increase when they commit
 COMMIT_SPEED_FACTOR = 3  # The number to multiply the agents' speed by when they commit to a site.
+MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
 
-# This being lower makes agents take longer to assess, and thus makes the simulation longer
+# This being lower makes agents take longer to assess, and thus makes the interface longer
 MIN_DECISIVENESS = 0.5  # The factor of the least decisive agent possible (slowest assesser)
-# This being lower makes agents take longer to assess, and thus makes the simulation longer
+# This being lower makes agents take longer to assess, and thus makes the interface longer
 MAX_DECISIVENESS = 2.0  # The factor of the most decisive agent possible (fastest assesser)
 
-# The lower these numbers are, the more likely agents are to get lost while following, making the simulation take longer.
+# The lower these numbers are, the more likely agents are to get lost while following, making the interface take longer.
 MIN_NAV_SKILLS = 0.1  # The factor of the least skilled navigator possible (most likely to get lost)
 MAX_NAV_SKILLS = 2.0  # The factor of the most skilled navigator possible (least likely to get lost)
 
@@ -114,7 +118,7 @@ MIN_QUALITY_MISJUDGMENT = 0  # How close agents' estimatedQuality can be from a 
 # If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
 MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from a site's actual quality.
 
-""" Transition parameters for timed transitions """
+""" Agent Transition Parameters """
 # Threshold probability,
 # 1 ==> 36%
 # 2 ==> 13%
@@ -132,9 +136,9 @@ SEARCH_THRESHOLD = 3  # Should go from AT_NEST to SEARCH
 # it takes about 45 seconds for half of the agents to go from AT_NEST to SEARCH
 SEARCH_FROM_HUB_THRESHOLD = 8  # Should go from AT_NEST(hub) to SEARCH
 
-# This being higher makes agents take longer to assess, and thus makes the simulation longer
+# This being higher makes agents take longer to assess, and thus makes the interface longer
 MAX_ASSESS_THRESHOLD = 9.0  # The assessment threshold of a site with quality 0
-# This being higher makes agents take longer to assess, and thus makes the simulation longer
+# This being higher makes agents take longer to assess, and thus makes the interface longer
 ASSESS_DIVIDEND = 50.0  # The number the site quality is divided by before being subtracted from the threshold.
 
 GET_LOST_THRESHOLD = 5  # Influences the likelihood that an agent will get lost while following
@@ -147,7 +151,7 @@ LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruit
 # The lower this value is, the lower the quality of nests that agents accept can be initially; however, it doesn't make much of a difference in the long run, because agents move from lower-ranked sites to higher-ranked sites either way.
 MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents to accept it
 # The lower this size is, the earlier agents switch over to the committed phase, making other agents come to their site easier.
-QUORUM_SIZE = NUM_AGENTS / 2  # The minimum number of agents that need to be at a site before agents will commit to it
+QUORUM_DIVIDEND = 2  # The minimum number of agents that need to be at a site before agents will commit to it
 
 """ States and their colors """
 AT_NEST = 0            # Rest agent state

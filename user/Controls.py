@@ -3,18 +3,23 @@ from datetime import datetime
 
 import numpy as np
 import pygame
-from pygame.constants import *
+from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
+    K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, HUB_OBSERVE_DIST
-from colony.Agents import Agent
-from colony.ColonyExceptions import GameOver
-from colony.PygameUtils import getDestinationMarker
-from phases.ExplorePhase import ExplorePhase
-from states.SearchState import SearchState
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST
+from display import Display
+from display.AgentDisplay import drawAgent
+from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
+from ColonyExceptions import GameOver
+from display.Display import getDestinationMarker
+from model.builder import AgentBuilder, SiteSettings
+from model.phases.ExplorePhase import ExplorePhase
+from model.states.SearchState import SearchState
 
 
 class Controls:
-    """ Lets the user interact with the simulation """
+    """ Lets the user interact with the interface """
 
     def __init__(self, timer, agentList, world, graphs):
         self.graphs = graphs
@@ -43,25 +48,27 @@ class Controls:
         self.shouldMoveHistBoxTop = False
 
     def draw(self):
-        self.world.screen.fill(SCREEN_COLOR)
-        self.world.drawWorldObjects()
+        Display.screen.fill(SCREEN_COLOR)
+        drawWorldObjects(self.world)
         self.graphs.drawStateGraph(self.world.states)
         self.graphs.drawPhaseGraph(self.world.phases)
         self.graphs.drawPredictionsGraph(self.world.siteList)
         self.graphs.drawExecutedCommands()
+        self.graphs.drawRemainingTime()
+        self.graphs.drawPlayButton()
         self.drawChanges()
         for agent in self.world.agentList:
-            agent.drawAgent(self.world.screen)
-        self.graphs.drawPause()
+            drawAgent(agent, Display.screen)
+        Display.drawPause(Display.screen)
         if self.shouldShowOptions:
             self.graphs.drawOptions()
         pygame.display.flip()
 
     def drawChanges(self):
         if self.selectedSite is not None and self.shouldDrawQuality:
-            self.world.drawPotentialQuality(self.potentialQuality, self.graphs.font)
+            drawPotentialQuality(self.world, self.potentialQuality, self.graphs.font)
         if self.selectRectCorner is not None:
-            self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())
+            self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())  # The displayed rect and selectRect need to be different when the screen moves
         self.graphs.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents,
                                          self.shouldSelectAgentSites, self.shouldCommandSiteAgents, self.shouldShowOptions,
                                          self.paused)
@@ -75,27 +82,29 @@ class Controls:
 
     def handleEvent(self, event):
         mousePos = pygame.mouse.get_pos()
+        # When the screen moves, the mouse position needs to be adjusted to make up for it with some of the controls
+        adjustedMousePos = [mousePos[0] - Display.displacementX, mousePos[1] - Display.displacementY]
         if self.dragSite is not None:
-            self.world.setSitePosition(self.dragSite, mousePos)
+            self.world.setSitePosition(self.dragSite, adjustedMousePos)
         if self.shouldMoveHistBoxTop:
             self.graphs.setHistBoxTop(mousePos[1])
         if event.type == MOUSEMOTION:
-            self.mouseMotion(mousePos)
+            self.mouseMotion(mousePos, adjustedMousePos)
         elif event.type == MOUSEBUTTONUP:
             if event.button == 1:
-                self.mouseUp(mousePos)
+                self.mouseUp(mousePos, adjustedMousePos)
             elif event.button == 3:
-                self.go(mousePos)
+                self.go(adjustedMousePos)
             else:
                 self.scroll(event)
         elif event.type == MOUSEBUTTONDOWN and event.button == 1:
-            self.mouseDown(mousePos)
+            self.mouseDown(mousePos, adjustedMousePos)
         elif event.type == KEYDOWN:
             key = event.key
             if key == K_SPACE:
-                self.go(mousePos)
+                self.go(adjustedMousePos)
             elif key == K_a:
-                self.assignSelectedAgents(mousePos)
+                self.assignSelectedAgents(adjustedMousePos)
             elif key == K_f:
                 self.speedUp()
             elif key == K_s:
@@ -115,9 +124,9 @@ class Controls:
             elif key == K_MINUS:
                 self.shrink()
             elif key == K_c:
-                self.createSite(mousePos)
+                self.createSite(adjustedMousePos)
             elif key == K_x:
-                self.createAgent(mousePos)
+                self.createAgent(adjustedMousePos)
             elif key == K_DELETE or key == K_SLASH:
                 self.delete()
             elif key == K_PERIOD:
@@ -127,7 +136,7 @@ class Controls:
             elif key == K_ESCAPE:
                 self.unselectAll()
             elif len(self.selectedSites) > 0 and not pygame.key.get_mods() & KMOD_SHIFT and \
-                    not pygame.key.get_mods() & KMOD_CTRL:  # TODO: Add to readme
+                    not pygame.key.get_mods() & KMOD_CTRL:
                 if event.unicode.isnumeric():
                     self.appendNumber(int(event.unicode))
                 elif key == K_BACKSPACE:
@@ -153,14 +162,27 @@ class Controls:
             self.timer.cancel()
             raise GameOver("Exited Successfully")
 
-    def mouseMotion(self, mousePos):
+    def mouseMotion(self, mousePos, adjustedMousePos):
+        # Set the cursor image
         if self.graphs.collidesWithCommandHistBoxTop(mousePos):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
-        elif self.world.collidesWithSite(mousePos) or self.world.collidesWithAgent(mousePos) or \
+        elif collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos) or \
                 self.graphs.collidesWithAnyButton(mousePos):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+    @staticmethod
+    def moveScreen():
+        mousePos = pygame.mouse.get_pos()
+        if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -MAX_SEARCH_DIST:
+            Display.displacementX -= 25
+        if mousePos[1] <= 3 and Display.displacementY <= MAX_SEARCH_DIST:
+            Display.displacementY += 25
+        if mousePos[0] <= 3 and Display.displacementX <= MAX_SEARCH_DIST:
+            Display.displacementX += 25
+        if mousePos[1] >= Display.screen.get_height() - 30 and Display.displacementY >= -MAX_SEARCH_DIST:
+            Display.displacementY -= 25
 
     def addToExecutedEvents(self, eventName):
         now = datetime.now()
@@ -169,7 +191,7 @@ class Controls:
         second = '{:02d}'.format(now.second)
         self.graphs.addExecutedCommand(hour + ":" + minute + ":" + second + ": " + eventName)
 
-    def mouseUp(self, mousePos):
+    def mouseUp(self, mousePos, adjustedMousePos):
         self.putDownDragSite()
         self.unselectAll()
         if self.selectRectCorner is not None and np.abs(mousePos[0] - self.selectRectCorner[0]) > 1\
@@ -187,14 +209,20 @@ class Controls:
             self.shouldCommandSiteAgents = not self.shouldCommandSiteAgents
         elif self.graphs.collidesWithOptionsButton(mousePos):
             self.shouldShowOptions = not self.shouldShowOptions
+        elif self.graphs.collidesWithNextButton(mousePos):
+            self.graphs.nextScreen()
+        elif self.graphs.collidesWithPreviousButton(mousePos):
+            self.graphs.previousScreen()
+        elif self.graphs.collidesWithPauseButton(mousePos):
+            self.pause()
         else:
-            self.select(mousePos)
+            self.select(adjustedMousePos)
         self.selectRectCorner = None
 
-    def mouseDown(self, mousePos):
-        self.selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
-        if len(self.selectedSites) > 0:
-            self.selectedSite = self.selectedSites[0]
+    def mouseDown(self, mousePos, adjustedMousePos):
+        selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(adjustedMousePos)]
+        if len(selectedSites) > 0 and self.shouldSelectSites:
+            self.selectedSite = selectedSites[0]
             self.drag()
         elif self.graphs.collidesWithCommandHistBoxTop(mousePos):
             self.shouldMoveHistBoxTop = True
@@ -208,7 +236,7 @@ class Controls:
             self.graphs.scrollDown()
 
     def drag(self):
-        if self.world.hubCanMove or self.selectedSite is not self.world.getHub():
+        if SiteSettings.hubCanMove or not self.world.getHubs().__contains__(self.selectedSite):
             self.oldRect = self.selectedSite.getSiteRect().copy()
             self.dragSite = self.selectedSite
 
@@ -218,6 +246,7 @@ class Controls:
                 self.addToExecutedEvents("Moved site from " + str(self.oldRect.center) + " to " + str(self.dragSite.getPosition()))
                 self.dragSite.wasFound = False
             self.world.siteRectList = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.siteRectList]
+            self.world.hubsRects = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.hubsRects]
         self.dragSite = None
 
     def unselectAll(self):
@@ -237,9 +266,15 @@ class Controls:
 
     def select(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        if self.graphs.canSelectAnywhere or self.getHubObserveRect().collidepoint(mousePos):
+        if Display.canSelectAnywhere or self.byAHub(mousePos):
             self.selectAgent(mousePos)
             self.selectSite(mousePos)
+
+    def byAHub(self, pos):
+        for rect in self.world.getHubsObserveRects():
+            if rect.collidepoint(pos):
+                return True
+        return False
 
     def selectAgent(self, mousePos):
         selectedAgents = [a for a in self.agentList if a.getAgentRect().collidepoint(mousePos)]
@@ -270,19 +305,20 @@ class Controls:
                 self.selectedSite = selectedSites[0]
                 self.selectedSite.select()
                 self.selectedSites = [self.selectedSite]
-            self.selectSite2()
+            self.selectSite2(selectedSites)
             if len(self.selectedAgents) > 0:
                 self.selectedAgent = self.selectedAgents[0]
                 self.selectedAgent.isTheSelected = True
 
     def startSelectRect(self, mousePos):
-        self.selectRectCorner = mousePos
+        if not self.graphs.collidesWithAnyButton(mousePos):
+            self.selectRectCorner = mousePos
 
     def wideSelect(self, mousePos):
         # get a list of all objects that are under the mouse cursor
         self.selectRect = self.drawSelectRect(mousePos)
         agent = None
-        if self.graphs.canSelectAnywhere or self.selectRect.colliderect(self.getHubObserveRect()):
+        if Display.canSelectAnywhere or self.selectRect.collidelist(self.world.getHubsObserveRects()) != -1:
             agent = self.selectAgents()
             self.selectSites()
         if self.shouldSelectAgentSites:
@@ -319,10 +355,12 @@ class Controls:
             top = mousePos[1]
         width = np.abs(self.selectRectCorner[0] - mousePos[0])
         height = np.abs(self.selectRectCorner[1] - mousePos[1])
-        return pygame.draw.rect(self.world.screen, BORDER_COLOR, pygame.Rect(left, top, width, height), 1)
+        return pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(left, top, width, height), 1)
 
     def selectAgents(self):
-        selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(self.selectRect)]
+        rect = pygame.Rect(self.selectRect.left - Display.displacementX, self.selectRect.top - Display.displacementY,
+                           self.selectRect.w, self.selectRect.h)
+        selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(rect)]
         if self.shouldSelectAgents:
             self.selectedAgents = selectedAgents
 
@@ -339,14 +377,10 @@ class Controls:
 
         return None
 
-    def getHubObserveRect(self):
-        hubRect = self.world.getHub().getSiteRect()
-        r = self.world.getHub().radius
-        return pygame.Rect(hubRect.left - (r + HUB_OBSERVE_DIST), hubRect.top - (r + HUB_OBSERVE_DIST),
-                           hubRect.width + ((r + HUB_OBSERVE_DIST) * 2), hubRect.height + ((r + HUB_OBSERVE_DIST) * 2))
-
     def selectSites(self):
-        selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(self.selectRect)]
+        rect = pygame.Rect(self.selectRect.left - Display.displacementX, self.selectRect.top - Display.displacementY,
+                           self.selectRect.w, self.selectRect.h)
+        selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(rect)]
         if self.shouldSelectSites:
             self.selectedSites = selectedSites
 
@@ -355,20 +389,20 @@ class Controls:
 
         if len(selectedSites) > 0:
             self.selectedSite = selectedSites[0]
-            self.selectSite2()
+            self.selectSite2(selectedSites)
 
-    def selectSite2(self):
+    def selectSite2(self, sites):
         if self.shouldSelectSites:
             self.selectedSite.isTheSelected = True
             self.selectedSiteIndex = 0
-        for agent in self.agentList:
-            if agent.assignedSite is self.selectedSite:
-                if self.shouldSelectSiteAgents:
+        if self.shouldSelectSiteAgents:
+            for agent in self.agentList:
+                if sites.__contains__(agent.assignedSite):
                     agent.select()
                     self.selectedAgents.append(agent)
-        if self.shouldSelectSiteAgents and len(self.selectedAgents) > 0:
-            self.selectedAgent = self.selectedAgents[0]
-            self.selectedAgent.isTheSelected = True
+            if len(self.selectedAgents) > 0:
+                self.selectedAgent = self.selectedAgents[0]
+                self.selectedAgent.isTheSelected = True
         if not self.shouldSelectSites:
             self.selectedSite = None
 
@@ -379,10 +413,17 @@ class Controls:
             self.selectedSite.select()
 
     def half(self):
-        for i in range(len(self.selectedAgents) - 1, int(np.round(len(self.selectedAgents) / 2) - 1), -1):
-            if self.selectedAgents[i] is not self.selectedAgent:
-                self.selectedAgents[i].unselect()
-                self.selectedAgents.remove(self.selectedAgents[i])
+        start = len(self.selectedAgents) - 1
+        end = int(np.round(len(self.selectedAgents) / 2) - 1)
+        try:
+            for i in range(start, end, -1):
+                if self.selectedAgents[i] is not self.selectedAgent:
+                    self.selectedAgents[i].unselect()
+                    self.selectedAgents.remove(self.selectedAgents[i])
+                else:
+                    end += 1
+        except IndexError:
+            pass
 
     def next(self):
         if self.paused and self.shouldShowOptions:
@@ -407,7 +448,7 @@ class Controls:
     def previous(self):
         if self.paused and self.shouldShowOptions:
             self.graphs.previousScreen()
-        if len(self.selectedAgents) > 1:
+        elif len(self.selectedAgents) > 1:
             self.previousAgent()
         else:
             self.previousSite()
@@ -435,8 +476,8 @@ class Controls:
 
     @staticmethod
     def goCommand(agent, mousePos):
-        agent.target = mousePos
-        from states.GoState import GoState
+        agent.target = list(mousePos)
+        from model.states.GoState import GoState
         agent.setState(GoState(agent))
 
     @staticmethod
@@ -498,14 +539,14 @@ class Controls:
             self.addToExecutedEvents("Shrunk site at " + str(site.getPosition()) + "'s radius to " + str(site.radius))
 
     def createSite(self, position):
-        self.world.createSite(position[0], position[1], SITE_RADIUS, 128, self.world.knowSitePosAtStart)
+        self.world.createSite(position[0], position[1], SITE_RADIUS, 128, NUM_HUBS)
         self.addToExecutedEvents("Created site at " + str(position))
 
     def createAgent(self, position):
-        agent = Agent(self.world, self.world.getHub(), startingPosition=position)
+        agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[0], position)  # TODO: Make more flexible
         agent.setState(SearchState(agent))
         agent.setAngle(random.uniform(0, 2 * np.pi))
-        agent.assignedSite.incrementCount()
+        agent.assignedSite.incrementCount(agent.getHubIndex())
         agent.speedCoefficient = self.world.agentList[0].speedCoefficient
         agent.speed = self.world.agentList[0].uncommittedSpeed * agent.speedCoefficient
         self.world.addAgent(agent)
@@ -519,14 +560,18 @@ class Controls:
         i = 0
         while len(self.selectedSites) > 0:
             site = self.selectedSites[i]
-            self.addToExecutedEvents("Deleted site at " + str(site.getPosition()))
+            if site.getQuality() >= 0:
+                self.addToExecutedEvents("Deleted site at " + str(site.getPosition()))
             for agent in self.agentList:
-                if agent.assignedSite is site and site is not self.world.getHub():
-                    agent.assignSite(self.world.getHub())
-                    agent.setPhase(ExplorePhase())
-                    agent.setState(SearchState(agent))
-                if agent.knownSites.__contains__(site) and site is not self.world.getHub():
-                    agent.knownSites.remove(site)
+                if not self.world.getHubs().__contains__(site):
+                    if agent.assignedSite is site:
+                        try:
+                            agent.assignSite(agent.getHub())
+                            agent.setPhase(ExplorePhase())
+                            agent.setState(SearchState(agent))
+                            agent.knownSites.remove(site)
+                        except ValueError:
+                            pass
             self.world.removeSite(site)
             self.selectedSites.remove(site)
         self.selectedSite = None
@@ -560,8 +605,8 @@ class Controls:
         self.shouldDrawQuality = False
 
     def pause(self):
-        self.graphs.drawPause()
+        Display.drawPause(Display.screen)
         pygame.display.flip()
         self.paused = True
-        self.timer.pause(self.handleEvent)
+        self.timer.pause(self.handleEvent, self.graphs.collidesWithPauseButton)
         self.paused = False
