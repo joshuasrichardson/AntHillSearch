@@ -18,12 +18,13 @@ def createScreen():
     """ Creates and returns the main screen that the interface will be drawn on """
     pygame.display.init()
     pygame.font.init()
+    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
     return pygame.display.set_mode((0, 0), pygame.RESIZABLE)
 
 
 def writeBigCenter(surface, words):
     font = pygame.font.SysFont('Comic Sans MS', 40)
-    img = font.render(words, True, WORDS_COLOR)
+    img = font.render(words, True, WORDS_COLOR).convert_alpha()
     surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60))
 
@@ -66,7 +67,7 @@ def drawHorizontalCircleLines(surface, circle, color, inc, adjust):
 
 def getAgentImage(pos):
     """ Loads, adjusts the size, and returns the image representing an agent """
-    agent = pygame.image.load(AGENT_IMAGE)
+    agent = pygame.image.load(AGENT_IMAGE).convert_alpha()
     if agent.get_size()[0] > 30 or agent.get_size()[1] > 30:
         agent = pygame.transform.scale(agent, (30, 30))
         rect = agent.get_rect().move(pos)
@@ -76,7 +77,7 @@ def getAgentImage(pos):
 
 def getDestinationMarker(pos):
     """ Loads, adjusts the size, and returns the image representing a destination """
-    arrows = pygame.image.load("resources/arrows.png")
+    arrows = pygame.image.load("resources/arrows.png").convert_alpha()
     arrows = pygame.transform.scale(arrows, (30, 30))
     rect = arrows.get_rect().move(pos)
     rect.center = pos

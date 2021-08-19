@@ -19,7 +19,7 @@ def drawSite(site):
         site.siteRect = pygame.Rect(site.pos[0] - site.radius, site.pos[1] - site.radius, site.radius * 2, site.radius * 2)
         Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
         drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
-        img = pygame.font.SysFont('Comic Sans MS', 12).render(str(site.agentCount), True, BORDER_COLOR)
+        img = pygame.font.SysFont('Comic Sans MS', 12).render(str(site.agentCount), True, BORDER_COLOR).convert_alpha()
         Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20)))  # Show the number of agents assigned to the site above the site
         if site.isSelected:
             drawQuality(site)  # Draw the site's quality right in the middle of it if it is selected.
@@ -27,12 +27,12 @@ def drawSite(site):
 
 def drawQuality(site):
     """ Draw the quality of the site directly on top of the site """
-    img = pygame.font.SysFont('Comic Sans MS', 15).render("MM", True, WORDS_COLOR)  # Make this image for all the sites to get a consistently sized rectangle
+    img = pygame.font.SysFont('Comic Sans MS', 15).render("MM", True, WORDS_COLOR).convert_alpha()  # Make this image for all the sites to get a consistently sized rectangle
     rect = img.get_rect()
     newRect = pygame.Rect(rect.left - Display.displacementX, rect.top - Display.displacementY, rect.width, rect.height)
     Display.drawRect(img, SCREEN_COLOR, newRect)  # Draw a rectangle on top of the site so the quality will be easier to read
     Display.drawRect(img, BORDER_COLOR, newRect, 1)  # Draw a nice little border around that rectangle
-    words = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.quality)), True, WORDS_COLOR)  # Draw the quality
+    words = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.quality)), True, WORDS_COLOR).convert_alpha()  # Draw the quality
     Display.blitImage(img, words, [((img.get_width() / 2) - (words.get_width() / 2)) - Display.displacementX, ((img.get_height() / 2) - (words.get_height() / 2)) - Display.displacementY])  # on the rectangle
     Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (img.get_height() / 2)))  # Draw the rectangle with the quality on it on the screen
 
@@ -94,7 +94,7 @@ def drawEstimatedSite(site):
         drawBlurredSite(site, site.estimatedPosition, color, site.radius * 4,
                         site.estimatedRadius + site.blurRadiusDiff, site.blurAmount)  # Draws the site with lines representing the quality and blurriness representing how well known the site is
 
-        img = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.estimatedAgentCount)), True, BORDER_COLOR)  # Draw the estimated number of agents assigned to the site
+        img = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.estimatedAgentCount)), True, BORDER_COLOR).convert_alpha()  # Draw the estimated number of agents assigned to the site
         Display.blitImage(Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
                           site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 24)))
 

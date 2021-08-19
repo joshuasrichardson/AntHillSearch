@@ -3,7 +3,9 @@ from datetime import datetime
 
 import numpy as np
 import pygame
-from pygame.constants import *
+from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
+    K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT
 
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST
 from display import Display
@@ -563,11 +565,13 @@ class Controls:
             for agent in self.agentList:
                 if not self.world.getHubs().__contains__(site):
                     if agent.assignedSite is site:
-                        agent.assignSite(agent.getHub())
-                        agent.setPhase(ExplorePhase())
-                        agent.setState(SearchState(agent))
-                    if agent.knownSites.__contains__(site):
-                        agent.knownSites.remove(site)
+                        try:
+                            agent.assignSite(agent.getHub())
+                            agent.setPhase(ExplorePhase())
+                            agent.setState(SearchState(agent))
+                            agent.knownSites.remove(site)
+                        except ValueError:
+                            pass
             self.world.removeSite(site)
             self.selectedSites.remove(site)
         self.selectedSite = None

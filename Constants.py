@@ -4,10 +4,10 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 25  # Time of the interface in seconds
+SIM_DURATION = 200  # Time of the interface in seconds
 
 NUM_HUBS = 4
-HUB_LOCATIONS = []
+HUB_LOCATIONS = [[100, 100]]
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
@@ -40,8 +40,6 @@ SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assig
 SHOULD_DRAW = True  # Whether the interface is drawn on the screen
 # Having this false makes the interface faster because the paths do not have to be drawn on the screen so much.
 SHOULD_DRAW_PATHS = False
-# Having this false makes the interface faster because the numbers do not have to be drawn on the screen so much.
-SHOW_ESTIMATED_QUALITY = False  # Whether or not the agents' estimated qualities are drawn on the interface screen.
 
 CAN_SELECT_ANYWHERE = True  # Whether agents and sites can be selected anywhere. If false, they can only be selected at the hub.
 
@@ -60,6 +58,8 @@ WORDS_COLOR = 0, 100, 0  # Dark green
 
 BORDER_COLOR = 115, 110, 80  # Dark Brown
 
+TRANSPARENT = 60, 60, 60
+
 """ Define colony size, hub location, and distribution parameters for sites """
 HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outside edge of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
@@ -69,10 +69,7 @@ SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
-SHOULD_DRAW_FOG = False
-# If these numbers are too high, the interface gets really slow. If they are too low, the blocks are really big and don't look as good. 200, 100 seems to be pretty good.
-NUM_FOG_BLOCKS_X = 200  # The initial number of fog rectangles from left to right on the screen
-NUM_FOG_BLOCKS_Y = 100 # The initial number of fog rectangles from top to bottom on the screen
+SHOULD_DRAW_FOG = True
 
 # Does not affect interface besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.

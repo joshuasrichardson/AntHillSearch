@@ -44,15 +44,15 @@ class SimulationGraphs:
         self.y += 11
 
     def write(self, words):
-        img = self.font.render(words, True, WORDS_COLOR)
+        img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (self.x, self.y))
 
     def write2(self, words):
-        img = self.font.render(words, True, WORDS_COLOR)
+        img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (self.x2, self.y))
 
     def write4(self, words):
-        img = self.font.render(words, True, WORDS_COLOR)
+        img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (self.x4, self.y))
 
     def drawStateGraph(self, states):
@@ -202,18 +202,18 @@ class SimulationGraphs:
         leftMargin = x / 40
 
         optionsFont = pygame.font.SysFont('Comic Sans MS', 40)
-        img = optionsFont.render("Options", True, WORDS_COLOR)
+        img = optionsFont.render("Options", True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (left * 2 - img.get_width() / 2, top - 60))
         left = left + leftMargin
         if self.pageNumber == 0:
             self.drawOptionsPage0(left, top, height, leftMargin, x)
-            nextImg = self.font.render("NEXT >", True, WORDS_COLOR)
+            nextImg = self.font.render("NEXT >", True, WORDS_COLOR).convert_alpha()
             self.nextButton = pygame.Rect(x * 3 / 4 - 2 * nextImg.get_width(), top + height - 25,
                                           nextImg.get_width(), nextImg.get_height())
             Display.screen.blit(nextImg, self.nextButton.topleft)
         else:
             self.drawOptionsPage1(left, top, height)
-            prevImg = self.font.render("< PREVIOUS", True, WORDS_COLOR)
+            prevImg = self.font.render("< PREVIOUS", True, WORDS_COLOR).convert_alpha()
             self.previousButton = pygame.Rect(x * 1 / 4 + prevImg.get_width() / 2, top + height - 25,
                                               prevImg.get_width(), prevImg.get_height())
             Display.screen.blit(prevImg, self.previousButton.topleft)
@@ -288,26 +288,26 @@ class SimulationGraphs:
         if len(siteOptions) > longerListSize:
             longerListSize = len(siteOptions)
 
-        img = self.font.render("Agent Options:", True, WORDS_COLOR)
+        img = self.font.render("Agent Options:", True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (left, top + 10))
 
         for i, option in enumerate(agentOptions):
-            img = self.font.render(option, True, WORDS_COLOR)
+            img = self.font.render(option, True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (left, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
         for i, option in enumerate(agentOptionButtons):
-            img = self.font.render(option, True, WORDS_COLOR)
+            img = self.font.render(option, True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (left + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
-        img = self.font.render("Site Options:", True, WORDS_COLOR)
+        img = self.font.render("Site Options:", True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, ((x / 2) + (leftMargin / 2), top + 10))
 
         for i, option in enumerate(siteOptions):
-            img = self.font.render(option, True, WORDS_COLOR)
+            img = self.font.render(option, True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, ((x / 2) + (leftMargin / 2), top + 25 + (i + 1) * (height / longerListSize - 5)))
 
         for i, option in enumerate(siteOptionButtons):
-            img = self.font.render(option, True, WORDS_COLOR)
+            img = self.font.render(option, True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, ((x / 2) + (leftMargin / 2) + 120, top + 25 + (i + 1) * (height / longerListSize - 5)))
 
     def drawOptionsPage1(self, left, top, height):
@@ -325,15 +325,15 @@ class SimulationGraphs:
                          '- DRAG LEFT CLICK',
                          '- MOUSE WHEEL UP/DOWN']
 
-        img = self.font.render("Other Options:", True, WORDS_COLOR)
+        img = self.font.render("Other Options:", True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (left, top + 10))
 
         for i, option in enumerate(options):
-            img = self.font.render(option, True, WORDS_COLOR)
+            img = self.font.render(option, True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (left, top + 25 + (i + 1) * (height / 16 - 5)))
 
         for i, option in enumerate(optionButtons):
-            img = self.font.render(option, True, WORDS_COLOR)
+            img = self.font.render(option, True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (left + 180, top + 25 + (i + 1) * (height / 16 - 5)))
 
     def addExecutedCommand(self, command):
@@ -354,7 +354,7 @@ class SimulationGraphs:
                     break
                 lastIndex = i
                 command = self.executedCommands[i]
-                img = self.font.render(command, True, WORDS_COLOR)
+                img = self.font.render(command, True, WORDS_COLOR).convert_alpha()
                 Display.screen.blit(img, (self.x, self.y2))
                 self.y2 += 11
 
@@ -409,5 +409,5 @@ class SimulationGraphs:
 
     def drawRemainingTime(self):
         if self.shouldDrawGraphs:
-            img = self.font.render(str(int(self.remainingTime)), True, WORDS_COLOR)
+            img = self.font.render(str(int(self.remainingTime)), True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (Display.screen.get_size()[0] - 100, img.get_height()))

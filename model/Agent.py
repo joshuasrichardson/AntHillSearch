@@ -1,7 +1,9 @@
 import random
+from multiprocessing import Process
+
 import numpy as np
 from Constants import *
-from display import SiteDisplay
+from display import SiteDisplay, WorldDisplay
 from display.Display import getAgentImage
 from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
@@ -139,15 +141,15 @@ class Agent:
 
     def clearFog(self):
         """ Erases fog rectangles from the screen where the agent has been """
-        if SiteDisplay.knowSitePosAtStart and len(self.world.fog) > 0:  # If the settings have us know where stuff is from the start,
-            self.world.eraseFog(self.agentRect)  # The agents erase the fog as soon as they come in contact with it.
+        if SiteDisplay.knowSitePosAtStart:
+            WorldDisplay.eraseFog(self.pos)
         elif self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST) and \
-                not SiteDisplay.knowSitePosAtStart:  # If the settings have the user not know much at the start, the fog is only updated when the agents return to the hub.
+                not SiteDisplay.knowSitePosAtStart:
             for command in self.eraseFogCommands:
                 command[0](command[1])  # Execute each of the eraseFogCommands that have been appended since the last visit to the hub
             self.eraseFogCommands = []
-        elif len(self.world.fog) > 0 and not SiteDisplay.knowSitePosAtStart:  # If they are not by the hub
-            self.eraseFogCommands.append([self.world.eraseFog, self.agentRect.copy()])  # Add their current position and erase fog command to a list to be executed when they get back to the hub.
+        elif not SiteDisplay.knowSitePosAtStart:  # If they are not by the hub
+            self.eraseFogCommands.append([WorldDisplay.eraseFog, self.pos.copy()])  # Add their current position and erase fog command to a list to be executed when they get back to the hub.
 
     def getHub(self):
         return self.hub

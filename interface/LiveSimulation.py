@@ -5,7 +5,7 @@ from abc import ABC
 
 from ColonyExceptions import *
 from Constants import *
-from display import Display
+from display import Display, WorldDisplay
 from interface.Simulation import Simulation
 from model.World import World
 from model.builder import AgentBuilder
@@ -42,9 +42,10 @@ class LiveSimulation(Simulation, ABC):
                         siteQualities, siteRadii):
         world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                       siteQualities, siteRadii)
+        if Display.shouldDraw and SHOULD_DRAW_FOG:
+            WorldDisplay.initFog(world.hubs)
         world.initSitesAgentsCounts()
-        if not SHOULD_DRAW_FOG:
-            world.fog = []
+
         return world
 
     def initializeRequest(self):

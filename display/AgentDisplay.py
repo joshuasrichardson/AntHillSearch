@@ -1,7 +1,7 @@
 """ Methods related to the agents' display """
 import numpy as np
 
-from Constants import SHOW_ESTIMATED_QUALITY, BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS
+from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS
 from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
@@ -20,10 +20,6 @@ def drawAgent(agent, surface):
             Display.drawCircle(surface, agent.phase.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
         w, h = agent.agentHandle.get_size()  # Rotate the agent's image to face the direction they are heading
         rotateImage(surface, agent.agentHandle, agent.pos, [w / 2, h / 2], (-agent.angle * 180 / np.pi) - 132)
-
-        if SHOW_ESTIMATED_QUALITY:
-            img = agent.world.font.render(str(agent.estimatedQuality), True, agent.assignedSite.color)
-            Display.blitImage(Display.screen, img, (agent.pos[0] + 10, agent.pos[1] + 5, 15, 10))  # Draws the agent's estimated quality of their assigned site to the bottom right of their image
 
 
 def drawTarget(agent, surface):

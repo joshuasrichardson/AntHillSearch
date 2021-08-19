@@ -32,8 +32,6 @@ class World:
         self.agentList = []  # List of all the agents in the world
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
-        if Display.shouldDraw:
-            self.fog = self.getInitialFog()  # A list of rectangles where the agents have not yet explored
         self.request = None  # The request, used to sent information to a rest API
 
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
@@ -110,29 +108,6 @@ class World:
             for i in range(len(self.hubLocations)):
                 site.agentCounts.append(0)
 
-    def getInitialFog(self):
-        """ Gets a list of rectangles that cover the entire screen except for the area around the hub """
-        rects = []
-        w = Display.screen.get_width()
-        h = Display.screen.get_height()
-        for i in range(NUM_FOG_BLOCKS_X):
-            for j in range(NUM_FOG_BLOCKS_Y):
-                rect = Rect(int(w * i / NUM_FOG_BLOCKS_X),
-                            int(h * j / NUM_FOG_BLOCKS_Y),
-                            int(w / NUM_FOG_BLOCKS_X + 1),
-                            int(h / NUM_FOG_BLOCKS_Y + 1))
-                if rect.collidelist(self.hubsObserveRects) == -1:
-                    rects.append(rect)
-        return rects
-
-    @staticmethod
-    def isClose(rect, pos):
-        """ Returns whether the position and rectangle are close to each other """
-        return rect.colliderect(pos[0] - (rect.width + HUB_OBSERVE_DIST) / 2,
-                                pos[1] - (rect.height + HUB_OBSERVE_DIST) / 2,
-                                (Display.screen.get_width() / NUM_FOG_BLOCKS_X) + rect.width + HUB_OBSERVE_DIST,
-                                (Display.screen.get_height() / NUM_FOG_BLOCKS_Y) + rect.height + HUB_OBSERVE_DIST)
-
     def addAgent(self, agent):
         self.agentList.append(agent)
         self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] + 1
@@ -154,8 +129,10 @@ class World:
         agent.assignedSite.decrementCount(agent.getHubIndex())
         self.agentList.remove(agent)
         for group in self.agentGroups:
-            if group.__contains__(agent):
+            try:
                 group.remove(agent)
+            except ValueError:
+                pass
         self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] - 1
         del agent
 
@@ -244,12 +221,6 @@ class World:
 
     def setMarker(self, marker):
         self.marker = marker
-
-    def eraseFog(self, rect):
-        fogIndices = rect.collidelist(self.fog)
-        while fogIndices != -1:
-            self.fog.pop(fogIndices)
-            fogIndices = rect.collidelist(self.fog)
 
     def updateGroup(self, index, agents):
         """ Sets an easily selectable group of agents to the specified agents """
