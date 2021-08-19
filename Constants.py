@@ -84,7 +84,11 @@ FIND_SITES_EASILY = False  # If True, agents will be able to go directly to thei
 #                                    If False, agents will have to search for their site again when it moves.
 # The smaller the max distance is, the faster the interface ends because agents never get too far away from the sites
 # (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
-MAX_SEARCH_DIST = 600  # The farthest an agent can get away from the hub while searching.
+MAX_SEARCH_DIST = 400  # The farthest an agent can get away from the hub while searching.
+HUB_MIN_X = 0  # The farthest left a hub can randomly be placed.
+HUB_MIN_Y = 0  # The farthest left a hub can randomly be placed.
+HUB_MAX_X = 1250  # The farthest right a hub can randomly be placed.
+HUB_MAX_Y = 650  # The farthest right a hub can randomly be placed.
 # Setting the speed too high actually makes the interface take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the interface take longer just because the agents aren't moving as fast.

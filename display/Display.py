@@ -67,7 +67,9 @@ def drawHorizontalCircleLines(surface, circle, color, inc, adjust):
 
 def getAgentImage(pos):
     """ Loads, adjusts the size, and returns the image representing an agent """
-    agent = pygame.image.load(AGENT_IMAGE).convert_alpha()
+    agent = pygame.image.load(AGENT_IMAGE)
+    if shouldDraw:
+        agent = agent.convert_alpha()
     if agent.get_size()[0] > 30 or agent.get_size()[1] > 30:
         agent = pygame.transform.scale(agent, (30, 30))
         rect = agent.get_rect().move(pos)

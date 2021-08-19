@@ -12,7 +12,7 @@ class CarriedState(State):
         self.state = CARRIED
 
     def changeState(self, neighborList) -> None:
-        self.setState(self, self.agent.leadAgent.pos)
+        self.setState(self, self.agent.leadAgent.getPosition())
         if self.agent.leadAgent.getState() == TRANSPORT and not \
                 self.agent.leadAgent.getAgentRect().collidepoint(self.agent.leadAgent.assignedSite.pos):
             if not self.agent.world.agentList.__contains__(self.agent.leadAgent):

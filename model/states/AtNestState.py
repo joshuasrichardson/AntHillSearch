@@ -68,13 +68,13 @@ class AtNestState(State):
 
         # If the site moves, they might not know where it is
         if siteWithinRange != -1 and self.agent.world.siteList[siteWithinRange] is self.agent.assignedSite:
-            self.agent.assignedSiteLastKnownPos = self.agent.assignedSite.getPosition()
+            self.agent.estimateSitePositionMoreAccurately()
 
     def tryFollowing(self, leader):
         if leader.numFollowers < MAX_FOLLOWERS:
             self.agent.leadAgent = leader
             self.agent.leadAgent.incrementFollowers()
-            self.setState(FollowState(self.agent), self.agent.leadAgent.pos)
+            self.setState(FollowState(self.agent), self.agent.leadAgent.getPosition())
 
     def acceptOrReject(self):
         # If they determine the site is good enough after they've been there long enough,
@@ -99,7 +99,7 @@ class AtNestState(State):
             self.agent.leadAgent = transporter
             self.agent.leadAgent.incrementFollowers()
             from model.states.CarriedState import CarriedState
-            self.setState(CarriedState(self.agent), self.agent.leadAgent.pos)
+            self.setState(CarriedState(self.agent), self.agent.leadAgent.getPosition())
 
     def toString(self):
         return "AT_NEST"

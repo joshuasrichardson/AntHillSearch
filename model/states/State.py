@@ -47,6 +47,15 @@ class State(ABC):
             self.agent.setAngle(np.random.uniform(0, np.pi * 2, 1))
         else:  # Move toward target
             self.agent.setAngle(np.arctan2(self.agent.target[1] - self.agent.pos[1], self.agent.target[0] - self.agent.pos[0]))
+        self.forgetMovedSites()
+
+    def forgetMovedSites(self):
+        for i, pos in enumerate(self.agent.knownSitesPositions):
+            rect = self.agent.getAgentRect()
+            siteIndex1 = rect.collidepoint(pos[0], pos[1])
+            siteIndex2 = rect.collidepoint(self.agent.knownSites[i].getPosition())
+            if siteIndex1 != -1 and siteIndex1 != siteIndex2:
+                self.agent.removeKnownSite(self.agent.knownSites[siteIndex1])
 
     @abstractmethod
     def changeState(self, neighborList) -> None:

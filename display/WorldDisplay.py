@@ -1,7 +1,7 @@
 """ Methods related to the world's display """
 import pygame
 
-from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST
+from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST
 from display import Display
 from display.AgentDisplay import drawAgent
 from display.SiteDisplay import drawEstimatedSite, drawSite
@@ -48,21 +48,29 @@ def drawMarker(world):
 
 def initFog(hubs):
     global fog
-    fog = pygame.Surface(Display.screen.get_size())
+    w, h = Display.screen.get_size()
+    w += (MAX_SEARCH_DIST * 2)
+    h += (MAX_SEARCH_DIST * 2)
+    fog = pygame.Surface((w, h))
     fog.fill((30, 30, 30))
     fog.set_colorkey(TRANSPARENT)
     for hub in hubs:
-        pygame.draw.circle(fog, TRANSPARENT, hub.getPosition(), HUB_OBSERVE_DIST + hub.radius * 2, 0)
+        pos = hub.getPosition()
+        x = pos[0] + MAX_SEARCH_DIST
+        y = pos[1] + MAX_SEARCH_DIST
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], HUB_OBSERVE_DIST + hub.radius * 2, 0)
 
 
 def drawFog():
     if fog is not None:
-        Display.screen.blit(fog, (Display.displacementX, Display.displacementY))
+        Display.screen.blit(fog, (Display.displacementX - MAX_SEARCH_DIST, Display.displacementY - MAX_SEARCH_DIST))
 
 
 def eraseFog(pos):
     if fog is not None:
-        pygame.draw.circle(fog, TRANSPARENT, pos, 10, 0)
+        x = pos[0] + MAX_SEARCH_DIST
+        y = pos[1] + MAX_SEARCH_DIST
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], 15, 0)
 
 
 def drawPotentialQuality(world, potentialQuality, font):

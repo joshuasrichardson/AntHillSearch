@@ -51,7 +51,7 @@ class SearchState(State):
             self.agent.leadAgent = transporter
             self.agent.leadAgent.incrementFollowers()
             from model.states.CarriedState import CarriedState
-            self.setState(CarriedState(self.agent), self.agent.leadAgent.pos)
+            self.setState(CarriedState(self.agent), self.agent.leadAgent.getPosition())
 
     def goBackTowardSite(self, site):
         if site.getPosition()[0] > self.agent.getPosition()[0]:

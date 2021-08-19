@@ -1,7 +1,8 @@
 import random
-from multiprocessing import Process
 
 import numpy as np
+
+import display.Display
 from Constants import *
 from display import SiteDisplay, WorldDisplay
 from display.Display import getAgentImage
@@ -46,9 +47,7 @@ class Agent:
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.estimatedAgentCount = self.getHub().agentCount  # The number of agents the agent thinks are assigned to their assigned site.
         self.estimatedRadius = self.getHub().radius  # The agent's estimate of the radius of their assigned site
-        self.assignedSiteLastKnownPos = self.assignedSite.getPosition()  # The position where the agent's assigned site was when they last visited
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
-        # TODO: Combine the above two variables
 
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
         self.knownSitesPositions = [self.getHub().getPosition()]  # A list of positions of sites the agent has found
@@ -125,7 +124,7 @@ class Agent:
         if AgentSettings.findAssignedSiteEasily:
             return self.assignedSite.getPosition()  # Return the actual position of the site
         else:
-            return self.assignedSiteLastKnownPos  # Return where they last saw the site (it could have moved from there)
+            return self.estimatedSitePosition  # Return where they last saw the site (it could have moved from there)
 
     def getRecruitSitePosition(self):
         if AgentSettings.findAssignedSiteEasily:
@@ -223,7 +222,6 @@ class Agent:
         else:
             self.estimateSitePositionMoreAccurately()
         self.assignedSite = site
-        self.assignedSiteLastKnownPos = site.getPosition()
         self.assignedSite.incrementCount(self.getHubIndex())
         # Take longer to assess lower-quality sites
         self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
@@ -240,10 +238,11 @@ class Agent:
 
     def estimateSitePositionMoreAccurately(self):
         """ Returns an estimate of a site position that is closer than the agent's last estimate """
-        if self.estimatedSitePosition[0] != self.getAssignedSitePosition()[0]:
-            self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + self.getAssignedSitePosition()[0]) / 2
-        if self.estimatedSitePosition[1] != self.getAssignedSitePosition()[1]:
-            self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + self.getAssignedSitePosition()[1]) / 2
+        sitePos = self.assignedSite.getPosition()
+        if self.estimatedSitePosition[0] != sitePos[0]:
+            self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + sitePos[0]) / 2
+        if self.estimatedSitePosition[1] != sitePos[1]:
+            self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
 
     def getAssignedSiteIndex(self):
         """ Returns the agent's assigned site's position in the world site list """

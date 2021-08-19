@@ -4,6 +4,7 @@ import random
 import numpy as np
 from pygame import Rect
 
+import ColonyExceptions
 from Constants import *
 from display import Display
 from model.builder import SiteBuilder
@@ -38,14 +39,32 @@ class World:
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
     def checkHubs(self, numHubs):
+        """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """
         if len(self.hubLocations) == 0 and numHubs == 1:
             self.hubLocations.append([650, 325])
         while len(self.hubLocations) < numHubs:
-            self.hubLocations.append([random.randint(0, 1250), random.randint(0, 650)])
+            nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
+            tries = 0
+            while self.tooCloseToOtherHubs(nextPos):
+                nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
+                tries += 1
+                if tries > 50:
+                    raise ColonyExceptions.InputError("The hub boundaries are too small for the search distance. "
+                                                      "Either Increase the difference between (HUB_MAX_X and HUB_MIN_X) "
+                                                      "and (HUB_MAX_Y and HUB_MIN_Y) or decrease the MAX_SEARCH_DIST. "
+                                                      "[HUB_MAX_X, HUB_MIN_X, HUB_MAX_Y, HUB_MIN_Y, MAX_SEARCH_DIST]: ",
+                                                      [HUB_MAX_X, HUB_MIN_X, HUB_MAX_Y, HUB_MIN_Y, MAX_SEARCH_DIST])
+            self.hubLocations.append(nextPos)
         while len(self.hubRadii) < numHubs:
             self.hubRadii.append(SITE_RADIUS)
         while len(self.initialHubAgentCounts) < numHubs:
             self.initialHubAgentCounts.append(random.randint(1, 50))
+
+    def tooCloseToOtherHubs(self, nextPos):
+        for pos in self.hubLocations:
+            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST and abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST:
+                return True
+        return False
 
     def randomizeState(self):
         """ Sets all the agents at random sites """
