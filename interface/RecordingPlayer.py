@@ -41,6 +41,7 @@ class RecordingPlayer(Simulation):
     def update(self, agentRectList):
         self.graphs.setRemainingTime(self.timer.getRemainingTime())
         super().update(agentRectList)
+        self.userControls.moveScreen()
 
     def setNextRound(self):
         if not self.recorder.setNextRound():

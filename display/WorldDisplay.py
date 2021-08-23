@@ -2,7 +2,7 @@
 import pygame
 
 from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST
-from display import Display
+from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.SiteDisplay import drawEstimatedSite, drawSite
 
@@ -21,8 +21,9 @@ def drawWorldObjects(world):
     else:
         for siteIndex in range(0, len(world.siteList)):
             drawSite(world.siteList[siteIndex])
-    drawMarker(world)
     drawFog()
+    drawMarkers(world)
+    Display.drawLast()
 
 
 def drawPaths(world):
@@ -41,9 +42,15 @@ def drawAgents(world):
         drawAgent(agent, Display.screen)
 
 
-def drawMarker(world):
+def drawMarkers(world):
     if world.marker is not None:
         Display.blitImage(Display.screen, world.marker[0], world.marker[1])
+    for agent in world.agentList:
+        if agent.isSelected is not None:
+            AgentDisplay.drawMarker(agent, Display.screen)
+    for site in world.siteList:
+        if site.marker is not None:
+            SiteDisplay.drawMarker(site)
 
 
 def initFog(hubs):
@@ -63,14 +70,14 @@ def initFog(hubs):
 
 def drawFog():
     if fog is not None:
-        Display.screen.blit(fog, (Display.displacementX - MAX_SEARCH_DIST, Display.displacementY - MAX_SEARCH_DIST))
+        Display.blitImage(Display.screen, fog, (-MAX_SEARCH_DIST, -MAX_SEARCH_DIST))
 
 
 def eraseFog(pos):
     if fog is not None:
         x = pos[0] + MAX_SEARCH_DIST
         y = pos[1] + MAX_SEARCH_DIST
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], 15, 0)
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], 22, 0)
 
 
 def drawPotentialQuality(world, potentialQuality, font):

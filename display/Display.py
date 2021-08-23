@@ -12,14 +12,30 @@ canSelectAnywhere = DRAW_FAR_AGENTS
 drawFarAgents = DRAW_FAR_AGENTS
 displacementX = 0
 displacementY = 0
+drawLastCommands = []
+zoom = 0
+origWidth = 0
+origHeight = 0
+newWidth = 0
+newHeight = 0
 
 
 def createScreen():
     """ Creates and returns the main screen that the interface will be drawn on """
+    global screen
+    global origWidth
+    global origHeight
+    global newWidth
+    global newHeight
     pygame.display.init()
     pygame.font.init()
     pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
-    return pygame.display.set_mode((0, 0), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
+    origWidth = screen.get_width()
+    origHeight = screen.get_height()
+    newWidth = origWidth
+    newHeight = origHeight
+    return screen
 
 
 def writeBigCenter(surface, words):
@@ -43,7 +59,7 @@ def drawCircleLines(surface, circle, color, inc, adjust=True):
     drawHorizontalCircleLines(surface, circle, color, inc, adjust)
 
 
-def drawVerticalCircleLines(surface, circle, color, inc, adjust):
+def drawVerticalCircleLines(surface, circle, color, inc, adjust=True):
     """ Draws vertical lines on the circle with the specified color and distance between lines """
     x = circle.left
     r = (circle.height / 2)
@@ -54,7 +70,7 @@ def drawVerticalCircleLines(surface, circle, color, inc, adjust):
         x += inc
 
 
-def drawHorizontalCircleLines(surface, circle, color, inc, adjust):
+def drawHorizontalCircleLines(surface, circle, color, inc, adjust=True):
     """ Draws horizontal lines on the circle with the specified color and distance between lines """
     y = circle.top
     r = (circle.width / 2)
@@ -140,34 +156,147 @@ def rotateImage(surface, image, pos, originPos, angle):
     blitImage(surface, rotatedImage, origin)
 
 
-def drawRect(img, color, rect, width=0):
-    rectangle = pygame.Rect(rect.left + displacementX, rect.top + displacementY, rect.width, rect.height)
+def drawRect(img, color, rect, width=0, adjust=True):
+    if not adjust:
+        rectangle = rect
+    else:
+        left, top = getAdjustedPos(rect.left, rect.top)
+        w, h = getZoomedSize(rect.width, rect.height)
+        rectangle = pygame.Rect(left, top, w, h)
     return pygame.draw.rect(img, color, rectangle, width)
 
 
-def drawCircle(surface, color, pos, radius, width=0):
-    position = [pos[0] + displacementX, pos[1] + displacementY]
+def drawCircle(surface, color, pos, radius, width=0, adjust=True):
+    if not adjust:
+        position = pos
+    else:
+        position = getAdjustedPos(pos[0], pos[1])
+        radius = getZoomedSize(radius, radius)[0]
     return pygame.draw.circle(surface, color, position, radius, width)
 
 
-def drawPolygon(surface, color, positions):
+def drawPolygon(surface, color, positions, adjust=True):
     newPositions = []
-    for pos in positions:
-        newPositions.append([pos[0] + displacementX, pos[1] + displacementY])
+    if adjust:
+        for pos in positions:
+            newPositions.append(getAdjustedPos(pos[0], pos[1]))
+    else:
+        for pos in positions:
+            newPositions.append([pos[0], pos[1]])
     return pygame.draw.polygon(surface, color, newPositions)
 
 
 def drawLine(surface, color, startPos, endPos, width=1, adjust=True):
     if not adjust:
         return pygame.draw.line(surface, color, startPos, endPos, width)
-    pos0 = [startPos[0] + displacementX, startPos[1] + displacementY]
-    pos1 = [endPos[0] + displacementX, endPos[1] + displacementY]
+    pos0 = getAdjustedPos(startPos[0], startPos[1])
+    pos1 = getAdjustedPos(endPos[0], endPos[1])
     return pygame.draw.line(surface, color, pos0, pos1, width)
 
 
-def blitImage(surface, source, destination):
-    try:
-        dest = [destination[0] + displacementX, destination[1] + displacementY]
-    except:
-        dest = [destination.left + displacementX, destination.top + displacementY]
+def blitImage(surface, source, destination, adjust=True):
+    if adjust:
+        try:
+            dest = getAdjustedPos(destination[0], destination[1])
+            source = pygame.transform.scale(source, getZoomedSize(source.get_width(), source.get_height()))
+        except:
+            dest = getAdjustedPos(destination.left, destination.top)
+            source = pygame.transform.scale(source, getZoomedSize(destination.width, destination.height))
+    else:
+        dest = destination
     return surface.blit(source, dest)
+
+
+def drawRightArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] - 20, pos[1] - 10],
+                 [pos[0] - 20, pos[1] + 10]],
+                adjust)
+
+
+def drawUpArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] - 10, pos[1] + 20],
+                 [pos[0] + 10, pos[1] + 20]],
+                adjust)
+
+
+def drawLeftArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] + 20, pos[1] - 10],
+                 [pos[0] + 20, pos[1] + 10]],
+                adjust)
+
+
+def drawDownArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] - 10, pos[1] - 20],
+                 [pos[0] + 10, pos[1] - 20]],
+                adjust)
+
+
+def addToDrawLast(command, arg1=None, arg2=None, adjust=None):
+    global drawLastCommands
+    drawLastCommands.append([command, arg1, arg2, adjust])
+
+
+def drawLast():
+    global drawLastCommands
+    for command in drawLastCommands:
+        if command[1] is None:
+            command[0]()
+        elif command[2] is None:
+            command[0](command[1])
+        elif command[3] is None:
+            command[0](command[1], command[2])
+        else:
+            command[0](command[1], command[2], command[3])
+    drawLastCommands = []
+
+
+def zoomIn():
+    global newWidth
+    global newHeight
+    global zoom
+    if newWidth < 2000:
+        zoom += 10
+        newWidth = int(screen.get_width() + ((zoom / 100) * screen.get_width()))
+        newHeight = int(screen.get_height() + ((zoom / 100) * screen.get_height()))
+
+
+def zoomOut():
+    global newWidth
+    global newHeight
+    global zoom
+    if newWidth > 200 or newWidth == 0:
+        zoom -= 10
+        newWidth = int(screen.get_width() + ((zoom / 100) * screen.get_width()))
+        newHeight = int(screen.get_height() + ((zoom / 100) * screen.get_height()))
+
+
+def getAdjustedPos(origX, origY):
+    newX = ((origX + displacementX) / origWidth) * newWidth
+    newY = ((origY + displacementY) / origHeight) * newHeight
+    return [newX, newY]
+
+
+def getReadjustedPos(origX, origY):
+    newX = (origX / newWidth) * origWidth - displacementX
+    newY = (origY / newHeight) * origHeight - displacementY
+    return [newX, newY]
+
+
+def getZoomedSize(origW, origH):
+    newW = int((origW / origWidth) * newWidth)
+    newH = int((origH / origHeight) * newHeight)
+    return [newW, newH]
+
+
+def getUnzoomedSize(origW, origH):
+    newW = int((origW / newWidth) * origWidth)
+    newH = int((origH / newHeight) * origHeight)
+    return [newW, newH]

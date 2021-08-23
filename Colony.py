@@ -24,13 +24,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Add site commands that don't apply until the agents that belong to that site get to the hub for the user interface. (For example, if we want all agents from site x to stop going to site x, we could select site x and put the GO command somewhere else, and when agents from that site got to the hub, they would go to the indicated location.)
 # TODO: Add more comments to net, recording, states, and user packages
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls) to simplify it?
-# TODO: Move screen during recording
-# TODO: Draw GO arrows on top of fog.
-# TODO: Add ability to zoom in/out
-# TODO: Add ability to lock screen so it doesn't move around or zoom
 # TODO: Record the graphs.shouldDrawGraphs stuff as well as the camera position and executed commands in the command history box
 # TODO: Be able to speed up and slow down recording, and show the time of the original simulation, not how long the current replay is taking
-# TODO: Draw arrows on the side/corner of the screen pointing in the direction the screen is moving when the screen moves.
 # TODO: Add commands to change the state of agents (not just to GO but to AT_NEST or whatever).
 
 # TODO: Update README
@@ -38,8 +33,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
-        runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
+        runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:

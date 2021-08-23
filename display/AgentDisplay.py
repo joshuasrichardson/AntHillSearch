@@ -2,7 +2,7 @@
 import numpy as np
 
 from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS
-from display import Display
+from display import Display, WorldDisplay
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
 
@@ -14,7 +14,7 @@ def drawAgent(agent, surface):
         if agent.isTheSelected:  # Only draw the following for one of the selected agents
             drawKnownSiteMarkers(agent, surface)
             drawAssignedSite(agent)
-            drawTarget(agent, surface)
+            setAgentMarker(agent)
         if agent.isSelected:  # Only draw state and phase circles for the selected agents
             Display.drawCircle(surface, agent.state.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
             Display.drawCircle(surface, agent.phase.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
@@ -22,11 +22,12 @@ def drawAgent(agent, surface):
         rotateImage(surface, agent.agentHandle, agent.pos, [w / 2, h / 2], (-agent.angle * 180 / np.pi) - 132)
 
 
-def drawTarget(agent, surface):
+def setAgentMarker(agent):
     """ Draws the position on the screen that the agent is heading toward """
     if agent.target is not None:
         agent.marker = getDestinationMarker(agent.target)
-        drawMarker(agent, surface)
+    else:
+        agent.marker = None
 
 
 def drawMarker(agent, surface):

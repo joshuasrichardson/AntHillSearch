@@ -22,6 +22,7 @@ class SearchState(State):
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
+        self.agent.marker = None
         siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
         # If agent finds a site within range then assess it
 

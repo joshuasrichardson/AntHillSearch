@@ -20,7 +20,7 @@ class SimulationTimer:
     def cancel(self):
         self.timer.cancel()
 
-    def pause(self, handleEvent, collidesWithPlayButton):
+    def pause(self, handleEvent, collidesWithPlayButton, moveScreen):
         startPauseTime = time.time()
         remainingTime = self.getRemainingTime(startPauseTime)
         self.timer.cancel()
@@ -32,6 +32,7 @@ class SimulationTimer:
                     paused = False
                 else:
                     handleEvent(event)
+            moveScreen()
         self.pauseTime += time.time() - startPauseTime
         self.timer = threading.Timer(remainingTime, self.timeOut)
         self.timer.start()
