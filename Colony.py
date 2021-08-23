@@ -27,6 +27,7 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Record the graphs.shouldDrawGraphs stuff as well as the camera position and executed commands in the command history box
 # TODO: Be able to speed up and slow down recording, and show the time of the original simulation, not how long the current replay is taking
 # TODO: Add commands to change the state of agents (not just to GO but to AT_NEST or whatever).
+# TODO: Fix move hub error
 
 # TODO: Update README
 

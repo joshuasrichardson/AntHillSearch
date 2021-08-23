@@ -44,7 +44,6 @@ class LiveSimulation(Simulation, ABC):
                       siteQualities, siteRadii)
         if Display.shouldDraw and SHOULD_DRAW_FOG:
             WorldDisplay.initFog(world.hubs)
-        world.initSitesAgentsCounts()
 
         return world
 

@@ -93,6 +93,9 @@ class RecordingPlayer(Simulation):
     def getShouldDraw(self):
         return True
 
+    def getDrawFarAgents(self):
+        return True
+
     def getKnowSitePosAtStart(self):
         return True
 

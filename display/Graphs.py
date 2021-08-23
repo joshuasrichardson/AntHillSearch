@@ -312,6 +312,10 @@ class SimulationGraphs:
 
     def drawOptionsPage1(self, left, top, height):
         options = ['Pause',
+                   'Zoom In',
+                   'Zoom Out',
+                   'Move Camera',
+                   'Lock Screen',
                    'Show/Hide Graphs',
                    'Show/Hide Options',
                    'Enable/Disable',
@@ -319,6 +323,10 @@ class SimulationGraphs:
                    'Scroll Through History']
 
         optionButtons = ['- P',
+                         '- CTRL + MOUSE WHEEL UP',
+                         '- CTRL + MOUSE WHEEL DOWN',
+                         '- Move MOUSE to edge of screen',
+                         '- CAPS LOCK',
                          '- G',
                          '- O',
                          '- LEFT CLICK (the corresponding box on the screen)',

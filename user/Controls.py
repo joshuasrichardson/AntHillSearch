@@ -8,7 +8,7 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT
 
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR
-from display import Display, WorldDisplay
+from display import Display
 from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
@@ -483,7 +483,8 @@ class Controls:
 
     def go(self, mousePos):
         if len(self.selectedAgents) > 0:
-            self.addToExecutedEvents("Sent " + str(len(self.selectedAgents)) + " agents to " + str(mousePos))
+            pos = [int(mousePos[0]), int(mousePos[1])]
+            self.addToExecutedEvents("Sent " + str(len(self.selectedAgents)) + " agents to " + str(pos))
         marker = getDestinationMarker(mousePos)
         self.setSelectedSitesCommand(self.goCommand, list(mousePos), marker)
         self.world.setMarker(marker)
@@ -506,7 +507,8 @@ class Controls:
     def setSelectedSitesCommand(self, command, mousePos, marker):
         if self.shouldCommandSiteAgents:
             for site in self.selectedSites:
-                self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s go point to " + str(mousePos))
+                pos = [int(mousePos[0]), int(mousePos[1])]
+                self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s go point to " + str(pos))
                 site.setCommand(command, mousePos, marker)
 
     def assignSelectedAgents(self, mousePos):
@@ -556,7 +558,8 @@ class Controls:
 
     def createSite(self, position):
         self.world.createSite(position[0], position[1], SITE_RADIUS, 128, NUM_HUBS)
-        self.addToExecutedEvents("Created site at " + str(position))
+        pos = [int(position[0]), int(position[1])]
+        self.addToExecutedEvents("Created site at " + str(pos))
 
     def createAgent(self, position):
         agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[0], position)  # TODO: Make more flexible
@@ -566,7 +569,8 @@ class Controls:
         agent.speedCoefficient = self.world.agentList[0].speedCoefficient
         agent.speed = self.world.agentList[0].uncommittedSpeed * agent.speedCoefficient
         self.world.addAgent(agent)
-        self.addToExecutedEvents("Created agent at " + str(position))
+        pos = [int(position[0]), int(position[1])]
+        self.addToExecutedEvents("Created agent at " + str(pos))
 
     def delete(self):
         self.deleteSelectedSites()

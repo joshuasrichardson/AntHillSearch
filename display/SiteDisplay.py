@@ -26,7 +26,7 @@ def drawSite(site):
 
 def drawQuality(site):
     """ Draw the quality of the site directly on top of the site """
-    img = pygame.font.SysFont('Comic Sans MS', 15).render("MM", True, WORDS_COLOR).convert_alpha()  # Make this image for all the sites to get a consistently sized rectangle
+    img = pygame.font.SysFont('Comic Sans MS', 15).render("        ", True, WORDS_COLOR).convert_alpha()  # Make this image for all the sites to get a consistently sized rectangle
     rect = img.get_rect()
     newRect = pygame.Rect(rect.left - Display.displacementX, rect.top - Display.displacementY, rect.width, rect.height)
     Display.drawRect(img, SCREEN_COLOR, newRect)  # Draw a rectangle on top of the site so the quality will be easier to read

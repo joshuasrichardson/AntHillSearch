@@ -17,7 +17,6 @@ class UserInterface(LiveSimulation):
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
                  findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR):
-        Display.drawFarAgents = False
         super().__init__(simulationDuration, numHubs, numSites, useRestAPI, shouldRecord, convergenceFraction,
                          hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
                          siteNoCloserThan, siteNoFartherThan, hubCanMove, homogenousAgents, minSpeed,
@@ -40,6 +39,9 @@ class UserInterface(LiveSimulation):
 
     def getShouldDraw(self):
         return True
+
+    def getDrawFarAgents(self):
+        return False
 
     def getKnowSitePosAtStart(self):
         return False

@@ -2,7 +2,6 @@ import random
 
 import numpy as np
 
-import display.Display
 from Constants import *
 from display import SiteDisplay, WorldDisplay
 from display.Display import getAgentImage
@@ -316,3 +315,4 @@ class Agent:
         """ Unselects the agent to prevent various user interactions """
         self.isSelected = False
         self.isTheSelected = False
+        self.marker = None

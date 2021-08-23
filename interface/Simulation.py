@@ -146,6 +146,10 @@ class Simulation(ABC):
                 if site.agentCounts[hubIndex] >= self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction:
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
+                    print(str(site.agentCounts))
+                    print(str(self.world.initialHubAgentCounts[hubIndex]))
+                    print(str(self.convergenceFraction))
+                    break
         return numConverged == len(self.world.getHubs())
 
     def timeOut(self):
@@ -197,6 +201,7 @@ class Simulation(ABC):
     def setDisplayVariables(self):
         Display.screen = self.getScreen()
         Display.shouldDraw = self.getShouldDraw()
+        Display.drawFarAgents = self.getDrawFarAgents()
         SiteDisplay.knowSitePosAtStart = self.getKnowSitePosAtStart()
 
     @abstractmethod
@@ -205,6 +210,10 @@ class Simulation(ABC):
 
     @abstractmethod
     def getShouldDraw(self):
+        pass
+
+    @abstractmethod
+    def getDrawFarAgents(self):
         pass
 
     @abstractmethod

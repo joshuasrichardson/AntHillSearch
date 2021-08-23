@@ -122,11 +122,6 @@ class World:
             self.siteRectList.pop(index)
             del site
 
-    def initSitesAgentsCounts(self):
-        for site in self.siteList:
-            for i in range(len(self.hubLocations)):
-                site.agentCounts.append(0)
-
     def addAgent(self, agent):
         self.agentList.append(agent)
         self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] + 1
