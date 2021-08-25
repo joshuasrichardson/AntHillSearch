@@ -31,13 +31,16 @@ class EmpiricalTestingInterface(LiveSimulation):
     def getShouldDraw(self):
         return False
 
+    def getDrawFarAgents(self):
+        return False
+
     def getKnowSitePosAtStart(self):
         return False
 
     def getShouldDrawPaths(self):
         return False
 
-    def getGraphs(self):
+    def getGraphs(self, numAgents):
         return None
 
     # def runSimulation(self):

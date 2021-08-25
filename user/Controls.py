@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 
 import numpy as np
 import pygame
@@ -194,11 +193,7 @@ class Controls:
             self.draw()
 
     def addToExecutedEvents(self, eventName):
-        now = datetime.now()
-        hour = '{:02d}'.format(now.hour)
-        minute = '{:02d}'.format(now.minute)
-        second = '{:02d}'.format(now.second)
-        self.graphs.addExecutedCommand(hour + ":" + minute + ":" + second + ": " + eventName)
+        self.graphs.addExecutedCommand(eventName)
 
     def mouseUp(self, mousePos, adjustedMousePos):
         self.putDownDragSite()

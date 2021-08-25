@@ -156,14 +156,14 @@ def rotateImage(surface, image, pos, originPos, angle):
     blitImage(surface, rotatedImage, origin)
 
 
-def drawRect(img, color, rect, width=0, adjust=True):
+def drawRect(surf, color, rect, width=0, adjust=True):
     if not adjust:
         rectangle = rect
     else:
         left, top = getAdjustedPos(rect.left, rect.top)
         w, h = getZoomedSize(rect.width, rect.height)
         rectangle = pygame.Rect(left, top, w, h)
-    return pygame.draw.rect(img, color, rectangle, width)
+    return pygame.draw.rect(surf, color, rectangle, width)
 
 
 def drawCircle(surface, color, pos, radius, width=0, adjust=True):

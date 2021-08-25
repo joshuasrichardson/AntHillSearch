@@ -35,6 +35,7 @@ class SimulationGraphs:
         self.showOptionsRect = pygame.Rect(self.x5, self.y + FONT_SIZE + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
         self.nextButton = None
         self.previousButton = None
+        self.screenBorder = None
 
         self.shouldDrawGraphs = True
 
@@ -343,7 +344,7 @@ class SimulationGraphs:
             Display.screen.blit(img, (left + 180, top + 25 + (i + 1) * (height / 16 - 5)))
 
     def addExecutedCommand(self, command):
-        self.executedCommands.append(command)
+        self.executedCommands.append('{:003d}'.format(int(self.remainingTime)) + ": " + command)
         self.scrollIndex = len(self.executedCommands) - 1
 
     def drawExecutedCommands(self):
@@ -417,3 +418,7 @@ class SimulationGraphs:
         if self.shouldDrawGraphs:
             img = self.font.render(str(int(self.remainingTime)), True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (Display.screen.get_size()[0] - 100, img.get_height()))
+
+    def drawScreenBorder(self):
+        if self.shouldDrawGraphs and self.screenBorder is not None:
+            Display.drawRect(Display.screen, FOLLOW_COLOR, pygame.Rect(self.screenBorder), 1, True)

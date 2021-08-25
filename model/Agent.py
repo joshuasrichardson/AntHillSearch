@@ -231,8 +231,8 @@ class Agent:
             estimatedSitePosition = self.getHub().getPosition()
         else:
             estimatedSitePosition = site.getPosition().copy()
-            estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-2 * self.estimationAccuracy), int(2 * self.estimationAccuracy))
-            estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-2 * self.estimationAccuracy), int(2 * self.estimationAccuracy))
+            estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
+            estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
         return estimatedSitePosition
 
     def estimateSitePositionMoreAccurately(self):

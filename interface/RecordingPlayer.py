@@ -4,6 +4,7 @@ from display.Graphs import SimulationGraphs
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
 from model.World import World
+from user.RecordingControls import RecordingControls
 
 
 class RecordingPlayer(Simulation):
@@ -39,7 +40,13 @@ class RecordingPlayer(Simulation):
         self.draw()
 
     def update(self, agentRectList):
-        self.graphs.setRemainingTime(self.timer.getRemainingTime())
+        self.graphs.setRemainingTime(self.recorder.getNextTime())
+        self.graphs.shouldDrawGraphs = self.recorder.getNextShouldDrawGraphs()
+        self.graphs.executedCommands = self.recorder.getNextExecutedCommands()
+        self.graphs.scrollIndex = len(self.recorder.executedCommands) - 1
+        self.graphs.screenBorder = self.recorder.getNextScreenBorder()
+        Display.addToDrawLast(self.graphs.drawScreenBorder)
+
         super().update(agentRectList)
         self.userControls.moveScreen()
 
@@ -107,3 +114,9 @@ class RecordingPlayer(Simulation):
 
     def getGraphs(self, numAgents):
         return SimulationGraphs(numAgents)
+
+    def calcNumAgents(self, hubAgentCounts):
+        return self.recorder.getNumAgents()
+
+    def getControls(self):
+        return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs)

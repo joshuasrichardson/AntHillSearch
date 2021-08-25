@@ -37,7 +37,7 @@ class Simulation(ABC):
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
-        self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
+        self.userControls = self.getControls()
 
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
@@ -107,6 +107,7 @@ class Simulation(ABC):
         self.world.updateStateAndPhaseCounts()
         self.updateSites()
         self.updateAgents(agentRectList)
+        self.recordDisplays()
         self.save()
         self.report(agentRectList)
 
@@ -134,6 +135,13 @@ class Simulation(ABC):
         for agent in self.world.agentList:
             self.updateAgent(agent, agentRectList)
             self.world.updatePaths(agent)
+
+    def recordDisplays(self):
+        if self.shouldRecord:
+            self.recorder.recordTime(self.timer.getRemainingTime())
+            self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
+            self.recorder.recordExecutedCommands(self.graphs.executedCommands)
+            self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY, Display.origWidth * Display.origWidth / Display.newWidth, Display.origHeight * Display.origHeight / Display.newHeight)
 
     @abstractmethod
     def updateAgent(self, agent, agentRectList):
@@ -227,3 +235,6 @@ class Simulation(ABC):
     @abstractmethod
     def getGraphs(self, numAgents):
         pass
+
+    def getControls(self):
+        return Controls(self.timer, self.world.agentList, self.world, self.graphs)  # An object to handle events dealing with user interactions
