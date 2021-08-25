@@ -72,20 +72,23 @@ class RecordingPlayer(Simulation):
             self.world.removeSite(self.world.siteList[len(self.world.siteList) - 1])
 
     def updateAgent(self, agent, agentRectList):
-        pos = self.recorder.getNextAgentPosition()
-        agent.updatePosition(pos)
-        angle = self.recorder.getNextAgentAngle()
-        agent.setAngle(angle)
+        try:
+            pos = self.recorder.getNextAgentPosition()
+            agent.updatePosition(pos)
+            angle = self.recorder.getNextAgentAngle()
+            agent.setAngle(angle)
 
-        agentRect = agent.getAgentRect()
-        possibleNeighborList = agentRect.collidelistall(agentRectList)
-        agentNeighbors = []
-        for i in possibleNeighborList:
-            agentNeighbors.append(self.world.agentList[i])
-        agent.setState(self.recorder.getNextState(agent))
-        agent.setPhase(self.recorder.getNextPhase())
-        siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
-        agent.assignSite(siteToAssign)
+            agentRect = agent.getAgentRect()
+            possibleNeighborList = agentRect.collidelistall(agentRectList)
+            agentNeighbors = []
+            for i in possibleNeighborList:
+                agentNeighbors.append(self.world.agentList[i])
+            agent.setState(self.recorder.getNextState(agent))
+            agent.setPhase(self.recorder.getNextPhase())
+            siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
+            agent.assignSite(siteToAssign)
+        except IndexError:
+            self.world.removeAgent(agent)  # FIXME: When agents are deleted, this messes things up
 
     def getScreen(self):
         return Display.createScreen()
@@ -102,5 +105,5 @@ class RecordingPlayer(Simulation):
     def getShouldDrawPaths(self):
         return True
 
-    def getGraphs(self):
-        return SimulationGraphs()
+    def getGraphs(self, numAgents):
+        return SimulationGraphs(numAgents)

@@ -618,7 +618,8 @@ class Controls:
 
     def setSiteQuality(self):
         for site in self.selectedSites:
-            self.addToExecutedEvents("Set quality of site at " + str(site.getPosition()) + " to " + str(self.potentialQuality))
+            if site.getQuality() != -1:
+                self.addToExecutedEvents("Set quality of site at " + str(site.getPosition()) + " to " + str(self.potentialQuality))
             site.setQuality(self.potentialQuality)
             site.setColor(self.potentialQuality)
         self.potentialQuality = 0

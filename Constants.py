@@ -4,10 +4,13 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 200  # Time of the interface in seconds
+SIM_DURATION = 20  # Time of the interface in seconds
+
+FONT_SIZE = 13
+LARGE_FONT_SIZE = 40
 
 NUM_HUBS = 4
-HUB_LOCATIONS = [[100, 100]]
+HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
@@ -57,6 +60,8 @@ SCREEN_COLOR = 225, 220, 190  # Light brown
 WORDS_COLOR = 0, 100, 0  # Dark green
 
 BORDER_COLOR = 115, 110, 80  # Dark Brown
+
+FOG_COLOR = 45, 40, 12
 
 TRANSPARENT = 60, 60, 60
 

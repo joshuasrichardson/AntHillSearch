@@ -1,9 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-import display.AgentDisplay
 from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED
-from display import AgentDisplay
 
 
 def numToState(num, agent):
@@ -53,12 +51,16 @@ class State(ABC):
         self.forgetMovedSites()
 
     def forgetMovedSites(self):
+        knownSiteRects = []
+        for site in self.agent.knownSites:
+            knownSiteRects.append(site.getSiteRect())
         for i, pos in enumerate(self.agent.knownSitesPositions):
             rect = self.agent.getAgentRect()
-            siteIndex1 = rect.collidepoint(pos[0], pos[1])
-            siteIndex2 = rect.collidepoint(self.agent.knownSites[i].getPosition())
-            if siteIndex1 != -1 and siteIndex1 != siteIndex2:
-                self.agent.removeKnownSite(self.agent.knownSites[siteIndex1])
+            atOldSitePos = rect.collidepoint(pos[0], pos[1])
+            siteIndex = rect.collidelist(knownSiteRects)
+            if atOldSitePos and siteIndex != i:
+                self.agent.removeKnownSite(self.agent.knownSites[siteIndex])
+                break
 
     @abstractmethod
     def changeState(self, neighborList) -> None:

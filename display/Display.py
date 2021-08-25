@@ -3,7 +3,7 @@ import numpy
 import numpy as np
 import pygame
 
-from Constants import AGENT_IMAGE, SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS
+from Constants import AGENT_IMAGE, SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -39,7 +39,7 @@ def createScreen():
 
 
 def writeBigCenter(surface, words):
-    font = pygame.font.SysFont('Comic Sans MS', 40)
+    font = pygame.font.SysFont('Comic Sans MS', LARGE_FONT_SIZE)
     img = font.render(words, True, WORDS_COLOR).convert_alpha()
     surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60))

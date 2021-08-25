@@ -48,7 +48,7 @@ class World:
             while self.tooCloseToOtherHubs(nextPos):
                 nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
                 tries += 1
-                if tries > 50:
+                if tries > 100:
                     raise ColonyExceptions.InputError("The hub boundaries are too small for the search distance. "
                                                       "Either Increase the difference between (HUB_MAX_X and HUB_MIN_X) "
                                                       "and (HUB_MAX_Y and HUB_MIN_Y) or decrease the MAX_SEARCH_DIST. "
@@ -62,7 +62,7 @@ class World:
 
     def tooCloseToOtherHubs(self, nextPos):
         for pos in self.hubLocations:
-            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST and abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST:
+            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST and abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST + (SITE_RADIUS * 2):
                 return True
         return False
 
@@ -147,7 +147,7 @@ class World:
                 group.remove(agent)
             except ValueError:
                 pass
-        self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] - 1
+        self.initialHubAgentCounts[agent.getHubIndex()] -= 1
         del agent
 
     def normalizeQuality(self):

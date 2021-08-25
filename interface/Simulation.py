@@ -27,11 +27,11 @@ class Simulation(ABC):
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR):
         self.setDisplayVariables()
-        self.graphs = self.getGraphs()
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii)  # The world that has all the sites and agents
+        self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts))
         self.chosenHomes = self.initChosenHomes(len(hubLocations))  # The site that most of the agents are assigned to when the interface ends
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
@@ -46,6 +46,13 @@ class Simulation(ABC):
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                         siteRadii):
         pass
+
+    @staticmethod
+    def calcNumAgents(hubAgentCounts):
+        total = 0
+        for num in hubAgentCounts:
+            total += num
+        return total
 
     def setAgentList(self, agents):
         self.world.agentList = agents
@@ -125,11 +132,8 @@ class Simulation(ABC):
 
     def updateAgents(self, agentRectList):
         for agent in self.world.agentList:
-            try:  # If the following block is executed after an agent is deleted in the RecordingPlayer, it will break.
-                self.updateAgent(agent, agentRectList)
-                self.world.updatePaths(agent)
-            except IndexError:  # So we need to remove the agent here too if that happens.
-                self.world.removeAgent(agent)
+            self.updateAgent(agent, agentRectList)
+            self.world.updatePaths(agent)
 
     @abstractmethod
     def updateAgent(self, agent, agentRectList):
@@ -146,10 +150,6 @@ class Simulation(ABC):
                 if site.agentCounts[hubIndex] >= self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction:
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
-                    print(str(site.agentCounts))
-                    print(str(self.world.initialHubAgentCounts[hubIndex]))
-                    print(str(self.convergenceFraction))
-                    break
         return numConverged == len(self.world.getHubs())
 
     def timeOut(self):
@@ -225,5 +225,5 @@ class Simulation(ABC):
         pass
 
     @abstractmethod
-    def getGraphs(self):
+    def getGraphs(self, numAgents):
         pass

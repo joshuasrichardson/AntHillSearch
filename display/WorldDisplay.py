@@ -1,7 +1,7 @@
 """ Methods related to the world's display """
 import pygame
 
-from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST
+from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST, FOG_COLOR
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.SiteDisplay import drawEstimatedSite, drawSite
@@ -59,7 +59,7 @@ def initFog(hubs):
     w += (MAX_SEARCH_DIST * 2)
     h += (MAX_SEARCH_DIST * 2)
     fog = pygame.Surface((w, h))
-    fog.fill((30, 30, 30))
+    fog.fill(FOG_COLOR)
     fog.set_colorkey(TRANSPARENT)
     for hub in hubs:
         pos = hub.getPosition()
@@ -84,7 +84,7 @@ def drawPotentialQuality(world, potentialQuality, font):
     """ Draws the value the selected sites will be set to if the user pushes Enter """
     img = font.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
     for site in world.siteList:
-        if site.isSelected:
+        if site.isSelected and site.getQuality() != -1:
             Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
 
 

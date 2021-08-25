@@ -16,7 +16,6 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 # TODO: How can we differentiate between the permanent and temporary commands and show them differently?
 # TODO: Think about how to display predictions
-# TODO: Make font flexible
 # TODO: Make laziness and trust parameters
 # TODO: Read articles about ants, especially how they find homes and make more realistic
 # TODO: Update the ant movements to be more ant-like instead of random (if there is a cool way to do that).
@@ -27,16 +26,15 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Record the graphs.shouldDrawGraphs stuff as well as the camera position and executed commands in the command history box
 # TODO: Be able to speed up and slow down recording, and show the time of the original simulation, not how long the current replay is taking
 # TODO: Add commands to change the state of agents (not just to GO but to AT_NEST or whatever).
-# TODO: Fix move hub error
 
 # TODO: Update README
 
 
 def main():
     try:
-        runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
-        # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
+        runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:
         pass
