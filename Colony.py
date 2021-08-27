@@ -16,21 +16,11 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 # TODO: How can we differentiate between the permanent and temporary commands and show them differently?
 # TODO: Think about how to display predictions
-# TODO: Make font flexible
 # TODO: Make laziness and trust parameters
 # TODO: Read articles about ants, especially how they find homes and make more realistic
 # TODO: Update the ant movements to be more ant-like instead of random (if there is a cool way to do that).
-# TODO: Limit control in the User interface more (get rid of ability to command agents who are selected and have moved away from the hub and dont move or select sites anywhere)
-# TODO: Add site commands that don't apply until the agents that belong to that site get to the hub for the user interface. (For example, if we want all agents from site x to stop going to site x, we could select site x and put the GO command somewhere else, and when agents from that site got to the hub, they would go to the indicated location.)
 # TODO: Add more comments to net, recording, states, and user packages
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls) to simplify it?
-# TODO: Move screen during recording
-# TODO: Draw GO arrows on top of fog.
-# TODO: Add ability to zoom in/out
-# TODO: Add ability to lock screen so it doesn't move around or zoom
-# TODO: Record the graphs.shouldDrawGraphs stuff as well as the camera position and executed commands in the command history box
-# TODO: Be able to speed up and slow down recording, and show the time of the original simulation, not how long the current replay is taking
-# TODO: Draw arrows on the side/corner of the screen pointing in the direction the screen is moving when the screen moves.
 # TODO: Add commands to change the state of agents (not just to GO but to AT_NEST or whatever).
 
 # TODO: Update README

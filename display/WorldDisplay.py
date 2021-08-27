@@ -1,8 +1,8 @@
 """ Methods related to the world's display """
 import pygame
 
-from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST
-from display import Display
+from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST, FOG_COLOR
+from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.SiteDisplay import drawEstimatedSite, drawSite
 
@@ -21,8 +21,9 @@ def drawWorldObjects(world):
     else:
         for siteIndex in range(0, len(world.siteList)):
             drawSite(world.siteList[siteIndex])
-    drawMarker(world)
     drawFog()
+    drawMarkers(world)
+    Display.drawLast()
 
 
 def drawPaths(world):
@@ -41,9 +42,13 @@ def drawAgents(world):
         drawAgent(agent, Display.screen)
 
 
-def drawMarker(world):
-    if world.marker is not None:
-        Display.blitImage(Display.screen, world.marker[0], world.marker[1])
+def drawMarkers(world):
+    for agent in world.agentList:
+        if agent.isSelected is not None:
+            AgentDisplay.drawMarker(agent, Display.screen)
+    for site in world.siteList:
+        if site.marker is not None:
+            SiteDisplay.drawMarker(site)
 
 
 def initFog(hubs):
@@ -52,7 +57,7 @@ def initFog(hubs):
     w += (MAX_SEARCH_DIST * 2)
     h += (MAX_SEARCH_DIST * 2)
     fog = pygame.Surface((w, h))
-    fog.fill((30, 30, 30))
+    fog.fill(FOG_COLOR)
     fog.set_colorkey(TRANSPARENT)
     for hub in hubs:
         pos = hub.getPosition()
@@ -63,21 +68,21 @@ def initFog(hubs):
 
 def drawFog():
     if fog is not None:
-        Display.screen.blit(fog, (Display.displacementX - MAX_SEARCH_DIST, Display.displacementY - MAX_SEARCH_DIST))
+        Display.blitImage(Display.screen, fog, (-MAX_SEARCH_DIST, -MAX_SEARCH_DIST))
 
 
 def eraseFog(pos):
     if fog is not None:
         x = pos[0] + MAX_SEARCH_DIST
         y = pos[1] + MAX_SEARCH_DIST
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], 15, 0)
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], 22, 0)
 
 
 def drawPotentialQuality(world, potentialQuality, font):
     """ Draws the value the selected sites will be set to if the user pushes Enter """
     img = font.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
     for site in world.siteList:
-        if site.isSelected:
+        if site.isSelected and site.getQuality() != -1:
             Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
 
 

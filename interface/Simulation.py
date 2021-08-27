@@ -27,17 +27,17 @@ class Simulation(ABC):
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR):
         self.setDisplayVariables()
-        self.graphs = self.getGraphs()
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii)  # The world that has all the sites and agents
+        self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts))
         self.chosenHomes = self.initChosenHomes(len(hubLocations))  # The site that most of the agents are assigned to when the interface ends
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
-        self.userControls = Controls(self.timer, self.world.agentList, self.world, self.graphs)  # And object to handle events dealing with user interactions
+        self.userControls = self.getControls()
 
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
@@ -46,6 +46,13 @@ class Simulation(ABC):
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
                         siteRadii):
         pass
+
+    @staticmethod
+    def calcNumAgents(hubAgentCounts):
+        total = 0
+        for num in hubAgentCounts:
+            total += num
+        return total
 
     def setAgentList(self, agents):
         self.world.agentList = agents
@@ -100,6 +107,7 @@ class Simulation(ABC):
         self.world.updateStateAndPhaseCounts()
         self.updateSites()
         self.updateAgents(agentRectList)
+        self.recordDisplays()
         self.save()
         self.report(agentRectList)
 
@@ -125,11 +133,17 @@ class Simulation(ABC):
 
     def updateAgents(self, agentRectList):
         for agent in self.world.agentList:
-            try:  # If the following block is executed after an agent is deleted in the RecordingPlayer, it will break.
-                self.updateAgent(agent, agentRectList)
-                self.world.updatePaths(agent)
-            except IndexError:  # So we need to remove the agent here too if that happens.
-                self.world.removeAgent(agent)
+            self.updateAgent(agent, agentRectList)
+            self.world.updatePaths(agent)
+
+    def recordDisplays(self):
+        if self.shouldRecord:
+            self.recorder.recordTime(self.timer.getRemainingTime())
+            self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
+            self.recorder.recordExecutedCommands(self.graphs.executedCommands)
+            self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY, Display.origWidth * Display.origWidth / Display.newWidth, Display.origHeight * Display.origHeight / Display.newHeight)
+
+
 
     @abstractmethod
     def updateAgent(self, agent, agentRectList):
@@ -197,6 +211,7 @@ class Simulation(ABC):
     def setDisplayVariables(self):
         Display.screen = self.getScreen()
         Display.shouldDraw = self.getShouldDraw()
+        Display.drawFarAgents = self.getDrawFarAgents()
         SiteDisplay.knowSitePosAtStart = self.getKnowSitePosAtStart()
 
     @abstractmethod
@@ -208,6 +223,10 @@ class Simulation(ABC):
         pass
 
     @abstractmethod
+    def getDrawFarAgents(self):
+        pass
+
+    @abstractmethod
     def getKnowSitePosAtStart(self):
         pass
 
@@ -216,5 +235,8 @@ class Simulation(ABC):
         pass
 
     @abstractmethod
-    def getGraphs(self):
+    def getGraphs(self, numAgents):
         pass
+
+    def getControls(self):
+        return Controls(self.timer, self.world.agentList, self.world, self.graphs)  # An object to handle events dealing with user interactions

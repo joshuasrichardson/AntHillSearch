@@ -25,10 +25,20 @@ class EmpiricalTestingInterface(LiveSimulation):
                          maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
                          maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
 
+    def recordDisplays(self):
+        if self.shouldRecord:
+            self.recorder.recordTime(self.timer.getRemainingTime())
+            self.recorder.recordShouldDrawGraphs(True)
+            self.recorder.recordExecutedCommands([])
+            self.recorder.recordScreenBorder(None, None, None, None)
+
     def getScreen(self):
         return None
 
     def getShouldDraw(self):
+        return False
+
+    def getDrawFarAgents(self):
         return False
 
     def getKnowSitePosAtStart(self):
@@ -37,7 +47,7 @@ class EmpiricalTestingInterface(LiveSimulation):
     def getShouldDrawPaths(self):
         return False
 
-    def getGraphs(self):
+    def getGraphs(self, numAgents):
         return None
 
     # def runSimulation(self):

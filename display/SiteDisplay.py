@@ -12,7 +12,6 @@ knowSitePosAtStart = DRAW_ESTIMATES  # Whether the user knows where the sites ar
 def drawSite(site):
     """ Draws the site and some things associated with it on the screen """
     if site.wasFound or knowSitePosAtStart:  # If the agents have already discovered the site
-        drawMarker(site)  # Draw a marker if the site has one
         Display.drawCircle(Display.screen, BORDER_COLOR, site.pos, site.radius + 2, 0)  # Draw a background for the site that blends with the surface better than the site color
         if site.isSelected:
             Display.drawCircle(Display.screen, SELECTED_COLOR, site.pos, site.radius + 2, 0)  # Draw a circle over the background showing that the site is selected
@@ -27,7 +26,7 @@ def drawSite(site):
 
 def drawQuality(site):
     """ Draw the quality of the site directly on top of the site """
-    img = pygame.font.SysFont('Comic Sans MS', 15).render("MM", True, WORDS_COLOR).convert_alpha()  # Make this image for all the sites to get a consistently sized rectangle
+    img = pygame.font.SysFont('Comic Sans MS', 15).render("        ", True, WORDS_COLOR).convert_alpha()  # Make this image for all the sites to get a consistently sized rectangle
     rect = img.get_rect()
     newRect = pygame.Rect(rect.left - Display.displacementX, rect.top - Display.displacementY, rect.width, rect.height)
     Display.drawRect(img, SCREEN_COLOR, newRect)  # Draw a rectangle on top of the site so the quality will be easier to read
@@ -59,29 +58,16 @@ def drawAssignmentMarker(site, fromPos, color):
 
 def drawAssignmentMarker2(rect, color):
     """ Draw triangles around the site that point in toward the site """
-    Display.drawPolygon(Display.screen, color,
-                        [[rect.centerx, rect.top - 5],
-                         [rect.centerx - 10, rect.top - 20],
-                         [rect.centerx + 10, rect.top - 20]])
-    Display.drawPolygon(Display.screen, color,
-                        [[rect.centerx, rect.bottom + 5],
-                         [rect.centerx - 10, rect.bottom + 20],
-                         [rect.centerx + 10, rect.bottom + 20]])
-    Display.drawPolygon(Display.screen, color,
-                        [[rect.left - 5, rect.centery],
-                         [rect.left - 20, rect.centery - 10],
-                         [rect.left - 20, rect.centery + 10]])
-    Display.drawPolygon(Display.screen, color,
-                        [[rect.right + 5, rect.centery],
-                         [rect.right + 20, rect.centery - 10],
-                         [rect.right + 20, rect.centery + 10]])
+    Display.drawRightArrow([rect.left, rect.centery], color)
+    Display.drawLeftArrow([rect.right, rect.centery], color)
+    Display.drawUpArrow([rect.centerx, rect.bottom], color)
+    Display.drawDownArrow([rect.centerx, rect.top], color)
 
 
 def drawEstimatedSite(site):
     """ Draws what the user knows about the site from the hub """
     # Only draw the site if it has been found, or if the site positions are all known at the start of the interface
     if site.wasFound or knowSitePosAtStart:
-        drawMarker(site)  # Draw the marker representing a command associated with the site
         # Draw a background behind the site to make it blend with the screen better
         drawBlurredCircle(site.estimatedPosition, BORDER_COLOR, site.radius * 4,
                           site.estimatedRadius + site.blurRadiusDiff + 2, site.blurAmount + 0.7)

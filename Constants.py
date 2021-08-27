@@ -4,10 +4,13 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 200  # Time of the interface in seconds
+SIM_DURATION = 120  # Time of the interface in seconds
+
+FONT_SIZE = 13
+LARGE_FONT_SIZE = 40
 
 NUM_HUBS = 4
-HUB_LOCATIONS = [[100, 100]]
+HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
@@ -15,7 +18,7 @@ HUB_RADII = []
 HUB_AGENT_COUNTS = [100]
 
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
-NUM_SITES = 4       # Number of total sites
+NUM_SITES = 8      # Number of total sites
 # Setting these, especially the good ones, closer to the hub location makes the interface end sooner
 # [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100], [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
 SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a position here,
@@ -58,6 +61,8 @@ WORDS_COLOR = 0, 100, 0  # Dark green
 
 BORDER_COLOR = 115, 110, 80  # Dark Brown
 
+FOG_COLOR = 45, 40, 12
+
 TRANSPARENT = 60, 60, 60
 
 """ Define colony size, hub location, and distribution parameters for sites """
@@ -84,7 +89,7 @@ FIND_SITES_EASILY = False  # If True, agents will be able to go directly to thei
 #                                    If False, agents will have to search for their site again when it moves.
 # The smaller the max distance is, the faster the interface ends because agents never get too far away from the sites
 # (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
-MAX_SEARCH_DIST = 400  # The farthest an agent can get away from the hub while searching.
+MAX_SEARCH_DIST = 300  # The farthest an agent can get away from the hub while searching.
 HUB_MIN_X = 0  # The farthest left a hub can randomly be placed.
 HUB_MIN_Y = 0  # The farthest left a hub can randomly be placed.
 HUB_MAX_X = 1250  # The farthest right a hub can randomly be placed.
@@ -108,7 +113,7 @@ MIN_DECISIVENESS = 0.5  # The factor of the least decisive agent possible (slowe
 MAX_DECISIVENESS = 2.0  # The factor of the most decisive agent possible (fastest assesser)
 
 # The lower these numbers are, the more likely agents are to get lost while following, making the interface take longer.
-MIN_NAV_SKILLS = 0.1  # The factor of the least skilled navigator possible (most likely to get lost)
+MIN_NAV_SKILLS = 0.05  # The factor of the least skilled navigator possible (most likely to get lost)
 MAX_NAV_SKILLS = 2.0  # The factor of the most skilled navigator possible (least likely to get lost)
 
 # The higher this number is, the less accurate the agents' initial judgment about their site is.

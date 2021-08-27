@@ -6,21 +6,19 @@ from display import Display
 
 class SimulationGraphs:
 
-    def __init__(self):
+    def __init__(self, numAgents):
         self.executedCommands = []
         self.scrollIndex = -1
         self.pageNumber = 0
         self.remainingTime = 0
 
-        pygame.font.init()
-        self.font = pygame.font.SysFont('Comic Sans MS', 12)  # The font used on the graphs
-
+        self.font = pygame.font.SysFont('Comic Sans MS', FONT_SIZE)  # The font used on the graphs
         self.x = GRAPHS_TOP_LEFT[0]
-        self.x1 = self.x + 100
-        self.x2 = self.x + 350
-        self.x3 = self.x + 490
-        self.x4 = self.x + 540
-        self.x5 = self.x + 680
+        self.x1 = self.x + self.font.size("TRANSPORT")[0] + 10
+        self.x2 = self.x1 + numAgents + 20
+        self.x3 = self.x2 + self.font.size("Select Agent Sites: ")[0] + 10
+        self.x4 = self.x3 + FONT_SIZE * 2
+        self.x5 = self.x4 + self.font.size("Command Site Agents: ")[0] + 10
 
         self.y = GRAPHS_TOP_LEFT[1]
         self.y2 = Display.screen.get_height() - 100
@@ -29,19 +27,20 @@ class SimulationGraphs:
         self.pauseButton = pygame.draw.rect(Display.screen, BORDER_COLOR,
                                             pygame.Rect(Display.screen.get_width() - 60, self.y, 20, 20), 1)
 
-        self.selectAgentsRect = pygame.Rect(self.x3, self.y + 5, 10, 10)
-        self.selectSitesRect = pygame.Rect(self.x3, self.y + 16, 10, 10)
-        self.selectAgentsSitesRect = pygame.Rect(self.x3, self.y + 27, 10, 10)
-        self.selectSitesAgentsRect = pygame.Rect(self.x3, self.y + 38, 10, 10)
-        self.commandSiteAgentsRect = pygame.Rect(self.x5, self.y + 5, 10, 10)
-        self.showOptionsRect = pygame.Rect(self.x5, self.y + 16, 10, 10)
+        self.selectAgentsRect = pygame.Rect(self.x3, self.y + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
+        self.selectSitesRect = pygame.Rect(self.x3, self.y + FONT_SIZE + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
+        self.selectAgentsSitesRect = pygame.Rect(self.x3, self.y + 2 * FONT_SIZE + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
+        self.selectSitesAgentsRect = pygame.Rect(self.x3, self.y + 3 * FONT_SIZE + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
+        self.commandSiteAgentsRect = pygame.Rect(self.x5, self.y + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
+        self.showOptionsRect = pygame.Rect(self.x5, self.y + FONT_SIZE + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
         self.nextButton = None
         self.previousButton = None
+        self.screenBorder = None
 
         self.shouldDrawGraphs = True
 
     def incrementY(self):
-        self.y += 11
+        self.y += FONT_SIZE
 
     def write(self, words):
         img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
@@ -58,12 +57,12 @@ class SimulationGraphs:
     def drawStateGraph(self, states):
         if self.shouldDrawGraphs:
             self.y = GRAPHS_TOP_LEFT[1]
-            pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, 11 * len(states) + 24), 1)
+            pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (FONT_SIZE - 1) * len(states) + (FONT_SIZE * 2.4)), 1)
             self.write("STATES:")
             for state, width in enumerate(states):
                 self.incrementY()
-                pygame.draw.rect(Display.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
-                pygame.draw.rect(Display.screen, STATE_COLORS[state], pygame.Rect(self.x1, self.y + 5, width, 10))
+                pygame.draw.rect(Display.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, FONT_SIZE))
+                pygame.draw.rect(Display.screen, STATE_COLORS[state], pygame.Rect(self.x1, self.y + 5, width, FONT_SIZE - 2))
                 self.write(STATES_LIST[state])
             self.incrementY()
             self.incrementY()
@@ -71,12 +70,12 @@ class SimulationGraphs:
 
     def drawPhaseGraph(self, phases):
         if self.shouldDrawGraphs:
-            pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, 11 * len(phases) + 24), 1)
+            pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (FONT_SIZE - 1) * len(phases) + (FONT_SIZE * 2.1)), 1)
             self.write("PHASES:")
             for phase, width in enumerate(phases):
                 self.incrementY()
-                pygame.draw.rect(Display.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, 12))
-                pygame.draw.rect(Display.screen, PHASE_COLORS[phase], pygame.Rect(self.x1, self.y + 5, width, 10))
+                pygame.draw.rect(Display.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, FONT_SIZE))
+                pygame.draw.rect(Display.screen, PHASE_COLORS[phase], pygame.Rect(self.x1, self.y + 5, width, FONT_SIZE - 2))
                 self.write(PHASES_LIST[phase])
             self.incrementY()
             self.incrementY()
@@ -201,7 +200,7 @@ class SimulationGraphs:
         pygame.draw.rect(Display.screen, SCREEN_COLOR, pygame.Rect(left, top, width, height))
         leftMargin = x / 40
 
-        optionsFont = pygame.font.SysFont('Comic Sans MS', 40)
+        optionsFont = pygame.font.SysFont('Comic Sans MS', LARGE_FONT_SIZE)
         img = optionsFont.render("Options", True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (left * 2 - img.get_width() / 2, top - 60))
         left = left + leftMargin
@@ -312,6 +311,10 @@ class SimulationGraphs:
 
     def drawOptionsPage1(self, left, top, height):
         options = ['Pause',
+                   'Zoom In',
+                   'Zoom Out',
+                   'Move Camera',
+                   'Lock Screen',
                    'Show/Hide Graphs',
                    'Show/Hide Options',
                    'Enable/Disable',
@@ -319,6 +322,10 @@ class SimulationGraphs:
                    'Scroll Through History']
 
         optionButtons = ['- P',
+                         '- CTRL + MOUSE WHEEL UP',
+                         '- CTRL + MOUSE WHEEL DOWN',
+                         '- Move MOUSE to edge of screen',
+                         '- CAPS LOCK',
                          '- G',
                          '- O',
                          '- LEFT CLICK (the corresponding box on the screen)',
@@ -337,7 +344,7 @@ class SimulationGraphs:
             Display.screen.blit(img, (left + 180, top + 25 + (i + 1) * (height / 16 - 5)))
 
     def addExecutedCommand(self, command):
-        self.executedCommands.append(command)
+        self.executedCommands.append('{:003d}'.format(int(self.remainingTime)) + ": " + command)
         self.scrollIndex = len(self.executedCommands) - 1
 
     def drawExecutedCommands(self):
@@ -411,3 +418,7 @@ class SimulationGraphs:
         if self.shouldDrawGraphs:
             img = self.font.render(str(int(self.remainingTime)), True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (Display.screen.get_size()[0] - 100, img.get_height()))
+
+    def drawScreenBorder(self):
+        if self.shouldDrawGraphs and self.screenBorder is not None:
+            Display.drawRect(Display.screen, FOLLOW_COLOR, pygame.Rect(self.screenBorder), 1, True)

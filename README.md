@@ -78,7 +78,9 @@ it is running.
 3. To change parameters from the default parameters, set 
    parameters in the <code>main()</code> function in 
    <code>colony.Colony.py</code> (see "Parameters" section 
-   for more details).
+   for more details) or set which interface you would like to
+   use by uncommenting it out and commenting out the others
+   (see "Interfaces" section for more details).
 4. Enter <code>python Colony.py</code> in the terminal.
 5. If desired, try using some user controls while the
    simulation is running (see "Controls" for more details).
@@ -90,7 +92,7 @@ impact on the set up and behavior of the simulation. The default
 parameters and more information about them can be found in 
 <code>Constants.py</code>. Most of these can be overridden by 
 passing something else in as a parameter in
-<code>colony.Colony.py</code>'s <code>main()</code> method. 
+<code>Colony.py</code>'s <code>main()</code> method. 
 Important methods and their parameters to know about are listed 
 below.
 
@@ -98,7 +100,7 @@ Using the interfaces mentioned in the "Interfaces" Section below
 is an easy way to change many of these parameters at the same time
 to fit the purposes of the interfaces.
 
-### <code>LiveSimulation()</code>
+### <code>LiveSimulation()</code>               
 
 The constructor for the <code>LiveSimulation</code> class (the class that runs the simulation).
 This is an abstract class and cannot be run without implementing a few methods, but the parameters
@@ -107,21 +109,25 @@ shown here can be changed in the inheriting classes.
 - <code>simulationDuration</code>: Integer that sets the max time of the simulation in seconds. 
   The simulation can end before this time runs out if all the agents converge to the same site.
   
-- <code>numSites</code>: Integer that sets the initial number of sites, not including the hub. More sites
+- <code>numHubs</code>: Integer that sets the number of hubs.
+
+- <code>numSites</code>: Integer that sets the initial number of sites, not including the hubs. More sites
   can optionally be added or removed during the simulation (see "Site Controls" below).
   
-- <code>shouldReport</code>: Boolean that decides whether information about the hub is sent to a Rest API.
-  
+- <code>useRestAPI</code>: Boolean that decides whether to send information from the hubs to the Rest API.
+  Note that when running the simulation with this value set to True, the RestAPI needs to be started before 
+  the simulation is started.
+
 - <code>shouldRecord</code>: Boolean that decides whether the simulation is recorded to the recording.json file.
  
 - <code>convergenceFraction</code>: Float that sets the percentage of agents that need to be assigned to 
   one site before the simulation will end.
   
-- <code>hubLocation</code>: Ordered pair that sets the initial position of the agents' original home.
+- <code>hubLocations</code>: List of ordered pairs that sets the initial positions of the agents' original homes.
   
-- <code>hubRadius</code>: Integer that sets the size of the agents' original home.
+- <code>hubRadii</code>: List of Integers that sets the sizes of the agents' original homes.
   
-- <code>hubAgentCount</code>: Integer that sets the number of agents to start at the hub.
+- <code>hubAgentCounts</code>: List of Integers that sets the numbers of agents to start at the hubs.
   
 - <code>sitePositions</code>: List of ordered pairs that set positions for the sites. Each site that
   is not given a position here will be assigned a random position.
@@ -144,28 +150,6 @@ shown here can be changed in the inheriting classes.
   
 - <code>hubCanMove</code>: Boolean that determines whether the user can move the hub from its
   starting position.
-  
-  
-### <code>RecordingPlayer()</code>
-
-Constructor for the <code>RecordingPlayer</code> class. This class can be used instead of the 
-<code>LiveSimulation</code> to replay a previously recorded simulation from the recording.json
-file.
-
-This method has no parameters because everything is determined by the recording.json file.
-
-### <code>Simulation.initializeAgentList()</code>
-
-Generates a list of agents with the specified attributes.
-
-This method must be called before <code>runSimulation()</code> is called 
-or else the simulation will end immediately because there will not be
-any agents.
-
-- <code>numAgents</code>: The total number of agents at the start of the simulation. 
-  If the user never adds or removes any agents, the total number of 
-  agents will not change, but if they add or remove agents, the total 
-  number changes accordingly.
   
 - <code>homogenousAgents</code>: Boolean that when True sets all the agents attributes
   to be the same (these values are the max values of each parameter below) 
@@ -205,12 +189,36 @@ any agents.
 - <code>commitSpeedFactor</code>: Number that determines how much faster agents get when they 
   commit.
   
+  
+### <code>RecordingPlayer()</code>
+
+Constructor for the <code>RecordingPlayer</code> class. This class can be used instead of the 
+<code>LiveSimulation</code> to replay a previously recorded simulation from the recording.json
+file.
+
+This method has no parameters because everything is determined by the recording.json file.
+
+
+### <code>Simulation.initializeAgentList()</code>
+
+Generates a list of agents with the specified attributes.
+
+This method must be called before <code>runSimulation()</code> is called 
+or else the simulation will end immediately because there will not be
+any agents.
+
+- <code>hubAgentCounts</code>: A list of integers that set the number of agents at each hub 
+  at the start of the simulation. If a hub is not assigned a number of agents here, it will
+  be given a random number of agents.
+  
+  
 ### <code>LiveSimulation.randomizeInitialState()</code>
 
 Assigns each agent in the simulation a random site to start from.
 
-This method has no parameters, but note that it cannot be called with the 
+This method has no parameters. Also, note that it cannot be called with the 
 RecordingPlayer.
+
 
 ### <code>LiveSimulation.addAgents()</code>
 
@@ -229,9 +237,7 @@ These agents can be given specific starting states, phases, locations, and assig
   
 - <code>startingPosition</code>: Ordered pair that sets where the agents start in the simulation.
 
-Note that this method can only 
-be called with the LiveSimulation
-(not with the RecordingPlayer).
+Note that this method can not be used with the RecordingPlayer.
 
 ## Interfaces
 
@@ -263,17 +269,14 @@ different default values apply.
 
 This interface is the one that shows the least information. Nothing
 is drawn on the screen, and the user has no control over what happens. 
-The most important information is simply sent to a Rest API once every
-5 seconds. This information is not the complete accurate information in
+The most important information is simply reported at the end of the 
+simulation. This information is not the complete accurate information in
 the Engineer Interface; it is what is known from the hub like in the
 User Interface. With nothing being drawn, this interface is faster than
 the others and allows users to run more simulations in a shorter time
 to gather empirical data. All parameters can still be manually set
 by the user as is shown for the LiveSimulation in the "Parameters" 
 section above, but different default values apply.
-
-Note that when running the EmpiricalTestingInterface, the RestAPI needs
-to be started before the simulation is started.
 
 ### RecordingPlayer
 
@@ -492,6 +495,22 @@ be more to come).
   However, agents who are told to go somewhere (see "Move Agent" above) will
   not start moving until the simulation resumes.</p>
 
+- <strong>Zoom In</strong> - <code>CTRL</code> +  <code>MOUSEWHEEL</code>:
+  <p>Users can zoom in by holding down <code>CTRL</code> and scrolling up on the 
+  mouse. If they have a mouse pad, zooming in works on that too.</p>
+  
+- <strong>Zoom Out</strong> - <code>CTRL</code> +  <code>MOUSEWHEEL</code>:
+  <p>Users can zoom out by holding down <code>CTRL</code> and scrolling down on the 
+  mouse. If they have a mouse pad, zooming out works on that too.</p>
+  
+- <strong>Move Camera</strong> - <code>MOUSEMOTION</code>:
+  <p>Users can move the view of the camera by moving the mouse to the edge of the screen
+  in the direction they want the camera to move.</p>
+  
+- <strong>Lock Screen</strong> - <code>CAPS</code>:
+  <p>Users can lock the screen so that the screen cannot be moved or zoomed by pressing the 
+  <code>CAPS LOCK</code> key. The screen can be unlocked the same way.</p>
+
 - <strong>Show/Hide Options</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code> or <code>o</code>:
   <p>Users can view the options mentioned above ("Agent Controls" and "Site Controls")
   by clicking on the gray box next to the words "Show Options:" on the screen, or by 
@@ -546,10 +565,10 @@ be more to come).
   an arrow will be drawn on the side of the box pointing in the direction of the commands that are not
   being displayed.</p>
 
-- <strong>Show Next Page of Options</strong> - <code>RIGHT</code>:
-  <p>Users can view the second page of options by pushing the right arrow key 
+- <strong>Show Next Page of Options</strong> - <code>RIGHT</code> or <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
+  <p>Users can view the second page of options by pushing the right arrow key or clicking on "NEXT"
   while the simulation is paused and the option menu is showing.</p>
 
-- <strong>Show Previous Page of Options</strong> - <code>LEFT</code>:
-  <p>Users can view the first page of options by pushing the left arrow key 
+- <strong>Show Previous Page of Options</strong> - <code>LEFT</code> or <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
+  <p>Users can view the first page of options by pushing the left arrow key or clicking on "PREVIOUS"
   while the simulation is paused and the option menu is showing.</p>

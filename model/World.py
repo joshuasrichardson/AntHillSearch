@@ -23,7 +23,6 @@ class World:
         self.sitePositions = sitePositions  # Where the sites are located
         self.siteQualities = siteQualities  # The quality of each site
         self.sitesRadii = siteRadii  # A list of the radius of each site
-        self.marker = None  # A marker drawn in the world representing a user's command
 
         self.hubsRects = []
         self.hubsObserveRects = []
@@ -48,7 +47,7 @@ class World:
             while self.tooCloseToOtherHubs(nextPos):
                 nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
                 tries += 1
-                if tries > 50:
+                if tries > 100:
                     raise ColonyExceptions.InputError("The hub boundaries are too small for the search distance. "
                                                       "Either Increase the difference between (HUB_MAX_X and HUB_MIN_X) "
                                                       "and (HUB_MAX_Y and HUB_MIN_Y) or decrease the MAX_SEARCH_DIST. "
@@ -62,7 +61,7 @@ class World:
 
     def tooCloseToOtherHubs(self, nextPos):
         for pos in self.hubLocations:
-            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST and abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST:
+            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST and abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST + (SITE_RADIUS * 2):
                 return True
         return False
 
@@ -122,11 +121,6 @@ class World:
             self.siteRectList.pop(index)
             del site
 
-    def initSitesAgentsCounts(self):
-        for site in self.siteList:
-            for i in range(len(self.hubLocations)):
-                site.agentCounts.append(0)
-
     def addAgent(self, agent):
         self.agentList.append(agent)
         self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] + 1
@@ -152,7 +146,7 @@ class World:
                 group.remove(agent)
             except ValueError:
                 pass
-        self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] - 1
+        self.initialHubAgentCounts[agent.getHubIndex()] -= 1
         del agent
 
     def normalizeQuality(self):
@@ -226,9 +220,6 @@ class World:
             self.phases[CANVAS] = self.request.numCanvas
             self.phases[COMMIT] = self.request.numCommit
 
-        if self.states[GO] == 0:  # If all the agents have reached the destination they were commanded to go to,
-            self.setMarker(None)  # then the marker should go away.
-
     def updatePaths(self, agent):
         if Display.shouldDrawPaths and Display.drawFarAgents:  # If the paths should be drawn anywhere, the world can keep track of all of them
             self.paths.append(agent.getPosition())
@@ -238,9 +229,6 @@ class World:
         else:  # The agents will need to keep track of their paths so they can report it when they get to the hub an no other time.
             agent.updatePath()
 
-    def setMarker(self, marker):
-        self.marker = marker
-
     def updateGroup(self, index, agents):
         """ Sets an easily selectable group of agents to the specified agents """
         self.agentGroups[index] = agents
@@ -248,3 +236,13 @@ class World:
     def getGroup(self, index):
         """ Gets the group of agents that was set to the specified index """
         return self.agentGroups[index]
+
+    def getClosestHub(self, pos):
+        minDist = 100000
+        closestHub = None
+        for hub in self.hubs:
+            hubDist = np.sqrt(np.square(pos[0] - hub.getPosition()[0]) + np.square(pos[1] - hub.getPosition()[1]))
+            if hubDist < minDist:
+                minDist = hubDist
+                closestHub = hub
+        return closestHub

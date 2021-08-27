@@ -17,6 +17,10 @@ class Recorder:
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
+        self.time = 0
+        self.shouldDrawGraphs = False
+        self.executedCommands = []
+        self.screenBorder = []
 
         self.data = []
 
@@ -67,6 +71,21 @@ class Recorder:
     def recordSiteRadius(self, radius):
         self.siteRadii.append(radius)
 
+    def recordTime(self, time):
+        self.time = time
+
+    def recordShouldDrawGraphs(self, draw):
+        self.shouldDrawGraphs = draw
+
+    def recordExecutedCommands(self, commands):
+        self.executedCommands = commands
+
+    def recordScreenBorder(self, x, y, w, h):
+        if x is None:
+            self.screenBorder = None
+        else:
+            self.screenBorder = [-x, -y, w, h]
+
     def save(self):
         self.data.append({'agentPositions': self.agentPositions,
                           'agentAngles': self.agentAngles,
@@ -75,7 +94,11 @@ class Recorder:
                           'agentAssignments': self.agentAssignments,
                           'sitePositions': self.sitePositions,
                           'siteQualities': self.siteQualities,
-                          'siteRadii': self.siteRadii})
+                          'siteRadii': self.siteRadii,
+                          'time': self.time,
+                          'shouldDrawGraphs': self.shouldDrawGraphs,
+                          'executedCommands': self.executedCommands,
+                          'screenBorder': self.screenBorder})
         self.agentPositions = []
         self.agentAngles = []
         self.agentStates = []
@@ -135,6 +158,18 @@ class Recorder:
         self.currentRadiusIndex += 1
         return self.siteRadii[self.currentRadiusIndex]
 
+    def getNextTime(self):
+        return self.time
+
+    def getNextShouldDrawGraphs(self):
+        return self.shouldDrawGraphs
+
+    def getNextExecutedCommands(self):
+        return self.executedCommands
+
+    def getNextScreenBorder(self):
+        return self.screenBorder
+
     def getNumAgents(self):
         if self.dataIndex >= 0:
             return len(self.agentPositions)
@@ -168,6 +203,10 @@ class Recorder:
             self.sitePositions = self.data[self.dataIndex]['sitePositions']
             self.siteQualities = self.data[self.dataIndex]['siteQualities']
             self.siteRadii = self.data[self.dataIndex]['siteRadii']
+            self.time = self.data[self.dataIndex]['time']
+            self.shouldDrawGraphs = self.data[self.dataIndex]['shouldDrawGraphs']
+            self.executedCommands = self.data[self.dataIndex]['executedCommands']
+            self.screenBorder = self.data[self.dataIndex]['screenBorder']
             return True
         else:
             return False

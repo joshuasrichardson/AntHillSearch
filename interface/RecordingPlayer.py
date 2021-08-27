@@ -1,9 +1,12 @@
+import time
+
 from Constants import *
 from display import Display
 from display.Graphs import SimulationGraphs
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
 from model.World import World
+from user.RecordingControls import RecordingControls
 
 
 class RecordingPlayer(Simulation):
@@ -11,6 +14,7 @@ class RecordingPlayer(Simulation):
 
     def __init__(self):
         self.hubAgentCounts = []
+        self.delay = 0
         super().__init__(shouldRecord=False)
 
     def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS):
@@ -39,8 +43,25 @@ class RecordingPlayer(Simulation):
         self.draw()
 
     def update(self, agentRectList):
-        self.graphs.setRemainingTime(self.timer.getRemainingTime())
+        self.slowDownOrSpeedUp()
+        self.graphs.setRemainingTime(self.recorder.getNextTime())
+        self.graphs.shouldDrawGraphs = self.recorder.getNextShouldDrawGraphs()
+        self.graphs.executedCommands = self.recorder.getNextExecutedCommands()
+        self.graphs.scrollIndex = len(self.recorder.executedCommands) - 1
+        self.graphs.screenBorder = self.recorder.getNextScreenBorder()
+        Display.addToDrawLast(self.graphs.drawScreenBorder)
+
         super().update(agentRectList)
+        self.userControls.moveScreen()
+
+    def slowDownOrSpeedUp(self):
+        if self.delay > 0:  # Slow down
+            time.sleep(self.delay)
+        elif self.delay < 0:  # Speed up
+            d = self.delay
+            while d < 0:
+                self.setNextRound()
+                d += 0.025
 
     def setNextRound(self):
         if not self.recorder.setNextRound():
@@ -71,25 +92,34 @@ class RecordingPlayer(Simulation):
             self.world.removeSite(self.world.siteList[len(self.world.siteList) - 1])
 
     def updateAgent(self, agent, agentRectList):
-        pos = self.recorder.getNextAgentPosition()
-        agent.updatePosition(pos)
-        angle = self.recorder.getNextAgentAngle()
-        agent.setAngle(angle)
+        try:
+            pos = self.recorder.getNextAgentPosition()
+            agent.updatePosition(pos)
+            angle = self.recorder.getNextAgentAngle()
+            agent.setAngle(angle)
 
-        agentRect = agent.getAgentRect()
-        possibleNeighborList = agentRect.collidelistall(agentRectList)
-        agentNeighbors = []
-        for i in possibleNeighborList:
-            agentNeighbors.append(self.world.agentList[i])
-        agent.setState(self.recorder.getNextState(agent))
-        agent.setPhase(self.recorder.getNextPhase())
-        siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
-        agent.assignSite(siteToAssign)
+            agentRect = agent.getAgentRect()
+            possibleNeighborList = agentRect.collidelistall(agentRectList)
+            agentNeighbors = []
+            for i in possibleNeighborList:
+                agentNeighbors.append(self.world.agentList[i])
+            agent.setState(self.recorder.getNextState(agent))
+            agent.setPhase(self.recorder.getNextPhase())
+            siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
+            agent.assignSite(siteToAssign)
+        except IndexError:
+            self.world.removeAgent(agent)  # FIXME: When agents are deleted, this messes things up
+
+    def changeDelay(self, seconds):
+        self.delay += seconds
 
     def getScreen(self):
         return Display.createScreen()
 
     def getShouldDraw(self):
+        return True
+
+    def getDrawFarAgents(self):
         return True
 
     def getKnowSitePosAtStart(self):
@@ -98,5 +128,11 @@ class RecordingPlayer(Simulation):
     def getShouldDrawPaths(self):
         return True
 
-    def getGraphs(self):
-        return SimulationGraphs()
+    def getGraphs(self, numAgents):
+        return SimulationGraphs(numAgents)
+
+    def calcNumAgents(self, hubAgentCounts):
+        return self.recorder.getNumAgents()
+
+    def getControls(self):
+        return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs, self.changeDelay)

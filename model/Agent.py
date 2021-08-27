@@ -2,7 +2,6 @@ import random
 
 import numpy as np
 
-import display.Display
 from Constants import *
 from display import SiteDisplay, WorldDisplay
 from display.Display import getAgentImage
@@ -49,6 +48,7 @@ class Agent:
         self.estimatedRadius = self.getHub().radius  # The agent's estimate of the radius of their assigned site
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
 
+        self.siteInRangeIndex = self.getHubIndex()
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
         self.knownSitesPositions = [self.getHub().getPosition()]  # A list of positions of sites the agent has found
         self.addToKnownSites(startingAssignment)
@@ -68,6 +68,8 @@ class Agent:
         self.state = state
 
     def changeState(self, neighborList):
+        if self.state.executeCommand():
+            return
         self.state.changeState(neighborList)
 
     def getState(self):
@@ -232,8 +234,8 @@ class Agent:
             estimatedSitePosition = self.getHub().getPosition()
         else:
             estimatedSitePosition = site.getPosition().copy()
-            estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-2 * self.estimationAccuracy), int(2 * self.estimationAccuracy))
-            estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-2 * self.estimationAccuracy), int(2 * self.estimationAccuracy))
+            estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
+            estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
         return estimatedSitePosition
 
     def estimateSitePositionMoreAccurately(self):
@@ -316,3 +318,4 @@ class Agent:
         """ Unselects the agent to prevent various user interactions """
         self.isSelected = False
         self.isTheSelected = False
+        self.marker = None

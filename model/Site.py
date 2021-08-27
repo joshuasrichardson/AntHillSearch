@@ -148,7 +148,7 @@ class Site:
 
     def setCommand(self, command, position, marker):
         self.command = command
-        self.commandPosition = list(position)
+        self.commandPosition = position
         self.marker = marker
 
     def executeCommand(self, agent):
