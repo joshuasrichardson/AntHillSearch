@@ -168,11 +168,14 @@ class Controls:
         # Set the cursor image
         if self.graphs.collidesWithCommandHistBoxTop(mousePos):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
-        elif collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos) or \
-                self.graphs.collidesWithAnyButton(mousePos):
+        elif self.collidesWithSelectable(mousePos, adjustedMousePos):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+    def collidesWithSelectable(self, mousePos, adjustedMousePos):
+        return collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos) or \
+                self.graphs.collidesWithAnyButton(mousePos)
 
     def moveScreen(self):
         if not pygame.key.get_mods() & pygame.KMOD_CAPS:
@@ -265,7 +268,6 @@ class Controls:
         self.potentialQuality = 0
         self.shouldDrawQuality = False
         self.shouldMoveHistBoxTop = False
-        self.world.setMarker(None)
         self.selectedAgent = None
         self.selectedSite = None
         # Unselect all agents and sites
@@ -482,7 +484,6 @@ class Controls:
             self.addToExecutedEvents("Sent " + str(len(self.selectedAgents)) + " agents to " + str(pos))
         marker = getDestinationMarker(mousePos)
         self.setSelectedSitesCommand(self.goCommand, list(mousePos), marker)
-        self.world.setMarker(marker)
         for a in self.selectedAgents:
             self.goCommand(a, mousePos)
 

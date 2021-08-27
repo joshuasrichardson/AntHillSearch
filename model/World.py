@@ -23,7 +23,6 @@ class World:
         self.sitePositions = sitePositions  # Where the sites are located
         self.siteQualities = siteQualities  # The quality of each site
         self.sitesRadii = siteRadii  # A list of the radius of each site
-        self.marker = None  # A marker drawn in the world representing a user's command
 
         self.hubsRects = []
         self.hubsObserveRects = []
@@ -221,9 +220,6 @@ class World:
             self.phases[CANVAS] = self.request.numCanvas
             self.phases[COMMIT] = self.request.numCommit
 
-        if self.states[GO] == 0:  # If all the agents have reached the destination they were commanded to go to,
-            self.setMarker(None)  # then the marker should go away.
-
     def updatePaths(self, agent):
         if Display.shouldDrawPaths and Display.drawFarAgents:  # If the paths should be drawn anywhere, the world can keep track of all of them
             self.paths.append(agent.getPosition())
@@ -232,9 +228,6 @@ class World:
                     self.paths.pop(0)
         else:  # The agents will need to keep track of their paths so they can report it when they get to the hub an no other time.
             agent.updatePath()
-
-    def setMarker(self, marker):
-        self.marker = marker
 
     def updateGroup(self, index, agents):
         """ Sets an easily selectable group of agents to the specified agents """

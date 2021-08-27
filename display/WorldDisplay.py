@@ -43,8 +43,6 @@ def drawAgents(world):
 
 
 def drawMarkers(world):
-    if world.marker is not None:
-        Display.blitImage(Display.screen, world.marker[0], world.marker[1])
     for agent in world.agentList:
         if agent.isSelected is not None:
             AgentDisplay.drawMarker(agent, Display.screen)

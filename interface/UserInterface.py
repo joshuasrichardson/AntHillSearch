@@ -2,6 +2,7 @@ from Constants import *
 from display import Display
 from display.Graphs import SimulationGraphs
 from interface.LiveSimulation import LiveSimulation
+from user.UIControls import UIControls
 
 
 class UserInterface(LiveSimulation):
@@ -51,3 +52,6 @@ class UserInterface(LiveSimulation):
 
     def getGraphs(self, numAgents):
         return SimulationGraphs(numAgents)
+
+    def getControls(self):
+        return UIControls(self.timer, self.world.agentList, self.world, self.graphs)

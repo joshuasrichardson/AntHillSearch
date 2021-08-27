@@ -19,7 +19,6 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Make laziness and trust parameters
 # TODO: Read articles about ants, especially how they find homes and make more realistic
 # TODO: Update the ant movements to be more ant-like instead of random (if there is a cool way to do that).
-# TODO: Limit control in the User interface more (get rid of ability to command agents who are selected and have moved away from the hub and dont move or select sites anywhere)
 # TODO: Add more comments to net, recording, states, and user packages
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls) to simplify it?
 # TODO: Add commands to change the state of agents (not just to GO but to AT_NEST or whatever).
@@ -30,8 +29,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 def main():
     try:
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
-        # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
-        runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
+        runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
+        # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:
         pass
