@@ -1,3 +1,5 @@
+import time
+
 from Constants import *
 from display import Display
 from display.Graphs import SimulationGraphs
@@ -12,6 +14,7 @@ class RecordingPlayer(Simulation):
 
     def __init__(self):
         self.hubAgentCounts = []
+        self.delay = 0
         super().__init__(shouldRecord=False)
 
     def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS):
@@ -40,6 +43,7 @@ class RecordingPlayer(Simulation):
         self.draw()
 
     def update(self, agentRectList):
+        self.slowDownOrSpeedUp()
         self.graphs.setRemainingTime(self.recorder.getNextTime())
         self.graphs.shouldDrawGraphs = self.recorder.getNextShouldDrawGraphs()
         self.graphs.executedCommands = self.recorder.getNextExecutedCommands()
@@ -49,6 +53,15 @@ class RecordingPlayer(Simulation):
 
         super().update(agentRectList)
         self.userControls.moveScreen()
+
+    def slowDownOrSpeedUp(self):
+        if self.delay > 0:  # Slow down
+            time.sleep(self.delay)
+        elif self.delay < 0:  # Speed up
+            d = self.delay
+            while d < 0:
+                self.setNextRound()
+                d += 0.025
 
     def setNextRound(self):
         if not self.recorder.setNextRound():
@@ -97,6 +110,9 @@ class RecordingPlayer(Simulation):
         except IndexError:
             self.world.removeAgent(agent)  # FIXME: When agents are deleted, this messes things up
 
+    def changeDelay(self, seconds):
+        self.delay += seconds
+
     def getScreen(self):
         return Display.createScreen()
 
@@ -119,4 +135,4 @@ class RecordingPlayer(Simulation):
         return self.recorder.getNumAgents()
 
     def getControls(self):
-        return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs)
+        return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs, self.changeDelay)

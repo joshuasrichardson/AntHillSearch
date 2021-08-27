@@ -243,3 +243,13 @@ class World:
     def getGroup(self, index):
         """ Gets the group of agents that was set to the specified index """
         return self.agentGroups[index]
+
+    def getClosestHub(self, pos):
+        minDist = 100000
+        closestHub = None
+        for hub in self.hubs:
+            hubDist = np.sqrt(np.square(pos[0] - hub.getPosition()[0]) + np.square(pos[1] - hub.getPosition()[1]))
+            if hubDist < minDist:
+                minDist = hubDist
+                closestHub = hub
+        return closestHub

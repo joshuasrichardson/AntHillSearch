@@ -11,7 +11,7 @@ from display import Display
 from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
-from display.Display import getDestinationMarker
+from display.Display import getDestinationMarker, getAssignmentMarker
 from model.builder import AgentBuilder, SiteSettings
 from model.phases.ExplorePhase import ExplorePhase
 from model.states.SearchState import SearchState
@@ -517,7 +517,7 @@ class Controls:
             for a in self.selectedAgents:
                 a.addToKnownSites(sitesUnderMouse[0])
                 a.assignSite(sitesUnderMouse[0])
-        marker = getDestinationMarker(mousePos)  # TODO: Get a different marker
+        marker = getAssignmentMarker(mousePos)
         self.setSelectedSitesCommand(self.assignCommand, list(mousePos), marker)
 
     def speedUp(self):
@@ -560,7 +560,7 @@ class Controls:
         self.addToExecutedEvents("Created site at " + str(pos))
 
     def createAgent(self, position):
-        agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[0], position)  # TODO: Make more flexible
+        agent = AgentBuilder.getNewAgent(self.world, self.world.getClosestHub(position), position)
         agent.setState(SearchState(agent))
         agent.setAngle(random.uniform(0, 2 * np.pi))
         agent.assignedSite.incrementCount(agent.getHubIndex())

@@ -3,7 +3,8 @@ import numpy
 import numpy as np
 import pygame
 
-from Constants import AGENT_IMAGE, SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE
+from Constants import AGENT_IMAGE, SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
+    SITE_RADIUS
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -97,6 +98,15 @@ def getDestinationMarker(pos):
     """ Loads, adjusts the size, and returns the image representing a destination """
     arrows = pygame.image.load("resources/arrows.png").convert_alpha()
     arrows = pygame.transform.scale(arrows, (30, 30))
+    rect = arrows.get_rect().move(pos)
+    rect.center = pos
+    return arrows, rect
+
+
+def getAssignmentMarker(pos):
+    """ Loads, adjusts the size, and returns the image representing a destination """
+    arrows = pygame.image.load("resources/target.png").convert_alpha()
+    arrows = pygame.transform.scale(arrows, (2 * SITE_RADIUS, 2 * SITE_RADIUS))
     rect = arrows.get_rect().move(pos)
     rect.center = pos
     return arrows, rect

@@ -3,8 +3,9 @@ from user.Controls import Controls
 
 class RecordingControls(Controls):
 
-    def __init__(self, timer, agentList, world, graphs):
+    def __init__(self, timer, agentList, world, graphs, changeDelay):
         super().__init__(timer, agentList, world, graphs)
+        self.changeDelay = changeDelay
 
     def drag(self):
         pass
@@ -22,10 +23,10 @@ class RecordingControls(Controls):
         pass
 
     def speedUp(self):
-        pass  # TODO: Speed up the recording
+        self.changeDelay(-0.025)
 
     def slowDown(self):
-        pass  # TODO: Slow down the recording
+        self.changeDelay(0.025)
 
     def raiseQuality(self):
         pass
