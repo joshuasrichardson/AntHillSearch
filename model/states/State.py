@@ -1,7 +1,9 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
+import display.Display
 from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED
+from display import Display
 
 
 def numToState(num, agent):
@@ -61,6 +63,16 @@ class State(ABC):
             if atOldSitePos and siteIndex != i:
                 self.agent.removeKnownSite(self.agent.knownSites[siteIndex])
                 break
+
+    def executeCommand(self):
+        self.agent.siteInRangeIndex = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
+        if Display.drawFarAgents:  # If we are using an interface that lets us access things that are far from the hub
+            if self.agent.siteInRangeIndex != -1:  # And the agent comes in contact with a site that has a command
+                return self.agent.world.siteList[self.agent.siteInRangeIndex].executeCommand(self.agent)  # Just do the command and be done with this round.
+        else:
+            if -1 < self.agent.siteInRangeIndex < len(self.agent.world.hubs):  # If we can't access far things, we should have the agents that are assigned to far sites do the command for that site when they get to the hub (where they can receive that instruction).
+                return self.agent.assignedSite.executeCommand(self.agent)
+            return False
 
     @abstractmethod
     def changeState(self, neighborList) -> None:

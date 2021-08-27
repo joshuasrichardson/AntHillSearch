@@ -12,9 +12,8 @@ class FollowState(State):
         self.state = FOLLOW
 
     def changeState(self, neighborList) -> None:
-        siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
         if (self.agent.leadAgent.getState() == LEAD_FORWARD or self.agent.leadAgent.getState() == REVERSE_TANDEM)\
-                and self.agent.world.siteList[siteWithinRange] != self.agent.leadAgent.assignedSite:
+                and self.agent.world.siteList[self.agent.siteInRangeIndex] != self.agent.leadAgent.assignedSite:
             self.setState(self, self.agent.leadAgent.getPosition())
             if self.agent.shouldGetLost():
                 self.agent.leadAgent = None

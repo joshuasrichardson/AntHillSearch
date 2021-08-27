@@ -81,7 +81,10 @@ class Recorder:
         self.executedCommands = commands
 
     def recordScreenBorder(self, x, y, w, h):
-        self.screenBorder = [-x, -y, w, h]
+        if x is None:
+            self.screenBorder = None
+        else:
+            self.screenBorder = [-x, -y, w, h]
 
     def save(self):
         self.data.append({'agentPositions': self.agentPositions,

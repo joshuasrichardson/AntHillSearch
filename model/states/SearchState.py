@@ -23,15 +23,14 @@ class SearchState(State):
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
         self.agent.marker = None
-        siteWithinRange = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
-        # If agent finds a site within range then assess it
 
-        if siteWithinRange != -1:
-            self.agent.addToKnownSites(self.agent.world.siteList[siteWithinRange])
+        # If agent finds a site within range then assess it
+        if self.agent.siteInRangeIndex != -1:
+            self.agent.addToKnownSites(self.agent.world.siteList[self.agent.siteInRangeIndex])
             # If the site is better than the one they were assessing, they assess it instead.
-            if self.agent.estimateQuality(self.agent.world.siteList[siteWithinRange]) > self.agent.estimatedQuality\
-                    and self.agent.world.siteList[siteWithinRange] is not self.agent.getHub():
-                self.agent.assignSite(self.agent.world.siteList[siteWithinRange])
+            if self.agent.estimateQuality(self.agent.world.siteList[self.agent.siteInRangeIndex]) > self.agent.estimatedQuality\
+                    and self.agent.world.siteList[self.agent.siteInRangeIndex] is not self.agent.getHub():
+                self.agent.assignSite(self.agent.world.siteList[self.agent.siteInRangeIndex])
                 from model.states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
                 self.agent.setPhase(AssessPhase())

@@ -502,8 +502,11 @@ class Controls:
     def setSelectedSitesCommand(self, command, mousePos, marker):
         if self.shouldCommandSiteAgents:
             for site in self.selectedSites:
-                pos = [int(mousePos[0]), int(mousePos[1])]
-                self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s go point to " + str(pos))
+                if mousePos is not None:
+                    pos = [int(mousePos[0]), int(mousePos[1])]
+                    self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s command point to " + str(pos))
+                else:
+                    self.addToExecutedEvents("Removed site at " + str(site.getPosition()) + "'s command")
                 site.setCommand(command, mousePos, marker)
 
     def assignSelectedAgents(self, mousePos):

@@ -25,6 +25,13 @@ class EmpiricalTestingInterface(LiveSimulation):
                          maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
                          maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
 
+    def recordDisplays(self):
+        if self.shouldRecord:
+            self.recorder.recordTime(self.timer.getRemainingTime())
+            self.recorder.recordShouldDrawGraphs(True)
+            self.recorder.recordExecutedCommands([])
+            self.recorder.recordScreenBorder(None, None, None, None)
+
     def getScreen(self):
         return None
 

@@ -48,6 +48,7 @@ class Agent:
         self.estimatedRadius = self.getHub().radius  # The agent's estimate of the radius of their assigned site
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
 
+        self.siteInRangeIndex = self.getHubIndex()
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
         self.knownSitesPositions = [self.getHub().getPosition()]  # A list of positions of sites the agent has found
         self.addToKnownSites(startingAssignment)
@@ -67,6 +68,8 @@ class Agent:
         self.state = state
 
     def changeState(self, neighborList):
+        if self.state.executeCommand():
+            return
         self.state.changeState(neighborList)
 
     def getState(self):
