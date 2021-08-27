@@ -257,6 +257,22 @@ class Agent:
     def getHubIndex(self):
         return self.world.getHubs().index(self.getHub())
 
+    @staticmethod
+    def checkLeadAgent(agent, stateNum):
+        if stateNum == FOLLOW:
+            leadAgent = agent.world.getClosestAgentWithState(agent.getPosition(), [REVERSE_TANDEM, LEAD_FORWARD, TRANSPORT])
+            if leadAgent is None:
+                return False
+            else:
+                agent.leadAgent = leadAgent
+        elif stateNum == CARRIED:
+            leadAgent = agent.world.getClosestAgentWithState(agent.getPosition(), [TRANSPORT])
+            if leadAgent is None:
+                return False
+            else:
+                agent.leadAgent = leadAgent
+        return True
+
     def quorumMet(self):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
         return self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND  # TODO: Base this off of the number of agents at the site

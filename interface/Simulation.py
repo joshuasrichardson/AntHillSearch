@@ -143,8 +143,6 @@ class Simulation(ABC):
             self.recorder.recordExecutedCommands(self.graphs.executedCommands)
             self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY, Display.origWidth * Display.origWidth / Display.newWidth, Display.origHeight * Display.origHeight / Display.newHeight)
 
-
-
     @abstractmethod
     def updateAgent(self, agent, agentRectList):
         pass

@@ -22,7 +22,7 @@ class Site:
 
         self.isSelected = False  # Whether the site is selected (helps with user controls)
         self.command = None  # The command that is executed on agents when they arrive at the site
-        self.commandPosition = None  # The position of the command (for commands like go)
+        self.commandArg = None  # The position of the command (for commands like go)
         self.marker = None  # A marker to be drawn on the screen representing the command
 
         self.estimatedPosition = None  # The average position of where agents think the site is located
@@ -146,13 +146,16 @@ class Site:
     def unselect(self):
         self.isSelected = False
 
-    def setCommand(self, command, position, marker):
+    def setCommand(self, command, arg, marker):
         self.command = command
-        self.commandPosition = position
+        self.commandArg = arg
         self.marker = marker
 
     def executeCommand(self, agent):
         if self.command is None:
             return False
-        self.command(agent, self.commandPosition)
+        try:
+            self.command(agent, self.commandArg(agent))
+        except:
+            self.command(agent, self.commandArg)
         return True

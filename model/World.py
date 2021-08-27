@@ -246,3 +246,14 @@ class World:
                 minDist = hubDist
                 closestHub = hub
         return closestHub
+
+    def getClosestAgentWithState(self, pos, stateNums):
+        minDist = 100000
+        closestAgent = None
+        for agent in self.agentList:
+            if stateNums.__contains__(agent.getState()):
+                dist = np.sqrt(np.square(pos[0] - agent.getPosition()[0]) + np.square(pos[1] - agent.getPosition()[1]))
+                if dist < minDist:
+                    minDist = dist
+                    closestAgent = agent
+        return closestAgent

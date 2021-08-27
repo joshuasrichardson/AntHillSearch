@@ -4,9 +4,10 @@ import numpy as np
 import pygame
 from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
-    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, GO, \
+    FOLLOW, LEAD_FORWARD, TRANSPORT, CARRIED, REVERSE_TANDEM, STATES_LIST
 from display import Display
 from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
@@ -14,6 +15,7 @@ from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker, getAssignmentMarker
 from model.builder import AgentBuilder, SiteSettings
 from model.phases.ExplorePhase import ExplorePhase
+from model.states import State
 from model.states.SearchState import SearchState
 
 
@@ -138,7 +140,7 @@ class Controls:
             elif key == K_ESCAPE:
                 self.unselectAll()
             elif len(self.selectedSites) > 0 and not pygame.key.get_mods() & KMOD_SHIFT and \
-                    not pygame.key.get_mods() & KMOD_CTRL:
+                    not pygame.key.get_mods() & KMOD_CTRL and not pygame.key.get_mods() & KMOD_ALT:
                 if event.unicode.isnumeric():
                     self.appendNumber(int(event.unicode))
                 elif key == K_BACKSPACE:
@@ -152,6 +154,8 @@ class Controls:
                     self.selectAgentGroup(key)
                 elif pygame.key.get_mods() & KMOD_CTRL:
                     self.updateAgentGroup(key)
+                elif pygame.key.get_mods() & KMOD_ALT:
+                    self.setAgentsStates(key)
                 elif event.unicode.isnumeric():
                     self.unselectAll()
                     self.selectAgentGroup(key)
@@ -361,6 +365,20 @@ class Controls:
         self.addToExecutedEvents("Set agent group " + str(index) + " to have " + str(len(self.selectedAgents)) + " agents.")
         self.world.updateGroup(index, self.selectedAgents)
 
+    def setAgentsStates(self, key):
+        stateNum = key - 48
+        if not AT_NEST <= stateNum <= TRANSPORT:
+            return
+        for agent in self.selectedAgents:
+            if agent.checkLeadAgent(agent, stateNum):
+                agent.setState(State.numToState(stateNum, agent))
+        self.setSelectedSitesCommand(self.setStateCommand, stateNum, None)
+
+    @staticmethod
+    def setStateCommand(agent, state):
+        if agent.checkLeadAgent(agent, state):
+            agent.setState(State.numToState(state, agent))
+
     def drawSelectRect(self, mousePos):
         if self.selectRectCorner[0] < mousePos[0]:
             left = self.selectRectCorner[0]
@@ -500,15 +518,18 @@ class Controls:
             agent.addToKnownSites(sitesUnderMouse[0])
             agent.assignSite(sitesUnderMouse[0])
 
-    def setSelectedSitesCommand(self, command, mousePos, marker):
+    def setSelectedSitesCommand(self, command, arg, marker):
         if self.shouldCommandSiteAgents:
             for site in self.selectedSites:
-                if mousePos is not None:
-                    pos = [int(mousePos[0]), int(mousePos[1])]
-                    self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s command point to " + str(pos))
+                if arg is not None:
+                    try:
+                        pos = [int(arg[0]), int(arg[1])]
+                        self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s command point to " + str(pos))
+                    except TypeError:
+                        self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s command to " + STATES_LIST[arg])
                 else:
                     self.addToExecutedEvents("Removed site at " + str(site.getPosition()) + "'s command")
-                site.setCommand(command, mousePos, marker)
+                site.setCommand(command, arg, marker)
 
     def assignSelectedAgents(self, mousePos):
         sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
