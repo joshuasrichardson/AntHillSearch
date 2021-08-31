@@ -379,6 +379,16 @@ be more to come).
   toward the indicated site until they get there. When they arrive, 
   they transition into the At Nest state.</p>
 
+- <strong>Set Agent State</strong> - <code>ALT</code> + <code>0-6</code>:
+  <p>Users can set the state of an agent by holding down the <code>ALT</code> 
+  key and pressing a number corresponding with the state. When <code>ALT</code>
+  is held down, the numbers corresponding to the states appear on the screen. 
+  Note that if states are dependent on other agents being in a certain state
+  and no other agents are in that certain state, then this command will not
+  actually do anything. For example, if the user commands agents to enter the
+  FOLLOW state, but there are no agents in a recruiting state, then the agent
+  will stay in the same state it was in before the command was executed.</p>
+
 - <strong>Create Agent</strong> - <code>x</code>:
   <p>Users can create new agents during the simulation by pressing
   the <code>x</code> key. A new agent will appear where the mouse is

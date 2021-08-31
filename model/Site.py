@@ -154,8 +154,5 @@ class Site:
     def executeCommand(self, agent):
         if self.command is None:
             return False
-        try:
-            self.command(agent, self.commandArg(agent))
-        except:
-            self.command(agent, self.commandArg)
+        self.command(agent, self.commandArg)
         return True

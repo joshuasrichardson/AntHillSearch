@@ -209,6 +209,10 @@ class Agent:
             self.knownSites.remove(site)
             self.knownSitesPositions.pop(index)
 
+    def removeKnownSite2(self, index):
+        """ Removes the known position of a site. """
+        self.knownSitesPositions.pop(index)
+
     def assignSite(self, site):
         """ Sets the site the agent will be assessing or recruiting to """
         if self.assignedSite is not None:

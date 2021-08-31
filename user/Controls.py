@@ -6,8 +6,7 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, GO, \
-    FOLLOW, LEAD_FORWARD, TRANSPORT, CARRIED, REVERSE_TANDEM, STATES_LIST
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, TRANSPORT, STATES_LIST
 from display import Display
 from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
@@ -159,6 +158,7 @@ class Controls:
                 elif event.unicode.isnumeric():
                     self.unselectAll()
                     self.selectAgentGroup(key)
+        self.graphs.shouldDrawStateNumbers = pygame.key.get_mods() & KMOD_ALT and len(self.selectedAgents) > 0
         if self.paused:
             self.draw()
             if event.type == KEYDOWN and event.key == K_o:
@@ -372,7 +372,7 @@ class Controls:
         for agent in self.selectedAgents:
             if agent.checkLeadAgent(agent, stateNum):
                 agent.setState(State.numToState(stateNum, agent))
-        self.setSelectedSitesCommand(self.setStateCommand, stateNum, None)
+        self.setSelectedSitesCommand(self.setStateCommand, stateNum, stateNum)
 
     @staticmethod
     def setStateCommand(agent, state):

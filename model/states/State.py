@@ -60,7 +60,10 @@ class State(ABC):
             atOldSitePos = rect.collidepoint(pos[0], pos[1])
             siteIndex = rect.collidelist(knownSiteRects)
             if atOldSitePos and siteIndex != i:
-                self.agent.removeKnownSite(self.agent.knownSites[siteIndex])
+                try:
+                    self.agent.removeKnownSite(self.agent.knownSites[siteIndex])
+                except IndexError:
+                    self.agent.removeKnownSite2(siteIndex)
                 break
 
     def executeCommand(self):

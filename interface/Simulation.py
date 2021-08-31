@@ -124,6 +124,7 @@ class Simulation(ABC):
         self.graphs.drawExecutedCommands()
         self.graphs.drawRemainingTime()
         self.graphs.drawPauseButton()
+        self.graphs.drawStateNumbers()
 
     def setNextRound(self):
         pass
