@@ -10,7 +10,7 @@ class TransportState(RecruitState):
         super().__init__(agent)
         self.state = TRANSPORT
 
-    def arriveAtSite(self):
+    def arriveAtSite(self, numNeighbors):
         if self.agent.shouldKeepTransporting():
             self.agent.transportOrReverseTandem(self)
         else:

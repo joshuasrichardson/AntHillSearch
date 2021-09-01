@@ -1,7 +1,7 @@
 import numpy as np
 from pygame.rect import Rect
 
-from Constants import INITIAL_BLUR
+from Constants import INITIAL_BLUR, GO_NAME
 
 
 class Site:
@@ -24,6 +24,7 @@ class Site:
         self.command = None  # The command that is executed on agents when they arrive at the site
         self.commandArg = None  # The position of the command (for commands like go)
         self.marker = None  # A marker to be drawn on the screen representing the command
+        self.markerName = None  # A way to identify which marker the site has for a recording
 
         self.estimatedPosition = None  # The average position of where agents think the site is located
         self.estimatedQuality = None  # The average quality of what agents think it is
@@ -146,10 +147,11 @@ class Site:
     def unselect(self):
         self.isSelected = False
 
-    def setCommand(self, command, arg, marker):
+    def setCommand(self, command, arg, marker, markerName):
         self.command = command
         self.commandArg = arg
         self.marker = marker
+        self.markerName = markerName
 
     def executeCommand(self, agent):
         if self.command is None:

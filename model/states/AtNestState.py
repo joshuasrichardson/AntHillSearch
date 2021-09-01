@@ -1,7 +1,6 @@
 import numpy as np
 
 from Constants import *
-from display import Display
 from model.phases.CanvasPhase import CanvasPhase
 from model.phases.CommitPhase import CommitPhase
 from model.phases.ExplorePhase import ExplorePhase
@@ -29,7 +28,7 @@ class AtNestState(State):
 
         if self.agent.getPhaseNumber() == ASSESS:
             if self.agent.isDoneAssessing():
-                self.acceptOrReject()
+                self.acceptOrReject(len(neighborList))
                 return
 
         if self.agent.getPhaseNumber() == CANVAS:
@@ -38,6 +37,8 @@ class AtNestState(State):
                 return
 
         if self.agent.getPhaseNumber() == COMMIT:
+            if self.agent.tryConverging():
+                return
             # Recruit, search, or follow
             if self.agent.shouldRecruit():
                 self.agent.transportOrReverseTandem(self)
@@ -72,10 +73,10 @@ class AtNestState(State):
             self.agent.leadAgent.incrementFollowers()
             self.setState(FollowState(self.agent), self.agent.leadAgent.getPosition())
 
-    def acceptOrReject(self):
+    def acceptOrReject(self, numNeighbors):
         # If they determine the site is good enough after they've been there long enough,
         if self.agent.estimatedQuality > MIN_ACCEPT_VALUE:
-            if self.agent.quorumMet():
+            if self.agent.quorumMet(numNeighbors):
                 # enough agents are already at the site, so they skip canvasing and go straight to the committed phase
                 self.agent.setPhase(CommitPhase())
                 self.agent.transportOrReverseTandem(self)
@@ -89,7 +90,6 @@ class AtNestState(State):
             from model.states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
 
-    # TODO: If I keep this, I need to remove the repetition with SearchState
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:
             self.agent.leadAgent = transporter

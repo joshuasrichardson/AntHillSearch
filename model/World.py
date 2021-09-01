@@ -61,7 +61,8 @@ class World:
 
     def tooCloseToOtherHubs(self, nextPos):
         for pos in self.hubLocations:
-            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST and abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST + (SITE_RADIUS * 2):
+            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST * 1.5 and \
+                    abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST * 1.5:
                 return True
         return False
 
@@ -214,6 +215,7 @@ class World:
             self.states[REVERSE_TANDEM] = self.request.numReverseTandem
             self.states[TRANSPORT] = self.request.numTransport
             self.states[GO] = self.request.numGo
+            self.states[CONVERGED] = self.request.numConverged
 
             self.phases[EXPLORE] = self.request.numExplore
             self.phases[ASSESS] = self.request.numAssess

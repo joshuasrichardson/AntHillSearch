@@ -1,4 +1,5 @@
 import json
+import numbers
 
 from model.phases import Phase
 from model.states import State
@@ -17,6 +18,9 @@ class Recorder:
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
+        self.siteMarkerNames = []
+        self.siteMarkerArgs = []
+        self.siteMarkerNums = []
         self.time = 0
         self.shouldDrawGraphs = False
         self.executedCommands = []
@@ -32,6 +36,7 @@ class Recorder:
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
+        self.currentMarkerIndex = -1
 
         self.dataIndex = -1
 
@@ -61,6 +66,7 @@ class Recorder:
         self.recordSitePosition(site.getPosition())
         self.recordSiteQuality(site.getQuality())
         self.recordSiteRadius(site.radius)
+        self.recordSiteMarker(site.markerName, site.commandArg, site.marker)
 
     def recordSitePosition(self, pos):
         self.sitePositions.append(pos)
@@ -70,6 +76,14 @@ class Recorder:
 
     def recordSiteRadius(self, radius):
         self.siteRadii.append(radius)
+
+    def recordSiteMarker(self, markerName, arg, num):
+        self.siteMarkerNames.append(markerName)
+        self.siteMarkerArgs.append(arg)
+        if isinstance(num, numbers.Number):
+            self.siteMarkerNums.append(num)
+        else:
+            self.siteMarkerNums.append(-1)
 
     def recordTime(self, time):
         self.time = time
@@ -95,6 +109,9 @@ class Recorder:
                           'sitePositions': self.sitePositions,
                           'siteQualities': self.siteQualities,
                           'siteRadii': self.siteRadii,
+                          'siteMarkerNames': self.siteMarkerNames,
+                          'siteMarkerArgs': self.siteMarkerArgs,
+                          'siteMarkerNums': self.siteMarkerNums,
                           'time': self.time,
                           'shouldDrawGraphs': self.shouldDrawGraphs,
                           'executedCommands': self.executedCommands,
@@ -107,6 +124,9 @@ class Recorder:
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
+        self.siteMarkerNames = []
+        self.siteMarkerArgs = []
+        self.siteMarkerNums = []
 
     def write(self):
         with open('recording/recording.json', 'w') as file:
@@ -158,6 +178,11 @@ class Recorder:
         self.currentRadiusIndex += 1
         return self.siteRadii[self.currentRadiusIndex]
 
+    def getNextSiteMarker(self):
+        self.currentMarkerIndex += 1
+        return [self.siteMarkerNames[self.currentMarkerIndex], self.siteMarkerArgs[self.currentMarkerIndex],
+                self.siteMarkerNums[self.currentMarkerIndex]]
+
     def getNextTime(self):
         return self.time
 
@@ -193,6 +218,7 @@ class Recorder:
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
+        self.currentMarkerIndex = -1
 
         if len(self.data) > self.dataIndex:
             self.agentPositions = self.data[self.dataIndex]['agentPositions']
@@ -203,6 +229,9 @@ class Recorder:
             self.sitePositions = self.data[self.dataIndex]['sitePositions']
             self.siteQualities = self.data[self.dataIndex]['siteQualities']
             self.siteRadii = self.data[self.dataIndex]['siteRadii']
+            self.siteMarkerNames = self.data[self.dataIndex]['siteMarkerNames']
+            self.siteMarkerArgs = self.data[self.dataIndex]['siteMarkerArgs']
+            self.siteMarkerNums = self.data[self.dataIndex]['siteMarkerNums']
             self.time = self.data[self.dataIndex]['time']
             self.shouldDrawGraphs = self.data[self.dataIndex]['shouldDrawGraphs']
             self.executedCommands = self.data[self.dataIndex]['executedCommands']

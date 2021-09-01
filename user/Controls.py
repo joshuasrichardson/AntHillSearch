@@ -6,7 +6,8 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, TRANSPORT, STATES_LIST
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, \
+    TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, SET_STATE_NAME, GO_NAME
 from display import Display
 from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
@@ -133,7 +134,7 @@ class Controls:
             elif key == K_DELETE or key == K_SLASH:
                 self.delete()
             elif key == K_PERIOD:
-                self.setSelectedSitesCommand(None, None, None)
+                self.setSelectedSitesCommand(None, None, None, NO_MARKER_NAME)
             elif key == K_g:
                 self.graphs.shouldDrawGraphs = not self.graphs.shouldDrawGraphs
             elif key == K_ESCAPE:
@@ -184,7 +185,7 @@ class Controls:
     def moveScreen(self):
         if not pygame.key.get_mods() & pygame.KMOD_CAPS:
             mousePos = pygame.mouse.get_pos()
-            if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -MAX_SEARCH_DIST:
+            if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -MAX_SEARCH_DIST + Display.origWidth - Display.newWidth:
                 Display.displacementX -= 25
                 Display.addToDrawLast(Display.drawRightArrow, mousePos, COMMIT_COLOR, False)
             if mousePos[1] <= 3 and Display.displacementY <= MAX_SEARCH_DIST:
@@ -193,7 +194,7 @@ class Controls:
             if mousePos[0] <= 3 and Display.displacementX <= MAX_SEARCH_DIST:
                 Display.displacementX += 25
                 Display.addToDrawLast(Display.drawLeftArrow, mousePos, COMMIT_COLOR, False)
-            if mousePos[1] >= Display.screen.get_height() - 30 and Display.displacementY >= -MAX_SEARCH_DIST:
+            if mousePos[1] >= Display.screen.get_height() - 30 and Display.displacementY >= -MAX_SEARCH_DIST + Display.origHeight - Display.newHeight:
                 Display.displacementY -= 25
                 Display.addToDrawLast(Display.drawDownArrow, mousePos, COMMIT_COLOR, False)
         if self.paused:
@@ -372,7 +373,7 @@ class Controls:
         for agent in self.selectedAgents:
             if agent.checkLeadAgent(agent, stateNum):
                 agent.setState(State.numToState(stateNum, agent))
-        self.setSelectedSitesCommand(self.setStateCommand, stateNum, stateNum)
+        self.setSelectedSitesCommand(self.setStateCommand, stateNum, stateNum, SET_STATE_NAME)
 
     @staticmethod
     def setStateCommand(agent, state):
@@ -501,7 +502,7 @@ class Controls:
             pos = [int(mousePos[0]), int(mousePos[1])]
             self.addToExecutedEvents("Sent " + str(len(self.selectedAgents)) + " agents to " + str(pos))
         marker = getDestinationMarker(mousePos)
-        self.setSelectedSitesCommand(self.goCommand, list(mousePos), marker)
+        self.setSelectedSitesCommand(self.goCommand, list(mousePos), marker, GO_NAME)
         for a in self.selectedAgents:
             self.goCommand(a, mousePos)
 
@@ -518,7 +519,7 @@ class Controls:
             agent.addToKnownSites(sitesUnderMouse[0])
             agent.assignSite(sitesUnderMouse[0])
 
-    def setSelectedSitesCommand(self, command, arg, marker):
+    def setSelectedSitesCommand(self, command, arg, marker, markerName):
         if self.shouldCommandSiteAgents:
             for site in self.selectedSites:
                 if arg is not None:
@@ -529,7 +530,19 @@ class Controls:
                         self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s command to " + STATES_LIST[arg])
                 else:
                     self.addToExecutedEvents("Removed site at " + str(site.getPosition()) + "'s command")
-                site.setCommand(command, arg, marker)
+                site.setCommand(command, arg, marker, markerName)
+
+    def setSiteCommand(self, site, markerNameArgNum):
+        markerName, arg, stateNum = markerNameArgNum
+        if markerName != site.markerName:
+            if markerName == NO_MARKER_NAME:
+                site.setCommand(None, None, None, markerName)
+            elif markerName == GO_NAME:
+                site.setCommand(self.goCommand, arg, getDestinationMarker(arg), markerName)
+            elif markerName == ASSIGN_NAME:
+                site.setCommand(self.assignCommand, arg, getAssignmentMarker(arg), markerName)
+            elif markerName == SET_STATE_NAME:
+                site.setCommand(self.setStateCommand, arg, stateNum, markerName)
 
     def assignSelectedAgents(self, mousePos):
         sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
@@ -540,7 +553,7 @@ class Controls:
                 a.addToKnownSites(sitesUnderMouse[0])
                 a.assignSite(sitesUnderMouse[0])
         marker = getAssignmentMarker(mousePos)
-        self.setSelectedSitesCommand(self.assignCommand, list(mousePos), marker)
+        self.setSelectedSitesCommand(self.assignCommand, list(mousePos), marker, ASSIGN_NAME)
 
     def speedUp(self):
         self.addToExecutedEvents("Sped Agents up")

@@ -9,7 +9,7 @@ SIM_DURATION = 120  # Time of the interface in seconds
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
 
-NUM_HUBS = 4
+NUM_HUBS = 3
 HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
@@ -79,6 +79,12 @@ SHOULD_DRAW_FOG = True
 # Does not affect interface besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
 #                             The others all build off of that depending on what is being displayed.
+
+""" Site marker names """
+GO_NAME = "Go"
+ASSIGN_NAME = "Assign"
+SET_STATE_NAME = "SetState"
+NO_MARKER_NAME = "None"
 
 """ Agent parameters """
 AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
@@ -156,7 +162,7 @@ LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruit
 # The lower this value is, the lower the quality of nests that agents accept can be initially; however, it doesn't make much of a difference in the long run, because agents move from lower-ranked sites to higher-ranked sites either way.
 MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents to accept it
 # The lower this size is, the earlier agents switch over to the committed phase, making other agents come to their site easier.
-QUORUM_DIVIDEND = 2  # The minimum number of agents that need to be at a site before agents will commit to it
+QUORUM_DIVIDEND = 5  # The minimum number of agents that need to be at a site before agents will commit to it
 
 """ States and their colors """
 AT_NEST = 0            # Rest agent state
@@ -183,9 +189,12 @@ TRANSPORT_COLOR = 0, 255, 0  # Green
 GO = 7
 GO_COLOR = 0, 255, 255  # Cyan
 
-NUM_POSSIBLE_STATES = 8
-STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR]
-STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO']
+CONVERGED = 8
+CONVERGED_COLOR = 255, 105, 180
+
+NUM_POSSIBLE_STATES = 9
+STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR, CONVERGED_COLOR]
+STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO', 'CONVERGED']
 
 """ Phases and their colors """
 EXPLORE = 0

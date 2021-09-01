@@ -32,6 +32,7 @@ class Agent:
         self.decisiveness = decisiveness  # Influences how quickly an agent can assess
         self.navigationSkills = navSkills  # Influences how likely an agent is to get lost
         self.estimationAccuracy = estAccuracy  # How far off an agent's estimate of the quality of a site will be on average.
+        # self.laziness = laziness  # How unwilling the agent is to change sites, even if the new site is better.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
@@ -277,9 +278,16 @@ class Agent:
                 agent.leadAgent = leadAgent
         return True
 
-    def quorumMet(self):
+    def quorumMet(self, numNeighbors):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
-        return self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND  # TODO: Base this off of the number of agents at the site
+        return numNeighbors > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND
+
+    def tryConverging(self):
+        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * CONVERGENCE_FRACTION:
+            from model.states.ConvergedState import ConvergedState
+            self.state.setState(ConvergedState(self), self.getAssignedSitePosition())
+            return True
+        return False
 
     def shouldSearch(self, siteWithinRange):
         """ Returns whether the agent is ready to go out searching the area """

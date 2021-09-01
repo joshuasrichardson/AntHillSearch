@@ -11,7 +11,7 @@ class ReverseTandemState(RecruitState):
         super().__init__(agent)
         self.state = REVERSE_TANDEM
 
-    def arriveAtSite(self):
+    def arriveAtSite(self, numNeighbors):
         self.setState(TransportState(self.agent), self.agent.getAssignedSitePosition())
 
     def toString(self):

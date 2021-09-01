@@ -74,6 +74,7 @@ class RecordingPlayer(Simulation):
             newPositions.append(pos)
             quality = self.recorder.getNextSiteQuality()
             rad = self.recorder.getNextSiteRadius()
+            marker = self.recorder.getNextSiteMarker()
 
             try:
                 self.world.siteList[i].setPosition(pos)
@@ -81,6 +82,7 @@ class RecordingPlayer(Simulation):
                 self.world.siteList[i].radius = rad
                 self.world.siteList[i].setColor(quality)
                 self.world.siteRectList[i] = self.world.siteList[i].getSiteRect()
+                self.userControls.setSiteCommand(self.world.siteList[i], marker)
             except IndexError:
                 print("Creating site: " + str(pos))
                 self.world.createSite(pos[0], pos[1], rad, quality, NUM_HUBS)
