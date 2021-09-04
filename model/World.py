@@ -47,7 +47,7 @@ class World:
             while self.tooCloseToOtherHubs(nextPos):
                 nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
                 tries += 1
-                if tries > 100:
+                if tries > 200:
                     raise ColonyExceptions.InputError("The hub boundaries are too small for the search distance. "
                                                       "Either Increase the difference between (HUB_MAX_X and HUB_MIN_X) "
                                                       "and (HUB_MAX_Y and HUB_MIN_Y) or decrease the MAX_SEARCH_DIST. "
@@ -61,7 +61,8 @@ class World:
 
     def tooCloseToOtherHubs(self, nextPos):
         for pos in self.hubLocations:
-            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST and abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST + (SITE_RADIUS * 2):
+            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST * 1.5 and \
+                    abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST * 1.5:
                 return True
         return False
 
@@ -214,6 +215,7 @@ class World:
             self.states[REVERSE_TANDEM] = self.request.numReverseTandem
             self.states[TRANSPORT] = self.request.numTransport
             self.states[GO] = self.request.numGo
+            self.states[CONVERGED] = self.request.numConverged
 
             self.phases[EXPLORE] = self.request.numExplore
             self.phases[ASSESS] = self.request.numAssess
@@ -246,3 +248,14 @@ class World:
                 minDist = hubDist
                 closestHub = hub
         return closestHub
+
+    def getClosestAgentWithState(self, pos, stateNums):
+        minDist = 100000
+        closestAgent = None
+        for agent in self.agentList:
+            if stateNums.__contains__(agent.getState()):
+                dist = np.sqrt(np.square(pos[0] - agent.getPosition()[0]) + np.square(pos[1] - agent.getPosition()[1]))
+                if dist < minDist:
+                    minDist = dist
+                    closestAgent = agent
+        return closestAgent

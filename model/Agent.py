@@ -19,7 +19,7 @@ class Agent:
         self.hub = startingAssignment
 
         self.prevPos = list(startingPosition)  # Initial position
-        self.pos = list(startingPosition)  # Initial position
+        self.pos = [startingPosition[0] + np.random.choice([-1, 1]), startingPosition[1] + np.random.choice([-1, 1])]   # Initial position
         self.path = []  # A list of the positions the agent has recently come from
         self.agentHandle = getAgentImage(self.pos)  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
@@ -32,12 +32,12 @@ class Agent:
         self.decisiveness = decisiveness  # Influences how quickly an agent can assess
         self.navigationSkills = navSkills  # Influences how likely an agent is to get lost
         self.estimationAccuracy = estAccuracy  # How far off an agent's estimate of the quality of a site will be on average.
+        # self.laziness = laziness  # How unwilling the agent is to change sites, even if the new site is better.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.target = list(startingPosition)  # The position the agent is going to
-        self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
-        self.angularVelocity = 0  # Speed the agent is changing direction
+        self.angle = np.random.uniform(0, np.pi, 1)  # Angle the agent is moving
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
@@ -161,19 +161,23 @@ class Agent:
     def incrementFollowers(self):
         self.numFollowers += 1
 
+    def isCloseToASite(self):
+        """ Returns whether the agent is next to a site or not """
+        for site in self.world.siteList:
+            if self.isClose(site.getPosition(), site.radius * 2):
+                return True
+        return False
+
     def isClose(self, position, distance):
         """ Returns a boolean representing whether the agent is within the specified distance of the specified position """
-        from math import isclose
-        closeX = isclose(self.pos[0], position[0], abs_tol=distance)
-        closeY = isclose(self.pos[1], position[1], abs_tol=distance)
-        return closeX and closeY
+        dist = np.sqrt(np.square(abs(self.pos[0] - position[0])) + np.square(abs(self.pos[1] - position[1])))
+        return dist <= distance
 
     def isTooFarAway(self, site):
         """ Returns a boolean representing whether the agent is outside their searching area """
-        from math import isclose
-        tooFarX = not isclose(self.pos[0], site.getPosition()[0], abs_tol=AgentSettings.maxSearchDistance)
-        tooFarY = not isclose(self.pos[1], site.getPosition()[1], abs_tol=AgentSettings.maxSearchDistance)
-        return tooFarX or tooFarY
+        # a ^ 2 + b ^ 2 = c ^ 2
+        dist = np.sqrt(np.square(abs(self.pos[0] - site.getPosition()[0])) + np.square(abs(self.pos[1] - site.getPosition()[1])))
+        return dist > AgentSettings.maxSearchDistance
 
     def estimateQuality(self, site):
         """ Returns an estimate of a site quality that is within estimationAccuracy units from the actual quality """
@@ -208,6 +212,10 @@ class Agent:
             index = self.knownSites.index(site)
             self.knownSites.remove(site)
             self.knownSitesPositions.pop(index)
+
+    def removeKnownSite2(self, index):
+        """ Removes the known position of a site. """
+        self.knownSitesPositions.pop(index)
 
     def assignSite(self, site):
         """ Sets the site the agent will be assessing or recruiting to """
@@ -257,9 +265,32 @@ class Agent:
     def getHubIndex(self):
         return self.world.getHubs().index(self.getHub())
 
-    def quorumMet(self):
+    @staticmethod
+    def checkLeadAgent(agent, stateNum):
+        if stateNum == FOLLOW:
+            leadAgent = agent.world.getClosestAgentWithState(agent.getPosition(), [REVERSE_TANDEM, LEAD_FORWARD, TRANSPORT])
+            if leadAgent is None:
+                return False
+            else:
+                agent.leadAgent = leadAgent
+        elif stateNum == CARRIED:
+            leadAgent = agent.world.getClosestAgentWithState(agent.getPosition(), [TRANSPORT])
+            if leadAgent is None:
+                return False
+            else:
+                agent.leadAgent = leadAgent
+        return True
+
+    def quorumMet(self, numNeighbors):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
-        return self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND  # TODO: Base this off of the number of agents at the site
+        return numNeighbors > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND
+
+    def tryConverging(self):
+        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * CONVERGENCE_FRACTION:
+            from model.states.ConvergedState import ConvergedState
+            self.state.setState(ConvergedState(self), self.getAssignedSitePosition())
+            return True
+        return False
 
     def shouldSearch(self, siteWithinRange):
         """ Returns whether the agent is ready to go out searching the area """

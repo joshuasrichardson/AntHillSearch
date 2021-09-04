@@ -24,8 +24,9 @@ class RecordingPlayer(Simulation):
                         siteRadii):
         self.recorder.read()
         self.initHubsAgentCounts()
-        world = World(numHubs, numSites, hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
+        world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
                       siteQualities, siteRadii)
+        self.timer.simulationDuration = self.recorder.getNextTime()
 
         return world
 
@@ -34,7 +35,7 @@ class RecordingPlayer(Simulation):
         for i in range(self.recorder.getNumHubs()):
             self.hubAgentCounts.append(0)
         for i in assignmentIndices:
-            self.hubAgentCounts[i] = self.hubAgentCounts[i] + 1
+            self.hubAgentCounts[i] += 1
 
     def runNextRound(self):
         self.userControls.handleEvents()
@@ -67,6 +68,9 @@ class RecordingPlayer(Simulation):
         if not self.recorder.setNextRound():
             raise GameOver("The recording has ended.")
 
+    def checkIfSimulationEnded(self):
+        pass
+
     def updateSites(self):
         newPositions = []
         for i in range(0, self.recorder.getNumSites()):
@@ -74,6 +78,7 @@ class RecordingPlayer(Simulation):
             newPositions.append(pos)
             quality = self.recorder.getNextSiteQuality()
             rad = self.recorder.getNextSiteRadius()
+            marker = self.recorder.getNextSiteMarker()
 
             try:
                 self.world.siteList[i].setPosition(pos)
@@ -81,9 +86,10 @@ class RecordingPlayer(Simulation):
                 self.world.siteList[i].radius = rad
                 self.world.siteList[i].setColor(quality)
                 self.world.siteRectList[i] = self.world.siteList[i].getSiteRect()
+                self.userControls.setSiteCommand(self.world.siteList[i], marker)
             except IndexError:
                 print("Creating site: " + str(pos))
-                self.world.createSite(pos[0], pos[1], rad, quality, NUM_HUBS)
+                self.world.createSite(pos[0], pos[1], rad, quality, len(self.world.getHubs()))
         for site in self.world.siteList:
             if not newPositions.__contains__(site.getPosition()):
                 print("Removing site: " + str(site.getPosition()))
@@ -108,10 +114,13 @@ class RecordingPlayer(Simulation):
             siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
             agent.assignSite(siteToAssign)
         except IndexError:
-            self.world.removeAgent(agent)  # FIXME: When agents are deleted, this messes things up
+            self.world.removeAgent(agent)
 
     def changeDelay(self, seconds):
         self.delay += seconds
+
+    def getRemainingTime(self):
+        return self.timer.simulationDuration - self.recorder.getNextTime()
 
     def getScreen(self):
         return Display.createScreen()

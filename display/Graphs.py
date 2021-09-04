@@ -23,7 +23,7 @@ class SimulationGraphs:
         self.y = GRAPHS_TOP_LEFT[1]
         self.y2 = Display.screen.get_height() - 100
         self.commandHistBox = pygame.draw.rect(Display.screen, BORDER_COLOR,
-                                               pygame.Rect(self.x - 5, self.y2, self.x2 - 29, 50), 1)
+                                               pygame.Rect(self.x - 5, self.y2, self.x1 + (FONT_SIZE * 20), 50), 1)
         self.pauseButton = pygame.draw.rect(Display.screen, BORDER_COLOR,
                                             pygame.Rect(Display.screen.get_width() - 60, self.y, 20, 20), 1)
 
@@ -38,6 +38,7 @@ class SimulationGraphs:
         self.screenBorder = None
 
         self.shouldDrawGraphs = True
+        self.shouldDrawStateNumbers = False
 
     def incrementY(self):
         self.y += FONT_SIZE
@@ -184,6 +185,16 @@ class SimulationGraphs:
         else:
             return BORDER_COLOR
 
+    def drawStateNumbers(self):
+        if self.shouldDrawStateNumbers:
+            pos = list(pygame.mouse.get_pos())
+            for i, state in enumerate(STATES_LIST):
+                if i == GO:
+                    break
+                img = self.font.render(str(i) + ": " + state, True, WORDS_COLOR).convert_alpha()
+                Display.screen.blit(img, pos)
+                pos[1] += FONT_SIZE
+
     def nextScreen(self):
         self.pageNumber = 1
 
@@ -218,19 +229,20 @@ class SimulationGraphs:
             Display.screen.blit(prevImg, self.previousButton.topleft)
 
     def drawOptionsPage0(self, left, top, height, leftMargin, x):
-        agentOptions = ['Select Agent',
+        agentOptions = ['Select',
                         'Wide Select',
-                        'Set Agent Group',
-                        'Select Agent Group',
+                        'Set Group',
+                        'Select Group',
                         'Half',
-                        'Next Agent',
-                        'Previous Agent',
+                        'Next',
+                        'Previous',
                         'Speed Up',
                         'Slow Down',
-                        'Move Agent',
-                        'Assign Agent to Site',
-                        'Create Agent',
-                        'Delete Agent',
+                        'Move',
+                        'Assign to Site',
+                        'Set State',
+                        'Create',
+                        'Delete',
                         'Unselect']
 
         agentOptionButtons = ['- LEFT CLICK',
@@ -244,26 +256,28 @@ class SimulationGraphs:
                               '- S',
                               '- SPACE or RIGHT CLICK',
                               '- A',
+                              '- ALT + 0-6',
                               '- X',
                               '- DEL or /',
                               '- ESC']
 
         longerListSize = len(agentOptions)
 
-        siteOptions = ['Select Site',
+        siteOptions = ['Select',
                        'Wide Select',
-                       'Next Site',
-                       'Previous Site',
-                       'Move Site',
+                       'Next',
+                       'Previous',
+                       'Move',
                        'Set Quality',
                        'Raise Quality',
                        'Lower Quality',
-                       'Expand Site',
-                       'Shrink Site',
-                       'Create Site',
-                       'Delete Site',
+                       'Expand',
+                       'Shrink',
+                       'Create',
+                       'Delete',
                        'Set Go Point',
                        'Set Assign Site',
+                       'Set Agents State',
                        'Remove Command',
                        'Unselect']
 
@@ -281,6 +295,7 @@ class SimulationGraphs:
                              '- DEL or /',
                              '- SPACE or RIGHT CLICK',
                              '- A',
+                             '- ALT + 0-6',
                              '- .',
                              '- ESC']
 

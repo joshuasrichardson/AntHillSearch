@@ -62,6 +62,15 @@ by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R.
 Franks. The model in this program is based mostly on the model represented in the 
 "Structure of the Model" section of this paper.
 
+Another useful paper about this topic is found at 
+["Nest Site Choices in Social Insects"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/B9780128096338012620?via%3Dihub) 
+I did not find this one till after the model was implemented,
+but it had useful information about when the ants decide to 
+switch from the Canvas phase to the Commit phase.
+It also contains a paragraph about factors that make a site good.
+We could implement these in the future, but for now, it is represented
+by a number.
+
 In addition to the states and phases described above, many options for 
 user interaction have been added. See the "Parameters" section for 
 details about how to change the simulation's set up. See the "Controls"
@@ -378,6 +387,16 @@ be more to come).
   <code>a</code> key. All selected agents then keep moving
   toward the indicated site until they get there. When they arrive, 
   they transition into the At Nest state.</p>
+
+- <strong>Set Agent State</strong> - <code>ALT</code> + <code>0-6</code>:
+  <p>Users can set the state of an agent by holding down the <code>ALT</code> 
+  key and pressing a number corresponding with the state. When <code>ALT</code>
+  is held down, the numbers corresponding to the states appear on the screen. 
+  Note that if states are dependent on other agents being in a certain state
+  and no other agents are in that certain state, then this command will not
+  actually do anything. For example, if the user commands agents to enter the
+  FOLLOW state, but there are no agents in a recruiting state, then the agent
+  will stay in the same state it was in before the command was executed.</p>
 
 - <strong>Create Agent</strong> - <code>x</code>:
   <p>Users can create new agents during the simulation by pressing

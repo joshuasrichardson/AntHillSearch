@@ -16,7 +16,7 @@ class RecordingControls(Controls):
     def go(self, mousePos):
         pass
 
-    def setSelectedSitesCommand(self, command, mousePos, marker):
+    def setSelectedSitesCommand(self, command, arg, marker):
         pass
 
     def assignSelectedAgents(self, mousePos):

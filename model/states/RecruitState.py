@@ -42,7 +42,9 @@ class RecruitState(State):
             if self.arrivedAtOrPassedSite(self.agent.assignedSite.getPosition()):  # If they get to the assigned site
                 self.agent.numFollowers = 0
                 self.agent.comingWithFollowers = False
-                self.arriveAtSite()
+                if self.agent.tryConverging():
+                    return
+                self.arriveAtSite(len(neighborList))
             return
 
         if len(self.agent.knownSites) > 1:
@@ -53,7 +55,7 @@ class RecruitState(State):
             return
 
     @abstractmethod
-    def arriveAtSite(self):
+    def arriveAtSite(self, numNeighbors):
         pass
 
     def arrivedAtOrPassedSite(self, sitePos):

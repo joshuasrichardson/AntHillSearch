@@ -1,10 +1,9 @@
 """ Settings and methods related to the sites' display """
 import pygame
 
-from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES
+from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS
 from display import Display
-from display.Display import drawCircleLines, drawDashedLine, getBlurredImage
-
+from display.Display import drawCircleLines, drawDashedLine, getBlurredImage, drawCircle
 
 knowSitePosAtStart = DRAW_ESTIMATES  # Whether the user knows where the sites are at the start of the interface
 
@@ -39,10 +38,13 @@ def drawQuality(site):
 def drawMarker(site):
     """ Draw a marker on the screen representing the command that will be applied to agents that come to the site """
     if site.marker is not None:
-        # Draw a dashed line from the site to the marker
-        drawDashedLine(Display.screen, BORDER_COLOR, site.pos, site.marker[1].center)
-        # Draw the marker
-        Display.blitImage(Display.screen, site.marker[0], site.marker[1])
+        try:
+            # Draw a dashed line from the site to the marker
+            drawDashedLine(Display.screen, BORDER_COLOR, site.pos, site.marker[1].center)
+            # Draw the marker
+            Display.blitImage(Display.screen, site.marker[0], site.marker[1])
+        except TypeError:
+            drawCircle(Display.screen, STATE_COLORS[site.marker], site.getPosition(), site.radius + 5, width=2)
 
 
 def drawAssignmentMarker(site, fromPos, color):

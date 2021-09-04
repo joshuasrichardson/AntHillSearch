@@ -4,12 +4,12 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 120  # Time of the interface in seconds
+SIM_DURATION = 125  # Time of the interface in seconds
 
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
 
-NUM_HUBS = 4
+NUM_HUBS = 1
 HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
@@ -70,15 +70,21 @@ HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outsi
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
+SITE_NO_CLOSER_THAN = 120  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
+SITE_NO_FARTHER_THAN = 300  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 SHOULD_DRAW_FOG = True
 
 # Does not affect interface besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
 #                             The others all build off of that depending on what is being displayed.
+
+""" Site marker names """
+GO_NAME = "Go"
+ASSIGN_NAME = "Assign"
+SET_STATE_NAME = "SetState"
+NO_MARKER_NAME = "None"
 
 """ Agent parameters """
 AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
@@ -89,7 +95,7 @@ FIND_SITES_EASILY = False  # If True, agents will be able to go directly to thei
 #                                    If False, agents will have to search for their site again when it moves.
 # The smaller the max distance is, the faster the interface ends because agents never get too far away from the sites
 # (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
-MAX_SEARCH_DIST = 300  # The farthest an agent can get away from the hub while searching.
+MAX_SEARCH_DIST = SITE_NO_FARTHER_THAN  # The farthest an agent can get away from the hub while searching.
 HUB_MIN_X = 0  # The farthest left a hub can randomly be placed.
 HUB_MIN_Y = 0  # The farthest left a hub can randomly be placed.
 HUB_MAX_X = 1250  # The farthest right a hub can randomly be placed.
@@ -156,7 +162,7 @@ LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruit
 # The lower this value is, the lower the quality of nests that agents accept can be initially; however, it doesn't make much of a difference in the long run, because agents move from lower-ranked sites to higher-ranked sites either way.
 MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents to accept it
 # The lower this size is, the earlier agents switch over to the committed phase, making other agents come to their site easier.
-QUORUM_DIVIDEND = 2  # The minimum number of agents that need to be at a site before agents will commit to it
+QUORUM_DIVIDEND = 5  # The minimum number of agents that need to be at a site before agents will commit to it
 
 """ States and their colors """
 AT_NEST = 0            # Rest agent state
@@ -183,9 +189,12 @@ TRANSPORT_COLOR = 0, 255, 0  # Green
 GO = 7
 GO_COLOR = 0, 255, 255  # Cyan
 
-NUM_POSSIBLE_STATES = 8
-STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR]
-STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO']
+CONVERGED = 8
+CONVERGED_COLOR = 255, 105, 180
+
+NUM_POSSIBLE_STATES = 9
+STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR, CONVERGED_COLOR]
+STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO', 'CONVERGED']
 
 """ Phases and their colors """
 EXPLORE = 0

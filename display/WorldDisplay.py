@@ -1,7 +1,7 @@
 """ Methods related to the world's display """
 import pygame
 
-from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST, FOG_COLOR
+from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST, FOG_COLOR, NO_MARKER_NAME
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.SiteDisplay import drawEstimatedSite, drawSite
@@ -47,7 +47,7 @@ def drawMarkers(world):
         if agent.isSelected is not None:
             AgentDisplay.drawMarker(agent, Display.screen)
     for site in world.siteList:
-        if site.marker is not None:
+        if site.markerName is not NO_MARKER_NAME:
             SiteDisplay.drawMarker(site)
 
 

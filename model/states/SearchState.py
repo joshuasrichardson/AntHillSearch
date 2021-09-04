@@ -11,16 +11,21 @@ class SearchState(State):
     def __init__(self, agent):
         super().__init__(agent)
         self.state = SEARCH
+        self.collides = False
+        self.itersSinceLastCollide = 8
 
-    def move(self, state) -> None:
-        if state.state != SEARCH:
-            super().move(state)
+    def updateAngle(self, state) -> None:
+        if state != SEARCH:
+            super().updateAngle(state)
         else:
-            # If going from search to search, just update angle
-            self.agent.angularVelocity += np.random.normal(0, np.pi / 1000)
-            self.agent.setAngle(self.agent.angle + self.agent.angularVelocity)
+            self.itersSinceLastCollide += 1
+            if self.collides and self.itersSinceLastCollide > 8:  # Go straight unless they bump into an obstacle
+                self.agent.setAngle(np.random.uniform(0, 2 * np.pi, 1))
+                self.itersSinceLastCollide = 0
 
     def changeState(self, neighborList) -> None:
+        # Set whether they collided with another agent or not. If they are by a nest, they don't collide because they can go down into the nest, etc.
+        self.collides = len(neighborList) > 1 and not self.agent.isCloseToASite()
         self.setState(self, self.agent.target)
         self.agent.marker = None
 
@@ -31,9 +36,11 @@ class SearchState(State):
             if self.agent.estimateQuality(self.agent.world.siteList[self.agent.siteInRangeIndex]) > self.agent.estimatedQuality\
                     and self.agent.world.siteList[self.agent.siteInRangeIndex] is not self.agent.getHub():
                 self.agent.assignSite(self.agent.world.siteList[self.agent.siteInRangeIndex])
+                if self.agent.world.siteList[self.agent.siteInRangeIndex] is not self.agent.assignedSite\
+                        or self.agent.getPhaseNumber() == EXPLORE:
+                    self.agent.setPhase(AssessPhase())
                 from model.states.AtNestState import AtNestState
                 self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
-                self.agent.setPhase(AssessPhase())
         elif self.agent.shouldReturnToNest():
             from model.states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())

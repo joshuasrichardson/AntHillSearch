@@ -1,8 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-import display.Display
-from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED
+from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED, CONVERGED
 from display import Display
 
 
@@ -31,6 +30,9 @@ def numToState(num, agent):
     if num == GO:
         from model.states.GoState import GoState
         return GoState(agent)
+    if num == CONVERGED:
+        from model.states.ConvergedState import ConvergedState
+        return ConvergedState(agent)
 
 
 class State(ABC):
@@ -41,12 +43,11 @@ class State(ABC):
 
     def setState(self, state, target):
         self.agent.target = target
-        self.move(state)
+        self.updateAngle(state.state)
         self.agent.state = state
 
-    def move(self, state) -> None:
-        if state.state == SEARCH:  # If changing state to search from something else, set angle randomly
-            self.agent.angularVelocity = 0
+    def updateAngle(self, stateNum) -> None:
+        if stateNum == SEARCH:  # If changing state to search from something else, set angle randomly
             self.agent.setAngle(np.random.uniform(0, np.pi * 2, 1))
         else:  # Move toward target
             self.agent.setAngle(np.arctan2(self.agent.target[1] - self.agent.pos[1], self.agent.target[0] - self.agent.pos[0]))
@@ -61,7 +62,10 @@ class State(ABC):
             atOldSitePos = rect.collidepoint(pos[0], pos[1])
             siteIndex = rect.collidelist(knownSiteRects)
             if atOldSitePos and siteIndex != i:
-                self.agent.removeKnownSite(self.agent.knownSites[siteIndex])
+                try:
+                    self.agent.removeKnownSite(self.agent.knownSites[siteIndex])
+                except IndexError:
+                    self.agent.removeKnownSite2(siteIndex)
                 break
 
     def executeCommand(self):
