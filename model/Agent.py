@@ -37,8 +37,7 @@ class Agent:
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.target = list(startingPosition)  # The position the agent is going to
-        self.angle = np.arctan2(self.target[1] - self.pos[1], self.target[0] - self.pos[0])  # Angle the agent is moving
-        self.angularVelocity = 0  # Speed the agent is changing direction
+        self.angle = np.random.uniform(0, np.pi, 1)  # Angle the agent is moving
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
@@ -162,19 +161,23 @@ class Agent:
     def incrementFollowers(self):
         self.numFollowers += 1
 
+    def isCloseToASite(self):
+        """ Returns whether the agent is next to a site or not """
+        for site in self.world.siteList:
+            if self.isClose(site.getPosition(), site.radius * 2):
+                return True
+        return False
+
     def isClose(self, position, distance):
         """ Returns a boolean representing whether the agent is within the specified distance of the specified position """
-        from math import isclose
-        closeX = isclose(self.pos[0], position[0], abs_tol=distance)
-        closeY = isclose(self.pos[1], position[1], abs_tol=distance)
-        return closeX and closeY
+        dist = np.sqrt(np.square(abs(self.pos[0] - position[0])) + np.square(abs(self.pos[1] - position[1])))
+        return dist <= distance
 
     def isTooFarAway(self, site):
         """ Returns a boolean representing whether the agent is outside their searching area """
-        from math import isclose
-        tooFarX = not isclose(self.pos[0], site.getPosition()[0], abs_tol=AgentSettings.maxSearchDistance)
-        tooFarY = not isclose(self.pos[1], site.getPosition()[1], abs_tol=AgentSettings.maxSearchDistance)
-        return tooFarX or tooFarY
+        # a ^ 2 + b ^ 2 = c ^ 2
+        dist = np.sqrt(np.square(abs(self.pos[0] - site.getPosition()[0])) + np.square(abs(self.pos[1] - site.getPosition()[1])))
+        return dist > AgentSettings.maxSearchDistance
 
     def estimateQuality(self, site):
         """ Returns an estimate of a site quality that is within estimationAccuracy units from the actual quality """

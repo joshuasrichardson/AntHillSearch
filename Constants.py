@@ -4,12 +4,12 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 120  # Time of the interface in seconds
+SIM_DURATION = 125  # Time of the interface in seconds
 
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
 
-NUM_HUBS = 3
+NUM_HUBS = 1
 HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
@@ -70,9 +70,9 @@ HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outsi
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_CLOSER_THAN = 100  # How close to hub can a default site be?
+SITE_NO_CLOSER_THAN = 120  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
+SITE_NO_FARTHER_THAN = 300  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 SHOULD_DRAW_FOG = True
 
@@ -95,7 +95,7 @@ FIND_SITES_EASILY = False  # If True, agents will be able to go directly to thei
 #                                    If False, agents will have to search for their site again when it moves.
 # The smaller the max distance is, the faster the interface ends because agents never get too far away from the sites
 # (unless it is set too small, and they cannot get to sites other than the hub without being forced to turn around).
-MAX_SEARCH_DIST = 300  # The farthest an agent can get away from the hub while searching.
+MAX_SEARCH_DIST = SITE_NO_FARTHER_THAN  # The farthest an agent can get away from the hub while searching.
 HUB_MIN_X = 0  # The farthest left a hub can randomly be placed.
 HUB_MIN_Y = 0  # The farthest left a hub can randomly be placed.
 HUB_MAX_X = 1250  # The farthest right a hub can randomly be placed.

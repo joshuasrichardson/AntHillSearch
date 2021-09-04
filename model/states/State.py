@@ -43,12 +43,11 @@ class State(ABC):
 
     def setState(self, state, target):
         self.agent.target = target
-        self.move(state)
+        self.updateAngle(state.state)
         self.agent.state = state
 
-    def move(self, state) -> None:
-        if state.state == SEARCH:  # If changing state to search from something else, set angle randomly
-            self.agent.angularVelocity = 0
+    def updateAngle(self, stateNum) -> None:
+        if stateNum == SEARCH:  # If changing state to search from something else, set angle randomly
             self.agent.setAngle(np.random.uniform(0, np.pi * 2, 1))
         else:  # Move toward target
             self.agent.setAngle(np.arctan2(self.agent.target[1] - self.agent.pos[1], self.agent.target[0] - self.agent.pos[0]))

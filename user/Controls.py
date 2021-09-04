@@ -353,7 +353,7 @@ class Controls:
         agentGroup = self.world.getGroup(index)
         for agent in agentGroup:
             self.selectAgent2(agent)
-        if len(agentGroup) > 0:
+        if len(agentGroup) >= len(self.selectedAgents) > 0:
             if self.shouldSelectAgents:
                 self.selectedAgent.isTheSelected = True
             if self.shouldSelectAgentSites:

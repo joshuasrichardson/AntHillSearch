@@ -31,12 +31,12 @@ class AtNestState(State):
                 self.acceptOrReject(len(neighborList))
                 return
 
-        if self.agent.getPhaseNumber() == CANVAS:
+        elif self.agent.getPhaseNumber() == CANVAS:
             if self.agent.shouldRecruit():
                 self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
                 return
 
-        if self.agent.getPhaseNumber() == COMMIT:
+        elif self.agent.getPhaseNumber() == COMMIT:
             if self.agent.tryConverging():
                 return
             # Recruit, search, or follow
@@ -50,10 +50,7 @@ class AtNestState(State):
                     and self.agent.shouldFollow():
                 self.tryFollowing(neighborList[i])
                 return
-
-        # If an agent nearby is transporting, get carried by that agent.
-        for i in range(0, len(neighborList)):
-            if neighborList[i].getState() == TRANSPORT:
+            if neighborList[i].getState() == TRANSPORT:  # If an agent nearby is transporting, get carried by that agent.
                 self.getCarried(neighborList[i])
                 return
 

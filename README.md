@@ -62,6 +62,15 @@ by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R.
 Franks. The model in this program is based mostly on the model represented in the 
 "Structure of the Model" section of this paper.
 
+Another useful paper about this topic is found at 
+["Nest Site Choices in Social Insects"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/B9780128096338012620?via%3Dihub) 
+I did not find this one till after the model was implemented,
+but it had useful information about when the ants decide to 
+switch from the Canvas phase to the Commit phase.
+It also contains a paragraph about factors that make a site good.
+We could implement these in the future, but for now, it is represented
+by a number.
+
 In addition to the states and phases described above, many options for 
 user interaction have been added. See the "Parameters" section for 
 details about how to change the simulation's set up. See the "Controls"
