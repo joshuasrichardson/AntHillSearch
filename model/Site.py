@@ -1,7 +1,7 @@
 import numpy as np
 from pygame.rect import Rect
 
-from Constants import INITIAL_BLUR, GO_NAME
+from Constants import INITIAL_BLUR
 
 
 class Site:

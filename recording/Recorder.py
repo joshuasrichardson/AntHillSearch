@@ -135,6 +135,7 @@ class Recorder:
     def read(self):
         with open('recording/recording.json', 'r') as file:
             self.data = json.load(file)
+            self.time = self.data[0]['time']
 
     def getNextAgentPosition(self):
         self.currentAgentPosIndex += 1
@@ -237,5 +238,4 @@ class Recorder:
             self.executedCommands = self.data[self.dataIndex]['executedCommands']
             self.screenBorder = self.data[self.dataIndex]['screenBorder']
             return True
-        else:
-            return False
+        return False

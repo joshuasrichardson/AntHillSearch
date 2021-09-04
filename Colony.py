@@ -14,11 +14,10 @@ from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 
-# TODO: Have ants avoid sites that have ants from other colonies or that have dead ants around it.
-# TODO: Read articles about ants, especially how they find homes and make more realistic
-# TODO: Add rivers, cliffs, and stuff like that.
+# FIXME: Warning in Site.py
+# TODO: Have ants avoid sites that have ants from other colonies or that have dead ants around it?
+# TODO: Add rivers, cliffs, and stuff like that?
 # TODO: Think about how to display predictions
-# TODO: How can we differentiate between the permanent and temporary commands and show them differently?
 # TODO: Add more comments to net, recording, states, and user packages
 # TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls) to simplify it?
 
@@ -28,8 +27,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        # runSimWithInterface(EngineerInterface(numSites=11, numHubs=4))  # The interface that shows lots of information about the interface and gives lots of control over what happens
-        runSimWithInterface(UserInterface(numSites=3))  # The interface that only shows what is known from the hub and has limited control
+        runSimWithInterface(EngineerInterface(numSites=11, numHubs=4))  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        # runSimWithInterface(UserInterface(numSites=3))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(15)  # The interface that does not draw and is faster than the others.
     except GameOver:

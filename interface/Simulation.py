@@ -29,12 +29,12 @@ class Simulation(ABC):
         self.setDisplayVariables()
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
+        self.timeRanOut = False  # Whether there is no more time left in the interface
+        self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts))
         self.chosenHomes = self.initChosenHomes(len(hubLocations))  # The site that most of the agents are assigned to when the interface ends
-        self.timeRanOut = False  # Whether there is no more time left in the interface
-        self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
         self.userControls = self.getControls()
@@ -156,9 +156,13 @@ class Simulation(ABC):
         for siteIndex in range(len(self.world.getHubs()), len(self.world.siteList)):
             site = self.world.siteList[siteIndex]
             for hubIndex in range(len(self.world.getHubs())):
-                if site.agentCounts[hubIndex] >= self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction:
+                if site.agentCounts[hubIndex] >= self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction > 0:
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
+        for hubIndex in range(len(self.world.getHubs())):
+            if self.world.initialHubAgentCounts[hubIndex] == 0:
+                self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]
+                numConverged += 1
         return numConverged == len(self.world.getHubs())
 
     def timeOut(self):
@@ -187,22 +191,36 @@ class Simulation(ABC):
                     self.chosenHomes[i] = home
 
     def printResults(self):
+        self.printNumAgentsResults()
+        simulationTime = self.printTimeResults()
+        qualities = self.printHomeQualities()
+        self.sendResults(self.chosenHomes, simulationTime)
+        return qualities, simulationTime
+
+    def printNumAgentsResults(self):
         for i in range(len(self.chosenHomes)):
             print(str(self.chosenHomes[i].agentCounts[i]) + " out of " + str(self.world.initialHubAgentCounts[i]) +
                   " agents from hub " + str(i + 1) + " made it to the new home.")
+
+    def printTimeResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
-            simulationTime = self.timer.simulationDuration - self.timer.getRemainingTime()
+            simulationTime = self.getRemainingTime()
             print("The simulation took " + str(simulationTime) + " seconds to complete.")
             pygame.quit()
             self.timer.cancel()
+        return simulationTime
+
+    def getRemainingTime(self):
+        self.timer.simulationDuration - self.timer.getRemainingTime()
+
+    def printHomeQualities(self):
         qualities = []
         print("Their homes are ranked: ")
         for home in self.chosenHomes:
             qualities.append(home.getQuality())
             print(str(home.getQuality()) + "/255.")
-        self.sendResults(self.chosenHomes, simulationTime)
-        return qualities, simulationTime
+        return qualities
 
     def sendResults(self, chosenSite, simulationTime):
         pass

@@ -19,7 +19,7 @@ class Agent:
         self.hub = startingAssignment
 
         self.prevPos = list(startingPosition)  # Initial position
-        self.pos = list(startingPosition)  # Initial position
+        self.pos = [startingPosition[0] + np.random.choice([-1, 1]), startingPosition[1] + np.random.choice([-1, 1])]   # Initial position
         self.path = []  # A list of the positions the agent has recently come from
         self.agentHandle = getAgentImage(self.pos)  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions

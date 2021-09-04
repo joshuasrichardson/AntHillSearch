@@ -47,7 +47,7 @@ class World:
             while self.tooCloseToOtherHubs(nextPos):
                 nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
                 tries += 1
-                if tries > 100:
+                if tries > 200:
                     raise ColonyExceptions.InputError("The hub boundaries are too small for the search distance. "
                                                       "Either Increase the difference between (HUB_MAX_X and HUB_MIN_X) "
                                                       "and (HUB_MAX_Y and HUB_MIN_Y) or decrease the MAX_SEARCH_DIST. "

@@ -6,7 +6,7 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT
 
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, NUM_HUBS, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, \
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, \
     TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, SET_STATE_NAME, GO_NAME
 from display import Display
 from display.AgentDisplay import drawAgent
@@ -590,7 +590,7 @@ class Controls:
             self.addToExecutedEvents("Shrunk site at " + str(site.getPosition()) + "'s radius to " + str(site.radius))
 
     def createSite(self, position):
-        self.world.createSite(position[0], position[1], SITE_RADIUS, 128, NUM_HUBS)
+        self.world.createSite(position[0], position[1], SITE_RADIUS, 128, len(self.world.getHubs()))
         pos = [int(position[0]), int(position[1])]
         self.addToExecutedEvents("Created site at " + str(pos))
 
