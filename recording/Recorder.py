@@ -15,6 +15,7 @@ class Recorder:
         self.agentStates = []
         self.agentPhases = []
         self.agentAssignments = []
+        self.agentsToDelete = []
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
@@ -62,6 +63,9 @@ class Recorder:
     def recordAssignment(self, siteIndex):
         self.agentAssignments.append(siteIndex)
 
+    def recordAgentsToDelete(self, agentIndex):
+        self.agentsToDelete = agentIndex
+
     def recordSiteInfo(self, site):
         self.recordSitePosition(site.getPosition())
         self.recordSiteQuality(site.getQuality())
@@ -106,6 +110,7 @@ class Recorder:
                           'agentStates': self.agentStates,
                           'agentPhases': self.agentPhases,
                           'agentAssignments': self.agentAssignments,
+                          'agentsToDelete': self.agentsToDelete,
                           'sitePositions': self.sitePositions,
                           'siteQualities': self.siteQualities,
                           'siteRadii': self.siteRadii,
@@ -121,6 +126,7 @@ class Recorder:
         self.agentStates = []
         self.agentPhases = []
         self.agentAssignments = []
+        self.agentsToDelete = []
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
@@ -159,6 +165,9 @@ class Recorder:
     def getNextAssignment(self):
         self.currentAssignmentIndex += 1
         return self.agentAssignments[self.currentAssignmentIndex]
+
+    def getNextAgentsToDelete(self):
+        return self.agentsToDelete
 
     def getNumHubs(self):
         numHubs = 0
@@ -227,6 +236,7 @@ class Recorder:
             self.agentStates = self.data[self.dataIndex]['agentStates']
             self.agentPhases = self.data[self.dataIndex]['agentPhases']
             self.agentAssignments = self.data[self.dataIndex]['agentAssignments']
+            self.agentsToDelete = self.data[self.dataIndex]['agentsToDelete']
             self.sitePositions = self.data[self.dataIndex]['sitePositions']
             self.siteQualities = self.data[self.dataIndex]['siteQualities']
             self.siteRadii = self.data[self.dataIndex]['siteRadii']

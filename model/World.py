@@ -33,6 +33,7 @@ class World:
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
+        self.agentsToDeleteIndexes = []
 
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
@@ -129,15 +130,18 @@ class World:
             self.request.addAgent(agent)
 
     def deleteSelectedAgents(self):
+        originalIndex = 0
         i = 0
         while i < len(self.agentList):
             agent = self.agentList[i]
             if agent.isSelected:
                 self.removeAgent(agent)
+                self.agentsToDeleteIndexes.append(originalIndex)
                 if self.request is not None:
                     self.request.removeAgent(i)
             else:
                 i += 1
+            originalIndex += 1
 
     def removeAgent(self, agent):
         agent.assignedSite.decrementCount(agent.getHubIndex())
@@ -149,6 +153,11 @@ class World:
                 pass
         self.initialHubAgentCounts[agent.getHubIndex()] -= 1
         del agent
+
+    def getDeletedAgentsIndexes(self):
+        indexes = self.agentsToDeleteIndexes
+        self.agentsToDeleteIndexes = []
+        return indexes
 
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """

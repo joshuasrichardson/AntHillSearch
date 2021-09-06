@@ -59,6 +59,7 @@ class LiveSimulation(Simulation, ABC):
         for i in range(0, numAgents):
             agent = AgentBuilder.getNewAgent(self.world, self.world.siteList[assignedSiteIndex], startingPosition)
             agent.assignedSite.agentCount += 1
+            agent.assignedSite.agentCounts[agent.getHubIndex()] += 1
             agent.setState(state(agent))
             agent.setPhase(phase)
             self.world.addAgent(agent)

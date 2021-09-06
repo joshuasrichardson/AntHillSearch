@@ -41,6 +41,7 @@ class Simulation(ABC):
 
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
+        self.initializeAgentList()  # Create the agents that will be used in the interface
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
@@ -57,9 +58,9 @@ class Simulation(ABC):
     def setAgentList(self, agents):
         self.world.agentList = agents
 
-    def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS):
+    def initializeAgentList(self):
         hubIndex = 0
-        for count in hubAgentCounts:
+        for count in self.world.initialHubAgentCounts:
             for i in range(count):
                 agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[hubIndex])
                 agent.setState(AtNestState(agent))
@@ -139,6 +140,7 @@ class Simulation(ABC):
 
     def recordDisplays(self):
         if self.shouldRecord:
+            self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
             self.recorder.recordTime(self.timer.getRemainingTime())
             self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
             self.recorder.recordExecutedCommands(self.graphs.executedCommands)
@@ -212,7 +214,7 @@ class Simulation(ABC):
         return simulationTime
 
     def getRemainingTime(self):
-        self.timer.simulationDuration - self.timer.getRemainingTime()
+        return self.timer.simulationDuration - self.timer.getRemainingTime()
 
     def printHomeQualities(self):
         qualities = []
