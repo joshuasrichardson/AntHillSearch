@@ -102,7 +102,7 @@ class Site:
         """ Sets the qualities to have a max of 255 and a min of 0 and adjusts qualities in between the min and max
          to be spaced out accordingly """
         if siteQualities.count(self.quality) == 0 and self.quality >= 0:  # Only normalize if the quality was not manually set
-            self.quality = int(round((self.quality - zero) / span * 255))
+            self.quality = round((self.quality - zero) / span * 255)
             # 255 is the maximum color range
             self.color = 255 - self.quality, self.quality, 0
 

@@ -16,12 +16,11 @@ from model.phases.AssessPhase import AssessPhase
 from model.states.AtNestState import AtNestState
 
 
-# FIXME: Warning in Site.py
+# TODO: Think about how to display predictions
 # TODO: Have ants avoid sites that have ants from other colonies or that have dead ants around it?
 # TODO: Add rivers, cliffs, and stuff like that?
-# TODO: Think about how to display predictions
-# TODO: Add more comments to net, recording, states, and user packages
-# TODO: Break Controls into multiple classes (such as AgentControls, SiteControls and Controls) to simplify it?
+# TODO: Add other tasks? This might be out of my scope
+# TODO: Add more comments
 
 # TODO: Think about what kinds of things we want to study in the user studies.
 # In empirical studies, test the difference between high urgency (low minimum acceptance quality, small quorum, and high recruitment probability) and low urgency (high minimum acceptance quality, large quorum, and low recruitment probability), and see how much faster high urgency is.

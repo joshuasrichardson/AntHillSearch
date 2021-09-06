@@ -225,6 +225,22 @@ def drawRightArrow(pos, color, adjust=True):
                 adjust)
 
 
+def drawDownRightArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] - 20, pos[1]],
+                 [pos[0], pos[1] - 20]],
+                adjust)
+
+
+def drawUpRightArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] - 20, pos[1]],
+                 [pos[0], pos[1] + 20]],
+                adjust)
+
+
 def drawUpArrow(pos, color, adjust=True):
     drawPolygon(screen, color,
                 [[pos[0], pos[1]],
@@ -238,6 +254,22 @@ def drawLeftArrow(pos, color, adjust=True):
                 [[pos[0], pos[1]],
                  [pos[0] + 20, pos[1] - 10],
                  [pos[0] + 20, pos[1] + 10]],
+                adjust)
+
+
+def drawDownLeftArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] + 20, pos[1]],
+                 [pos[0], pos[1] - 20]],
+                adjust)
+
+
+def drawUpLeftArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] + 20, pos[1]],
+                 [pos[0], pos[1] + 20]],
                 adjust)
 
 
