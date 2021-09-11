@@ -85,8 +85,6 @@ class Controls:
         mousePos = pygame.mouse.get_pos()
         # When the screen moves, the mouse position needs to be adjusted to make up for it with some of the controls
         adjustedMousePos = Display.getReadjustedPos(mousePos[0], mousePos[1])
-        if self.dragSite is not None:
-            self.world.setSitePosition(self.dragSite, adjustedMousePos)
         if self.shouldMoveHistBoxTop:
             self.graphs.setHistBoxTop(mousePos[1])
         if event.type == MOUSEMOTION:
@@ -171,7 +169,9 @@ class Controls:
 
     def mouseMotion(self, mousePos, adjustedMousePos):
         # Set the cursor image
-        if self.graphs.collidesWithCommandHistBoxTop(mousePos):
+        if self.dragSite is not None:
+            self.world.setSitePosition(self.dragSite, adjustedMousePos)
+        elif self.graphs.collidesWithCommandHistBoxTop(mousePos):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
         elif self.collidesWithSelectable(mousePos, adjustedMousePos):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
@@ -547,13 +547,15 @@ class Controls:
     def assignSelectedAgents(self, mousePos):
         sitesUnderMouse = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
         if len(sitesUnderMouse) > 0:
+            marker = getAssignmentMarker(mousePos)
             if len(self.selectedAgents) > 0:
                 self.addToExecutedEvents("Assigned " + str(len(self.selectedAgents)) + " agents to site at " + str(sitesUnderMouse[0].getPosition()))
             for a in self.selectedAgents:
+                a.marker = marker
                 a.addToKnownSites(sitesUnderMouse[0])
                 a.assignSite(sitesUnderMouse[0])
-        marker = getAssignmentMarker(mousePos)
-        self.setSelectedSitesCommand(self.assignCommand, list(mousePos), marker, ASSIGN_NAME)
+
+            self.setSelectedSitesCommand(self.assignCommand, list(mousePos), marker, ASSIGN_NAME)
 
     def speedUp(self):
         self.addToExecutedEvents("Sped Agents up")

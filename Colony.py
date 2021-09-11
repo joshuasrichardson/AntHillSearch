@@ -5,6 +5,9 @@ Joshua Richardson
 Summer 2021 """
 
 import sys
+
+from display.StartupDisplay import StartUpDisplay
+
 sys.path.append("")
 
 from interface.LiveSimulation import *
@@ -16,11 +19,13 @@ from model.phases.AssessPhase import AssessPhase
 from model.states.AtNestState import AtNestState
 
 
+# TODO: Make zoom better
+# TODO: Add start up and finish interfaces
 # TODO: Think about how to display predictions
-# TODO: Have ants avoid sites that have ants from other colonies or that have dead ants around it?
-# TODO: Add rivers, cliffs, and stuff like that?
-# TODO: Add other tasks? This might be out of my scope
+# TODO: Add predators?
+# TODO: Add traps and have ants avoid sites that have ants from other colonies or that have dead ants around it?
 # TODO: Add more comments
+
 
 # TODO: Think about what kinds of things we want to study in the user studies.
 # In empirical studies, test the difference between high urgency (low minimum acceptance quality, small quorum, and high recruitment probability) and low urgency (high minimum acceptance quality, large quorum, and low recruitment probability), and see how much faster high urgency is.
@@ -28,12 +33,18 @@ from model.states.AtNestState import AtNestState
 
 def main():
     try:
-        runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        # start = StartUpDisplay(EngineerInterface)
+        # start = StartUpDisplay(RecordingPlayer)
+        startUpScreen = StartUpDisplay(UserInterface)
+        startUpScreen.run()
+        # runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface(numSites=3))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:
         pass
+
+
 
 
 def runSimWithInterface(colony):

@@ -28,22 +28,34 @@ def createScreen():
     global origHeight
     global newWidth
     global newHeight
-    pygame.display.init()
-    pygame.font.init()
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
-    screen = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
-    origWidth = screen.get_width()
-    origHeight = screen.get_height()
-    newWidth = origWidth
-    newHeight = origHeight
+    if screen is None:
+        pygame.display.init()
+        pygame.font.init()
+        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
+        screen = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
+        origWidth = screen.get_width()
+        origHeight = screen.get_height()
+        newWidth = origWidth
+        newHeight = origHeight
     return screen
 
 
 def writeBigCenter(surface, words):
-    font = pygame.font.SysFont('Comic Sans MS', LARGE_FONT_SIZE)
+    writeCenter(surface, words, LARGE_FONT_SIZE)
+
+
+def writeCenter(surface, words, fontSize):
+    font = pygame.font.SysFont('Comic Sans MS', fontSize)
     img = font.render(words, True, WORDS_COLOR).convert_alpha()
     surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60))
+
+
+def writeCenterPlus(surface, words, fontSize, y):
+    font = pygame.font.SysFont('Comic Sans MS', fontSize)
+    img = font.render(words, True, WORDS_COLOR).convert_alpha()
+    surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
+                       surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
 
 
 def drawPause(surface):
@@ -104,7 +116,7 @@ def getDestinationMarker(pos):
 
 
 def getAssignmentMarker(pos):
-    """ Loads, adjusts the size, and returns the image representing a destination """
+    """ Loads, adjusts the size, and returns the image representing an assignment """
     arrows = pygame.image.load("resources/target.png").convert_alpha()
     arrows = pygame.transform.scale(arrows, (2 * SITE_RADIUS, 2 * SITE_RADIUS))
     rect = arrows.get_rect().move(pos)
@@ -304,20 +316,24 @@ def zoomIn():
     global newWidth
     global newHeight
     global zoom
+    global displacementX
+    global displacementY
     if newWidth < 2000:
-        zoom += 10
-        newWidth = int(screen.get_width() + ((zoom / 100) * screen.get_width()))
-        newHeight = int(screen.get_height() + ((zoom / 100) * screen.get_height()))
+        zoom += 1
+        newWidth = int(origWidth + ((zoom / 10) * origWidth))
+        newHeight = int(origHeight + ((zoom / 10) * origHeight))
 
 
 def zoomOut():
     global newWidth
     global newHeight
     global zoom
+    global displacementX
+    global displacementY
     if newWidth > 200 or newWidth == 0:
-        zoom -= 10
-        newWidth = int(screen.get_width() + ((zoom / 100) * screen.get_width()))
-        newHeight = int(screen.get_height() + ((zoom / 100) * screen.get_height()))
+        zoom -= 1
+        newWidth = int(origWidth + ((zoom / 10) * origWidth))
+        newHeight = int(origHeight + ((zoom / 10) * origHeight))
 
 
 def getAdjustedPos(origX, origY):
