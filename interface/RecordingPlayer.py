@@ -1,7 +1,7 @@
 import time
 
 from Constants import *
-from display import Display
+from display import Display, WorldDisplay
 from display.Graphs import SimulationGraphs
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
@@ -15,6 +15,7 @@ class RecordingPlayer(Simulation):
     def __init__(self):
         self.hubAgentCounts = []
         self.delay = 0
+        WorldDisplay.fog = None
         super().__init__(shouldRecord=False)
 
     def initializeAgentList(self):
@@ -130,12 +131,6 @@ class RecordingPlayer(Simulation):
         agent.updatePosition(pos)
         angle = self.recorder.getNextAgentAngle()
         agent.setAngle(angle)
-
-        agentRect = agent.getAgentRect()
-        possibleNeighborList = agentRect.collidelistall(agentRectList)
-        agentNeighbors = []
-        for i in possibleNeighborList:
-            agentNeighbors.append(self.world.agentList[i])
         agent.setState(self.recorder.getNextState(agent))
         agent.setPhase(self.recorder.getNextPhase())
         siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]

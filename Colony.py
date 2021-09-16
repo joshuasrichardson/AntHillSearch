@@ -6,6 +6,8 @@ Summer 2021 """
 
 import sys
 
+import pygame
+
 from display.StartupDisplay import StartUpDisplay
 
 sys.path.append("")
@@ -20,7 +22,9 @@ from model.states.AtNestState import AtNestState
 
 
 # TODO: Make zoom better
-# TODO: Add start up and finish interfaces
+# TODO: Implement settings tab
+# TODO: exit to the main menu from the simulation
+# TODO: add finish interface
 # TODO: Think about how to display predictions
 # TODO: Add predators?
 # TODO: Add traps and have ants avoid sites that have ants from other colonies or that have dead ants around it?
@@ -29,12 +33,13 @@ from model.states.AtNestState import AtNestState
 
 # TODO: Think about what kinds of things we want to study in the user studies.
 # In empirical studies, test the difference between high urgency (low minimum acceptance quality, small quorum, and high recruitment probability) and low urgency (high minimum acceptance quality, large quorum, and low recruitment probability), and see how much faster high urgency is.
+# The relationship between the time of their first control and the time of the simulation
 
 
 def main():
     try:
         # start = StartUpDisplay(EngineerInterface)
-        # start = StartUpDisplay(RecordingPlayer)
+        # startUpScreen = StartUpDisplay(RecordingPlayer)
         startUpScreen = StartUpDisplay(UserInterface)
         startUpScreen.run()
         # runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
@@ -45,13 +50,12 @@ def main():
         pass
 
 
-
-
 def runSimWithInterface(colony):
     # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
 
     # colony.randomizeInitialState()  # You can optionally randomize which site each agent starts from in some of the interfaces
     colony.runSimulation()  # Starts the interface
+    pygame.quit()
 
     print("Success!")
 

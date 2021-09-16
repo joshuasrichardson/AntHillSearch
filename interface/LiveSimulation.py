@@ -80,6 +80,7 @@ class LiveSimulation(Simulation, ABC):
         for i in possibleNeighborList:
             agentNeighbors.append(self.world.agentList[i])
         agent.changeState(agentNeighbors)
+        del agentNeighbors[:]
 
         if self.shouldRecord:
             self.recorder.recordAgentInfo(agent)

@@ -28,7 +28,7 @@ def createScreen():
     global origHeight
     global newWidth
     global newHeight
-    if screen is None:
+    if not pygame.display.get_init():
         pygame.display.init()
         pygame.font.init()
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
@@ -54,8 +54,8 @@ def writeCenter(surface, words, fontSize):
 def writeCenterPlus(surface, words, fontSize, y):
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
     img = font.render(words, True, WORDS_COLOR).convert_alpha()
-    surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
-                       surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
+    return surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
+                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
 
 
 def drawPause(surface):
@@ -309,7 +309,7 @@ def drawLast():
             command[0](command[1], command[2])
         else:
             command[0](command[1], command[2], command[3])
-    drawLastCommands = []
+    del drawLastCommands[:]
 
 
 def zoomIn():

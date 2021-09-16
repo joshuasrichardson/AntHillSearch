@@ -1,4 +1,3 @@
-import threading
 from abc import ABC, abstractmethod
 
 import pygame
@@ -30,7 +29,8 @@ class Simulation(ABC):
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.timeRanOut = False  # Whether there is no more time left in the interface
-        self.timer = SimulationTimer(simulationDuration, threading.Timer(simulationDuration, self.timeOut), self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
+        self.simulationDuration = simulationDuration
+        self.timer = SimulationTimer(self.simulationDuration, self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts))
@@ -209,7 +209,6 @@ class Simulation(ABC):
         if not self.timeRanOut:
             simulationTime = self.getRemainingTime()
             print("The simulation took " + str(simulationTime) + " seconds to complete.")
-            pygame.quit()
             self.timer.cancel()
         return simulationTime
 

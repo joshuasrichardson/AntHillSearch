@@ -137,6 +137,18 @@ class Recorder:
     def write(self):
         with open('recording/recording.json', 'w') as file:
             json.dump(self.data, file)
+        self.agentPositions.clear()
+        self.agentAngles.clear()
+        self.agentStates.clear()
+        self.agentPhases.clear()
+        self.agentAssignments.clear()
+        self.agentsToDelete.clear()
+        self.sitePositions.clear()
+        self.siteQualities.clear()
+        self.siteRadii.clear()
+        self.siteMarkerNames.clear()
+        self.siteMarkerArgs.clear()
+        self.siteMarkerNums.clear()
 
     def read(self):
         with open('recording/recording.json', 'r') as file:
