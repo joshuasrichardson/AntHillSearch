@@ -5,20 +5,15 @@ Joshua Richardson
 Summer 2021 """
 
 import sys
+sys.path.append("")
 
 import pygame
 
-from display.StartupDisplay import StartUpDisplay
-
-sys.path.append("")
-
+from display.mainmenu.MainMenu import StartUpDisplay
+from interface.EngineerInferface import EngineerInterface
 from interface.LiveSimulation import *
 from interface.UserInterface import UserInterface
-from interface.EngineerInferface import EngineerInterface
-from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
-from model.phases.AssessPhase import AssessPhase
-from model.states.AtNestState import AtNestState
 
 
 # TODO: Make zoom better
@@ -38,9 +33,8 @@ from model.states.AtNestState import AtNestState
 
 def main():
     try:
-        # start = StartUpDisplay(EngineerInterface)
-        # startUpScreen = StartUpDisplay(RecordingPlayer)
-        startUpScreen = StartUpDisplay(UserInterface)
+        startUpScreen = StartUpDisplay(EngineerInterface)
+        # startUpScreen = StartUpDisplay(UserInterface)
         startUpScreen.run()
         # runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface(numSites=3))  # The interface that only shows what is known from the hub and has limited control

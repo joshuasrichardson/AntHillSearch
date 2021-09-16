@@ -9,7 +9,7 @@ SIM_DURATION = 125  # Time of the interface in seconds
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
 
-NUM_HUBS = 1
+NUM_HUBS = 3
 HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
@@ -18,7 +18,7 @@ HUB_RADII = []
 HUB_AGENT_COUNTS = [100]
 
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
-NUM_SITES = 2      # Number of total sites
+NUM_SITES = 8      # Number of total sites
 # Setting these, especially the good ones, closer to the hub location makes the interface end sooner
 # [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100], [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
 SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a position here,
