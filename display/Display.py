@@ -58,6 +58,12 @@ def writeCenterPlus(surface, words, fontSize, y):
                         surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
 
 
+def write(surface, words, fontSize, x, y):
+    font = pygame.font.SysFont('Comic Sans MS', fontSize)
+    img = font.render(words, True, WORDS_COLOR).convert_alpha()
+    return surface.blit(img, (x, y))
+
+
 def drawPause(surface):
     writeBigCenter(surface, "Paused")
 

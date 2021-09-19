@@ -162,6 +162,10 @@ class Controls:
             self.draw()
             if event.type == KEYDOWN and event.key == K_o:
                 self.shouldShowOptions = not self.shouldShowOptions
+            if event.type == MOUSEBUTTONUP:
+                if self.graphs.collidesWithExitButton(mousePos):
+                    self.timer.cancel()
+                    raise GameOver("Exited Successfully")
         if event.type == QUIT:
             pygame.quit()
             self.timer.cancel()

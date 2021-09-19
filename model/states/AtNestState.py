@@ -21,6 +21,9 @@ class AtNestState(State):
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.getAssignedSitePosition())
 
+        if self.agent.getPhaseNumber() == CONVERGED:
+            return
+
         # Checking the siteWithinRange makes sure they actually get to the site before they search again unless they get lost on the way.
         if self.agent.shouldSearch(self.agent.siteInRangeIndex):
             self.setState(SearchState(self.agent), None)

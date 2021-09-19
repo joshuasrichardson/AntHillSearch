@@ -1,9 +1,10 @@
 import pygame.display
-from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION
+from pygame import MOUSEBUTTONUP, QUIT
 
 from ColonyExceptions import GameOver
 from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE
 from display import Display
+from display.mainmenu.Settings import Settings
 from display.mainmenu.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 
@@ -15,6 +16,7 @@ class StartUpDisplay:
         self.simInterface = None
         self.mousePos = [-1, -1]
         self.tutorial = Tutorial(self.play)
+        self.settings = Settings()
 
     def run(self):
         try:
@@ -80,7 +82,7 @@ class StartUpDisplay:
         self.simInterface.runSimulation()
 
     def viewSettings(self):
-        pass
+        self.settings.run()
 
     @staticmethod
     def exit():

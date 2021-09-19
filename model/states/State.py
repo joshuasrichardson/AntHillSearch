@@ -30,9 +30,6 @@ def numToState(num, agent):
     if num == GO:
         from model.states.GoState import GoState
         return GoState(agent)
-    if num == CONVERGED:
-        from model.states.ConvergedState import ConvergedState
-        return ConvergedState(agent)
 
 
 class State(ABC):

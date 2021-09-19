@@ -35,6 +35,7 @@ class SimulationGraphs:
         self.showOptionsRect = pygame.Rect(self.x5, self.y + FONT_SIZE + (FONT_SIZE / 2), FONT_SIZE - 2, FONT_SIZE - 2)
         self.nextButton = None
         self.previousButton = None
+        self.exitButton = None
         self.screenBorder = None
 
         self.shouldDrawGraphs = True
@@ -141,7 +142,8 @@ class SimulationGraphs:
                     self.collidesWithOptionsButton(position) or \
                     self.collidesWithPauseButton(position) or \
                     self.collidesWithNextButton(position) or \
-                    self.collidesWithPreviousButton(position)
+                    self.collidesWithPreviousButton(position) or \
+                    self.collidesWithExitButton(position)
 
     def collidesWithSelectAgentsButton(self, position):
         return self.selectAgentsRect.collidepoint(position[0], position[1])
@@ -173,6 +175,11 @@ class SimulationGraphs:
         if self.previousButton is None:
             return False
         return self.previousButton.collidepoint(position)
+
+    def collidesWithExitButton(self, position):
+        if self.exitButton is None:
+            return False
+        return self.exitButton.collidepoint(position)
 
     def drawSelectBox(self, shouldSelect, rectangle):
         color = self.getShouldSelectColor(shouldSelect)
@@ -227,6 +234,10 @@ class SimulationGraphs:
             self.previousButton = pygame.Rect(x * 1 / 4 + prevImg.get_width() / 2, top + height - 25,
                                               prevImg.get_width(), prevImg.get_height())
             Display.screen.blit(prevImg, self.previousButton.topleft)
+        exitImg = self.font.render("EXIT", True, WORDS_COLOR).convert_alpha()
+        self.exitButton = pygame.Rect(x * 3 / 4 - 2 * exitImg.get_width(), top + 10,
+                                      exitImg.get_width(), exitImg.get_height())
+        Display.screen.blit(exitImg, self.exitButton.topleft)
 
     def drawOptionsPage0(self, left, top, height, leftMargin, x):
         agentOptions = ['Select',

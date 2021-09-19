@@ -16,9 +16,9 @@ from interface.UserInterface import UserInterface
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 
+# TODO: Add table of contents to tutorial and make tutorial better
 # TODO: Make zoom better
 # TODO: Implement settings tab
-# TODO: exit to the main menu from the simulation
 # TODO: add finish interface
 # TODO: Think about how to display predictions
 # TODO: Add predators?
