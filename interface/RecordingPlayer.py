@@ -23,11 +23,11 @@ class RecordingPlayer(Simulation):
         super().initializeAgentList()
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                        siteRadii):
+                        siteRadii, siteRadius=SITE_RADIUS):
         self.recorder.read()
         addAfter = self.initHubsAgentCounts()
         world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii)
+                      siteQualities, siteRadii, siteRadius)
         self.addAddedAgents(world, addAfter)
         self.timer.simulationDuration = self.recorder.getNextTime()
 
@@ -157,8 +157,8 @@ class RecordingPlayer(Simulation):
     def getShouldDrawPaths(self):
         return True
 
-    def getGraphs(self, numAgents):
-        return SimulationGraphs(numAgents)
+    def getGraphs(self, numAgents, fontSize, largeFontSize):
+        return SimulationGraphs(numAgents, fontSize, largeFontSize)
 
     def calcNumAgents(self, hubAgentCounts):
         return self.recorder.getNumAgents()

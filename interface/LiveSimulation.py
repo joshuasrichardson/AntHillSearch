@@ -39,9 +39,9 @@ class LiveSimulation(Simulation, ABC):
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                        siteQualities, siteRadii):
+                        siteQualities, siteRadii, siteRadius=SITE_RADIUS):
         world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii)
+                      siteQualities, siteRadii, siteRadius)
         if Display.shouldDraw and SHOULD_DRAW_FOG:
             WorldDisplay.initFog(world.hubs)
 

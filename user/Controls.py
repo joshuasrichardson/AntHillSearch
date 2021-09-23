@@ -171,6 +171,13 @@ class Controls:
             self.timer.cancel()
             raise GameOver("Exited Successfully")
 
+    def waitForUser(self):
+        done = False
+        while not done:
+            for event in pygame.event.get():
+                if event.type == MOUSEBUTTONUP or event.type == KEYDOWN and not pygame.key.get_mods() & KMOD_CTRL:
+                    done = True
+
     def mouseMotion(self, mousePos, adjustedMousePos):
         # Set the cursor image
         if self.dragSite is not None:

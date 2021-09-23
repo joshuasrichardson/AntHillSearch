@@ -68,8 +68,8 @@ I did not find this one till after the model was implemented,
 but it had useful information about when the ants decide to 
 switch from the Canvas phase to the Commit phase.
 It also contains a paragraph about factors that make a site good.
-We could implement these in the future, but for now, it is represented
-by a number.
+We could implement these in the future, but for now, the quality is 
+just represented by a number.
 
 In addition to the states and phases described above, many options for 
 user interaction have been added. See the "Parameters" section for 

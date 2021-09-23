@@ -47,7 +47,7 @@ class EmpiricalTestingInterface(LiveSimulation):
     def getShouldDrawPaths(self):
         return False
 
-    def getGraphs(self, numAgents):
+    def getGraphs(self, numAgents, fontSize, largeFontSize):
         return None
 
     # def runSimulation(self):

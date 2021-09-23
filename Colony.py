@@ -19,7 +19,6 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Add table of contents to tutorial and make tutorial better
 # TODO: Make zoom better
 # TODO: Implement settings tab
-# TODO: add finish interface
 # TODO: Think about how to display predictions
 # TODO: Add predators?
 # TODO: Add traps and have ants avoid sites that have ants from other colonies or that have dead ants around it?

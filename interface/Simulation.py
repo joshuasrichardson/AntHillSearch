@@ -1,3 +1,4 @@
+import json
 from abc import ABC, abstractmethod
 
 import pygame
@@ -25,15 +26,21 @@ class Simulation(ABC):
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR):
-        self.setDisplayVariables()
+        convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
+            hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
+            siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist = \
+            self.applyUserSettings(convergenceFraction, simulationDuration, FONT_SIZE, LARGE_FONT_SIZE, numHubs, hubLocations,
+                                   hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, SITE_RADIUS,
+                                   siteNoCloserThan, siteNoFartherThan, AGENT_IMAGE, maxSearchDist)
+        self.setDisplayVariables(agentImage)
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.simulationDuration = simulationDuration
         self.timer = SimulationTimer(self.simulationDuration, self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                                          siteQualities, siteRadii)  # The world that has all the sites and agents
-        self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts))
+                                          siteQualities, siteRadii, siteRadius)  # The world that has all the sites and agents
+        self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
         self.chosenHomes = self.initChosenHomes(len(hubLocations))  # The site that most of the agents are assigned to when the interface ends
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
@@ -45,7 +52,7 @@ class Simulation(ABC):
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii):
+                        siteRadii, siteRadius=SITE_RADIUS):
         pass
 
     @staticmethod
@@ -172,13 +179,15 @@ class Simulation(ABC):
         self.timeRanOut = True
 
     def finish(self):
-        if Display.shouldDraw:
-            Display.drawFinish(Display.screen)
-            pygame.display.flip()
         if self.shouldRecord:
             self.write()
         self.determineChosenHomes()
-        return self.printResults()
+        results = self.printResults()
+        if Display.shouldDraw:
+            Display.drawFinish(Display.screen, results)
+            pygame.display.flip()
+        self.userControls.waitForUser()
+        return results
 
     def save(self):
         pass
@@ -226,10 +235,11 @@ class Simulation(ABC):
     def sendResults(self, chosenSite, simulationTime):
         pass
 
-    def setDisplayVariables(self):
+    def setDisplayVariables(self, agentImage):
         Display.screen = self.getScreen()
         Display.shouldDraw = self.getShouldDraw()
         Display.drawFarAgents = self.getDrawFarAgents()
+        Display.agentImage = agentImage
         SiteDisplay.knowSitePosAtStart = self.getKnowSitePosAtStart()
 
     @abstractmethod
@@ -253,8 +263,55 @@ class Simulation(ABC):
         pass
 
     @abstractmethod
-    def getGraphs(self, numAgents):
+    def getGraphs(self, numAgents, fontSize, largeFontSize):
         pass
 
     def getControls(self):
         return Controls(self.timer, self.world.agentList, self.world, self.graphs)  # An object to handle events dealing with user interactions
+
+    @staticmethod
+    def applyUserSettings(cf, sd, fs, lfs, nh, hl, hr, hac, ns, sp, sq, sr, sRec, sRadius, snct, snft, ai, msd):
+        try:
+            with open('display/mainmenu/settings.json', 'r') as file:
+                data = json.load(file)
+            if 'convergenceFraction' in data:
+                cf = data['convergenceFraction']
+            if 'simDuration' in data:
+                sd = data['simDuration']
+            if 'fontSize' in data:
+                fs = data['fontSize']
+            if 'largeFontSize' in data:
+                lfs = data['largeFontSize']
+            if 'numHubs' in data:
+                nh = data['numHubs']
+            if 'hubLocations' in data:
+                hl = data['hubLocations']
+            if 'hubRadii' in data:
+                hr = data['hubRadii']
+            if 'hubAgentCounts' in data:
+                hac = data['hubAgentCounts']
+            if 'numSites' in data:
+                ns = data['numSites']
+            if 'sitePositions' in data:
+                sp = data['sitePositions']
+            if 'siteQualities' in data:
+                sq = data['siteQualities']
+            if 'siteRadii' in data:
+                sr = data['siteRadii']
+            if 'shouldRecord' in data:
+                sRec = data['shouldRecord']
+            if 'siteRadius' in data:
+                sRadius = data['siteRadius']
+            if 'siteNoCloserThan' in data:
+                snct = data['siteNoCloserThan']
+            if 'siteNoFartherThan' in data:
+                snft = data['siteNoFartherThan']
+            if 'agentImage' in data:
+                ai = data['agentImage']
+            if 'maxSearchDist' in data:
+                msd = data['maxSearchDist']
+        except FileNotFoundError:
+            print("File 'mainmenu/settings.json' Not Found")
+        except json.decoder.JSONDecodeError:
+            print("File 'mainmenu/settings.json' is empty")
+        return cf, sd, fs, lfs, nh, hl, hr, hac, ns, sp, sq, sr, sRec, sRadius, snct, snft, ai, msd

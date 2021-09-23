@@ -4,7 +4,7 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 125  # Time of the interface in seconds
+SIM_DURATION = 12  # Time of the interface in seconds
 
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40

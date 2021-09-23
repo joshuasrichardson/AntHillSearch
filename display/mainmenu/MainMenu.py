@@ -7,6 +7,7 @@ from display import Display
 from display.mainmenu.Settings import Settings
 from display.mainmenu.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
+from interface.UserInterface import UserInterface
 
 
 class StartUpDisplay:
@@ -70,7 +71,7 @@ class StartUpDisplay:
 
     def play(self):
         del self.simInterface
-        self.simInterface = self.freshInterface()
+        self.simInterface = UserInterface()
         self.simInterface.runSimulation()
 
     def startTutorial(self):
