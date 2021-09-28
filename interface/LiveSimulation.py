@@ -39,9 +39,9 @@ class LiveSimulation(Simulation, ABC):
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                        siteQualities, siteRadii):
+                        siteQualities, siteRadii, siteRadius=SITE_RADIUS):
         world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii)
+                      siteQualities, siteRadii, siteRadius)
         if Display.shouldDraw and SHOULD_DRAW_FOG:
             WorldDisplay.initFog(world.hubs)
 
@@ -59,6 +59,7 @@ class LiveSimulation(Simulation, ABC):
         for i in range(0, numAgents):
             agent = AgentBuilder.getNewAgent(self.world, self.world.siteList[assignedSiteIndex], startingPosition)
             agent.assignedSite.agentCount += 1
+            agent.assignedSite.agentCounts[agent.getHubIndex()] += 1
             agent.setState(state(agent))
             agent.setPhase(phase)
             self.world.addAgent(agent)
@@ -79,6 +80,7 @@ class LiveSimulation(Simulation, ABC):
         for i in possibleNeighborList:
             agentNeighbors.append(self.world.agentList[i])
         agent.changeState(agentNeighbors)
+        del agentNeighbors[:]
 
         if self.shouldRecord:
             self.recorder.recordAgentInfo(agent)

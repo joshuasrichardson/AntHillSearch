@@ -1,16 +1,18 @@
 """ Settings and methods related to the display """
+
 import numpy
 import numpy as np
 import pygame
 
 from Constants import AGENT_IMAGE, SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
-    SITE_RADIUS
+    SITE_RADIUS, FONT_SIZE
 
 screen = None
 shouldDraw = SHOULD_DRAW
 shouldDrawPaths = SHOULD_DRAW_PATHS
 canSelectAnywhere = DRAW_FAR_AGENTS
 drawFarAgents = DRAW_FAR_AGENTS
+agentImage = AGENT_IMAGE
 displacementX = 0
 displacementY = 0
 drawLastCommands = []
@@ -28,30 +30,69 @@ def createScreen():
     global origHeight
     global newWidth
     global newHeight
-    pygame.display.init()
-    pygame.font.init()
-    pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
-    screen = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
-    origWidth = screen.get_width()
-    origHeight = screen.get_height()
-    newWidth = origWidth
-    newHeight = origHeight
+    if not pygame.display.get_init():
+        pygame.display.init()
+        pygame.font.init()
+        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
+        screen = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
+        origWidth = screen.get_width()
+        origHeight = screen.get_height()
+        newWidth = origWidth
+        newHeight = origHeight
     return screen
 
 
 def writeBigCenter(surface, words):
-    font = pygame.font.SysFont('Comic Sans MS', LARGE_FONT_SIZE)
+    writeCenter(surface, words, LARGE_FONT_SIZE)
+
+
+def writeCenter(surface, words, fontSize):
+    font = pygame.font.SysFont('Comic Sans MS', fontSize)
     img = font.render(words, True, WORDS_COLOR).convert_alpha()
     surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60))
+
+
+def writeCenterPlus(surface, words, fontSize, y):
+    font = pygame.font.SysFont('Comic Sans MS', fontSize)
+    img = font.render(words, True, WORDS_COLOR).convert_alpha()
+    return surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
+                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
+
+
+def write(surface, words, fontSize, x, y, color=WORDS_COLOR):
+    font = pygame.font.SysFont('Comic Sans MS', fontSize)
+    img = font.render(words, True, color).convert_alpha()
+    return surface.blit(img, (x, y))
 
 
 def drawPause(surface):
     writeBigCenter(surface, "Paused")
 
 
-def drawFinish(surface):
+def drawFinish(surface, results):
+    surf = pygame.Surface((origWidth, origHeight), pygame.SRCALPHA)
+    pygame.draw.rect(surf, (225, 220, 190, 200), (0, 0, origWidth, origHeight))  # Draw partially transparent surface over the screen
+    surface.blit(surf, (0, 0))
+
     writeBigCenter(surface, "Finish")
+
+    x = origWidth * 4 / 9
+    y = origHeight / 2 - 2 * FONT_SIZE
+    simDuration = round(results[1], 2)
+    write(surface, "Click anywhere or press", FONT_SIZE, x, y)
+    y += FONT_SIZE
+    write(surface, "any key to continue.", FONT_SIZE, x, y)
+    y += FONT_SIZE * 2
+    if simDuration == 10000:
+        write(surface, "The ants did not move in time.", FONT_SIZE, x, y)
+    else:
+        write(surface, "Simulation Duration: " + str(simDuration), FONT_SIZE, x, y)
+    y += FONT_SIZE
+
+    for i, quality in enumerate(results[0]):
+        y += FONT_SIZE
+        write(surface, "Site " + str(i + 1) + " Quality: " + str(quality), FONT_SIZE, x, y)
 
 
 def drawCircleLines(surface, circle, color, inc, adjust=True):
@@ -84,7 +125,7 @@ def drawHorizontalCircleLines(surface, circle, color, inc, adjust=True):
 
 def getAgentImage(pos):
     """ Loads, adjusts the size, and returns the image representing an agent """
-    agent = pygame.image.load(AGENT_IMAGE)
+    agent = pygame.image.load(agentImage)
     if shouldDraw:
         agent = agent.convert_alpha()
     if agent.get_size()[0] > 30 or agent.get_size()[1] > 30:
@@ -104,7 +145,7 @@ def getDestinationMarker(pos):
 
 
 def getAssignmentMarker(pos):
-    """ Loads, adjusts the size, and returns the image representing a destination """
+    """ Loads, adjusts the size, and returns the image representing an assignment """
     arrows = pygame.image.load("resources/target.png").convert_alpha()
     arrows = pygame.transform.scale(arrows, (2 * SITE_RADIUS, 2 * SITE_RADIUS))
     rect = arrows.get_rect().move(pos)
@@ -225,6 +266,22 @@ def drawRightArrow(pos, color, adjust=True):
                 adjust)
 
 
+def drawDownRightArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] - 20, pos[1]],
+                 [pos[0], pos[1] - 20]],
+                adjust)
+
+
+def drawUpRightArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] - 20, pos[1]],
+                 [pos[0], pos[1] + 20]],
+                adjust)
+
+
 def drawUpArrow(pos, color, adjust=True):
     drawPolygon(screen, color,
                 [[pos[0], pos[1]],
@@ -238,6 +295,22 @@ def drawLeftArrow(pos, color, adjust=True):
                 [[pos[0], pos[1]],
                  [pos[0] + 20, pos[1] - 10],
                  [pos[0] + 20, pos[1] + 10]],
+                adjust)
+
+
+def drawDownLeftArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] + 20, pos[1]],
+                 [pos[0], pos[1] - 20]],
+                adjust)
+
+
+def drawUpLeftArrow(pos, color, adjust=True):
+    drawPolygon(screen, color,
+                [[pos[0], pos[1]],
+                 [pos[0] + 20, pos[1]],
+                 [pos[0], pos[1] + 20]],
                 adjust)
 
 
@@ -265,27 +338,31 @@ def drawLast():
             command[0](command[1], command[2])
         else:
             command[0](command[1], command[2], command[3])
-    drawLastCommands = []
+    del drawLastCommands[:]
 
 
 def zoomIn():
     global newWidth
     global newHeight
     global zoom
+    global displacementX
+    global displacementY
     if newWidth < 2000:
-        zoom += 10
-        newWidth = int(screen.get_width() + ((zoom / 100) * screen.get_width()))
-        newHeight = int(screen.get_height() + ((zoom / 100) * screen.get_height()))
+        zoom += 1
+        newWidth = int(origWidth + ((zoom / 10) * origWidth))
+        newHeight = int(origHeight + ((zoom / 10) * origHeight))
 
 
 def zoomOut():
     global newWidth
     global newHeight
     global zoom
+    global displacementX
+    global displacementY
     if newWidth > 200 or newWidth == 0:
-        zoom -= 10
-        newWidth = int(screen.get_width() + ((zoom / 100) * screen.get_width()))
-        newHeight = int(screen.get_height() + ((zoom / 100) * screen.get_height()))
+        zoom -= 1
+        newWidth = int(origWidth + ((zoom / 10) * origWidth))
+        newHeight = int(origHeight + ((zoom / 10) * origHeight))
 
 
 def getAdjustedPos(origX, origY):

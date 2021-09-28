@@ -7,7 +7,9 @@ from display import SiteDisplay, WorldDisplay
 from display.Display import getAgentImage
 from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
+from model.phases.ConvergedPhase import ConvergedPhase
 from model.phases.ExplorePhase import ExplorePhase
+from model.states.AtNestState import AtNestState
 
 
 class Agent:
@@ -16,7 +18,7 @@ class Agent:
 
     def __init__(self, world, startingAssignment, startingPosition, speed, decisiveness, navSkills, estAccuracy):
         self.world = world  # The colony the agent lives in
-        self.hub = startingAssignment
+        self.hub = self.world.getClosestHub(startingPosition)
 
         self.prevPos = list(startingPosition)  # Initial position
         self.pos = [startingPosition[0] + np.random.choice([-1, 1]), startingPosition[1] + np.random.choice([-1, 1])]   # Initial position
@@ -287,8 +289,8 @@ class Agent:
 
     def tryConverging(self):
         if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * CONVERGENCE_FRACTION:
-            from model.states.ConvergedState import ConvergedState
-            self.state.setState(ConvergedState(self), self.getAssignedSitePosition())
+            self.setPhase(ConvergedPhase())
+            self.setState(AtNestState(self))
             return True
         return False
 

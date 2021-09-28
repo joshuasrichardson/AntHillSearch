@@ -4,12 +4,12 @@
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
-SIM_DURATION = 125  # Time of the interface in seconds
+SIM_DURATION = 12  # Time of the interface in seconds
 
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
 
-NUM_HUBS = 1
+NUM_HUBS = 2
 HUB_LOCATIONS = []
 HUB_RADII = []
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
@@ -189,12 +189,9 @@ TRANSPORT_COLOR = 0, 255, 0  # Green
 GO = 7
 GO_COLOR = 0, 255, 255  # Cyan
 
-CONVERGED = 8
-CONVERGED_COLOR = 255, 105, 180
-
-NUM_POSSIBLE_STATES = 9
-STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR, CONVERGED_COLOR]
-STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO', 'CONVERGED']
+NUM_POSSIBLE_STATES = 8
+STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR]
+STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO']
 
 """ Phases and their colors """
 EXPLORE = 0
@@ -209,10 +206,12 @@ CANVAS_COLOR = 204, 204, 0  # Yellow
 COMMIT = 3
 COMMIT_COLOR = 0, 255, 0  # Green
 
-NUM_POSSIBLE_PHASES = 4
-PHASE_COLORS = [EXPLORE_COLOR, ASSESS_COLOR, CANVAS_COLOR, COMMIT_COLOR]
-PHASES_LIST = ['EXPLORE', 'ASSESS', 'CANVAS', 'COMMIT']
+CONVERGED = 4
+CONVERGED_COLOR = 255, 105, 180
+
+NUM_POSSIBLE_PHASES = 5
+PHASE_COLORS = [EXPLORE_COLOR, ASSESS_COLOR, CANVAS_COLOR, COMMIT_COLOR, CONVERGED_COLOR]
+PHASES_LIST = ['EXPLORE', 'ASSESS', 'CANVAS', 'COMMIT', "CONVERGED"]
 
 """ Interaction """
-THE_SELECTED_COLOR = 255, 0, 0   # Red
 SELECTED_COLOR = 0, 255, 244  # Cyan

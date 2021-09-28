@@ -13,11 +13,11 @@ from model.builder import SiteBuilder
 class World:
     """ Represents the world around the ants old home """
 
-    def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii):
+    def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii, siteRadius=SITE_RADIUS):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
-        self.checkHubs(numHubs)
+        self.checkHubs(numHubs, siteRadius)
         self.siteList = []  # The sites in the world
         self.siteRectList = []  # List of site rectangles
         self.sitePositions = sitePositions  # Where the sites are located
@@ -27,35 +27,37 @@ class World:
         self.hubsRects = []
         self.hubsObserveRects = []
         self.hubs = self.createHubs(numHubs, self.hubLocations, self.hubRadii, self.initialHubAgentCounts)  # The agents' original home
-        self.createSites(numSites, numHubs)  # Initializes the site list with sites that match the specified values or random sites by default
+        self.createSites(numSites, numHubs, siteRadius)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
+        self.agentsToDeleteIndexes = []
 
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
-    def checkHubs(self, numHubs):
+    def checkHubs(self, numHubs, siteRadius):
         """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """
         if len(self.hubLocations) == 0 and numHubs == 1:
             self.hubLocations.append([650, 325])
         while len(self.hubLocations) < numHubs:
             nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
-            tries = 0
-            while self.tooCloseToOtherHubs(nextPos):
-                nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
-                tries += 1
-                if tries > 200:
-                    raise ColonyExceptions.InputError("The hub boundaries are too small for the search distance. "
-                                                      "Either Increase the difference between (HUB_MAX_X and HUB_MIN_X) "
-                                                      "and (HUB_MAX_Y and HUB_MIN_Y) or decrease the MAX_SEARCH_DIST. "
-                                                      "[HUB_MAX_X, HUB_MIN_X, HUB_MAX_Y, HUB_MIN_Y, MAX_SEARCH_DIST]: ",
-                                                      [HUB_MAX_X, HUB_MIN_X, HUB_MAX_Y, HUB_MIN_Y, MAX_SEARCH_DIST])
+            pos = self.tooCloseToOtherHubs(nextPos)
+            while pos is not None:
+                if nextPos[0] < pos[0]:
+                    nextPos[0] -= 10
+                else:
+                    nextPos[0] += 10
+                if nextPos[1] < pos[1]:
+                    nextPos[1] -= 10
+                else:
+                    nextPos[1] += 10
+                pos = self.tooCloseToOtherHubs(nextPos)
             self.hubLocations.append(nextPos)
         while len(self.hubRadii) < numHubs:
-            self.hubRadii.append(SITE_RADIUS)
+            self.hubRadii.append(siteRadius)
         while len(self.initialHubAgentCounts) < numHubs:
             self.initialHubAgentCounts.append(random.randint(1, 50))
 
@@ -63,8 +65,8 @@ class World:
         for pos in self.hubLocations:
             if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST * 1.5 and \
                     abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST * 1.5:
-                return True
-        return False
+                return pos
+        return None
 
     def randomizeState(self):
         """ Sets all the agents at random sites """
@@ -87,7 +89,7 @@ class World:
         self.siteRectList[siteIndex].centerx = pos[0]
         self.siteRectList[siteIndex].centery = pos[1]
 
-    def createSites(self, numSites, numHubs):
+    def createSites(self, numSites, numHubs, siteRadius):
         """ Create as many sites as required """
         for siteIndex in range(numSites):
             try:  # Try setting the position to match the position in the specified positions list
@@ -103,7 +105,7 @@ class World:
             try:  # Try setting the radius to match the radius in the specified radii list
                 radius = self.sitesRadii[siteIndex]
             except IndexError:  # If the radii are not specified they will be randomized
-                radius = SITE_RADIUS
+                radius = siteRadius
             self.createSite(x, y, radius, quality, numHubs)
 
     def createSite(self, x, y, radius, quality, numHubs):
@@ -129,15 +131,18 @@ class World:
             self.request.addAgent(agent)
 
     def deleteSelectedAgents(self):
+        originalIndex = 0
         i = 0
         while i < len(self.agentList):
             agent = self.agentList[i]
             if agent.isSelected:
                 self.removeAgent(agent)
+                self.agentsToDeleteIndexes.append(originalIndex)
                 if self.request is not None:
                     self.request.removeAgent(i)
             else:
                 i += 1
+            originalIndex += 1
 
     def removeAgent(self, agent):
         agent.assignedSite.decrementCount(agent.getHubIndex())
@@ -149,6 +154,11 @@ class World:
                 pass
         self.initialHubAgentCounts[agent.getHubIndex()] -= 1
         del agent
+
+    def getDeletedAgentsIndexes(self):
+        indexes = self.agentsToDeleteIndexes
+        self.agentsToDeleteIndexes = []
+        return indexes
 
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """

@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED, CONVERGED
+from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED
 from display import Display
 
 
@@ -30,9 +30,6 @@ def numToState(num, agent):
     if num == GO:
         from model.states.GoState import GoState
         return GoState(agent)
-    if num == CONVERGED:
-        from model.states.ConvergedState import ConvergedState
-        return ConvergedState(agent)
 
 
 class State(ABC):

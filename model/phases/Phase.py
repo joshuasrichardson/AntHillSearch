@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from Constants import CONVERGED
+
 
 def numToPhase(num):
     """ Returns the phase associated with the given number """
@@ -19,6 +21,9 @@ def numToPhase(num):
     if num == COMMIT:
         from model.phases.CommitPhase import CommitPhase
         return CommitPhase()
+    if num == CONVERGED:
+        from model.phases.ConvergedPhase import ConvergedPhase
+        return ConvergedPhase()
 
 
 class Phase(ABC):
@@ -36,6 +41,5 @@ class Phase(ABC):
     def getColor(self):
         pass
 
-    @abstractmethod
     def getSpeed(self, uncommittedSpeed, committedSpeed, speedCoefficient):
-        pass
+        return uncommittedSpeed * speedCoefficient

@@ -1,5 +1,3 @@
-import pygame
-
 from display.WorldDisplay import collidesWithSite, collidesWithAgent
 from user.Controls import Controls
 

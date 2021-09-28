@@ -50,8 +50,8 @@ class UserInterface(LiveSimulation):
     def getShouldDrawPaths(self):
         return False
 
-    def getGraphs(self, numAgents):
-        return SimulationGraphs(numAgents)
+    def getGraphs(self, numAgents, fontSize, largeFontSize):
+        return SimulationGraphs(numAgents, fontSize, largeFontSize)
 
     def getControls(self):
         return UIControls(self.timer, self.world.agentList, self.world, self.graphs)

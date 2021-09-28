@@ -1,7 +1,7 @@
 """ Settings and methods related to the sites' display """
 import pygame
 
-from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS
+from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS, FONT_SIZE
 from display import Display
 from display.Display import drawCircleLines, drawDashedLine, getBlurredImage, drawCircle
 
@@ -17,10 +17,14 @@ def drawSite(site):
         site.siteRect = pygame.Rect(site.pos[0] - site.radius, site.pos[1] - site.radius, site.radius * 2, site.radius * 2)
         Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
         drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
-        img = pygame.font.SysFont('Comic Sans MS', 12).render(str(site.agentCount), True, BORDER_COLOR).convert_alpha()
+        if site.isSelected:
+            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render("Agents: " + str(site.agentCount), True, BORDER_COLOR).convert_alpha()
+        else:
+            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(str(site.agentCount), True, BORDER_COLOR).convert_alpha()
         Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20)))  # Show the number of agents assigned to the site above the site
         if site.isSelected:
-            drawQuality(site)  # Draw the site's quality right in the middle of it if it is selected.
+            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render("Quality: " + str(site.getQuality()), True, WORDS_COLOR).convert_alpha()
+            Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20 + FONT_SIZE)))  # Show the site quality above the site
 
 
 def drawQuality(site):
@@ -60,10 +64,10 @@ def drawAssignmentMarker(site, fromPos, color):
 
 def drawAssignmentMarker2(rect, color):
     """ Draw triangles around the site that point in toward the site """
-    Display.drawRightArrow([rect.left, rect.centery], color)
-    Display.drawLeftArrow([rect.right, rect.centery], color)
-    Display.drawUpArrow([rect.centerx, rect.bottom], color)
-    Display.drawDownArrow([rect.centerx, rect.top], color)
+    Display.drawDownRightArrow(rect.topleft, color)
+    Display.drawUpRightArrow(rect.bottomleft, color)
+    Display.drawUpLeftArrow(rect.bottomright, color)
+    Display.drawDownLeftArrow(rect.topright, color)
 
 
 def drawEstimatedSite(site):

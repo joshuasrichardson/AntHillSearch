@@ -1,7 +1,7 @@
 import time
 
 from Constants import *
-from display import Display
+from display import Display, WorldDisplay
 from display.Graphs import SimulationGraphs
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
@@ -15,27 +15,47 @@ class RecordingPlayer(Simulation):
     def __init__(self):
         self.hubAgentCounts = []
         self.delay = 0
+        WorldDisplay.fog = None
         super().__init__(shouldRecord=False)
 
-    def initializeAgentList(self, hubAgentCounts=HUB_AGENT_COUNTS):
-        super().initializeAgentList(self.hubAgentCounts)
+    def initializeAgentList(self):
+        self.world.initialHubAgentCounts = self.hubAgentCounts
+        super().initializeAgentList()
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                        siteRadii):
+                        siteRadii, siteRadius=SITE_RADIUS):
         self.recorder.read()
-        self.initHubsAgentCounts()
+        addAfter = self.initHubsAgentCounts()
         world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii)
+                      siteQualities, siteRadii, siteRadius)
+        self.addAddedAgents(world, addAfter)
         self.timer.simulationDuration = self.recorder.getNextTime()
 
         return world
 
     def initHubsAgentCounts(self):
+        addAfter = []
         assignmentIndices = self.recorder.getOriginalAssignments()
         for i in range(self.recorder.getNumHubs()):
             self.hubAgentCounts.append(0)
         for i in assignmentIndices:
-            self.hubAgentCounts[i] += 1
+            if i < self.recorder.getNumHubs():
+                self.hubAgentCounts[i] += 1
+            else:
+                addAfter.append(i)
+        return addAfter
+
+    def addAddedAgents(self, world, assignmentIndices):
+        for i, site in enumerate(world.siteList):
+            try:
+                site.setPosition(self.recorder.data[0]['sitePositions'][i])
+            except IndexError:
+                world.removeSite(site)
+        for i in assignmentIndices:
+            hub = world.getClosestHub(world.siteList[i].getPosition())
+            hubIndex = world.hubs.index(hub)
+            hub.incrementCount(hubIndex)
+            self.hubAgentCounts[hubIndex] += 1
 
     def runNextRound(self):
         self.userControls.handleEvents()
@@ -97,24 +117,24 @@ class RecordingPlayer(Simulation):
         if len(self.world.siteList) > len(newPositions):
             self.world.removeSite(self.world.siteList[len(self.world.siteList) - 1])
 
-    def updateAgent(self, agent, agentRectList):
-        try:
-            pos = self.recorder.getNextAgentPosition()
-            agent.updatePosition(pos)
-            angle = self.recorder.getNextAgentAngle()
-            agent.setAngle(angle)
+    def updateAgents(self, agentRectList):
+        self.deleteAgents(self.recorder.getNextAgentsToDelete(), agentRectList)
+        super().updateAgents(agentRectList)
 
-            agentRect = agent.getAgentRect()
-            possibleNeighborList = agentRect.collidelistall(agentRectList)
-            agentNeighbors = []
-            for i in possibleNeighborList:
-                agentNeighbors.append(self.world.agentList[i])
-            agent.setState(self.recorder.getNextState(agent))
-            agent.setPhase(self.recorder.getNextPhase())
-            siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
-            agent.assignSite(siteToAssign)
-        except IndexError:
-            self.world.removeAgent(agent)
+    def deleteAgents(self, agentIndexes, agentRectList):
+        for agentIndex in reversed(agentIndexes):
+            agentRectList.pop(agentIndex)
+            self.world.removeAgent(self.world.agentList[agentIndex])
+
+    def updateAgent(self, agent, agentRectList):
+        pos = self.recorder.getNextAgentPosition()
+        agent.updatePosition(pos)
+        angle = self.recorder.getNextAgentAngle()
+        agent.setAngle(angle)
+        agent.setState(self.recorder.getNextState(agent))
+        agent.setPhase(self.recorder.getNextPhase())
+        siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
+        agent.assignSite(siteToAssign)
 
     def changeDelay(self, seconds):
         self.delay += seconds
@@ -137,8 +157,8 @@ class RecordingPlayer(Simulation):
     def getShouldDrawPaths(self):
         return True
 
-    def getGraphs(self, numAgents):
-        return SimulationGraphs(numAgents)
+    def getGraphs(self, numAgents, fontSize, largeFontSize):
+        return SimulationGraphs(numAgents, fontSize, largeFontSize)
 
     def calcNumAgents(self, hubAgentCounts):
         return self.recorder.getNumAgents()

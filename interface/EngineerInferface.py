@@ -49,5 +49,5 @@ class EngineerInterface(LiveSimulation):
     def getShouldDrawPaths(self):
         return True
 
-    def getGraphs(self, numAgents):
-        return SimulationGraphs(numAgents)
+    def getGraphs(self, numAgents, fontSize, largeFontSize):
+        return SimulationGraphs(numAgents, fontSize, largeFontSize)
