@@ -12,7 +12,7 @@
 
 This program is a simulation of how ants find a new home
 after their previous home has been destroyed. Agents (the 
-ants who go out searching for a new home) go through various
+ants who search for a new home) go through various
 levels of commitment (referred to as phases) as well as various
 states on their way to reaching their new home. Their goal is 
 to converge to the site with the highest quality (to solve the 
@@ -25,7 +25,8 @@ depending on their quality. The bright green sites with fewer
 stripes are the best, and the bright red sites with many 
 stripes are the worst. Brownish sites with an average number 
 of stripes are somewhere in the middle. Agents are represented 
-by smaller circles which have optional colors representing 
+by smaller copters or ants (depending on the settings) and, when 
+they are selected, surrounded by circles with colors representing 
 their current phase and state.
 
 Agents start out in the Explore phase, where they have no 
@@ -38,6 +39,9 @@ they start recruiting other agents to their assigned site. When
 a quorum has met at a site, in other words if enough agents have 
 been assigned to the same site, these agents will enter the 
 Committed phase where their recruiting becomes faster.
+For simulations where there is more than one hub, we added a Converged
+phase. This phase was not in the original model, but we added it
+so that the user can see which groups of agents still need to find a site.
 
 Agents' phases include At Nest, Search, Lead Forward, Follow,
 Transport, Reverse Tandem, and Carried. At Nest means the agent is
@@ -47,8 +51,8 @@ the state where agents in the Canvasing phase start to recruit other
 agents to their site. Follow is where the agent goes with an agent 
 in the Lead Forward or Reverse Tandem state to get to another site.
 Reverse Tandem happens in the committed phase when an agent leads
-other agents from the site they are committed to to another site that the
-leader knows about, and from there, they each lead more agents back
+other agents from their assigned site to another site they know about. 
+From there, both the leader and the follower lead more agents back
 to the site they are committed to. Transport also only happens in 
 the Committed phase, but with the Transport state, committed agents
 pick up agents that are either searching or at a nest, not just at
@@ -59,12 +63,13 @@ site to evaluate it for themselves.
 More details about the phases and states can be found by reading
 ["An agent-based model of collective nest choice by the ant Temnothorax albipennis"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/S0003347205002332) 
 by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R. 
-Franks. The model in this program is based mostly on the model represented in the 
-"Structure of the Model" section of this paper.
+Franks. The model in this Anthill Search program is mostly based on the 
+model represented in the "Structure of the Model" section of this paper, b
+ut adjustments such as the converged phase and the Go state have been added.
 
 Another useful paper about this topic is found at 
 ["Nest Site Choices in Social Insects"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/B9780128096338012620?via%3Dihub) 
-I did not find this one till after the model was implemented,
+I did not find this one till after implementing the model,
 but it had useful information about when the ants decide to 
 switch from the Canvas phase to the Commit phase.
 It also contains a paragraph about factors that make a site good.
@@ -80,8 +85,8 @@ it is running.
 ## Running the Program
 
 1. Using the terminal, navigate to the <code>AntHillSearch/</code>
-   directory on your computer (It should be the same directory 
-   this <code>README.md</code> file is in).
+   directory on your computer (It should be the same directory as 
+   this <code>README.md</code>).
 2. If this is your first time running the program on your machine,
    enter <code>pip install -r requirements.txt</code>
 3. To change parameters from the default parameters, set 
@@ -101,7 +106,9 @@ impact on the set up and behavior of the simulation. The default
 parameters and more information about them can be found in 
 <code>Constants.py</code>. Most of these can be overridden by 
 passing something else in as a parameter in
-<code>Colony.py</code>'s <code>main()</code> method. 
+<code>Colony.py</code>'s <code>main()</code> method. They are
+also overridden by settings set while the program is running
+that appear in the <code>display/mainmenu/settings.json</code> file.
 Important methods and their parameters to know about are listed 
 below.
 
@@ -250,7 +257,11 @@ Note that this method can not be used with the RecordingPlayer.
 
 ## Interfaces
 
-There are currently 4 different interfaces available.
+There are currently 4 different interfaces available as listed below.
+
+For a more game-like simulation, you can make a <code>StartUpDisplay</code>
+object and pass an interface into the constructor. To play this one,
+call <code>run()</code> on the <code>StartUpDisplay</code> object.
 
 ### EngineerInterface
 

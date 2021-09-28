@@ -8,8 +8,7 @@ parts
 src/*.egg-info
 lib
 lib64
-/recording/recording.txt
 /recording/recording.json
-/display/mainmenu/settings.json
 /__pycache__/*
 /venv/
+/Colony.prof

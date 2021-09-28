@@ -200,54 +200,117 @@ class Settings:
             self.write('convergenceFraction', self.convergenceFraction)
         elif value == "Simulation Duration":
             self.simDuration = self.getUserInputInt(self.simDuration, self.valueRects[1].topright)
+            if self.simDuration > MAX_TIME:
+                self.simDuration = MAX_TIME
+            if self.simDuration < 0:
+                self.simDuration = 0
             self.write('simDuration', self.simDuration)
         elif value == "Font Size":
             self.fontSize = self.getUserInputInt(self.fontSize, self.valueRects[2].topright)
+            if self.fontSize > 50:
+                self.fontSize = 50
+            if self.fontSize < 5:
+                self.fontSize = 5
             self.write('fontSize', self.fontSize)
         elif value == "Large Font Size":
             self.largeFontSize = self.getUserInputInt(self.largeFontSize, self.valueRects[3].topright)
+            if self.largeFontSize > 100:
+                self.largeFontSize = 100
+            if self.largeFontSize < 10:
+                self.largeFontSize = 10
             self.write('largeFontSize', self.largeFontSize)
         elif value == "Number of Hubs":
             self.numHubs = self.getUserInputInt(self.numHubs, self.valueRects[4].topright)
+            if self.numHubs > MAX_NUM_SITES / 6:
+                self.numHubs = int(MAX_NUM_SITES / 6)
+            if self.numHubs < 1:
+                self.numHubs = 1
             self.write('numHubs', self.numHubs)
         elif value == "Hub Locations":
             self.hubLocations = self.getUserInputArray(self.hubLocations, self.valueRects[5].topright, 2)
+            # TODO: Limited it to be within the screen
             self.write('hubLocations', self.hubLocations)
         elif value == "Hub Radii":
             self.hubRadii = self.getUserInputArray(self.hubRadii, self.valueRects[6].topright, 1)
+            for i in range(len(self.hubRadii)):
+                if self.hubRadii[i] > 100:
+                    self.hubRadii[i] = 100
+                if self.hubRadii[i] < 5:
+                    self.hubRadii[i] = 5
             self.write('hubRadii', self.hubRadii)
         elif value == "Hub Agent Counts":
             self.hubAgentCounts = self.getUserInputArray(self.hubAgentCounts, self.valueRects[7].topright, 1)
+            for i in range(len(self.hubAgentCounts)):
+                if self.hubAgentCounts[i] > 200:
+                    self.hubAgentCounts[i] = 200
+                if self.hubAgentCounts[i] < 0:
+                    self.hubAgentCounts[i] = 0
             self.write('hubAgentCounts', self.hubAgentCounts)
         elif value == "Number of Sites":
             self.numSites = self.getUserInputInt(self.numSites, self.valueRects[8].topright)
+            if self.numSites > MAX_NUM_SITES:
+                self.numSites = MAX_NUM_SITES
+            if self.numSites < 0:
+                self.numSites= 0
             self.write('numSites', self.numSites)
         elif value == "Site Positions":
+            # TODO
             self.sitePositions = self.getUserInputArray(self.sitePositions, self.valueRects[9].topright, 2)
             self.write('sitePositions', self.sitePositions)
         elif value == "Site Qualities":
             self.siteQualities = self.getUserInputArray(self.siteQualities, self.valueRects[10].topright, 1)
+            for i in range(len(self.siteQualities)):
+                if self.siteQualities[i] > 255:
+                    self.siteQualities[i] = 255
+                if self.siteQualities[i] < 0:
+                    self.siteQualities[i] = 0
             self.write('siteQualities', self.siteQualities)
         elif value == "Site Radii":
             self.siteRadii = self.getUserInputArray(self.siteRadii, self.valueRects[11].topright, 1)
+            for i in range(len(self.siteRadii)):
+                if self.siteRadii[i] > 100:
+                    self.siteRadii[i] = 100
+                if self.siteRadii[i] < 5:
+                    self.siteRadii[i] = 5
             self.write('siteRadii', self.siteRadii)
         elif value == "Should Record":
-            self.shouldRecord = self.getUserInputInt(self.shouldRecord, self.valueRects[12].topright)  # TODO
+            self.shouldRecord = self.getUserInputBool(self.shouldRecord, self.valueRects[12].topright, str(not self.shouldRecord))
             self.write('shouldRecord', self.shouldRecord)
         elif value == "Default Site Radius":
             self.siteRadius = self.getUserInputInt(self.siteRadius, self.valueRects[13].topright)
+            if self.siteRadius > 100:
+                self.siteRadius = 100
+            if self.siteRadius < 5:
+                self.siteRadius = 5
             self.write('siteRadius', self.siteRadius)
         elif value == "Site No Closer Than":
             self.siteNoCloserThan = self.getUserInputInt(self.siteNoCloserThan, self.valueRects[14].topright)
+            if self.siteNoCloserThan >= self.siteNoFartherThan:
+                self.siteNoCloserThan = self.siteNoFartherThan - 10
+            if self.siteNoCloserThan < 0:
+                self.siteNoCloserThan = 0
             self.write('siteNoCloserThan', self.siteNoCloserThan)
         elif value == "Site No Farther Than":
             self.siteNoFartherThan = self.getUserInputInt(self.siteNoFartherThan, self.valueRects[15].topright)
+            if self.siteNoFartherThan > MAX_SEARCH_DIST:
+                self.siteNoFartherThan = MAX_SEARCH_DIST
+            if self.siteNoFartherThan <= self.siteNoCloserThan:
+                self.siteNoFartherThan = self.siteNoCloserThan + 10
             self.write('siteNoFartherThan', self.siteNoFartherThan)
         elif value == "Agent Image":
-            self.agentImage = self.getUserInputString(self.agentImage, self.valueRects[16].topright)
+            if self.agentImage == "resources/copter.png":
+                self.agentImage = self.getUserInputString(self.agentImage, self.valueRects[16].topright, "resources/ant.png")
+            else:
+                self.agentImage = self.getUserInputString(self.agentImage, self.valueRects[16].topright, "resources/copter.png")
+            if self.agentImage != "resources/copter.png" and self.agentImage != "resources/ant.png":
+                self.agentImage = "resources/ant.png"
             self.write('agentImage', self.agentImage)
         elif value == "Max Search Distance":
             self.maxSearchDist = self.getUserInputInt(self.maxSearchDist, self.valueRects[17].topright)
+            if self.maxSearchDist < 10:
+                self.maxSearchDist = 10
+            if self.maxSearchDist > 5000:
+                self.maxSearchDist = 5000
             self.write('maxSearchDist', self.maxSearchDist)
         self.setValuesWithJson()
 
@@ -266,9 +329,9 @@ class Settings:
         self.userInput = ' -> 0%'
         return self.getUserInput(originalValue, pos, "percent")
 
-    def getUserInputString(self, originalValue, pos):
-        self.userInputValue = ''
-        self.userInput = ' -> '
+    def getUserInputString(self, originalValue, pos, autofill):
+        self.userInputValue = autofill
+        self.userInput = ' -> ' + autofill
         return self.getUserInput(originalValue, pos, "string")
 
     def getUserInputArray(self, originalValue, pos, depth):
@@ -276,6 +339,10 @@ class Settings:
         self.userInput = " -> "
         self.arrayStates = ArrayStateMachine(depth)
         return self.getUserInput(originalValue, pos, "array")
+
+    def getUserInputBool(self, originalValue, pos, autofill):
+        boolString = self.getUserInputString(originalValue, pos, autofill)
+        return boolString == "True" or boolString == "T" or boolString == "true" or boolString == "t" or boolString == "1"
 
     def getUserInput(self, originalValue, pos, inputType):
         while 1:
@@ -290,6 +357,8 @@ class Settings:
                     return self.userInputValue
                 elif event.type == MOUSEBUTTONDOWN or event.type == KEYDOWN and event.key == K_ESCAPE:
                     return originalValue
+                elif event.type == MOUSEMOTION:
+                    self.setMouse()
                 elif inputType == "int":
                     if event.type == KEYDOWN and event.unicode.isnumeric():
                         self.appendNumber(int(event.unicode))
@@ -315,7 +384,7 @@ class Settings:
                     raise GameOver("Game Over")
 
     def appendNumber(self, number):
-        if self.userInputValue == 0 or self.userInputValue > 2000:  # TODO: Error handling with this
+        if self.userInputValue == 0 or self.userInputValue > 2000:
             self.userInputValue = number
         else:
             self.userInputValue *= 10
@@ -323,17 +392,20 @@ class Settings:
         self.userInput = ' -> ' + str(self.userInputValue)
 
     def appendPercentageNumber(self, number):
-        if self.userInputValue == 0.00 or (self.userInputValue > 0.10 and number != 0):
-            self.userInputValue = float(number) / 100.00
-        else:
-            self.userInputValue *= 10
-            self.userInputValue = round(self.userInputValue + (float(number) / 100.00), 2)
-        if self.userInputValue > 1.0:
-            self.userInputValue = 1.00
+        try:
+            if self.userInputValue == 0.00 or (self.userInputValue > 0.10 and number != 0):
+                self.userInputValue = float(number) / 100.00
+            else:
+                self.userInputValue *= 10
+                self.userInputValue = round(self.userInputValue + (float(number) / 100.00), 2)
+            if self.userInputValue > 1.0:
+                self.userInputValue = 1.00
+        except ValueError:
+            self.userInputValue = 0.00
         self.userInput = ' -> ' + str(int(self.userInputValue * 100)) + "%"
 
     def appendLetter(self, letter):
-        if len(self.userInputValue) == 0 or len(self.userInputValue) > 100:  # TODO: Error handling with this
+        if len(self.userInputValue) == 0 or len(self.userInputValue) > 100:
             self.userInputValue = letter
         else:
             self.userInputValue += letter
@@ -380,7 +452,7 @@ class Settings:
             self.userInput = ' -> ' + str(self.userInputValue)
 
     def deleteLastArrayPart(self):
-        pass  # TODO: go backwards in the state machines.
+        self.userInput = self.arrayStates.back()
 
     def showUserInput(self, pos):
         Display.write(Display.screen, self.userInput, int(self.fontSize * 1.5), pos[0], pos[1], ASSESS_COLOR)

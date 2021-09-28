@@ -41,7 +41,7 @@ class Simulation(ABC):
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii, siteRadius)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
-        self.chosenHomes = self.initChosenHomes(len(hubLocations))  # The site that most of the agents are assigned to when the interface ends
+        self.chosenHomes = self.initChosenHomes(numHubs)  # The site that most of the agents are assigned to when the interface ends
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
         self.userControls = self.getControls()
@@ -186,7 +186,7 @@ class Simulation(ABC):
         if Display.shouldDraw:
             Display.drawFinish(Display.screen, results)
             pygame.display.flip()
-        self.userControls.waitForUser()
+            self.userControls.waitForUser()
         return results
 
     def save(self):

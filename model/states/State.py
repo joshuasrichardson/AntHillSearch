@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED, CONVERGED
+from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED
 from display import Display
 
 

@@ -44,16 +44,17 @@ class World:
             self.hubLocations.append([650, 325])
         while len(self.hubLocations) < numHubs:
             nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
-            tries = 0
-            while self.tooCloseToOtherHubs(nextPos):
-                nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
-                tries += 1
-                if tries > 200:
-                    raise ColonyExceptions.InputError("The hub boundaries are too small for the search distance. "
-                                                      "Either Increase the difference between (HUB_MAX_X and HUB_MIN_X) "
-                                                      "and (HUB_MAX_Y and HUB_MIN_Y) or decrease the MAX_SEARCH_DIST. "
-                                                      "[HUB_MAX_X, HUB_MIN_X, HUB_MAX_Y, HUB_MIN_Y, MAX_SEARCH_DIST]: ",
-                                                      [HUB_MAX_X, HUB_MIN_X, HUB_MAX_Y, HUB_MIN_Y, MAX_SEARCH_DIST])
+            pos = self.tooCloseToOtherHubs(nextPos)
+            while pos is not None:
+                if nextPos[0] < pos[0]:
+                    nextPos[0] -= 10
+                else:
+                    nextPos[0] += 10
+                if nextPos[1] < pos[1]:
+                    nextPos[1] -= 10
+                else:
+                    nextPos[1] += 10
+                pos = self.tooCloseToOtherHubs(nextPos)
             self.hubLocations.append(nextPos)
         while len(self.hubRadii) < numHubs:
             self.hubRadii.append(siteRadius)
@@ -64,8 +65,8 @@ class World:
         for pos in self.hubLocations:
             if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST * 1.5 and \
                     abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST * 1.5:
-                return True
-        return False
+                return pos
+        return None
 
     def randomizeState(self):
         """ Sets all the agents at random sites """
