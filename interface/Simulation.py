@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
+import Constants
 from Constants import *
 from display import Display, SiteDisplay
 from display.WorldDisplay import drawWorldObjects
@@ -276,40 +277,58 @@ class Simulation(ABC):
                 data = json.load(file)
             if 'convergenceFraction' in data:
                 cf = data['convergenceFraction']
+                Constants.CONVERGENCE_FRACTION = cf
             if 'simDuration' in data:
                 sd = data['simDuration']
+                Constants.SIM_DURATION = sd
             if 'fontSize' in data:
                 fs = data['fontSize']
+                Constants.FONT_SIZE = fs
             if 'largeFontSize' in data:
                 lfs = data['largeFontSize']
+                Constants.LARGE_FONT_SIZE = lfs
             if 'numHubs' in data:
                 nh = data['numHubs']
+                Constants.NUM_HUBS = nh
             if 'hubLocations' in data:
                 hl = data['hubLocations']
+                Constants.HUB_LOCATIONS = hl
             if 'hubRadii' in data:
                 hr = data['hubRadii']
+                Constants.HUB_RADII = hr
             if 'hubAgentCounts' in data:
                 hac = data['hubAgentCounts']
+                Constants.HUB_AGENT_COUNTS = hac
             if 'numSites' in data:
                 ns = data['numSites']
+                Constants.NUM_SITES = ns
             if 'sitePositions' in data:
                 sp = data['sitePositions']
+                Constants.SITE_POSITIONS = sp
             if 'siteQualities' in data:
                 sq = data['siteQualities']
+                Constants.SITE_QUALITIES = sq
             if 'siteRadii' in data:
                 sr = data['siteRadii']
+                Constants.SITE_RADII = sr
             if 'shouldRecord' in data:
                 sRec = data['shouldRecord']
+                Constants.SHOULD_RECORD = sRec
             if 'siteRadius' in data:
                 sRadius = data['siteRadius']
+                Constants.SITE_RADIUS = sRadius
             if 'siteNoCloserThan' in data:
                 snct = data['siteNoCloserThan']
+                Constants.SITE_NO_CLOSER_THAN = snct
             if 'siteNoFartherThan' in data:
                 snft = data['siteNoFartherThan']
+                Constants.SITE_NO_FARTHER_THAN = snft
             if 'agentImage' in data:
                 ai = data['agentImage']
+                Constants.AGENT_IMAGE = ai
             if 'maxSearchDist' in data:
                 msd = data['maxSearchDist']
+                Constants.MAX_SEARCH_DIST = msd
         except FileNotFoundError:
             print("File 'mainmenu/settings.json' Not Found")
         except json.decoder.JSONDecodeError:

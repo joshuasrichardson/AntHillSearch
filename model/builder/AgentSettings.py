@@ -1,7 +1,8 @@
+import Constants
 from Constants import *
 
 
-maxSearchDistance = MAX_SEARCH_DIST  # The farthest distance an agent can go away from their assigned hub while searching
+maxSearchDistance = Constants.MAX_SEARCH_DIST  # The farthest distance an agent can go away from their assigned hub while searching
 findAssignedSiteEasily = FIND_SITES_EASILY  # Whether agents know where sites are after they have moved
 commitSpeedFactor = COMMIT_SPEED_FACTOR  # How many times faster the agents get when they commit
 homogenousAgents = HOMOGENOUS_AGENTS

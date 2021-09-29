@@ -292,8 +292,8 @@ class Settings:
             self.write('siteNoCloserThan', self.siteNoCloserThan)
         elif value == "Site No Farther Than":
             self.siteNoFartherThan = self.getUserInputInt(self.siteNoFartherThan, self.valueRects[15].topright)
-            if self.siteNoFartherThan > MAX_SEARCH_DIST:
-                self.siteNoFartherThan = MAX_SEARCH_DIST
+            if self.siteNoFartherThan > self.maxSearchDist:
+                self.siteNoFartherThan = self.maxSearchDist
             if self.siteNoFartherThan <= self.siteNoCloserThan:
                 self.siteNoFartherThan = self.siteNoCloserThan + 10
             self.write('siteNoFartherThan', self.siteNoFartherThan)

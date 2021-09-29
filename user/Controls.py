@@ -6,6 +6,7 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT
 
+import Constants
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, \
     TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, SET_STATE_NAME, GO_NAME
 from display import Display
@@ -196,16 +197,16 @@ class Controls:
     def moveScreen(self):
         if not pygame.key.get_mods() & pygame.KMOD_CAPS:
             mousePos = pygame.mouse.get_pos()
-            if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -MAX_SEARCH_DIST + Display.origWidth - Display.newWidth:
+            if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -Constants.MAX_SEARCH_DIST + Display.origWidth - Display.newWidth:
                 Display.displacementX -= 25
                 Display.addToDrawLast(Display.drawRightArrow, mousePos, COMMIT_COLOR, False)
-            if mousePos[1] <= 3 and Display.displacementY <= MAX_SEARCH_DIST:
+            if mousePos[1] <= 3 and Display.displacementY <= Constants.MAX_SEARCH_DIST:
                 Display.displacementY += 25
                 Display.addToDrawLast(Display.drawUpArrow, mousePos, COMMIT_COLOR, False)
-            if mousePos[0] <= 3 and Display.displacementX <= MAX_SEARCH_DIST:
+            if mousePos[0] <= 3 and Display.displacementX <= Constants.MAX_SEARCH_DIST:
                 Display.displacementX += 25
                 Display.addToDrawLast(Display.drawLeftArrow, mousePos, COMMIT_COLOR, False)
-            if mousePos[1] >= Display.screen.get_height() - 30 and Display.displacementY >= -MAX_SEARCH_DIST + Display.origHeight - Display.newHeight:
+            if mousePos[1] >= Display.screen.get_height() - 30 and Display.displacementY >= -Constants.MAX_SEARCH_DIST + Display.origHeight - Display.newHeight:
                 Display.displacementY -= 25
                 Display.addToDrawLast(Display.drawDownArrow, mousePos, COMMIT_COLOR, False)
         if self.paused:

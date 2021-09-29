@@ -57,11 +57,11 @@ MAX_NUM_SITES = 30  # Maximum number of possible sites
 
 SCREEN_COLOR = 225, 220, 190  # Light brown
 
-WORDS_COLOR = 0, 100, 0  # Dark green
+WORDS_COLOR = 0, 41, 0  # Dark green
 
-BORDER_COLOR = 115, 110, 80  # Dark Brown
+BORDER_COLOR = 105, 100, 70  # Dark Brown
 
-FOG_COLOR = 45, 40, 12
+FOG_COLOR = 145, 140, 112  # Grey
 
 TRANSPARENT = 60, 60, 60
 

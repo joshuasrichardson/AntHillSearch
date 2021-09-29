@@ -29,6 +29,8 @@ by smaller copters or ants (depending on the settings) and, when
 they are selected, surrounded by circles with colors representing 
 their current phase and state.
 
+### Phases: Levels of Commitment
+
 Agents start out in the Explore phase, where they have no 
 knowledge of any site beside the hub. When they come to a new 
 site, they enter the Assess phase, where they initially accept 
@@ -42,6 +44,8 @@ Committed phase where their recruiting becomes faster.
 For simulations where there is more than one hub, we added a Converged
 phase. This phase was not in the original model, but we added it
 so that the user can see which groups of agents still need to find a site.
+
+### States
 
 Agents' phases include At Nest, Search, Lead Forward, Follow,
 Transport, Reverse Tandem, and Carried. At Nest means the agent is
@@ -60,6 +64,8 @@ a nest. The Carried state is where an agent is picked up by another
 agent in the Transport state and brought to the transporting agent's
 site to evaluate it for themselves.
 
+### References
+
 More details about the phases and states can be found by reading
 ["An agent-based model of collective nest choice by the ant Temnothorax albipennis"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/S0003347205002332) 
 by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R. 
@@ -75,6 +81,8 @@ switch from the Canvas phase to the Commit phase.
 It also contains a paragraph about factors that make a site good.
 We could implement these in the future, but for now, the quality is 
 just represented by a number.
+
+### Additional Information
 
 In addition to the states and phases described above, many options for 
 user interaction have been added. See the "Parameters" section for 

@@ -1,7 +1,8 @@
 """ Methods related to the world's display """
 import pygame
 
-from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, MAX_SEARCH_DIST, FOG_COLOR, NO_MARKER_NAME
+import Constants
+from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO_MARKER_NAME
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.SiteDisplay import drawEstimatedSite, drawSite
@@ -54,27 +55,27 @@ def drawMarkers(world):
 def initFog(hubs):
     global fog
     w, h = Display.screen.get_size()
-    w += (MAX_SEARCH_DIST * 2)
-    h += (MAX_SEARCH_DIST * 2)
+    w += (Constants.MAX_SEARCH_DIST * 2)
+    h += (Constants.MAX_SEARCH_DIST * 2)
     fog = pygame.Surface((w, h))
     fog.fill(FOG_COLOR)
     fog.set_colorkey(TRANSPARENT)
     for hub in hubs:
         pos = hub.getPosition()
-        x = pos[0] + MAX_SEARCH_DIST
-        y = pos[1] + MAX_SEARCH_DIST
+        x = pos[0] + Constants.MAX_SEARCH_DIST
+        y = pos[1] + Constants.MAX_SEARCH_DIST
         pygame.draw.circle(fog, TRANSPARENT, [x, y], HUB_OBSERVE_DIST + hub.radius * 2, 0)
 
 
 def drawFog():
     if fog is not None:
-        Display.blitImage(Display.screen, fog, (-MAX_SEARCH_DIST, -MAX_SEARCH_DIST))
+        Display.blitImage(Display.screen, fog, (-Constants.MAX_SEARCH_DIST, -Constants.MAX_SEARCH_DIST))
 
 
 def eraseFog(pos):
     if fog is not None:
-        x = pos[0] + MAX_SEARCH_DIST
-        y = pos[1] + MAX_SEARCH_DIST
+        x = pos[0] + Constants.MAX_SEARCH_DIST
+        y = pos[1] + Constants.MAX_SEARCH_DIST
         pygame.draw.circle(fog, TRANSPARENT, [x, y], 22, 0)
 
 

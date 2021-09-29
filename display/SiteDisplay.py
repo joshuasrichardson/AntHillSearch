@@ -1,9 +1,10 @@
 """ Settings and methods related to the sites' display """
+import numpy
 import pygame
 
 from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS, FONT_SIZE
 from display import Display
-from display.Display import drawCircleLines, drawDashedLine, getBlurredImage, drawCircle
+from display.Display import drawDashedLine, getBlurredImage, drawCircle, drawLine
 
 knowSitePosAtStart = DRAW_ESTIMATES  # Whether the user knows where the sites are at the start of the interface
 
@@ -25,6 +26,34 @@ def drawSite(site):
         if site.isSelected:
             img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render("Quality: " + str(site.getQuality()), True, WORDS_COLOR).convert_alpha()
             Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20 + FONT_SIZE)))  # Show the site quality above the site
+
+
+def drawCircleLines(surface, circle, color, inc, adjust=True):
+    """ Draws vertical and horizontal lines on the circle with the specified color and distance between lines """
+    drawVerticalCircleLines(surface, circle, color, inc, adjust)
+    drawHorizontalCircleLines(surface, circle, color, inc, adjust)
+
+
+def drawVerticalCircleLines(surface, circle, color, inc, adjust=True):
+    """ Draws vertical lines on the circle with the specified color and distance between lines """
+    x = circle.left
+    r = (circle.height / 2)
+    while x < circle.right:
+        o = x - circle.left
+        a = numpy.sqrt(numpy.abs(numpy.square(r) - numpy.square(r - o)))
+        drawLine(surface, color, (x, circle.centery - a), (x,  circle.centery + a), adjust=adjust)
+        x += inc
+
+
+def drawHorizontalCircleLines(surface, circle, color, inc, adjust=True):
+    """ Draws horizontal lines on the circle with the specified color and distance between lines """
+    y = circle.top
+    r = (circle.width / 2)
+    while y < circle.bottom:
+        o = y - circle.top
+        a = numpy.sqrt(numpy.abs(numpy.square(r) - numpy.square(r - o)))
+        drawLine(surface, color, (circle.centerx - a, y), (circle.centerx + a, y), adjust=adjust)
+        y += inc
 
 
 def drawQuality(site):

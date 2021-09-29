@@ -95,34 +95,6 @@ def drawFinish(surface, results):
         write(surface, "Site " + str(i + 1) + " Quality: " + str(quality), FONT_SIZE, x, y)
 
 
-def drawCircleLines(surface, circle, color, inc, adjust=True):
-    """ Draws vertical and horizontal lines on the circle with the specified color and distance between lines """
-    drawVerticalCircleLines(surface, circle, color, inc, adjust)
-    drawHorizontalCircleLines(surface, circle, color, inc, adjust)
-
-
-def drawVerticalCircleLines(surface, circle, color, inc, adjust=True):
-    """ Draws vertical lines on the circle with the specified color and distance between lines """
-    x = circle.left
-    r = (circle.height / 2)
-    while x < circle.right:
-        o = x - circle.left
-        a = numpy.sqrt(numpy.abs(numpy.square(r) - numpy.square(r - o)))
-        drawLine(surface, color, (x, circle.centery - a), (x,  circle.centery + a), adjust=adjust)
-        x += inc
-
-
-def drawHorizontalCircleLines(surface, circle, color, inc, adjust=True):
-    """ Draws horizontal lines on the circle with the specified color and distance between lines """
-    y = circle.top
-    r = (circle.width / 2)
-    while y < circle.bottom:
-        o = y - circle.top
-        a = numpy.sqrt(numpy.abs(numpy.square(r) - numpy.square(r - o)))
-        drawLine(surface, color, (circle.centerx - a, y), (circle.centerx + a, y), adjust=adjust)
-        y += inc
-
-
 def getAgentImage(pos):
     """ Loads, adjusts the size, and returns the image representing an agent """
     agent = pygame.image.load(agentImage)

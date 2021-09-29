@@ -4,7 +4,7 @@ import random
 import numpy as np
 from pygame import Rect
 
-import ColonyExceptions
+import Constants
 from Constants import *
 from display import Display
 from model.builder import SiteBuilder
@@ -46,6 +46,7 @@ class World:
             nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
             pos = self.tooCloseToOtherHubs(nextPos)
             while pos is not None:
+                # Make sure the hubs are not too close together
                 if nextPos[0] < pos[0]:
                     nextPos[0] -= 10
                 else:
@@ -62,9 +63,10 @@ class World:
             self.initialHubAgentCounts.append(random.randint(1, 50))
 
     def tooCloseToOtherHubs(self, nextPos):
+        """ If another hub is too close, return that hub's position. """
         for pos in self.hubLocations:
-            if abs(pos[0] - nextPos[0]) < MAX_SEARCH_DIST * 1.5 and \
-                    abs(pos[1] - nextPos[1]) < MAX_SEARCH_DIST * 1.5:
+            if abs(pos[0] - nextPos[0]) < Constants.MAX_SEARCH_DIST * 1.5 and \
+                    abs(pos[1] - nextPos[1]) < Constants.MAX_SEARCH_DIST * 1.5:
                 return pos
         return None
 
