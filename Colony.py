@@ -17,7 +17,6 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-
 # TODO: Make option button prettier
 # TODO: Draw small lines around the hubs showing which directions ants left or came back
 # TODO: Mark a site that has been converged to when there are multiple hubs.
@@ -43,10 +42,10 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 def main():
     try:
         # startUpScreen = StartUpDisplay(EngineerInterface)
-        startUpScreen = StartUpDisplay(UserInterface)
-        startUpScreen.run()
+        # startUpScreen = StartUpDisplay(UserInterface)
+        # startUpScreen.run()
         # runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
-        # runSimWithInterface(UserInterface(numSites=3))  # The interface that only shows what is known from the hub and has limited control
+        runSimWithInterface(UserInterface(numSites=10))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:
