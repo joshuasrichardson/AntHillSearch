@@ -29,15 +29,16 @@ class SimulationGraphs:
         self.pauseButton = pygame.draw.rect(Display.screen, BORDER_COLOR,
                                             pygame.Rect(Display.screen.get_width() - 60, self.y, 20, 20), 1)
 
-        self.selectAgentsRect = pygame.Rect(self.x3, self.y + (fontSize / 2), fontSize - 2, fontSize - 2)
-        self.selectSitesRect = pygame.Rect(self.x3, self.y + fontSize + (fontSize / 2), fontSize - 2, fontSize - 2)
-        self.selectAgentsSitesRect = pygame.Rect(self.x3, self.y + 2 * fontSize + (fontSize / 2), fontSize - 2, fontSize - 2)
-        self.selectSitesAgentsRect = pygame.Rect(self.x3, self.y + 3 * fontSize + (fontSize / 2), fontSize - 2, fontSize - 2)
-        self.commandSiteAgentsRect = pygame.Rect(self.x5, self.y + (fontSize / 2), fontSize - 2, fontSize - 2)
-        self.showOptionsRect = pygame.Rect(self.x5, self.y + fontSize + (fontSize / 2), fontSize - 2, fontSize - 2)
+        self.selectAgentsRect = pygame.Rect(Display.origWidth - 3 * (14 * fontSize), Display.origHeight - (7 * fontSize + 2), 13 * fontSize, 2 * fontSize)
+        self.selectSitesRect = pygame.Rect(Display.origWidth - 2 * (14.25 * fontSize), Display.origHeight - (7 * fontSize + 2), 13 * fontSize, 2 * fontSize)
+        self.selectAgentsSitesRect = pygame.Rect(Display.origWidth - 3 * (14 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
+        self.selectSitesAgentsRect = pygame.Rect(Display.origWidth - 2 * (14.25 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
+        self.commandSiteAgentsRect = pygame.Rect(Display.origWidth - (15 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
+        self.showOptionsRect = pygame.Rect(Display.origWidth / 2 - (6.5 * fontSize), Display.origHeight / 2 - fontSize, 13 * fontSize, 2 * fontSize)
         self.nextButton = None
         self.previousButton = None
-        self.exitButton = None
+        self.closeButton = None
+        self.exitButton = pygame.Rect(Display.origWidth / 2 - (6.5 * fontSize), Display.origHeight - 140, 13 * fontSize, 2 * fontSize)
         self.screenBorder = None
 
         self.shouldDrawGraphs = True
@@ -54,9 +55,13 @@ class SimulationGraphs:
         img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (self.x2, self.y))
 
-    def write4(self, words):
-        img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
-        Display.screen.blit(img, (self.x4, self.y))
+    def write4(self, words, selected, box):
+        color = WORDS_COLOR
+        if selected:
+            color = SCREEN_COLOR
+        img = self.font.render(words, True, color).convert_alpha()
+        Display.screen.blit(img, (box.centerx - (img.get_width() / 2),
+                                  box.centery - (img.get_height() / 2)))
 
     def drawStateGraph(self, states):
         if self.shouldDrawGraphs:
@@ -110,30 +115,41 @@ class SimulationGraphs:
                              commandSiteAgents, shouldShowOptions, paused):
         if self.shouldDrawGraphs:
             self.y = GRAPHS_TOP_LEFT[1]
-            self.write2("Select Agents:")
             self.drawSelectBox(shouldSelectAgents, self.selectAgentsRect)
+            self.write4("Select Agents", shouldSelectAgents, self.selectAgentsRect)
 
             self.incrementY()
-            self.write2("Select Sites:")
             self.drawSelectBox(shouldSelectSites, self.selectSitesRect)
+            self.write4("Select Sites", shouldSelectSites, self.selectSitesRect)
 
             if Display.canSelectAnywhere:
                 self.incrementY()
-                self.write2("Select Agents Sites:")
                 self.drawSelectBox(shouldSelectAgentSites, self.selectAgentsSitesRect)
+                self.write4("Select Agents Sites", shouldSelectAgentSites, self.selectAgentsSitesRect)
 
                 self.incrementY()
-                self.write2("Select Sites Agents:")
                 self.drawSelectBox(shouldSelectSiteAgents, self.selectSitesAgentsRect)
+                self.write4("Select Sites Agents", shouldSelectSiteAgents, self.selectSitesAgentsRect)
 
             self.y = GRAPHS_TOP_LEFT[1]
-            self.write4("Command Site Agents:")
             self.drawSelectBox(commandSiteAgents, self.commandSiteAgentsRect)
+            self.write4("Command Site Agents", commandSiteAgents, self.commandSiteAgentsRect)
 
             if paused:
                 self.incrementY()
-                self.write4("Show Options:")
                 self.drawSelectBox(shouldShowOptions, self.showOptionsRect)
+                self.write4("Options", shouldShowOptions, self.showOptionsRect)
+
+    def drawSelectBox(self, shouldSelect, rectangle):
+        color = self.getShouldSelectColor(shouldSelect)
+        pygame.draw.rect(Display.screen, color, rectangle)
+
+    @staticmethod
+    def getShouldSelectColor(shouldSelect):
+        if shouldSelect:
+            return WORDS_COLOR
+        else:
+            return BORDER_COLOR
 
     def collidesWithAnyButton(self, position):
         return self.collidesWithSelectAgentsButton(position) or \
@@ -145,6 +161,7 @@ class SimulationGraphs:
                     self.collidesWithPauseButton(position) or \
                     self.collidesWithNextButton(position) or \
                     self.collidesWithPreviousButton(position) or \
+                    self.collidesWithCloseButton(position) or \
                     self.collidesWithExitButton(position)
 
     def collidesWithSelectAgentsButton(self, position):
@@ -178,21 +195,15 @@ class SimulationGraphs:
             return False
         return self.previousButton.collidepoint(position)
 
+    def collidesWithCloseButton(self, position):
+        if self.closeButton is None:
+            return False
+        return self.closeButton.collidepoint(position)
+
     def collidesWithExitButton(self, position):
         if self.exitButton is None:
             return False
         return self.exitButton.collidepoint(position)
-
-    def drawSelectBox(self, shouldSelect, rectangle):
-        color = self.getShouldSelectColor(shouldSelect)
-        pygame.draw.rect(Display.screen, color, rectangle)
-
-    @staticmethod
-    def getShouldSelectColor(shouldSelect):
-        if shouldSelect:
-            return 0, 0, 255
-        else:
-            return BORDER_COLOR
 
     def drawStateNumbers(self):
         if self.shouldDrawStateNumbers:
@@ -236,10 +247,15 @@ class SimulationGraphs:
             self.previousButton = pygame.Rect(x * 1 / 4 + prevImg.get_width() / 2, top + height - 25,
                                               prevImg.get_width(), prevImg.get_height())
             Display.screen.blit(prevImg, self.previousButton.topleft)
-        exitImg = self.font.render("EXIT", True, WORDS_COLOR).convert_alpha()
-        self.exitButton = pygame.Rect(x * 3 / 4 - 2 * exitImg.get_width(), top + 10,
-                                      exitImg.get_width(), exitImg.get_height())
-        Display.screen.blit(exitImg, self.exitButton.topleft)
+
+        closeImg = self.font.render("CLOSE", True, WORDS_COLOR).convert_alpha()
+        self.closeButton = pygame.Rect(x * 3 / 4 - 2 * closeImg.get_width(), top + 10,
+                                       closeImg.get_width(), closeImg.get_height())
+        Display.screen.blit(closeImg, self.closeButton.topleft)
+
+        pygame.draw.rect(Display.screen, SCREEN_COLOR, self.exitButton)
+        pygame.draw.rect(Display.screen, WORDS_COLOR, self.exitButton, 2)
+        self.write4("Exit Simulation", False, self.exitButton)
 
     def drawOptionsPage0(self, left, top, height, leftMargin, x):
         agentOptions = ['Select',
@@ -376,7 +392,7 @@ class SimulationGraphs:
         self.scrollIndex = len(self.executedCommands) - 1
 
     def drawExecutedCommands(self):
-        if self.shouldDrawGraphs:
+        if self.shouldDrawGraphs and len(self.executedCommands) > 0:
             self.y2 = self.commandHistBox.top + 4
             pygame.draw.rect(Display.screen, BORDER_COLOR, self.commandHistBox, 1)
 

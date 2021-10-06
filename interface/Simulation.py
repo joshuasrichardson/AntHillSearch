@@ -218,8 +218,8 @@ class Simulation(ABC):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
             simulationTime = self.getRemainingTime()
-            print("The simulation took " + str(simulationTime) + " seconds to complete.")
             self.timer.cancel()
+            print("The simulation took " + str(simulationTime) + " seconds to complete.")
         return simulationTime
 
     def getRemainingTime(self):

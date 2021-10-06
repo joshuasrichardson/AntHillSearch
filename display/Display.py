@@ -1,6 +1,5 @@
 """ Settings and methods related to the display """
 
-import numpy
 import numpy as np
 import pygame
 
@@ -75,7 +74,7 @@ def drawFinish(surface, results):
     pygame.draw.rect(surf, (225, 220, 190, 200), (0, 0, origWidth, origHeight))  # Draw partially transparent surface over the screen
     surface.blit(surf, (0, 0))
 
-    writeBigCenter(surface, "Finish")
+    writeBigCenter(surface, "Complete")
 
     x = origWidth * 4 / 9
     y = origHeight / 2 - 2 * FONT_SIZE
@@ -92,10 +91,10 @@ def drawFinish(surface, results):
 
     for i, quality in enumerate(results[0]):
         y += FONT_SIZE
-        write(surface, "Site " + str(i + 1) + " Quality: " + str(quality), FONT_SIZE, x, y)
+        write(surface, "Colony " + str(i + 1) + "'s Site Quality: " + str(quality), FONT_SIZE, x, y)
 
 
-def getAgentImage(pos):
+def getAgentImage(pos):#TODO: move
     """ Loads, adjusts the size, and returns the image representing an agent """
     agent = pygame.image.load(agentImage)
     if shouldDraw:

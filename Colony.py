@@ -18,26 +18,31 @@ from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 
-# TODO: Make option button prettier
+# Style changes
+# TODO: Set site positions in settings by clicking where you want it to go.
+# TODO: Show how many ants are currently at a site next to how many are assigned there: "currentlyPresent/assigned"
 # TODO: Draw small lines around the hubs showing which directions ants left or came back
-# TODO: Mark a site that has been converged to when there are multiple hubs.
-# TODO: read about UI mockups. "wireframe?"
+# TODO: Mark a site that has been converged to when there are multiple hubs
 # TODO: Add table of contents to tutorial and make tutorial better
-# TODO: Make zoom better
+# TODO: Make zoom better: zoom from middle of screen, prevent zooming or scrolling out of the initial fog's area, make initial fog the same shape as the screen, when there is more than 1 hub, make sure that the fog extends beyond the farthest sites/searchable area.
 # TODO: Draw pictures in the settings tab to make what's happening more clear.
 # TODO: Think about how to display predictions
+# TODO: Add more comments
+# Additional features
 # TODO: Add predators?
 # TODO: Earthquakes?
 # TODO: Add traps and have ants avoid sites that have ants from other colonies or that have dead ants around them?
-# TODO: Add more comments
 
 
+# TODO: Read other studies to know what kinds of things they are testing and what metrics they are using.
 # TODO: Think about what kinds of things we want to study in the user studies.
 # In empirical studies, test the difference between high urgency (low minimum acceptance quality, small quorum, and high recruitment probability) and low urgency (high minimum acceptance quality, large quorum, and low recruitment probability), and see how much faster high urgency is.
 # The relationship between the time of their first control and the time of the simulation
 # Try limiting the number of times they can execute commands.
 # Give 3 different tutorials - Thorough, surface level, and just play around.
 # Test earthquake recovery skills
+# Test how well they do with different numbers of hubs.
+# Test different maxSearchDists
 
 
 def main():
