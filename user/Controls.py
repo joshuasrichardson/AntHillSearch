@@ -7,10 +7,9 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT
 
 import Constants
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, MAX_SEARCH_DIST, COMMIT_COLOR, AT_NEST, \
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, COMMIT_COLOR, AT_NEST, \
     TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, SET_STATE_NAME, GO_NAME
 from display import Display
-from display.AgentDisplay import drawAgent
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker, getAssignmentMarker
@@ -59,8 +58,6 @@ class Controls:
         self.graphs.drawRemainingTime()
         self.graphs.drawPlayButton()
         self.drawChanges()
-        for agent in self.world.agentList:
-            drawAgent(agent, Display.screen)
         Display.drawPause(Display.screen)
         if self.shouldShowOptions:
             self.graphs.drawOptions()
@@ -164,7 +161,9 @@ class Controls:
             if event.type == KEYDOWN and event.key == K_o:
                 self.shouldShowOptions = not self.shouldShowOptions
             if event.type == MOUSEBUTTONUP:
-                if self.graphs.collidesWithExitButton(mousePos):
+                if self.graphs.collidesWithCloseButton(mousePos):
+                    self.shouldShowOptions = False
+                elif self.graphs.collidesWithExitButton(mousePos):
                     self.timer.cancel()
                     raise GameOver("Exited Successfully")
         if event.type == QUIT:
@@ -172,7 +171,8 @@ class Controls:
             self.timer.cancel()
             raise GameOver("Exited Successfully")
 
-    def waitForUser(self):
+    @staticmethod
+    def waitForUser():
         done = False
         while not done:
             for event in pygame.event.get():

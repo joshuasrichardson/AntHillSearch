@@ -155,6 +155,20 @@ class Recorder:
             self.data = json.load(file)
             self.time = self.data[0]['time']
 
+    @staticmethod
+    def writeResults(positions, qualities, simulationTime):
+        results = {'positions': positions,
+                   'qualities': qualities,
+                   'simulationTime': simulationTime}
+        with open('recording/results.json', 'w') as file:
+            json.dump(results, file)
+
+    @staticmethod
+    def readResults():
+        with open('recording/results.json', 'r') as file:
+            results = json.load(file)
+            return results['positions'], results['qualities'], results['simulationTime']
+
     def getNextAgentPosition(self):
         self.currentAgentPosIndex += 1
         return self.agentPositions[self.currentAgentPosIndex]

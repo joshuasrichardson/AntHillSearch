@@ -140,7 +140,7 @@ class RecordingPlayer(Simulation):
         self.delay += seconds
 
     def getRemainingTime(self):
-        return self.timer.simulationDuration - self.recorder.getNextTime()
+        return self.recorder.readResults()[2] # self.timer.simulationDuration - self.recorder.getNextTime()
 
     def getScreen(self):
         return Display.createScreen()

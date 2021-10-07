@@ -130,10 +130,13 @@ class LiveSimulation(Simulation, ABC):
 
     def sendResults(self, chosenSites, simulationTime):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
-        if self.useRestAPI:
+        if self.useRestAPI or self.shouldRecord:
             positions = []
             qualities = []
             for site in chosenSites:
                 positions.append(site.getPosition())
                 qualities.append(site.getQuality())
-            self.world.request.sendResults(positions, qualities, simulationTime)
+            if self.useRestAPI:
+                self.world.request.sendResults(positions, qualities, simulationTime)
+            if self.shouldRecord:
+                self.recorder.writeResults(positions, qualities, simulationTime)

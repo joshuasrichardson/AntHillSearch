@@ -76,7 +76,7 @@ def eraseFog(pos):
     if fog is not None:
         x = pos[0] + Constants.MAX_SEARCH_DIST
         y = pos[1] + Constants.MAX_SEARCH_DIST
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], 22, 0)
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], 20, 0)
 
 
 def drawPotentialQuality(world, potentialQuality, font):
