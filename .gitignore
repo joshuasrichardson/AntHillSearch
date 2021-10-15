@@ -9,7 +9,10 @@ src/*.egg-info
 lib
 lib64
 /recording/recording.json
+results.json
+settings.json
 __pycache__/
 *.pyc
 /venv/
 /Colony.prof
+*.prof

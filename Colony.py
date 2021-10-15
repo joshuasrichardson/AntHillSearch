@@ -17,7 +17,6 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-
 # Style changes
 # TODO: Set site positions in settings by clicking where you want it to go.
 # TODO: Show how many ants are currently at a site next to how many are assigned there: "currentlyPresent/assigned"
@@ -51,7 +50,7 @@ def main():
         startUpScreen = StartUpDisplay(UserInterface)
         startUpScreen.run()
         # runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
-        # runSimWithInterface(UserInterface(numSites=3))  # The interface that only shows what is known from the hub and has limited control
+        # runSimWithInterface(UserInterface(numSites=10, numHubs=2))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:

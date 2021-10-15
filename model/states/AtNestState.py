@@ -20,8 +20,9 @@ class AtNestState(State):
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.getAssignedSitePosition())
+        phaseNumber = self.agent.getPhaseNumber()
 
-        if self.agent.getPhaseNumber() == CONVERGED:
+        if phaseNumber == CONVERGED:
             return
 
         # Checking the siteWithinRange makes sure they actually get to the site before they search again unless they get lost on the way.
@@ -29,17 +30,17 @@ class AtNestState(State):
             self.setState(SearchState(self.agent), None)
             return
 
-        if self.agent.getPhaseNumber() == ASSESS:
+        if phaseNumber == ASSESS:
             if self.agent.isDoneAssessing():
                 self.acceptOrReject(len(neighborList))
                 return
 
-        elif self.agent.getPhaseNumber() == CANVAS:
+        elif phaseNumber == CANVAS:
             if self.agent.shouldRecruit():
                 self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
                 return
 
-        elif self.agent.getPhaseNumber() == COMMIT:
+        elif phaseNumber == COMMIT:
             if self.agent.tryConverging():
                 return
             # Recruit, search, or follow
@@ -48,12 +49,13 @@ class AtNestState(State):
                 return
 
         for i in range(0, len(neighborList)):
-            if (neighborList[i].getState() == LEAD_FORWARD and neighborList[i].estimatedQuality > self.agent.estimatedQuality)\
-                    or (neighborList[i].getState() == REVERSE_TANDEM and neighborList[i].estimatedQuality >= self.agent.estimatedQuality)\
+            neighborState = neighborList[i].getState()
+            if (neighborState == LEAD_FORWARD and neighborList[i].estimatedQuality > self.agent.estimatedQuality)\
+                    or (neighborState == REVERSE_TANDEM and neighborList[i].estimatedQuality >= self.agent.estimatedQuality)\
                     and self.agent.shouldFollow():
                 self.tryFollowing(neighborList[i])
                 return
-            if neighborList[i].getState() == TRANSPORT:  # If an agent nearby is transporting, get carried by that agent.
+            if neighborState == TRANSPORT:  # If an agent nearby is transporting, get carried by that agent.
                 self.getCarried(neighborList[i])
                 return
 
