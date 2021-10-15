@@ -6,7 +6,6 @@ from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_RETURN, K_BACKSP
 from ColonyExceptions import GameOver
 from display import Display, SiteDisplay
 from Constants import *
-from display.AgentDisplay import getAgentImage
 from display.mainmenu.ArrayStateMachine import ArrayStateMachine
 from model.builder.SiteBuilder import getNewSite
 
@@ -142,17 +141,14 @@ class Settings:
             print("File 'mainmenu/settings.json' is empty")
 
     def run(self):
-        try:
-            reading = True
-            while reading:
-                Display.screen.fill(SCREEN_COLOR)
-                Display.writeCenterPlus(Display.screen, "Settings", self.largeFontSize, -6 * self.largeFontSize)
-                self.showSettings()
-                self.drawBackButton()
-                pygame.display.flip()
-                reading = self.handleEvents()
-        except GameOver:
-            pass
+        reading = True
+        while reading:
+            Display.screen.fill(SCREEN_COLOR)
+            Display.writeCenterPlus(Display.screen, "Settings", self.largeFontSize, -6 * self.largeFontSize)
+            self.showSettings()
+            self.drawBackButton()
+            pygame.display.flip()
+            reading = self.handleEvents()
 
     def showSettings(self):
         x = 200
@@ -474,43 +470,56 @@ class Settings:
     #                    ["Simulation Duration", self.simDuration],
     #                   - ["Font Size", self.fontSize],
     #                   - ["Large Font Size", self.largeFontSize],
-    #                    ["Number of Hubs", self.numHubs],
+    #                   - ["Number of Hubs", self.numHubs],
     #                   - ["Hub Locations", self.hubLocations],
-    #                    ["Hub Radii", self.hubRadii],
+    #                   - ["Hub Radii", self.hubRadii],
     #                    ["Hub Agent Counts", self.hubAgentCounts],
-    #                    ["Number of Sites", self.numSites],
+    #                   - ["Number of Sites", self.numSites],
     #                   - ["Site Positions", self.sitePositions],
-    #                    ["Site Qualities", self.siteQualities],
-    #                    ["Site Radii", self.siteRadii],
+    #                   - ["Site Qualities", self.siteQualities],
+    #                   - ["Site Radii", self.siteRadii],
     #                    ["Should Record", self.shouldRecord],
     #                    ["Default Site Radius", self.siteRadius],
     #                    ["Site No Closer Than", self.siteNoCloserThan],
     #                    ["Site No Farther Than", self.siteNoFartherThan],
-    #                    ["Agent Image", self.agentImage],
+    #                   - ["Agent Image", self.agentImage],
     #                    ["Max Search Distance", self.maxSearchDist]]
 
     def showUserInputVisuals(self):
-        if self.selectedRect == self.valueRects[2]:
+        if self.selectedRect == self.valueRects[2]:  # Font size
             Display.writeCenter(Display.screen, "Simulation size", self.userInputValue)
             Display.writeCenterPlus(Display.screen, "Settings size", int(self.userInputValue * 1.5), int(self.userInputValue * 1.5))
-        elif self.selectedRect == self.valueRects[3]:
+        elif self.selectedRect == self.valueRects[3]:  # Large font size
             Display.writeCenter(Display.screen, "This size", self.userInputValue)
+        elif self.selectedRect == self.valueRects[4]:  # Num hubs
+            self.drawNumSites(-1)
         elif self.selectedRect == self.valueRects[5]:  # Hub Positions
             if self.arrayStates.isComplete2:
                 for pos in self.userInputValue:
                     self.drawSite(pos, self.siteRadius, -1)
             else:
                 self.drawSites(self.hubLocations, -1)
+        elif self.selectedRect == self.valueRects[6]:  # Hub Radii
+            self.drawSitesRadii(-1)
+        elif self.selectedRect == self.valueRects[8]:  # Num sites
+            self.drawNumSites(200)
         elif self.selectedRect == self.valueRects[9]:  # Site Positions
             if self.arrayStates.isComplete2:
                 for pos in self.userInputValue:
                     self.drawSite(pos, self.siteRadius, 200)
             else:
                 self.drawSites(self.sitePositions, 200)
+        elif self.selectedRect == self.valueRects[10]:  # Site Qualities
+            self.drawSitesQualities()
+        elif self.selectedRect == self.valueRects[11]:  # Site Radii
+            self.drawSitesRadii(200)
+        elif self.selectedRect == self.valueRects[13]:  # Default Site Radius
+            self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.userInputValue, 200)
         elif self.selectedRect == self.valueRects[16]:  # Agent Image
             self.drawAgent()
 
-    def drawSite(self, pos, radius, quality):
+    @staticmethod
+    def drawSite(pos, radius, quality):
         potentialSite = getNewSite(1, pos[0], pos[1], radius, quality)
         potentialSite.wasFound = True
         SiteDisplay.drawSite(potentialSite)
@@ -519,6 +528,33 @@ class Settings:
     def drawSites(self, positions, quality):
         for pos in positions:
             self.drawSite(pos, self.siteRadius, quality)
+
+    def drawNumSites(self, quality):
+        x = Display.origWidth / 2
+        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        for i in range(self.userInputValue):
+            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            if i % h == 0 and i > 0:
+                x += 2 * (self.siteRadius + 10)
+            self.drawSite([x, y], self.siteRadius, quality)
+
+    def drawSitesRadii(self, quality):
+        x = Display.origWidth / 2
+        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        for i in range(len(self.userInputValue)):
+            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            if i % h == 0 and i > 0:
+                x += 2 * (self.siteRadius + 10)
+            self.drawSite([x, y], self.userInputValue[i], quality)
+
+    def drawSitesQualities(self):
+        x = Display.origWidth / 2
+        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        for i in range(len(self.userInputValue)):
+            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            if i % h == 0 and i > 0:
+                x += 2 * (self.siteRadius + 10)
+            self.drawSite([x, y], self.siteRadius, self.userInputValue[i])
 
     def drawAgent(self):
         Display.blitImage(Display.screen, pygame.image.load(self.agentImage), [Display.origWidth / 2, Display.origHeight / 2], False)

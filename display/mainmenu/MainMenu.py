@@ -1,3 +1,5 @@
+import time
+
 import pygame.display
 from pygame import MOUSEBUTTONUP, QUIT
 
@@ -78,9 +80,26 @@ class StartUpDisplay:
         self.tutorial.run()
 
     def replay(self):
-        del self.simInterface
-        self.simInterface = RecordingPlayer()
-        self.simInterface.runSimulation()
+        try:
+            from os.path import getsize
+            file_path = 'recording/recording.json'
+            if getsize(file_path) > 0:
+                del self.simInterface
+                self.simInterface = RecordingPlayer()
+                self.simInterface.runSimulation()
+            else:
+                self.complainAboutMissingRecording()
+        except FileNotFoundError:
+            self.complainAboutMissingRecording()
+
+    @staticmethod
+    def complainAboutMissingRecording():
+        Display.writeCenterPlus(Display.screen, "No Recording Available", LARGE_FONT_SIZE, 130)
+        Display.writeCenterPlus(Display.screen, "Please play the simulation with the recording", FONT_SIZE, 130 + LARGE_FONT_SIZE)
+        Display.writeCenterPlus(Display.screen, "option on before trying to watch a recording.", FONT_SIZE, 130 + LARGE_FONT_SIZE + FONT_SIZE)
+        pygame.display.flip()
+        time.sleep(2.5)
+        print("'recording/recording.json' is empty.")
 
     def viewSettings(self):
         self.settings.run()
