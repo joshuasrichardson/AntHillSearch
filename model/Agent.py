@@ -4,7 +4,7 @@ import numpy as np
 
 from Constants import *
 from display import SiteDisplay, WorldDisplay
-from display.Display import getAgentImage
+from display.AgentDisplay import getAgentImage
 from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ConvergedPhase import ConvergedPhase

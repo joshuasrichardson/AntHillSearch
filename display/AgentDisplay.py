@@ -1,10 +1,14 @@
 """ Methods related to the agents' display """
 import numpy as np
+import pygame
 
-from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS
-from display import Display, WorldDisplay
+from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE
+from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
+
+
+agentImage = AGENT_IMAGE
 
 
 def drawAgent(agent, surface):
@@ -20,6 +24,18 @@ def drawAgent(agent, surface):
             Display.drawCircle(surface, agent.phase.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
         w, h = agent.agentHandle.get_size()  # Rotate the agent's image to face the direction they are heading
         rotateImage(surface, agent.agentHandle, agent.pos, [w / 2, h / 2], (-agent.angle * 180 / np.pi) - 132)
+
+
+def getAgentImage(pos):
+    """ Loads, adjusts the size, and returns the image representing an agent """
+    agent = pygame.image.load(agentImage)
+    if Display.shouldDraw:
+        agent = agent.convert_alpha()
+    if agent.get_size()[0] > 30 or agent.get_size()[1] > 30:
+        agent = pygame.transform.scale(agent, (30, 30))
+        rect = agent.get_rect().move(pos)
+        rect.center = pos
+    return agent
 
 
 def setAgentMarker(agent):

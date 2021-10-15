@@ -19,17 +19,12 @@ class ArrayStateMachine:
         lastIndex = len(self.string) - 1
         lastChar = self.string[lastIndex]
         if lastChar != '[' and lastChar != ',' and lastChar != ' ' and lastChar != ']':
-            print(str(lastChar))
             self.currentValue = self.array[len(self.array) - 1]
             self.currentValue = int(self.currentValue / 10)
             self.array[len(self.array) - 1] = self.currentValue
             if self.currentValue == 0:
                 self.array.pop()
         self.string = self.string[0:lastIndex]
-        # if lastChar != '[' and lastChar != ',' and lastChar != ' ' and lastChar != ']':
-        print("2d: " + str(self.array2D))
-        print("1d: " + str(self.array))
-        print("cv: " + str(self.currentValue))
         return lastChar
 
     def start1(self, value):

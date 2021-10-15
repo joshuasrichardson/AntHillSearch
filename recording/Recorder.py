@@ -165,9 +165,19 @@ class Recorder:
 
     @staticmethod
     def readResults():
-        with open('recording/results.json', 'r') as file:
-            results = json.load(file)
-            return results['positions'], results['qualities'], results['simulationTime']
+        try:
+            with open('recording/results.json', 'r') as file:
+                results = json.load(file)
+                return results['positions'], results['qualities'], results['simulationTime']
+        except FileNotFoundError:
+            print("File 'recording/results.json' not found.")
+            open('recording/results.json', 'w')
+            print("Created Empty File: 'recording/results.json'.")
+            return [[-1, -1]], [-1], -1
+        except json.decoder.JSONDecodeError:
+            print("File 'recording/results.json' is empty.")
+            print("Returning arbitrary results")
+            return [[-1, -1]], [-1], -1
 
     def getNextAgentPosition(self):
         self.currentAgentPosIndex += 1

@@ -19,12 +19,12 @@ def drawSite(site):
         Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
         drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
         if site.isSelected:
-            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render("Agents: " + str(site.agentCount), True, BORDER_COLOR).convert_alpha()
+            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(f"Agents: {site.agentCount}", True, BORDER_COLOR).convert_alpha()
         else:
             img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(str(site.agentCount), True, BORDER_COLOR).convert_alpha()
         Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20)))  # Show the number of agents assigned to the site above the site
         if site.isSelected:
-            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render("Quality: " + str(site.getQuality()), True, WORDS_COLOR).convert_alpha()
+            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(f"Quality: {site.getQuality()}", True, WORDS_COLOR).convert_alpha()
             Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20 + FONT_SIZE)))  # Show the site quality above the site
 
 

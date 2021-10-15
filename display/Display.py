@@ -3,7 +3,7 @@
 import numpy as np
 import pygame
 
-from Constants import AGENT_IMAGE, SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
+from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
     SITE_RADIUS, FONT_SIZE
 
 screen = None
@@ -11,7 +11,6 @@ shouldDraw = SHOULD_DRAW
 shouldDrawPaths = SHOULD_DRAW_PATHS
 canSelectAnywhere = DRAW_FAR_AGENTS
 drawFarAgents = DRAW_FAR_AGENTS
-agentImage = AGENT_IMAGE
 displacementX = 0
 displacementY = 0
 drawLastCommands = []
@@ -50,6 +49,7 @@ def writeCenter(surface, words, fontSize):
     img = font.render(words, True, WORDS_COLOR).convert_alpha()
     surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60))
+    del img
 
 
 def writeCenterPlus(surface, words, fontSize, y):
@@ -92,18 +92,6 @@ def drawFinish(surface, results):
     for i, quality in enumerate(results[0]):
         y += FONT_SIZE
         write(surface, "Colony " + str(i + 1) + "'s Site Quality: " + str(quality), FONT_SIZE, x, y)
-
-
-def getAgentImage(pos):#TODO: move
-    """ Loads, adjusts the size, and returns the image representing an agent """
-    agent = pygame.image.load(agentImage)
-    if shouldDraw:
-        agent = agent.convert_alpha()
-    if agent.get_size()[0] > 30 or agent.get_size()[1] > 30:
-        agent = pygame.transform.scale(agent, (30, 30))
-        rect = agent.get_rect().move(pos)
-        rect.center = pos
-    return agent
 
 
 def getDestinationMarker(pos):

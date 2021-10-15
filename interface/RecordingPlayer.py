@@ -25,11 +25,16 @@ class RecordingPlayer(Simulation):
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
                         siteRadii, siteRadius=SITE_RADIUS):
         self.recorder.read()
+        print("1")
         addAfter = self.initHubsAgentCounts()
+        print("2")
         world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
                       siteQualities, siteRadii, siteRadius)
+        print("3")
         self.addAddedAgents(world, addAfter)
+        print("4")
         self.timer.simulationDuration = self.recorder.getNextTime()
+        print("5")
 
         return world
 
@@ -44,6 +49,12 @@ class RecordingPlayer(Simulation):
             else:
                 addAfter.append(i)
         return addAfter
+
+    def initChosenHomes(self, numHubs):
+        chosenHomes = []
+        for i in range(self.recorder.getNumHubs()):
+            chosenHomes.append(self.world.siteList[0])
+        return chosenHomes
 
     def addAddedAgents(self, world, assignmentIndices):
         for i, site in enumerate(world.siteList):
@@ -140,7 +151,7 @@ class RecordingPlayer(Simulation):
         self.delay += seconds
 
     def getRemainingTime(self):
-        return self.recorder.readResults()[2] # self.timer.simulationDuration - self.recorder.getNextTime()
+        return self.recorder.readResults()[2]
 
     def getScreen(self):
         return Display.createScreen()

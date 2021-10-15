@@ -4,9 +4,11 @@ import pygame
 from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_RETURN, K_BACKSPACE, MOUSEBUTTONDOWN, K_ESCAPE
 
 from ColonyExceptions import GameOver
-from display import Display
+from display import Display, SiteDisplay
 from Constants import *
+from display.AgentDisplay import getAgentImage
 from display.mainmenu.ArrayStateMachine import ArrayStateMachine
+from model.builder.SiteBuilder import getNewSite
 
 
 class Settings:
@@ -74,6 +76,7 @@ class Settings:
         self.data = {}
         self.setValuesWithJson()
         self.arrayStates = None
+        self.selectedRect = None
 
     def setValuesWithJson(self):
         try:
@@ -177,6 +180,7 @@ class Settings:
             return False
         for i, rect in enumerate(self.valueRects):
             if rect.collidepoint(pos):
+                self.selectedRect = rect
                 self.changeValue(self.values[i][0])
         return True
 
@@ -228,7 +232,11 @@ class Settings:
             self.write('numHubs', self.numHubs)
         elif value == "Hub Locations":
             self.hubLocations = self.getUserInputArray(self.hubLocations, self.valueRects[5].topright, 2)
-            # TODO: Limited it to be within the screen
+            for hubLoc in self.hubLocations:
+                if hubLoc[0] > Display.origWidth + self.maxSearchDist:
+                    hubLoc[0] = Display.origWidth + self.maxSearchDist
+                if hubLoc[1] > Display.origHeight + self.maxSearchDist:
+                    hubLoc[1] = Display.origHeight + self.maxSearchDist
             self.write('hubLocations', self.hubLocations)
         elif value == "Hub Radii":
             self.hubRadii = self.getUserInputArray(self.hubRadii, self.valueRects[6].topright, 1)
@@ -251,11 +259,15 @@ class Settings:
             if self.numSites > MAX_NUM_SITES:
                 self.numSites = MAX_NUM_SITES
             if self.numSites < 0:
-                self.numSites= 0
+                self.numSites = 0
             self.write('numSites', self.numSites)
         elif value == "Site Positions":
-            # TODO
             self.sitePositions = self.getUserInputArray(self.sitePositions, self.valueRects[9].topright, 2)
+            for pos in self.sitePositions:
+                if pos[0] > Display.origWidth + self.maxSearchDist:
+                    pos[0] = Display.origWidth + self.maxSearchDist
+                if pos[1] > Display.origHeight + self.maxSearchDist:
+                    pos[1] = Display.origHeight + self.maxSearchDist
             self.write('sitePositions', self.sitePositions)
         elif value == "Site Qualities":
             self.siteQualities = self.getUserInputArray(self.siteQualities, self.valueRects[10].topright, 1)
@@ -350,6 +362,7 @@ class Settings:
             Display.writeCenterPlus(Display.screen, "Settings", self.largeFontSize, -6 * self.largeFontSize)
             self.showSettings()
             self.showUserInput(pos)
+            self.showUserInputVisuals()
             self.drawBackButton()
             pygame.display.flip()
             for event in pygame.event.get():
@@ -384,12 +397,12 @@ class Settings:
                     raise GameOver("Game Over")
 
     def appendNumber(self, number):
-        if self.userInputValue == 0 or self.userInputValue > 2000:
+        if self.userInputValue == 0 or self.userInputValue > 250:
             self.userInputValue = number
         else:
             self.userInputValue *= 10
             self.userInputValue += number
-        self.userInput = ' -> ' + str(self.userInputValue)
+        self.userInput = f' -> {self.userInputValue}'
 
     def appendPercentageNumber(self, number):
         try:
@@ -402,14 +415,14 @@ class Settings:
                 self.userInputValue = 1.00
         except ValueError:
             self.userInputValue = 0.00
-        self.userInput = ' -> ' + str(int(self.userInputValue * 100)) + "%"
+        self.userInput = f' -> {int(self.userInputValue * 100)}%'
 
     def appendLetter(self, letter):
         if len(self.userInputValue) == 0 or len(self.userInputValue) > 100:
             self.userInputValue = letter
         else:
             self.userInputValue += letter
-        self.userInput = ' -> ' + self.userInputValue
+        self.userInput = f' -> {self.userInputValue}'
 
     def appendArray(self, value):
         self.userInput = self.arrayStates.state(value)
@@ -432,14 +445,14 @@ class Settings:
     def deleteLastIntDigit(self):
         self.userInputValue = int(self.userInputValue / 10)
         if len(self.userInput) > 4:
-            self.userInput = ' -> ' + self.userInput[4:len(self.userInput) - 1]
+            self.userInput = f' -> {self.userInput[4:len(self.userInput) - 1]}'
 
     def deleteLastPercentDigit(self):
         if self.userInputValue == 1.00:
             self.userInputValue = 0.00
         else:
             self.userInputValue = self.truncate(self.userInputValue, len(str(self.userInputValue)) - 3)
-        self.userInput = ' -> ' + str(int(self.userInputValue * 100)) + "%"
+        self.userInput = f' -> {int(self.userInputValue * 100)}%'
 
     @staticmethod
     def truncate(n, decimals=0):
@@ -449,10 +462,63 @@ class Settings:
     def deleteLastLetter(self):
         if len(self.userInputValue) > 0:
             self.userInputValue = self.userInputValue[0:len(self.userInputValue) - 1]
-            self.userInput = ' -> ' + str(self.userInputValue)
+            self.userInput = f' -> {self.userInputValue}'
 
     def deleteLastArrayPart(self):
         self.userInput = self.arrayStates.back()
 
     def showUserInput(self, pos):
         Display.write(Display.screen, self.userInput, int(self.fontSize * 1.5), pos[0], pos[1], ASSESS_COLOR)
+
+    # ["Convergence Fraction", self.convergenceFraction],
+    #                    ["Simulation Duration", self.simDuration],
+    #                   - ["Font Size", self.fontSize],
+    #                   - ["Large Font Size", self.largeFontSize],
+    #                    ["Number of Hubs", self.numHubs],
+    #                   - ["Hub Locations", self.hubLocations],
+    #                    ["Hub Radii", self.hubRadii],
+    #                    ["Hub Agent Counts", self.hubAgentCounts],
+    #                    ["Number of Sites", self.numSites],
+    #                   - ["Site Positions", self.sitePositions],
+    #                    ["Site Qualities", self.siteQualities],
+    #                    ["Site Radii", self.siteRadii],
+    #                    ["Should Record", self.shouldRecord],
+    #                    ["Default Site Radius", self.siteRadius],
+    #                    ["Site No Closer Than", self.siteNoCloserThan],
+    #                    ["Site No Farther Than", self.siteNoFartherThan],
+    #                    ["Agent Image", self.agentImage],
+    #                    ["Max Search Distance", self.maxSearchDist]]
+
+    def showUserInputVisuals(self):
+        if self.selectedRect == self.valueRects[2]:
+            Display.writeCenter(Display.screen, "Simulation size", self.userInputValue)
+            Display.writeCenterPlus(Display.screen, "Settings size", int(self.userInputValue * 1.5), int(self.userInputValue * 1.5))
+        elif self.selectedRect == self.valueRects[3]:
+            Display.writeCenter(Display.screen, "This size", self.userInputValue)
+        elif self.selectedRect == self.valueRects[5]:  # Hub Positions
+            if self.arrayStates.isComplete2:
+                for pos in self.userInputValue:
+                    self.drawSite(pos, self.siteRadius, -1)
+            else:
+                self.drawSites(self.hubLocations, -1)
+        elif self.selectedRect == self.valueRects[9]:  # Site Positions
+            if self.arrayStates.isComplete2:
+                for pos in self.userInputValue:
+                    self.drawSite(pos, self.siteRadius, 200)
+            else:
+                self.drawSites(self.sitePositions, 200)
+        elif self.selectedRect == self.valueRects[16]:  # Agent Image
+            self.drawAgent()
+
+    def drawSite(self, pos, radius, quality):
+        potentialSite = getNewSite(1, pos[0], pos[1], radius, quality)
+        potentialSite.wasFound = True
+        SiteDisplay.drawSite(potentialSite)
+        del potentialSite
+
+    def drawSites(self, positions, quality):
+        for pos in positions:
+            self.drawSite(pos, self.siteRadius, quality)
+
+    def drawAgent(self):
+        Display.blitImage(Display.screen, pygame.image.load(self.agentImage), [Display.origWidth / 2, Display.origHeight / 2], False)

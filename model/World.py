@@ -47,13 +47,12 @@ class World:
             pos = self.tooCloseToOtherHubs(nextPos)
             while pos is not None:
                 # Make sure the hubs are not too close together
+                print(str(pos))
                 if nextPos[0] < pos[0]:
                     nextPos[0] -= 10
                 else:
                     nextPos[0] += 10
-                if nextPos[1] < pos[1]:
-                    nextPos[1] -= 10
-                else:
+                if nextPos[1] > pos[1]:
                     nextPos[1] += 10
                 pos = self.tooCloseToOtherHubs(nextPos)
             self.hubLocations.append(nextPos)
