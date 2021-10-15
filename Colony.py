@@ -50,7 +50,7 @@ def main():
         # startUpScreen = StartUpDisplay(UserInterface)
         # startUpScreen.run()
         # runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
-        runSimWithInterface(UserInterface(numSites=10))  # The interface that only shows what is known from the hub and has limited control
+        runSimWithInterface(UserInterface(numSites=10, numHubs=5))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:
