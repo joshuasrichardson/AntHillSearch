@@ -9,7 +9,11 @@ hIndex = 0
 def getNewSite(numHubs, x, y, radius, quality, hubLocations=None):
     if hubLocations is not None:
         global hIndex
-        pos = initializePosition(hubLocations[hIndex], x, y)
+        try:
+            pos = initializePosition(hubLocations[hIndex], x, y)
+        except IndexError:
+            hIndex = 0
+            pos = initializePosition(hubLocations[hIndex], x, y)
         if hIndex < len(hubLocations) - 1:
             hIndex += 1
         else:

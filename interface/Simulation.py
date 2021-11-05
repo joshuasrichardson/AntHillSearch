@@ -34,38 +34,23 @@ class Simulation(ABC):
                                    hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, SITE_RADIUS,
                                    siteNoCloserThan, siteNoFartherThan, AGENT_IMAGE, maxSearchDist)
         self.setDisplayVariables(agentImage)
-        print("1")
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
-        print("2")
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
-        print("3")
         self.timeRanOut = False  # Whether there is no more time left in the interface
-        print("4")
         self.simulationDuration = simulationDuration
-        print("5")
         self.timer = SimulationTimer(self.simulationDuration, self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
-        print("6")
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii, siteRadius)  # The world that has all the sites and agents
-        print("7")
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
-        print("8")
         self.chosenHomes = self.initChosenHomes(numHubs)  # The site that most of the agents are assigned to when the interface ends
-        print("9")
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
 
-        print("10")
         self.userControls = self.getControls()
 
-        print("11")
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
-        print("12")
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
-        print("13")
         self.initializeAgentList()  # Create the agents that will be used in the interface
-
-        print("Return")
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
@@ -182,14 +167,15 @@ class Simulation(ABC):
         for siteIndex in range(len(self.world.getHubs()), len(self.world.siteList)):
             site = self.world.siteList[siteIndex]
             for hubIndex in range(len(self.world.getHubs())):
-                if site.agentCounts[hubIndex] >= self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction > 0:
+                if site.agentCounts[hubIndex] >= int(self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction):
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
+                    break
         for hubIndex in range(len(self.world.getHubs())):
             if self.world.initialHubAgentCounts[hubIndex] == 0:
                 self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]
                 numConverged += 1
-        return numConverged == len(self.world.getHubs())
+        return numConverged >= len(self.world.getHubs())
 
     def timeOut(self):
         print("The simulation time has run out.")

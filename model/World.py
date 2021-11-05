@@ -1,5 +1,6 @@
 """ World class. Stores 2D positions of hub and sites """
 import random
+import time
 
 import numpy as np
 from pygame import Rect
@@ -42,32 +43,40 @@ class World:
         """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """
         if len(self.hubLocations) == 0 and numHubs == 1:
             self.hubLocations.append([650, 325])
-        while len(self.hubLocations) < numHubs:
-            nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
-            pos = self.tooCloseToOtherHubs(nextPos)
-            while pos is not None:
-                # Make sure the hubs are not too close together
-                print(str(pos))
-                if nextPos[0] < pos[0]:
-                    nextPos[0] -= 10
-                else:
-                    nextPos[0] += 10
-                if nextPos[1] > pos[1]:
-                    nextPos[1] += 10
-                pos = self.tooCloseToOtherHubs(nextPos)
-            self.hubLocations.append(nextPos)
         while len(self.hubRadii) < numHubs:
             self.hubRadii.append(siteRadius)
+        t1 = time.time()
+        while len(self.hubLocations) < numHubs:
+            nextPos = self.generateNextPos()
+            while self.tooCloseToOtherHubs(nextPos):
+                # Make sure the hubs are not too close together
+                nextPos = self.generateNextPos()
+                if time.time() - t1 > 0.7:
+                    nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
+                    break
+            self.hubLocations.append(nextPos)
         while len(self.initialHubAgentCounts) < numHubs:
             self.initialHubAgentCounts.append(random.randint(1, 50))
 
+    def generateNextPos(self):
+        if len(self.hubLocations) == 0:
+            return [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
+        neighborHubLocation = self.hubLocations[random.randint(0, len(self.hubLocations) - 1)]
+        dist = Constants.MAX_SEARCH_DIST * random.uniform(1.25, 1.75)
+        angle = random.uniform(0, 2 * np.pi)
+        x = int(np.cos(angle) * dist + neighborHubLocation[0])
+        y = int(np.sin(angle) * dist + neighborHubLocation[1])
+        return [x, y]
+
     def tooCloseToOtherHubs(self, nextPos):
         """ If another hub is too close, return that hub's position. """
-        for pos in self.hubLocations:
-            if abs(pos[0] - nextPos[0]) < Constants.MAX_SEARCH_DIST * 1.5 and \
-                    abs(pos[1] - nextPos[1]) < Constants.MAX_SEARCH_DIST * 1.5:
-                return pos
-        return None
+        for i, pos in enumerate(self.hubLocations):
+            if abs(pos[0] - nextPos[0]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i] and \
+                    abs(pos[1] - nextPos[1]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i] or \
+                    nextPos[0] < HUB_MIN_X or nextPos[0] > HUB_MAX_X or \
+                    nextPos[1] < HUB_MIN_Y or nextPos[1] > HUB_MAX_Y:
+                return True
+        return False
 
     def randomizeState(self):
         """ Sets all the agents at random sites """

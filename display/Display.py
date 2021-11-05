@@ -46,7 +46,7 @@ def writeBigCenter(surface, words):
 
 def writeCenter(surface, words, fontSize):
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
-    img = font.render(words, True, WORDS_COLOR).convert_alpha()
+    img = font.render(f"{words}", True, WORDS_COLOR).convert_alpha()
     surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60))
     del img
@@ -54,14 +54,14 @@ def writeCenter(surface, words, fontSize):
 
 def writeCenterPlus(surface, words, fontSize, y):
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
-    img = font.render(words, True, WORDS_COLOR).convert_alpha()
+    img = font.render(f"{words}", True, WORDS_COLOR).convert_alpha()
     return surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                         surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
 
 
 def write(surface, words, fontSize, x, y, color=WORDS_COLOR):
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
-    img = font.render(words, True, color).convert_alpha()
+    img = font.render(f"{words}", True, color).convert_alpha()
     return surface.blit(img, (x, y))
 
 

@@ -1,10 +1,11 @@
 import json
+import math
 
 import pygame
 from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_RETURN, K_BACKSPACE, MOUSEBUTTONDOWN, K_ESCAPE
 
 from ColonyExceptions import GameOver
-from display import Display, SiteDisplay
+from display import Display, SiteDisplay, AgentDisplay
 from Constants import *
 from display.mainmenu.ArrayStateMachine import ArrayStateMachine
 from model.builder.SiteBuilder import getNewSite
@@ -466,26 +467,11 @@ class Settings:
     def showUserInput(self, pos):
         Display.write(Display.screen, self.userInput, int(self.fontSize * 1.5), pos[0], pos[1], ASSESS_COLOR)
 
-    # ["Convergence Fraction", self.convergenceFraction],
-    #                    ["Simulation Duration", self.simDuration],
-    #                   - ["Font Size", self.fontSize],
-    #                   - ["Large Font Size", self.largeFontSize],
-    #                   - ["Number of Hubs", self.numHubs],
-    #                   - ["Hub Locations", self.hubLocations],
-    #                   - ["Hub Radii", self.hubRadii],
-    #                    ["Hub Agent Counts", self.hubAgentCounts],
-    #                   - ["Number of Sites", self.numSites],
-    #                   - ["Site Positions", self.sitePositions],
-    #                   - ["Site Qualities", self.siteQualities],
-    #                   - ["Site Radii", self.siteRadii],
-    #                    ["Should Record", self.shouldRecord],
-    #                    ["Default Site Radius", self.siteRadius],
-    #                    ["Site No Closer Than", self.siteNoCloserThan],
-    #                    ["Site No Farther Than", self.siteNoFartherThan],
-    #                   - ["Agent Image", self.agentImage],
-    #                    ["Max Search Distance", self.maxSearchDist]]
-
     def showUserInputVisuals(self):
+        if self.selectedRect == self.valueRects[0]:  # Convergence Fraction
+            self.drawConvergenceFraction(self.userInputValue);
+        if self.selectedRect == self.valueRects[1]:  # Simulation duration
+            Display.write(Display.screen, self.userInputValue, int(self.fontSize * 1.5), Display.origWidth - 100, 50)
         if self.selectedRect == self.valueRects[2]:  # Font size
             Display.writeCenter(Display.screen, "Simulation size", self.userInputValue)
             Display.writeCenterPlus(Display.screen, "Settings size", int(self.userInputValue * 1.5), int(self.userInputValue * 1.5))
@@ -495,12 +481,15 @@ class Settings:
             self.drawNumSites(-1)
         elif self.selectedRect == self.valueRects[5]:  # Hub Positions
             if self.arrayStates.isComplete2:
+                # TODO: If the hubs are too close together, force them to be farther apart
                 for pos in self.userInputValue:
                     self.drawSite(pos, self.siteRadius, -1)
             else:
                 self.drawSites(self.hubLocations, -1)
         elif self.selectedRect == self.valueRects[6]:  # Hub Radii
             self.drawSitesRadii(-1)
+        elif self.selectedRect == self.valueRects[7]:  # Hub Agent Counts
+            self.drawSitesCounts(-1)
         elif self.selectedRect == self.valueRects[8]:  # Num sites
             self.drawNumSites(200)
         elif self.selectedRect == self.valueRects[9]:  # Site Positions
@@ -513,15 +502,55 @@ class Settings:
             self.drawSitesQualities()
         elif self.selectedRect == self.valueRects[11]:  # Site Radii
             self.drawSitesRadii(200)
+        elif self.selectedRect == self.valueRects[12]:  # Should Record
+            if self.shouldRecord:
+                Display.drawCircle(Display.screen, (220, 0, 0), [15, 15], 10, width=1, adjust=False)
+                Display.drawLine(Display.screen, (220, 0, 0), [4, 24], [25, 5], adjust=False)
+            else:
+                Display.drawCircle(Display.screen, (220, 0, 0), [15, 15], 10, adjust=False)
         elif self.selectedRect == self.valueRects[13]:  # Default Site Radius
             self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.userInputValue, 200)
+        elif self.selectedRect == self.valueRects[14]:  # Site No Farther Than
+            self.drawArea(COMMIT_COLOR, self.siteNoFartherThan)
+            self.drawArea(ASSESS_COLOR, self.userInputValue)
+        elif self.selectedRect == self.valueRects[15]:  # Site No Closer Than
+            self.drawArea(COMMIT_COLOR, self.userInputValue)
+            self.drawArea(ASSESS_COLOR, self.siteNoCloserThan)
         elif self.selectedRect == self.valueRects[16]:  # Agent Image
-            self.drawAgent()
+            self.drawAgents()
+        elif self.selectedRect == self.valueRects[17]:  # Max Search Distance
+            self.drawArea(SEARCH_COLOR, self.userInputValue)
+
+    def drawConvergenceFraction(self, fraction):
+        AgentDisplay.agentImage = self.agentImage
+        image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
+        w = image.get_width() * 5
+        h = image.get_height() * 20
+        x = Display.origWidth / 2 - w / 2
+        y = Display.origHeight / 2 - h / 2
+        rect = (x, y, w, h)
+        Display.drawRect(Display.screen, BORDER_COLOR, rect, 2, False)
+
+        fraction = int(math.ceil(fraction * 100))
+        j = 0
+        d = h
+        dif = h / 20
+        for i in range(fraction):
+            if j % 5 == 0:
+                d -= dif
+            Display.blitImage(Display.screen, image, [x + (dif * (i % 5)), y + d], False)
+            j += 1
+        for i in range(100 - fraction):
+            if j % 5 == 0:
+                d -= dif
+            Display.blitImage(Display.screen, image, [2 * w + 10 + x - (dif * (i % 5)), y + d], False)
+            j += 1
 
     @staticmethod
-    def drawSite(pos, radius, quality):
+    def drawSite(pos, radius, quality, numAgents=0):
         potentialSite = getNewSite(1, pos[0], pos[1], radius, quality)
         potentialSite.wasFound = True
+        potentialSite.agentCount = numAgents
         SiteDisplay.drawSite(potentialSite)
         del potentialSite
 
@@ -547,6 +576,15 @@ class Settings:
                 x += 2 * (self.siteRadius + 10)
             self.drawSite([x, y], self.userInputValue[i], quality)
 
+    def drawSitesCounts(self, quality):
+        x = Display.origWidth / 2
+        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        for i in range(len(self.userInputValue)):
+            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            if i % h == 0 and i > 0:
+                x += 2 * (self.siteRadius + 10)
+            self.drawSite([x, y], self.siteRadius, quality, self.userInputValue[i])
+
     def drawSitesQualities(self):
         x = Display.origWidth / 2
         h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
@@ -556,5 +594,18 @@ class Settings:
                 x += 2 * (self.siteRadius + 10)
             self.drawSite([x, y], self.siteRadius, self.userInputValue[i])
 
-    def drawAgent(self):
-        Display.blitImage(Display.screen, pygame.image.load(self.agentImage), [Display.origWidth / 2, Display.origHeight / 2], False)
+    def drawAgents(self):  # TODO: Make images selectable
+        for i, imgFile in enumerate(AGENT_IMAGES):
+            pos = [Display.origWidth / 2 + i * 30, Display.origHeight / 2]
+            AgentDisplay.agentImage = imgFile
+            image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
+            if imgFile != self.agentImage:
+                Display.drawDownArrow([pos[0] + image.get_width() / 2, pos[1]], BORDER_COLOR, False)
+            Display.blitImage(Display.screen, image, pos, False)
+
+    def drawArea(self, color, radius):
+        fadedColor = (color[0], color[1], color[2], 80)
+        surf = pygame.Surface((Display.origWidth, Display.origHeight), pygame.SRCALPHA)
+        Display.drawCircle(surf, fadedColor, [Display.origWidth / 2, Display.origHeight / 2], radius)
+        Display.blitImage(Display.screen, surf, (0, 0), False)
+        self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.siteRadius, -1)

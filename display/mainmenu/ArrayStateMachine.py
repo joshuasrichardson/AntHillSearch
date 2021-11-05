@@ -133,7 +133,6 @@ class ArrayStateMachine:
         return self.string
 
     def back2_1(self):
-        print("back2_1")
         deletedChar = self.backspace()
         if self.string == ' -> ':
             self.state = self.start2
@@ -156,7 +155,6 @@ class ArrayStateMachine:
         return self.string
 
     def back2_2(self):
-        print("back2_2")
         self.backspace()
         self.state = self.s2_1
         self.back = self.back2_1
@@ -182,7 +180,6 @@ class ArrayStateMachine:
         return self.string
 
     def back2_3(self):
-        print("back2_3")
         self.backspace()
         lastChar = self.string[len(self.string) - 1]
         if lastChar == '[':
@@ -203,7 +200,6 @@ class ArrayStateMachine:
         return self.string
 
     def back2_4(self):
-        print("back2_4")
         self.backspace()
         self.state = self.s2_3
         self.back = self.back2_3
@@ -255,7 +251,6 @@ class ArrayStateMachine:
         return self.string
 
     def back2_6(self):
-        print("back2_6")
         self.backspace()
         self.array = self.array2D.pop()
         self.state = self.s2_5

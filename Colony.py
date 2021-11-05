@@ -18,19 +18,20 @@ from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 # Style changes
-# TODO: Draw pictures in the settings tab to make what's happening more clear.
+# TODO: Create simulation settings files that can be read in and have the program switch between them after a round for the user studies.
 # TODO: Set site positions in settings by clicking where you want it to go.
 # TODO: Show how many ants are currently at a site next to how many are assigned there: "currentlyPresent/assigned"
 # TODO: Draw small lines around the hubs showing which directions ants left or came back
 # TODO: Mark a site that has been converged to when there are multiple hubs
 # TODO: Make zoom better: zoom from middle of screen, prevent zooming or scrolling out of the initial fog's area, make initial fog the same shape as the screen, when there is more than 1 hub, make sure that the fog extends beyond the farthest sites/searchable area.
-# TODO: Think about how to display predictions
 # TODO: Add more comments to the code
 # TODO: Add table of contents to tutorial and make tutorial better
 # Additional features
 # TODO: Add predators, and have ants report when they see a dead ant or a predator. Be able to enable/disable them
 # TODO: Earthquakes?
 # TODO: Add traps and have ants avoid sites that have ants from other colonies or that have dead ants around them?
+# TODO: Add an option to show all current settings in the settings tab
+# TODO: Think about how to display predictions
 
 
 # TODO: Read other studies to know what kinds of things they are testing and what metrics they are using.

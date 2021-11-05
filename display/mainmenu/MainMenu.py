@@ -4,12 +4,19 @@ import pygame.display
 from pygame import MOUSEBUTTONUP, QUIT
 
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE
+from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE, TRIAL_SETTINGS
 from display import Display
 from display.mainmenu.Settings import Settings
 from display.mainmenu.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 from interface.UserInterface import UserInterface
+
+DO_USER_EXPERIMENTS = "Play"
+PRACTICE = "Practice"
+REPLAY = "Replay"
+TUTORIAL = "Tutorial"
+SETTINGS = "Settings"
+EXIT = "Exit"
 
 
 class StartUpDisplay:
@@ -33,11 +40,12 @@ class StartUpDisplay:
 
     def drawStartPage(self):
         Display.writeCenterPlus(Display.screen, "Anthill Search", LARGE_FONT_SIZE, -4 * LARGE_FONT_SIZE)
-        options = ["Play",
-                   "Tutorial",
-                   "Replay",
-                   "Settings",
-                   "Exit"]
+        options = [DO_USER_EXPERIMENTS,
+                   PRACTICE,
+                   TUTORIAL,
+                   REPLAY,
+                   SETTINGS,
+                   EXIT]
         collides = False
         for i, option in enumerate(options):
             rect = Display.writeCenterPlus(Display.screen, option, FONT_SIZE * 2, FONT_SIZE * 3 * i)
@@ -59,17 +67,27 @@ class StartUpDisplay:
                 raise GameOver("Game Over")
 
     def start(self, option):
-        if option == "Play":
+        if option == DO_USER_EXPERIMENTS:
+            self.doUserExperiments()
+        elif option == PRACTICE:
             self.play()
-        elif option == "Tutorial":
+        elif option == TUTORIAL:
             self.startTutorial()
-        elif option == "Replay":
+        elif option == REPLAY:
             self.replay()
-        elif option == "Settings":
+        elif option == SETTINGS:
             self.viewSettings()
-        elif option == "Exit":
+        elif option == EXIT:
             self.exit()
         self.mousePos = [-1, -1]
+
+    def doUserExperiments(self):
+        for trialSetting in TRIAL_SETTINGS:
+            with open(trialSetting, 'r') as trialFile, open('display/mainmenu/settings.json', 'w') as currentSettings:
+                contents = trialFile.read()
+                print("In MainMenu.py: current json file contents are: " + contents)
+                currentSettings.write(contents)
+            self.play()
 
     def play(self):
         del self.simInterface
