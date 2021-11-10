@@ -64,6 +64,13 @@ class Controls:
         pygame.display.flip()
 
     def drawChanges(self):
+        if len(self.selectedAgents) > 0:
+            pos = pygame.mouse.get_pos()
+            Display.write(Display.screen, str(len(self.selectedAgents)), Constants.FONT_SIZE,
+                          pos[0] + Constants.FONT_SIZE, pos[1] + Constants.FONT_SIZE, Constants.SEARCH_COLOR)
+            if len(self.selectedAgents) > 1 and self.graphs.shouldDrawGraphs:
+                Display.write(Display.screen, "Cut the number of selected ants in half by pressing 'H'",
+                              Constants.FONT_SIZE, Display.origWidth - 420, 4 * Constants.FONT_SIZE, Constants.SEARCH_COLOR)
         if self.selectedSite is not None and self.shouldDrawQuality:
             drawPotentialQuality(self.world, self.potentialQuality, self.graphs.font)
         if self.selectRectCorner is not None:
