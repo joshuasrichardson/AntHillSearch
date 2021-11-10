@@ -5,6 +5,7 @@ import numpy as np
 from Constants import *
 from display import SiteDisplay, WorldDisplay
 from display.AgentDisplay import getAgentImage
+from display.Display import getAvoidMarker
 from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ConvergedPhase import ConvergedPhase
@@ -40,6 +41,8 @@ class Agent:
 
         self.target = list(startingPosition)  # The position the agent is going to
         self.angle = np.random.uniform(0, np.pi, 1)  # Angle the agent is moving
+        self.placesToAvoid = []  # A list of points that the agent should stay away from
+        self.avoidMarkers = []  # A list of markers indicating the positions the agents should avoid
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
@@ -170,6 +173,12 @@ class Agent:
                 return True
         return False
 
+    def getNearbyPlaceToAvoid(self):
+        for pos in self.placesToAvoid:
+            if self.isClose(pos, MIN_AVOID_DIST):
+                return pos
+        return None
+
     def isClose(self, position, distance):
         """ Returns a boolean representing whether the agent is within the specified distance of the specified position """
         dist = np.sqrt(np.square(abs(self.pos[0] - position[0])) + np.square(abs(self.pos[1] - position[1])))
@@ -255,6 +264,10 @@ class Agent:
             self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + sitePos[0]) / 2
         if self.estimatedSitePosition[1] != sitePos[1]:
             self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
+
+    def avoid(self, pos):
+        self.placesToAvoid.append(pos)
+        self.avoidMarkers.append(getAvoidMarker(pos))
 
     def getAssignedSiteIndex(self):
         """ Returns the agent's assigned site's position in the world site list """

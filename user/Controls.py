@@ -4,7 +4,7 @@ import numpy as np
 import pygame
 from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
-    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z
 
 import Constants
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, COMMIT_COLOR, AT_NEST, \
@@ -12,7 +12,7 @@ from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, COMMIT_COLOR, AT_
 from display import Display
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
-from display.Display import getDestinationMarker, getAssignmentMarker
+from display.Display import getDestinationMarker, getAssignmentMarker, getAvoidMarker
 from model.builder import AgentBuilder, SiteSettings
 from model.phases.ExplorePhase import ExplorePhase
 from model.states import State
@@ -110,6 +110,8 @@ class Controls:
             key = event.key
             if key == K_SPACE:
                 self.go(adjustedMousePos)
+            elif key == K_z:
+                self.avoid(adjustedMousePos)
             elif key == K_a:
                 self.assignSelectedAgents(adjustedMousePos)
             elif key == K_f:
@@ -371,7 +373,8 @@ class Controls:
             return
         agentGroup = self.world.getGroup(index)
         for agent in agentGroup:
-            self.selectAgent2(agent)
+            if not agent.isSelected:
+                self.selectAgent2(agent)
         if len(agentGroup) >= len(self.selectedAgents) > 0:
             if self.shouldSelectAgents:
                 self.selectedAgent.isTheSelected = True
@@ -530,6 +533,19 @@ class Controls:
         agent.target = list(mousePos)
         from model.states.GoState import GoState
         agent.setState(GoState(agent))
+
+    def avoid(self, pos):
+        if len(self.selectedAgents) > 0:
+            pos = [int(pos[0]), int(pos[1])]
+            self.addToExecutedEvents(str(len(self.selectedAgents)) + " agents started avoiding " + str(pos))
+        marker = getAvoidMarker(pos)
+        self.setSelectedSitesCommand(self.avoidCommand, list(pos), marker, Constants.AVOID_NAME)
+        for a in self.selectedAgents:
+            self.avoidCommand(a, pos)
+
+    @staticmethod
+    def avoidCommand(agent, mousePos):
+        agent.avoid(mousePos)
 
     @staticmethod
     def assignCommand(agent, mousePos):

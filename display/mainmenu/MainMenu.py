@@ -82,12 +82,20 @@ class StartUpDisplay:
         self.mousePos = [-1, -1]
 
     def doUserExperiments(self):
-        for trialSetting in TRIAL_SETTINGS:
-            with open(trialSetting, 'r') as trialFile, open('display/mainmenu/settings.json', 'w') as currentSettings:
-                contents = trialFile.read()
-                print("In MainMenu.py: current json file contents are: " + contents)
-                currentSettings.write(contents)
+        for trial, trialSetting in enumerate(TRIAL_SETTINGS):
+            self.setSettings(trialSetting)
             self.play()
+            self.saveResults(trial)
+
+    def setSettings(self, trialSetting):
+        with open(trialSetting, 'r') as trialFile, open('display/mainmenu/settings.json', 'w') as currentSettings:
+            currentSettings.write(trialFile.read())
+
+    def saveResults(self, trial):
+        with open(f"recording/trial{trial + 1}results", 'w') as currentResults, open('recording/results.json', 'r') as results:
+            currentResults.write(results.read())
+        with open(f"recording/trial{trial + 1}recording", 'w') as currentRecording, open('recording/recording.json', 'r') as recording:
+            currentRecording.write(recording.read())
 
     def play(self):
         del self.simInterface

@@ -4,7 +4,7 @@ import numpy as np
 import pygame
 
 from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
-    SITE_RADIUS, FONT_SIZE
+    SITE_RADIUS, FONT_SIZE, MIN_AVOID_DIST
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -101,6 +101,15 @@ def getDestinationMarker(pos):
     rect = arrows.get_rect().move(pos)
     rect.center = pos
     return arrows, rect
+
+
+def getAvoidMarker(pos):
+    """ Loads, adjusts the size, and returns the image representing a place to avoid """
+    avoidPlace = pygame.image.load("resources/avoid.png").convert_alpha()
+    avoidPlace = pygame.transform.scale(avoidPlace, (2 * MIN_AVOID_DIST, 2 * MIN_AVOID_DIST))
+    rect = avoidPlace.get_rect().move(pos)
+    rect.center = pos
+    return avoidPlace, rect
 
 
 def getAssignmentMarker(pos):

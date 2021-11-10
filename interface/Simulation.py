@@ -167,10 +167,9 @@ class Simulation(ABC):
         for siteIndex in range(len(self.world.getHubs()), len(self.world.siteList)):
             site = self.world.siteList[siteIndex]
             for hubIndex in range(len(self.world.getHubs())):
-                if site.agentCounts[hubIndex] >= int(self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction):
+                if site.agentCounts[hubIndex] >= int(self.world.initialHubAgentCounts[hubIndex] * self.convergenceFraction) > 0:
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
-                    break
         for hubIndex in range(len(self.world.getHubs())):
             if self.world.initialHubAgentCounts[hubIndex] == 0:
                 self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]

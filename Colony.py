@@ -18,7 +18,7 @@ from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 # Style changes
-# TODO: When the ants don't move in time, report how many made it.
+# TODO: Report how many made it to the new home.
 # TODO: Set site positions in settings by clicking where you want it to go.
 # TODO: Show how many ants are currently at a site next to how many are assigned there: "currentlyPresent/assigned"
 # TODO: Draw small lines around the hubs showing which directions ants left or came back
@@ -28,8 +28,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Add table of contents to tutorial and make tutorial better
 
 # Additional features
+# TODO: Have ants avoid harmful places https://www.pbs.org/wgbh/nova/article/how-ants-respond-to-predators-suggests-superorganism-capabilities/
 # TODO: Add predators, and have ants report when they see a dead ant or a predator. Be able to enable/disable them
-# TODO: Add avoid command
 # TODO: Record the commands executed by the user
 # TODO: Add an option to set how many recordings you want to store, and store the previous n recordings.
 # TODO: Earthquakes?
@@ -55,7 +55,8 @@ def main():
         # startUpScreen = StartUpDisplay(EngineerInterface)
         startUpScreen = StartUpDisplay(UserInterface)
         startUpScreen.run()
-        # runSimWithInterface(EngineerInterface(numSites=5, numHubs=2))  # The interface that shows lots of information about the interface and gives lots of control over what happens
+
+        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface(numSites=10, numHubs=2))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.

@@ -2,7 +2,7 @@
 import numpy as np
 import pygame
 
-from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE
+from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, ASSESS_COLOR
 from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
@@ -19,6 +19,7 @@ def drawAgent(agent, surface):
             drawKnownSiteMarkers(agent, surface)
             drawAssignedSite(agent)
             setAgentMarker(agent)
+            drawPlacesToAvoid(agent, surface)
         if agent.isSelected:  # Only draw state and phase circles for the selected agents
             Display.drawCircle(surface, agent.state.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
             Display.drawCircle(surface, agent.phase.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
@@ -52,6 +53,14 @@ def drawMarker(agent, surface):
             and agent.marker is not None:
         drawDashedLine(surface, BORDER_COLOR, agent.pos, agent.marker[1].center)
         Display.blitImage(Display.screen, agent.marker[0], agent.marker[1])
+
+
+def drawPlacesToAvoid(agent, surface):
+    """ Draws the places the agent should avoid on the screen """
+    if Display.drawFarAgents or agent.getAgentRect().collidelist(agent.world.getHubsObserveRects()) != -1:
+        for marker in agent.avoidMarkers:
+            drawDashedLine(surface, ASSESS_COLOR, agent.pos, marker[1].center, width=4, dashLength=3)
+            Display.blitImage(Display.screen, marker[0], marker[1])
 
 
 def drawPath(agent, surface):

@@ -86,6 +86,7 @@ GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first g
 
 """ Site marker names """
 GO_NAME = "Go"
+AVOID_NAME = "Avoid"
 ASSIGN_NAME = "Assign"
 SET_STATE_NAME = "SetState"
 NO_MARKER_NAME = "None"
@@ -105,6 +106,7 @@ HUB_MIN_X = 0 - MAX_SEARCH_DIST  # The farthest left a hub can randomly be place
 HUB_MIN_Y = 0 - MAX_SEARCH_DIST  # The farthest left a hub can randomly be placed.
 HUB_MAX_X = 1250 + MAX_SEARCH_DIST  # The farthest right a hub can randomly be placed.
 HUB_MAX_Y = 650 + MAX_SEARCH_DIST  # The farthest right a hub can randomly be placed.
+MIN_AVOID_DIST = 100  # The closest an ant can get to a point the it is avoiding.
 # Setting the speed too high actually makes the interface take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the interface take longer just because the agents aren't moving as fast.
