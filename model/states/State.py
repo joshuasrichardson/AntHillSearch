@@ -40,7 +40,7 @@ class State(ABC):
 
     def setState(self, state, target):
         self.agent.target = target
-        self.updateAngle(state.state)
+        self.updateAngle(state.stateNumber)
         self.agent.state = state
 
     def updateAngle(self, stateNum) -> None:

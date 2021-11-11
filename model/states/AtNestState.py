@@ -16,7 +16,7 @@ class AtNestState(State):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = AT_NEST
+        self.stateNumber = AT_NEST
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.getAssignedSitePosition())
@@ -49,7 +49,7 @@ class AtNestState(State):
                 return
 
         for i in range(0, len(neighborList)):
-            neighborState = neighborList[i].getState()
+            neighborState = neighborList[i].getStateNumber()
             if (neighborState == LEAD_FORWARD and neighborList[i].estimatedQuality > self.agent.estimatedQuality)\
                     or (neighborState == REVERSE_TANDEM and neighborList[i].estimatedQuality >= self.agent.estimatedQuality)\
                     and self.agent.shouldFollow():

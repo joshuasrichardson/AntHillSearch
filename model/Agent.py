@@ -77,8 +77,8 @@ class Agent:
             return
         self.state.changeState(neighborList)
 
-    def getState(self):
-        return self.state.state
+    def getStateNumber(self):
+        return self.state.stateNumber
 
     def setAngle(self, angle):
         self.angle = angle
@@ -365,3 +365,10 @@ class Agent:
         self.isSelected = False
         self.isTheSelected = False
         self.marker = None
+
+    def die(self):
+        if self.getStateNumber() != DEAD:
+            from model.states.DeadState import DeadState
+            self.setState(DeadState(self))  # This will stop the ant from moving etc.
+            self.assignSite(self.getHub())  # Assign them back to the hub because their number no longer counts toward converging
+            self.world.incrementDeadAgents(self.getHubIndex())  # Need to keep track of how many died so the number needed to converge goes down.

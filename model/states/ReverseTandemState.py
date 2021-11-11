@@ -9,7 +9,7 @@ class ReverseTandemState(RecruitState):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = REVERSE_TANDEM
+        self.stateNumber = REVERSE_TANDEM
 
     def arriveAtSite(self, numNeighbors):
         self.setState(TransportState(self.agent), self.agent.getAssignedSitePosition())

@@ -8,7 +8,7 @@ class TransportState(RecruitState):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = TRANSPORT
+        self.stateNumber = TRANSPORT
 
     def arriveAtSite(self, numNeighbors):
         if self.agent.shouldKeepTransporting():

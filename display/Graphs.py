@@ -269,7 +269,9 @@ class SimulationGraphs:
                         'Slow Down',
                         'Move',
                         'Assign to Site',
+                        'Avoid',
                         'Set State',
+                        'Kill',
                         'Create',
                         'Delete',
                         'Unselect']
@@ -285,7 +287,9 @@ class SimulationGraphs:
                               '- S',
                               '- SPACE or RIGHT CLICK',
                               '- A',
+                              '- Z',
                               '- ALT + 0-6',
+                              '- K',
                               '- X',
                               '- DEL or /',
                               '- ESC']
@@ -306,6 +310,7 @@ class SimulationGraphs:
                        'Delete',
                        'Set Go Point',
                        'Set Assign Site',
+                       'Set Avoid Area',
                        'Set Agents State',
                        'Remove Command',
                        'Unselect']
@@ -324,6 +329,7 @@ class SimulationGraphs:
                              '- DEL or /',
                              '- SPACE or RIGHT CLICK',
                              '- A',
+                             '- Z',
                              '- ALT + 0-6',
                              '- .',
                              '- ESC']

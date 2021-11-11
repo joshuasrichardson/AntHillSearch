@@ -9,10 +9,10 @@ class FollowState(State):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = FOLLOW
+        self.stateNumber = FOLLOW
 
     def changeState(self, neighborList) -> None:
-        if (self.agent.leadAgent.getState() == LEAD_FORWARD or self.agent.leadAgent.getState() == REVERSE_TANDEM)\
+        if (self.agent.leadAgent.getStateNumber() == LEAD_FORWARD or self.agent.leadAgent.getStateNumber() == REVERSE_TANDEM)\
                 and self.agent.world.siteList[self.agent.siteInRangeIndex] != self.agent.leadAgent.assignedSite:
             self.setState(self, self.agent.leadAgent.getPosition())
             if self.agent.shouldGetLost():
@@ -21,7 +21,7 @@ class FollowState(State):
             else:
                 self.agent.updateFollowPosition()
                 # If they get to the site the lead agent is recruiting from,
-                if self.agent.getPhaseNumber() == COMMIT and self.agent.leadAgent.getState() == REVERSE_TANDEM\
+                if self.agent.getPhaseNumber() == COMMIT and self.agent.leadAgent.getStateNumber() == REVERSE_TANDEM\
                         and self.agent.leadAgent.comingWithFollowers and self.agent.assignedSite == self.agent.leadAgent.assignedSite:
                     # they also start recruiting from that site.
                     self.agent.recruitSite = self.agent.leadAgent.recruitSite

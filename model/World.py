@@ -31,6 +31,7 @@ class World:
         self.createSites(numSites, numHubs, siteRadius)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
+        self.numDeadAgents = [0 for _ in range(numHubs)]  # The number of agents that have died during the simulation
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
@@ -222,7 +223,7 @@ class World:
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
         if Display.drawFarAgents:
             for agent in self.agentList:
-                st = agent.getState()
+                st = agent.getStateNumber()
                 self.states[st] += 1
                 ph = agent.getPhaseNumber()
                 self.phases[ph] += 1
@@ -273,9 +274,12 @@ class World:
         minDist = 100000
         closestAgent = None
         for agent in self.agentList:
-            if stateNums.__contains__(agent.getState()):
+            if stateNums.__contains__(agent.getStateNumber()):
                 dist = np.sqrt(np.square(pos[0] - agent.getPosition()[0]) + np.square(pos[1] - agent.getPosition()[1]))
                 if dist < minDist:
                     minDist = dist
                     closestAgent = agent
         return closestAgent
+
+    def incrementDeadAgents(self, hubIndex):
+        self.numDeadAgents[hubIndex] += 1

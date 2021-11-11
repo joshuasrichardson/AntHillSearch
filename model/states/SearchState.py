@@ -10,13 +10,13 @@ class SearchState(State):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = SEARCH
+        self.stateNumber = SEARCH
         self.collides = False
         self.itersSinceLastCollide = 8
 
-    def updateAngle(self, state) -> None:
-        if state != SEARCH:
-            super().updateAngle(state)
+    def updateAngle(self, stateNumber) -> None:
+        if stateNumber != SEARCH:
+            super().updateAngle(stateNumber)
         else:
             self.itersSinceLastCollide += 1
             if self.collides and self.itersSinceLastCollide > 8:  # Go straight unless they bump into an obstacle
@@ -56,7 +56,7 @@ class SearchState(State):
 
         # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):
-            if neighborList[i].getState() == TRANSPORT:
+            if neighborList[i].getStateNumber() == TRANSPORT:
                 self.getCarried(neighborList[i])
                 return
 

@@ -44,7 +44,7 @@ class Recorder:
     def recordAgentInfo(self, agent):
         self.recordAgentPosition(agent.getPosition())
         self.recordAgentAngle(agent.getAngle())
-        self.recordState(agent.getState())
+        self.recordState(agent.getStateNumber())
         self.recordPhase(agent.getPhaseNumber())
         self.recordAssignment(agent.getAssignedSiteIndex())
 

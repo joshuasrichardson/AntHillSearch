@@ -21,8 +21,8 @@ def drawAgent(agent, surface):
             setAgentMarker(agent)
             drawPlacesToAvoid(agent, surface)
         if agent.isSelected:  # Only draw state and phase circles for the selected agents
-            Display.drawCircle(surface, agent.state.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
-            Display.drawCircle(surface, agent.phase.getColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
+            Display.drawCircle(surface, agent.getStateColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
+            Display.drawCircle(surface, agent.getPhaseColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
         w, h = agent.agentHandle.get_size()  # Rotate the agent's image to face the direction they are heading
         rotateImage(surface, agent.agentHandle, agent.pos, [w / 2, h / 2], (-agent.angle * 180 / np.pi) - 132)
 

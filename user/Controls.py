@@ -4,7 +4,7 @@ import numpy as np
 import pygame
 from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
-    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k
 
 import Constants
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, COMMIT_COLOR, AT_NEST, \
@@ -64,7 +64,7 @@ class Controls:
         pygame.display.flip()
 
     def drawChanges(self):
-        if len(self.selectedAgents) > 0:
+        if len(self.selectedAgents) > 0:  # Display the number of agents that are selected by the mouse
             pos = pygame.mouse.get_pos()
             Display.write(Display.screen, str(len(self.selectedAgents)), Constants.FONT_SIZE,
                           pos[0] + Constants.FONT_SIZE, pos[1] + Constants.FONT_SIZE, Constants.SEARCH_COLOR)
@@ -144,6 +144,8 @@ class Controls:
                 self.graphs.shouldDrawGraphs = not self.graphs.shouldDrawGraphs
             elif key == K_ESCAPE:
                 self.unselectAll()
+            elif key == K_k:
+                self.kill()
             elif len(self.selectedSites) > 0 and not pygame.key.get_mods() & KMOD_SHIFT and \
                     not pygame.key.get_mods() & KMOD_CTRL and not pygame.key.get_mods() & KMOD_ALT:
                 if event.unicode.isnumeric():
@@ -202,6 +204,13 @@ class Controls:
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos) or \
                 self.graphs.collidesWithAnyButton(mousePos)
+
+    def getNumLivingSelectedAgents(self):
+        numLiving = 0
+        for agent in self.selectedAgents:
+            if agent.getStateNumber() != Constants.DEAD:
+                numLiving += 1
+        return numLiving
 
     def moveScreen(self):
         if not pygame.key.get_mods() & pygame.KMOD_CAPS:
@@ -385,7 +394,7 @@ class Controls:
         index = key - 48
         if not 0 <= index <= 9:
             return
-        self.addToExecutedEvents("Set agent group " + str(index) + " to have " + str(len(self.selectedAgents)) + " agents.")
+        self.addToExecutedEvents(f"Set agent group {index} to have {len(self.selectedAgents)} agents.")
         self.world.updateGroup(index, self.selectedAgents)
 
     def setAgentsStates(self, key):
@@ -393,14 +402,15 @@ class Controls:
         if not AT_NEST <= stateNum <= TRANSPORT:
             return
         for agent in self.selectedAgents:
-            if agent.checkLeadAgent(agent, stateNum):
+            if agent.getStateNumber() != Constants.DEAD and agent.checkLeadAgent(agent, stateNum):
                 agent.setState(State.numToState(stateNum, agent))
         self.setSelectedSitesCommand(self.setStateCommand, stateNum, stateNum, SET_STATE_NAME)
 
     @staticmethod
     def setStateCommand(agent, state):
         if agent.checkLeadAgent(agent, state):
-            agent.setState(State.numToState(state, agent))
+            if agent.getStateNumber() != Constants.DEAD:
+                agent.setState(State.numToState(state, agent))
 
     def drawSelectRect(self, mousePos):
         if self.selectRectCorner[0] < mousePos[0]:
@@ -522,22 +532,23 @@ class Controls:
     def go(self, mousePos):
         if len(self.selectedAgents) > 0:
             pos = [int(mousePos[0]), int(mousePos[1])]
-            self.addToExecutedEvents("Sent " + str(len(self.selectedAgents)) + " agents to " + str(pos))
+            self.addToExecutedEvents(f"Sent {self.getNumLivingSelectedAgents()} agents to {pos}")
         marker = getDestinationMarker(mousePos)
         self.setSelectedSitesCommand(self.goCommand, list(mousePos), marker, GO_NAME)
-        for a in self.selectedAgents:
-            self.goCommand(a, mousePos)
+        for agent in self.selectedAgents:
+            self.goCommand(agent, mousePos)
 
     @staticmethod
     def goCommand(agent, mousePos):
-        agent.target = list(mousePos)
-        from model.states.GoState import GoState
-        agent.setState(GoState(agent))
+        if agent.getStateNumber() != Constants.DEAD:
+            agent.target = list(mousePos)
+            from model.states.GoState import GoState
+            agent.setState(GoState(agent))
 
     def avoid(self, pos):
         if len(self.selectedAgents) > 0:
             pos = [int(pos[0]), int(pos[1])]
-            self.addToExecutedEvents(str(len(self.selectedAgents)) + " agents started avoiding " + str(pos))
+            self.addToExecutedEvents(f"{self.getNumLivingSelectedAgents()} agents started avoiding {pos}")
         marker = getAvoidMarker(pos)
         self.setSelectedSitesCommand(self.avoidCommand, list(pos), marker, Constants.AVOID_NAME)
         for a in self.selectedAgents:
@@ -545,14 +556,21 @@ class Controls:
 
     @staticmethod
     def avoidCommand(agent, mousePos):
-        agent.avoid(mousePos)
+        if agent.getStateNumber() != Constants.DEAD:
+            agent.avoid(mousePos)
 
     @staticmethod
     def assignCommand(agent, mousePos):
-        sitesUnderMouse = [s for s in agent.world.siteList if s.siteRect.collidepoint(mousePos)]
-        if len(sitesUnderMouse) > 0:
-            agent.addToKnownSites(sitesUnderMouse[0])
-            agent.assignSite(sitesUnderMouse[0])
+        if agent.getStateNumber() != Constants.DEAD:
+            sitesUnderMouse = [s for s in agent.world.siteList if s.siteRect.collidepoint(mousePos)]
+            if len(sitesUnderMouse) > 0:
+                agent.addToKnownSites(sitesUnderMouse[0])
+                agent.assignSite(sitesUnderMouse[0])
+
+    def kill(self):
+        self.addToExecutedEvents(f"Killed {self.getNumLivingSelectedAgents()} agents")
+        for agent in self.selectedAgents:
+            agent.die()
 
     def setSelectedSitesCommand(self, command, arg, marker, markerName):
         if self.shouldCommandSiteAgents:
@@ -584,11 +602,12 @@ class Controls:
         if len(sitesUnderMouse) > 0:
             marker = getAssignmentMarker(mousePos)
             if len(self.selectedAgents) > 0:
-                self.addToExecutedEvents("Assigned " + str(len(self.selectedAgents)) + " agents to site at " + str(sitesUnderMouse[0].getPosition()))
+                self.addToExecutedEvents(f"Assigned {self.getNumLivingSelectedAgents()} agents to site at {sitesUnderMouse[0].getPosition()}")
             for a in self.selectedAgents:
-                a.marker = marker
-                a.addToKnownSites(sitesUnderMouse[0])
-                a.assignSite(sitesUnderMouse[0])
+                if a.getStateNumber() != Constants.DEAD:
+                    a.marker = marker
+                    a.addToKnownSites(sitesUnderMouse[0])
+                    a.assignSite(sitesUnderMouse[0])
 
             self.setSelectedSitesCommand(self.assignCommand, list(mousePos), marker, ASSIGN_NAME)
 
@@ -668,7 +687,7 @@ class Controls:
 
     def deleteSelectedAgents(self):
         if len(self.selectedAgents) > 0:
-            self.addToExecutedEvents("Deleted " + str(len(self.selectedAgents)) + " agents")
+            self.addToExecutedEvents(f"Deleted {(len(self.selectedAgents))} agents")
         self.world.deleteSelectedAgents()
         self.selectedAgents = []
         self.selectedAgent = None

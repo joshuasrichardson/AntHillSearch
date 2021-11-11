@@ -430,6 +430,13 @@ be more to come).
 - <strong>Unselect Agents</strong> - <code>ESC</code>:
   <p>Users can unselect all agents by pressing the escape button.</p>
 
+- <strong>Avoid Area</strong> - <code>Z</code>:
+  <p>Users can tell all the selected agents to avoid an area by pressing the
+  <code>Z</code> key with their cursor over the center of the area to avoid.</p>
+
+- <strong>Kill Agent</strong> - <code>K</code>:
+  <p>Users can kill agents by pressing <code>K</code> while the agents are selected.</p>
+
 ### Site Controls
 
 - <strong>Select Site</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
@@ -517,6 +524,11 @@ be more to come).
   <p>Users can set a site that all agents who stop at the selected site will
   be assigned to after arriving by selecting the site and pushing the <code>a</code>
   key with the mouse positioned over the site the agents should be assigned to.</p>
+
+- <strong>Command Agents to Avoid Area</strong> - <code>Z</code>:
+  <p>Users can tell the agents who visit a site to avoid an area by pressing the
+  <code>Z</code> key with their cursor over the center of the area to avoid
+  while the site is selected.</p>
 
 - <strong>Unselect Sites</strong> - <code>ESC</code>:
   <p>Users can unselect all sites by pressing the escape button.</p>

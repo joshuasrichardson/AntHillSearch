@@ -9,7 +9,7 @@ class GoState(State):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = GO
+        self.stateNumber = GO
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)

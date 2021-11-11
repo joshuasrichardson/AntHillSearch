@@ -8,7 +8,7 @@ class LeadForwardState(RecruitState):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = LEAD_FORWARD
+        self.stateNumber = LEAD_FORWARD
 
     def arriveAtSite(self, numNeighbors):
         if self.agent.quorumMet(numNeighbors):  # If enough agents are at that site

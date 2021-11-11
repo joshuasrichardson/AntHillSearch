@@ -70,17 +70,18 @@ class LiveSimulation(Simulation, ABC):
                 self.recorder.recordSiteInfo(site)
 
     def updateAgent(self, agent, agentRectList):
-        agent.updatePosition()
-        if Display.shouldDraw:
-            agent.clearFog()
+        if agent.getStateNumber() != DEAD:
+            agent.updatePosition()
+            if Display.shouldDraw:
+                agent.clearFog()
 
-        agentRect = agent.getAgentRect()
-        possibleNeighborList = agentRect.collidelistall(agentRectList)
-        agentNeighbors = []
-        for i in possibleNeighborList:
-            agentNeighbors.append(self.world.agentList[i])
-        agent.changeState(agentNeighbors)
-        del agentNeighbors[:]
+            agentRect = agent.getAgentRect()
+            possibleNeighborList = agentRect.collidelistall(agentRectList)
+            agentNeighbors = []
+            for i in possibleNeighborList:
+                agentNeighbors.append(self.world.agentList[i])
+            agent.changeState(agentNeighbors)
+            del agentNeighbors[:]
 
         if self.shouldRecord:
             self.recorder.recordAgentInfo(agent)

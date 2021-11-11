@@ -30,7 +30,7 @@ class SendHubInfoRequest:
         for agent in agentList:
             self.agentPhases.append(agent.getPhaseNumber())
             self.incrementPhaseCount(agent)
-            self.agentStates.append(agent.getState())
+            self.agentStates.append(agent.getStateNumber())
             self.incrementStateCount(agent)
 
         # Estimates about site information
@@ -46,7 +46,7 @@ class SendHubInfoRequest:
 
     def addAgent(self, agent):
         self.agentPhases.append(agent.getPhaseNumber())
-        self.agentStates.append(agent.getState())
+        self.agentStates.append(agent.getStateNumber())
         self.incrementPhaseCount(agent)
         self.incrementStateCount(agent)
 
@@ -61,7 +61,7 @@ class SendHubInfoRequest:
         self.agentPhases[agentIndex] = agent.getPhaseNumber()
 
         self.decrementStateCount(agentIndex)
-        self.agentStates[agentIndex] = agent.getState()
+        self.agentStates[agentIndex] = agent.getStateNumber()
 
         self.incrementPhaseCount(agent)
         self.incrementStateCount(agent)
@@ -107,23 +107,24 @@ class SendHubInfoRequest:
             self.numCommit += 1
 
     def incrementStateCount(self, agent):
-        if agent.state.state == AT_NEST:
+        stateNum = agent.getStateNumber()
+        if stateNum == AT_NEST:
             self.numAtHub += 1
-        elif agent.state.state == SEARCH:
+        elif stateNum == SEARCH:
             self.numSearch += 1
-        elif agent.state.state == CARRIED:
+        elif stateNum == CARRIED:
             self.numCarried += 1
-        elif agent.state.state == LEAD_FORWARD:
+        elif stateNum == LEAD_FORWARD:
             self.numLeadForward += 1
-        elif agent.state.state == FOLLOW:
+        elif stateNum == FOLLOW:
             self.numFollow += 1
-        elif agent.state.state == REVERSE_TANDEM:
+        elif stateNum == REVERSE_TANDEM:
             self.numReverseTandem += 1
-        elif agent.state.state == TRANSPORT:
+        elif stateNum == TRANSPORT:
             self.numTransport += 1
-        elif agent.state.state == GO:
+        elif stateNum == GO:
             self.numGo += 1
-        elif agent.state.state == CONVERGED:
+        elif stateNum == CONVERGED:
             self.numConverged += 1
 
     def updateSiteInfo(self, agent):

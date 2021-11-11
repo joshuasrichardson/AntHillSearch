@@ -9,11 +9,11 @@ class CarriedState(State):
 
     def __init__(self, agent):
         super().__init__(agent)
-        self.state = CARRIED
+        self.stateNumber = CARRIED
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.leadAgent.getPosition())
-        if self.agent.leadAgent.getState() == TRANSPORT and not \
+        if self.agent.leadAgent.getStateNumber() == TRANSPORT and not \
                 self.agent.leadAgent.getAgentRect().collidepoint(self.agent.leadAgent.assignedSite.pos):
             if not self.agent.world.agentList.__contains__(self.agent.leadAgent):
                 from model.states.SearchState import SearchState
