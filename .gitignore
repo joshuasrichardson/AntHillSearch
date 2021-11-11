@@ -16,9 +16,4 @@ __pycache__/
 /venv/
 /Colony.prof
 *.prof
-/recording/trial1recording
-/recording/trial2recording
-/recording/trial3recording
-/recording/trial1results
-/recording/trial2results
-/recording/trial3results
+recording/results/*.json

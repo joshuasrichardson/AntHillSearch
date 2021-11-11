@@ -43,6 +43,8 @@ SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending inform
 USE_REST_API = False  # Whether the interface sends information about the hub to the rest API
 # Having this set to False makes the interface a little faster because it doesn't have to record all the time.
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
+# Having this set to False makes the interface a little faster because it doesn' have to record all user commands
+SHOULD_RECORD_COMMANDS_ONLY = True
 # Having this set to False makes the interface a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the interface is drawn on the screen
 # Having this false makes the interface faster because the paths do not have to be drawn on the screen so much.

@@ -1,6 +1,8 @@
 import json
 import numbers
 
+from datetime import datetime
+
 from model.phases import Phase
 from model.states import State
 
@@ -40,6 +42,9 @@ class Recorder:
         self.currentMarkerIndex = -1
 
         self.dataIndex = -1
+
+        self.timestampString = datetime.now().strftime('%b-%d-%Y-%H:%M:%S')
+        self.outputFileBase = f'recording/results/{self.timestampString}'
 
     def recordAgentInfo(self, agent):
         self.recordAgentPosition(agent.getPosition())
@@ -135,8 +140,11 @@ class Recorder:
         self.siteMarkerNums = []
 
     def write(self):
-        with open('recording/recording.json', 'w') as file:
+        with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
             json.dump(self.data, file)
+        with open(f'{self.outputFileBase}_COMMANDS.json', 'w') as file:
+            json.dump(self.executedCommands, file, indent=2, sort_keys=True)
+
         self.agentPositions.clear()
         self.agentAngles.clear()
         self.agentStates.clear()
@@ -151,16 +159,15 @@ class Recorder:
         self.siteMarkerNums.clear()
 
     def read(self):
-        with open('recording/recording.json', 'r') as file:
+        with open(self.outputFileBase, 'r') as file:
             self.data = json.load(file)
             self.time = self.data[0]['time']
 
-    @staticmethod
-    def writeResults(positions, qualities, simulationTime):
+    def writeResults(self, positions, qualities, simulationTime):
         results = {'positions': positions,
                    'qualities': qualities,
                    'simulationTime': simulationTime}
-        with open('recording/results.json', 'w') as file:
+        with open(f'{self.outputFileBase}_RESULTS.json', 'w') as file:
             json.dump(results, file)
 
     @staticmethod
