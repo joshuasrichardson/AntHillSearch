@@ -8,13 +8,15 @@ from pygame import Rect
 import Constants
 from Constants import *
 from display import Display
+from model.Predator import Predator
 from model.builder import SiteBuilder
 
 
 class World:
     """ Represents the world around the ants old home """
 
-    def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii, siteRadius=SITE_RADIUS):
+    def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
+                 siteRadii, siteRadius=SITE_RADIUS, numPredators=10):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -32,6 +34,7 @@ class World:
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
         self.numDeadAgents = [0 for _ in range(numHubs)]  # The number of agents that have died during the simulation
+        self.predatorList = self.generatePredators(numPredators)  # List of all the predators in the world
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
@@ -86,6 +89,12 @@ class World:
             agent.addToKnownSites(site)
             agent.assignSite(site)
             agent.setPosition(agent.assignedSite.getPosition()[0], agent.assignedSite.getPosition()[1])
+
+    def generatePredators(self, numPredators):
+        predators = []
+        for _ in range(numPredators):
+            predators.append(Predator(self.siteList[np.random.randint(0, len(self.siteList) - 1)]))
+        return predators
 
     def getSiteList(self):
         return self.siteList

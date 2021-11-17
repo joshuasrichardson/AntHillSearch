@@ -52,10 +52,10 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 def main():
     try:
         # startUpScreen = StartUpDisplay(EngineerInterface)
-        startUpScreen = StartUpDisplay(UserInterface)
-        startUpScreen.run()
+        # startUpScreen = StartUpDisplay(UserInterface)
+        # startUpScreen.run()
 
-        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface(numSites=10, numHubs=2))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.

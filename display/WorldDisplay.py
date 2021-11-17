@@ -5,6 +5,7 @@ import Constants
 from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO_MARKER_NAME
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
+from display.PredatorDisplay import drawPredator
 from display.SiteDisplay import drawEstimatedSite, drawSite
 
 
@@ -16,6 +17,7 @@ def drawWorldObjects(world):
     if Display.shouldDrawPaths:
         drawPaths(world)
     drawAgents(world)
+    drawPredators(world)
     if not Display.drawFarAgents:
         for siteIndex in range(0, len(world.siteList)):
             drawEstimatedSite(world.siteList[siteIndex])
@@ -41,6 +43,11 @@ def drawPaths(world):
 def drawAgents(world):
     for agent in world.agentList:
         drawAgent(agent, Display.screen)
+
+
+def drawPredators(world):
+    for predator in world.predatorList:
+        drawPredator(predator, Display.screen)
 
 
 def drawMarkers(world):

@@ -136,6 +136,8 @@ MIN_QUALITY_MISJUDGMENT = 0  # How close agents' estimatedQuality can be from a 
 # If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
 MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from a site's actual quality.
 
+PREDATOR_IMAGE = "resources/spider.png"
+
 """ Agent Transition Parameters """
 # Threshold probability,
 # 1 ==> 36%
