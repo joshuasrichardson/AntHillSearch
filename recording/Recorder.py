@@ -3,8 +3,15 @@ import numbers
 
 from datetime import datetime
 
+from Constants import RESULTS_DIR
 from model.phases import Phase
 from model.states import State
+
+
+def getMostRecentRecording():
+    with open(f'{RESULTS_DIR}/most_recent.json', 'r') as file:
+        data = json.load(file)
+        return data['file_base']
 
 
 class Recorder:
@@ -43,8 +50,8 @@ class Recorder:
 
         self.dataIndex = -1
 
-        self.timestampString = datetime.now().strftime('%b-%d-%Y-%H:%M:%S')
-        self.outputFileBase = f'recording/results/{self.timestampString}'
+        self.timestampString = datetime.now().strftime('%b-%d-%Y-%H-%M-%S')
+        self.outputFileBase = f'{RESULTS_DIR}{self.timestampString}'
 
     def recordAgentInfo(self, agent):
         self.recordAgentPosition(agent.getPosition())
@@ -158,31 +165,33 @@ class Recorder:
         self.siteMarkerArgs.clear()
         self.siteMarkerNums.clear()
 
-    def read(self):
-        with open(self.outputFileBase, 'r') as file:
-            self.data = json.load(file)
-            self.time = self.data[0]['time']
-
     def writeResults(self, positions, qualities, simulationTime):
         results = {'positions': positions,
                    'qualities': qualities,
                    'simulationTime': simulationTime}
         with open(f'{self.outputFileBase}_RESULTS.json', 'w') as file:
             json.dump(results, file)
+        with open(f'{RESULTS_DIR}/most_recent.json', 'w') as file:
+            data = {'file_base': f'{self.outputFileBase}'}
+            json.dump(data, file)
 
-    @staticmethod
-    def readResults():
+    def read(self):
+        with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:
+            self.data = json.load(file)
+            self.time = self.data[0]['time']
+
+    def readResults(self):
         try:
-            with open('recording/results.json', 'r') as file:
+            with open(f'{getMostRecentRecording()}_RESULTS.json', 'r') as file:
                 results = json.load(file)
                 return results['positions'], results['qualities'], results['simulationTime']
         except FileNotFoundError:
-            print("File 'recording/results.json' not found.")
-            open('recording/results.json', 'w')
-            print("Created Empty File: 'recording/results.json'.")
+            print(f"File '{getMostRecentRecording()}_RESULTS.json' not found.")
+            open(f'{getMostRecentRecording()}_RESULTS.json', 'w')
+            print(f"Created Empty File: '{getMostRecentRecording()}_RESULTS.json'.")
             return [[-1, -1]], [-1], -1
         except json.decoder.JSONDecodeError:
-            print("File 'recording/results.json' is empty.")
+            print(f"File '{getMostRecentRecording()}_RESULTS.json' is empty.")
             print("Returning arbitrary results")
             return [[-1, -1]], [-1], -1
 

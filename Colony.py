@@ -52,10 +52,10 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 def main():
     try:
         # startUpScreen = StartUpDisplay(EngineerInterface)
-        # startUpScreen = StartUpDisplay(UserInterface)
-        # startUpScreen.run()
+        startUpScreen = StartUpDisplay(UserInterface)
+        startUpScreen.run()
 
-        runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface(numSites=10, numHubs=2))  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
@@ -78,7 +78,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
     convergenceTimes = []
     for i in range(numSimulations):
         print("Simulation " + str(i + 1) + ":")
-        colony = EmpiricalTestingInterface(hubAgentCounts=[50, 50, 50, 50], shouldRecord=True, useRestAPI=False)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+        colony = EmpiricalTestingInterface(numHubs=1, shouldRecord=True, useRestAPI=False)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
         # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
         results = colony.runSimulation()  # Starts the interface
         chosenSiteQualities.append(results[0])

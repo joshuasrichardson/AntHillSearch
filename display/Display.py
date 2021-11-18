@@ -97,7 +97,8 @@ def drawFinish(surface, results):
 def getDestinationMarker(pos):
     """ Loads, adjusts the size, and returns the image representing a destination """
     arrows = pygame.image.load("resources/arrows.png").convert_alpha()
-    arrows = pygame.transform.scale(arrows, (30, 30))
+    if arrows.get_size()[0] > 30 or arrows.get_size()[1] > 30:
+        arrows = pygame.transform.scale(arrows, (30, 30))
     rect = arrows.get_rect().move(pos)
     rect.center = pos
     return arrows, rect
@@ -106,7 +107,8 @@ def getDestinationMarker(pos):
 def getAvoidMarker(pos):
     """ Loads, adjusts the size, and returns the image representing a place to avoid """
     avoidPlace = pygame.image.load("resources/avoid.png").convert_alpha()
-    avoidPlace = pygame.transform.scale(avoidPlace, (2 * MIN_AVOID_DIST, 2 * MIN_AVOID_DIST))
+    if avoidPlace.get_size()[0] > 2 * MIN_AVOID_DIST or avoidPlace.get_size()[1] > 2 * MIN_AVOID_DIST:
+        avoidPlace = pygame.transform.scale(avoidPlace, (2 * MIN_AVOID_DIST, 2 * MIN_AVOID_DIST))
     rect = avoidPlace.get_rect().move(pos)
     rect.center = pos
     return avoidPlace, rect
@@ -114,11 +116,12 @@ def getAvoidMarker(pos):
 
 def getAssignmentMarker(pos):
     """ Loads, adjusts the size, and returns the image representing an assignment """
-    arrows = pygame.image.load("resources/target.png").convert_alpha()
-    arrows = pygame.transform.scale(arrows, (2 * SITE_RADIUS, 2 * SITE_RADIUS))
-    rect = arrows.get_rect().move(pos)
+    target = pygame.image.load("resources/target.png").convert_alpha()
+    if target.get_size()[0] > 2 * SITE_RADIUS or target.get_size()[1] > 2 * SITE_RADIUS:
+        target = pygame.transform.scale(target, (2 * SITE_RADIUS, 2 * SITE_RADIUS))
+    rect = target.get_rect().move(pos)
     rect.center = pos
-    return arrows, rect
+    return target, rect
 
 
 def drawDashedLine(surface, color, startPos, endPos, width=1, dashLength=10, excludeCorners=True):

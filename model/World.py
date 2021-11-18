@@ -93,7 +93,7 @@ class World:
     def generatePredators(self, numPredators):
         predators = []
         for _ in range(numPredators):
-            predators.append(Predator(self.siteList[np.random.randint(0, len(self.siteList) - 1)]))
+            predators.append(Predator(self.siteList[np.random.randint(0, len(self.siteList) - 1)], self))
         return predators
 
     def getSiteList(self):

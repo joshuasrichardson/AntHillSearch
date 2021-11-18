@@ -5,8 +5,9 @@ from display.PredatorDisplay import getPredatorImage
 
 class Predator:
 
-    def __init__(self, site):
+    def __init__(self, site, world):
         self.site = site  # The site the predator will be terrorizing.
+        self.world = world
         pos = site.getPosition()
         self.pos = [pos[0] + np.random.randint(-100, 100), pos[1] + np.random.randint(-100, 100)]  # Where the predator is walking.
         self.predatorHandle = getPredatorImage(self.pos)  # Image on screen representing the agent
@@ -14,3 +15,6 @@ class Predator:
         self.predatorRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.predatorRect.centery = self.pos[1]  # Vertical center of the agent
         self.angle = 0
+
+    def getPredatorRect(self):
+        return self.predatorRect

@@ -10,6 +10,8 @@ TRIAL_SETTINGS = ["display/mainmenu/trial1settings.json",
                   "display/mainmenu/trial2settings.json",
                   "display/mainmenu/trial3settings.json"]
 
+RESULTS_DIR = "recording/results/"
+
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
 

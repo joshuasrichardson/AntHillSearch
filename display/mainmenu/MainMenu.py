@@ -9,7 +9,7 @@ from display import Display
 from display.mainmenu.Settings import Settings
 from display.mainmenu.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
-from interface.UserInterface import UserInterface
+from recording.Recorder import getMostRecentRecording
 
 DO_USER_EXPERIMENTS = "Play"
 PRACTICE = "Practice"
@@ -85,21 +85,15 @@ class StartUpDisplay:
         for trial, trialSetting in enumerate(TRIAL_SETTINGS):
             self.setSettings(trialSetting)
             self.play()
-            self.saveResults(trial)
 
-    def setSettings(self, trialSetting):
+    @staticmethod
+    def setSettings(trialSetting):
         with open(trialSetting, 'r') as trialFile, open('display/mainmenu/settings.json', 'w') as currentSettings:
             currentSettings.write(trialFile.read())
 
-    def saveResults(self, trial):
-        with open(f"recording/trial{trial + 1}results", 'w') as currentResults, open('recording/results.json', 'r') as results:
-            currentResults.write(results.read())
-        with open(f"recording/trial{trial + 1}recording", 'w') as currentRecording, open('recording/recording.json', 'r') as recording:
-            currentRecording.write(recording.read())
-
     def play(self):
         del self.simInterface
-        self.simInterface = UserInterface()
+        self.simInterface = self.freshInterface()
         self.simInterface.runSimulation()
 
     def startTutorial(self):
@@ -108,7 +102,7 @@ class StartUpDisplay:
     def replay(self):
         try:
             from os.path import getsize
-            file_path = 'recording/recording.json'
+            file_path = f'{getMostRecentRecording()}_RECORDING.json'
             if getsize(file_path) > 0:
                 del self.simInterface
                 self.simInterface = RecordingPlayer()
@@ -125,7 +119,7 @@ class StartUpDisplay:
         Display.writeCenterPlus(Display.screen, "option on before trying to watch a recording.", FONT_SIZE, 130 + LARGE_FONT_SIZE + FONT_SIZE)
         pygame.display.flip()
         time.sleep(2.5)
-        print("'recording/recording.json' is empty.")
+        print(f"'{getMostRecentRecording()}_RECORDING.json' is empty.")
 
     def viewSettings(self):
         self.settings.run()
