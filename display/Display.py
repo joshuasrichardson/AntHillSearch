@@ -93,6 +93,11 @@ def drawFinish(surface, results):
         y += FONT_SIZE
         write(surface, "Colony " + str(i + 1) + "'s Site Quality: " + str(quality), FONT_SIZE, x, y)
 
+    for i, numDeadAnts in enumerate(results[2]):
+        y += FONT_SIZE
+        write(surface, "Colony " + str(i + 1) + " lost " + str(numDeadAnts) + " ants to predators.",
+                FONT_SIZE, x, y)
+
 
 def getDestinationMarker(pos):
     """ Loads, adjusts the size, and returns the image representing a destination """

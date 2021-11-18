@@ -163,10 +163,11 @@ class Recorder:
             self.data = json.load(file)
             self.time = self.data[0]['time']
 
-    def writeResults(self, positions, qualities, simulationTime):
+    def writeResults(self, positions, qualities, simulationTime, deadAnts):
         results = {'positions': positions,
                    'qualities': qualities,
-                   'simulationTime': simulationTime}
+                   'simulationTime': simulationTime,
+                   'deadAnts': deadAnts}
         with open(f'{self.outputFileBase}_RESULTS.json', 'w') as file:
             json.dump(results, file)
 

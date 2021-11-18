@@ -208,8 +208,8 @@ class Simulation(ABC):
         self.printNumAgentsResults()
         simulationTime = self.printTimeResults()
         qualities = self.printHomeQualities()
-        self.sendResults(self.chosenHomes, simulationTime)
-        return qualities, simulationTime
+        self.sendResults(self.chosenHomes, simulationTime, self.world.numDeadAgents, self.chosenHomes)
+        return qualities, simulationTime, self.world.numDeadAgents, self.chosenHomes
 
     def printNumAgentsResults(self):
         for i in range(len(self.chosenHomes)):
@@ -217,7 +217,7 @@ class Simulation(ABC):
                   " agents from hub " + str(i + 1) + " made it to the new home.")
 
     def printTimeResults(self):
-        simulationTime = 10000  # Large number that means the agents did not find the new home in time.
+        simulationTime = self.simulationDuration
         if not self.timeRanOut:
             simulationTime = self.getRemainingTime()
             self.timer.cancel()
@@ -235,7 +235,7 @@ class Simulation(ABC):
             print(str(home.getQuality()) + "/255.")
         return qualities
 
-    def sendResults(self, chosenSite, simulationTime):
+    def sendResults(self, chosenSite, simulationTime, numDeadAnts, numChosenHome):
         pass
 
     def setDisplayVariables(self, agentImage):

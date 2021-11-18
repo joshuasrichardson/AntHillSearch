@@ -109,6 +109,7 @@ HUB_MIN_Y = 0 - MAX_SEARCH_DIST  # The farthest left a hub can randomly be place
 HUB_MAX_X = 1250 + MAX_SEARCH_DIST  # The farthest right a hub can randomly be placed.
 HUB_MAX_Y = 650 + MAX_SEARCH_DIST  # The farthest right a hub can randomly be placed.
 MIN_AVOID_DIST = 100  # The closest an ant can get to a point the it is avoiding.
+MIN_AVOID_DEAD_ANTS_DIST = 50
 # Setting the speed too high actually makes the interface take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the interface take longer just because the agents aren't moving as fast.

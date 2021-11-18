@@ -177,6 +177,11 @@ class Agent:
         for pos in self.placesToAvoid:
             if self.isClose(pos, MIN_AVOID_DIST):
                 return pos
+
+        for pos in self.world.deadAgentLocations:
+            if self.isClose(pos, MIN_AVOID_DEAD_ANTS_DIST):
+                return pos
+
         return None
 
     def isClose(self, position, distance):
@@ -372,3 +377,5 @@ class Agent:
             self.setState(DeadState(self))  # This will stop the ant from moving etc.
             self.assignSite(self.getHub())  # Assign them back to the hub because their number no longer counts toward converging
             self.world.incrementDeadAgents(self.getHubIndex())  # Need to keep track of how many died so the number needed to converge goes down.
+            self.world.deadAgentLocations.append(self.pos) # Add the ant's location to the dead ants list
+

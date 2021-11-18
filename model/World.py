@@ -16,7 +16,7 @@ class World:
     """ Represents the world around the ants old home """
 
     def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                 siteRadii, siteRadius=SITE_RADIUS, numPredators=10):
+                 siteRadii, siteRadius=SITE_RADIUS, numPredators=3):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -34,7 +34,9 @@ class World:
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
         self.numDeadAgents = [0 for _ in range(numHubs)]  # The number of agents that have died during the simulation
+        self.deadAgentLocations = [] # The positions of agents that have died during the simulation
         self.predatorList = self.generatePredators(numPredators)  # List of all the predators in the world
+        self.predatorRectList = self.getPredatorRectList()
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
@@ -95,6 +97,12 @@ class World:
         for _ in range(numPredators):
             predators.append(Predator(self.siteList[np.random.randint(0, len(self.siteList) - 1)]))
         return predators
+
+    def getPredatorRectList(self):
+        rects = []
+        for predator in self.predatorList:
+            rects.append(predator.predatorRect)
+        return rects
 
     def getSiteList(self):
         return self.siteList
