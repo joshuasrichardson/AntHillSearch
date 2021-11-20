@@ -24,6 +24,8 @@ class Recorder:
         self.agentStates = []
         self.agentPhases = []
         self.agentAssignments = []
+        self.predatorPositions = []
+        self.predatorAngles = []
         self.agentsToDelete = []
         self.sitePositions = []
         self.siteQualities = []
@@ -43,6 +45,8 @@ class Recorder:
         self.currentStateIndex = -1
         self.currentPhaseIndex = -1
         self.currentAssignmentIndex = -1
+        self.currentPredatorPosIndex = -1
+        self.currentPredatorAngleIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -77,6 +81,12 @@ class Recorder:
 
     def recordAgentsToDelete(self, agentIndex):
         self.agentsToDelete = agentIndex
+
+    def recordPredatorPosition(self, pos):
+        self.predatorPositions.append(pos)
+
+    def recordPredatorAngle(self, angle):
+        self.predatorAngles.append(angle)
 
     def recordSiteInfo(self, site):
         self.recordSitePosition(site.getPosition())
@@ -123,6 +133,8 @@ class Recorder:
                           'agentPhases': self.agentPhases,
                           'agentAssignments': self.agentAssignments,
                           'agentsToDelete': self.agentsToDelete,
+                          'predatorPositions': self.predatorPositions,
+                          'predatorAngles': self.predatorAngles,
                           'sitePositions': self.sitePositions,
                           'siteQualities': self.siteQualities,
                           'siteRadii': self.siteRadii,
@@ -139,6 +151,8 @@ class Recorder:
         self.agentPhases = []
         self.agentAssignments = []
         self.agentsToDelete = []
+        self.predatorPositions = []
+        self.predatorAngles = []
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
@@ -150,7 +164,7 @@ class Recorder:
         with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
             json.dump(self.data, file)
         with open(f'{self.outputFileBase}_COMMANDS.json', 'w') as file:
-            json.dump(self.executedCommands, file, indent=2, sort_keys=True)
+            json.dump(self.executedCommands, file)
 
         self.agentPositions.clear()
         self.agentAngles.clear()
@@ -158,6 +172,8 @@ class Recorder:
         self.agentPhases.clear()
         self.agentAssignments.clear()
         self.agentsToDelete.clear()
+        self.predatorPositions.clear()
+        self.predatorAngles.clear()
         self.sitePositions.clear()
         self.siteQualities.clear()
         self.siteRadii.clear()
@@ -165,10 +181,11 @@ class Recorder:
         self.siteMarkerArgs.clear()
         self.siteMarkerNums.clear()
 
-    def writeResults(self, positions, qualities, simulationTime):
+    def writeResults(self, positions, qualities, simulationTime, deadAgents):
         results = {'positions': positions,
                    'qualities': qualities,
-                   'simulationTime': simulationTime}
+                   'simulationTime': simulationTime,
+                   'deadAgents': deadAgents}
         with open(f'{self.outputFileBase}_RESULTS.json', 'w') as file:
             json.dump(results, file)
         with open(f'{RESULTS_DIR}/most_recent.json', 'w') as file:
@@ -180,11 +197,12 @@ class Recorder:
             self.data = json.load(file)
             self.time = self.data[0]['time']
 
-    def readResults(self):
+    @staticmethod
+    def readResults():
         try:
             with open(f'{getMostRecentRecording()}_RESULTS.json', 'r') as file:
                 results = json.load(file)
-                return results['positions'], results['qualities'], results['simulationTime']
+                return results['positions'], results['qualities'], results['simulationTime'], results['deadAgents']
         except FileNotFoundError:
             print(f"File '{getMostRecentRecording()}_RESULTS.json' not found.")
             open(f'{getMostRecentRecording()}_RESULTS.json', 'w')
@@ -220,6 +238,14 @@ class Recorder:
 
     def getNextAgentsToDelete(self):
         return self.agentsToDelete
+
+    def getNextPredatorPosition(self):
+        self.currentPredatorPosIndex += 1
+        return self.predatorPositions[self.currentPredatorPosIndex]
+
+    def getNextPredatorAngle(self):
+        self.currentPredatorAngleIndex += 1
+        return self.predatorAngles[self.currentPredatorAngleIndex]
 
     def getNumHubs(self):
         numHubs = 0
@@ -263,6 +289,12 @@ class Recorder:
         else:
             return len(self.data[0]['agentPositions'])
 
+    def getNumPredators(self):
+        if self.dataIndex >= 0:
+            return len(self.predatorPositions)
+        else:
+            return len(self.data[0]['predatorPositions'])
+
     def getNumSites(self):
         if self.dataIndex >= 0:
             return len(self.sitePositions)
@@ -277,6 +309,8 @@ class Recorder:
         self.currentStateIndex = -1
         self.currentPhaseIndex = -1
         self.currentAssignmentIndex = -1
+        self.currentPredatorPosIndex = -1
+        self.currentPredatorAngleIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -289,6 +323,8 @@ class Recorder:
             self.agentPhases = self.data[self.dataIndex]['agentPhases']
             self.agentAssignments = self.data[self.dataIndex]['agentAssignments']
             self.agentsToDelete = self.data[self.dataIndex]['agentsToDelete']
+            self.predatorPositions = self.data[self.dataIndex]['predatorPositions']
+            self.predatorAngles = self.data[self.dataIndex]['predatorAngles']
             self.sitePositions = self.data[self.dataIndex]['sitePositions']
             self.siteQualities = self.data[self.dataIndex]['siteQualities']
             self.siteRadii = self.data[self.dataIndex]['siteRadii']

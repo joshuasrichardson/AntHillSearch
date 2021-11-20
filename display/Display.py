@@ -91,7 +91,13 @@ def drawFinish(surface, results):
 
     for i, quality in enumerate(results[0]):
         y += FONT_SIZE
-        write(surface, "Colony " + str(i + 1) + "'s Site Quality: " + str(quality), FONT_SIZE, x, y)
+        write(surface, f"Colony {i + 1}'s Site Quality: {quality}", FONT_SIZE, x, y)
+
+    y += FONT_SIZE
+    write(surface, f"{results[2]}/{results[4]} agents made it to the new site.", FONT_SIZE, x, y)
+
+    y += FONT_SIZE
+    write(surface, f"{results[4] - results[3]}/{results[4]} agents survived.", FONT_SIZE, x, y)
 
 
 def getDestinationMarker(pos):

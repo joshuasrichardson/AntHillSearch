@@ -1,3 +1,4 @@
+import time
 import unittest
 
 import pygame
@@ -14,6 +15,7 @@ class SimulationTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.simulation = None
+        time.sleep(1)
 
     def tearDown(self) -> None:
         del self.simulation

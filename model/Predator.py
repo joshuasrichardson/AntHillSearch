@@ -35,6 +35,9 @@ class Predator:
             self.predatorRect.centery = position[1]
         self.pos = list([self.predatorRect.centerx, self.predatorRect.centery])
 
+    def setAngle(self, angle):
+        self.angle = angle
+
     def attack(self, preyList):
         for agent in preyList:
             agent.die()

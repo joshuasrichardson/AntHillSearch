@@ -27,7 +27,7 @@ class RecordingPlayer(Simulation):
         self.recorder.read()
         addAfter = self.initHubsAgentCounts()
         world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii, siteRadius)
+                      siteQualities, siteRadii, siteRadius, numPredators=self.recorder.getNumPredators())
         self.addAddedAgents(world, addAfter)
         self.timer.simulationDuration = self.recorder.getNextTime()
 
@@ -142,11 +142,18 @@ class RecordingPlayer(Simulation):
         siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
         agent.assignSite(siteToAssign)
 
+    def updatePredator(self, predator, agentRectList):
+        predator.updatePosition(self.recorder.getNextPredatorPosition())
+        predator.setAngle(self.recorder.getNextPredatorAngle())
+
     def changeDelay(self, seconds):
         self.delay += seconds
 
     def getRemainingTime(self):
         return self.recorder.readResults()[2]
+
+    def getNumDeadAgents(self):
+        return self.recorder.readResults()[3]
 
     def getScreen(self):
         return Display.createScreen()

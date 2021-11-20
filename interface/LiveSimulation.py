@@ -24,12 +24,14 @@ class LiveSimulation(Simulation, ABC):
                  maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
-                 findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR, useJson=True):
+                 findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR, numPredators=NUM_PREDATORS,
+                 useJson=True):
         super().__init__(simulationDuration, numHubs, numSites, shouldRecord, convergenceFraction,
                          hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
                          siteNoCloserThan, siteNoFartherThan, hubCanMove, homogenousAgents, minSpeed,
                          maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
-                         maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor, useJson=useJson)
+                         maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor, numPredators=numPredators,
+        useJson=useJson)
         self.previousSendTime = datetime.datetime.now()
         self.useRestAPI = useRestAPI
 
@@ -95,6 +97,10 @@ class LiveSimulation(Simulation, ABC):
         agentNeighbors = self.getNeighbors(predator, agentRectList)
         predator.attack(agentNeighbors)
 
+        if self.shouldRecord:
+            self.recorder.recordPredatorPosition(predator.pos)
+            self.recorder.recordPredatorAngle(predator.angle)
+
     def report(self, agentRectList):
         self.setSitesEstimates(agentRectList)
         if self.useRestAPI:
@@ -138,7 +144,7 @@ class LiveSimulation(Simulation, ABC):
         if self.shouldRecord:
             self.recorder.write()
 
-    def sendResults(self, chosenSites, simulationTime):
+    def sendResults(self, chosenSites, simulationTime, deadAgents):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
         if self.useRestAPI or self.shouldRecord:
             positions = []
@@ -147,6 +153,6 @@ class LiveSimulation(Simulation, ABC):
                 positions.append(site.getPosition())
                 qualities.append(site.getQuality())
             if self.useRestAPI:
-                self.world.request.sendResults(positions, qualities, simulationTime)
+                self.world.request.sendResults(positions, qualities, simulationTime, deadAgents)
             if self.shouldRecord:
-                self.recorder.writeResults(positions, qualities, simulationTime)
+                self.recorder.writeResults(positions, qualities, simulationTime, deadAgents)

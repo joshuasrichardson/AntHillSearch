@@ -27,7 +27,7 @@ class Simulation(ABC):
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR, agentImage=AGENT_IMAGE, siteRadius=SITE_RADIUS,
-                 numPredators=NUM_PREDATORS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=True):
+                 numPredators=NUM_PREDATORS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=False):
         if useJson:
             convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
                 hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
@@ -173,7 +173,7 @@ class Simulation(ABC):
     def updateAgent(self, agent, agentRectList):
         pass
 
-    # @abstractmethod
+    @abstractmethod
     def updatePredator(self, predator, agentRectList):
         pass
 
@@ -227,13 +227,21 @@ class Simulation(ABC):
         self.printNumAgentsResults()
         simulationTime = self.printTimeResults()
         qualities = self.printHomeQualities()
-        self.sendResults(self.chosenHomes, simulationTime)
-        return qualities, simulationTime
+        deadAgents = self.getNumDeadAgents()
+        self.sendResults(self.chosenHomes, simulationTime, deadAgents)
+        return qualities, simulationTime, self.chosenHomes[0].agentCounts[0], \
+            deadAgents, self.world.initialHubAgentCounts[0]  # TODO: Make flexible for more hubs
+
+    def getNumDeadAgents(self):
+        return self.world.numDeadAgents[0]
 
     def printNumAgentsResults(self):
         for i in range(len(self.chosenHomes)):
             print(str(self.chosenHomes[i].agentCounts[i]) + " out of " + str(self.world.initialHubAgentCounts[i]) +
                   " agents from hub " + str(i + 1) + " made it to the new home.")
+        for hubIndex in range(len(self.world.hubs)):
+            print(f"{self.world.initialHubAgentCounts[hubIndex] - self.world.numDeadAgents[hubIndex]} / "
+                  f"{self.world.initialHubAgentCounts[hubIndex]} agents survived.")
 
     def printTimeResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
@@ -252,9 +260,10 @@ class Simulation(ABC):
         for home in self.chosenHomes:
             qualities.append(home.getQuality())
             print(str(home.getQuality()) + "/255.")
+
         return qualities
 
-    def sendResults(self, chosenSite, simulationTime):
+    def sendResults(self, chosenSite, simulationTime, deadAgents):
         pass
 
     def setDisplayVariables(self, agentImage):
