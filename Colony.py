@@ -65,7 +65,6 @@ def main():
 
 def runSimWithInterface(colony):
     # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
-
     # colony.randomizeInitialState()  # You can optionally randomize which site each agent starts from in some of the interfaces
     colony.runSimulation()  # Starts the interface
     pygame.quit()

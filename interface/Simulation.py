@@ -25,16 +25,17 @@ class Simulation(ABC):
                  hubCanMove=HUB_CAN_MOVE, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
                  maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
-                 findSitesEasily=FIND_SITES_EASILY,
-                 commitSpeedFactor=COMMIT_SPEED_FACTOR):
-        convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
-            hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
-            siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators = \
-            self.applyUserSettings(
-                [convergenceFraction, simulationDuration, FONT_SIZE, LARGE_FONT_SIZE, numHubs, hubLocations,
-                 hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, SITE_RADIUS,
-                 siteNoCloserThan, siteNoFartherThan, AGENT_IMAGE, maxSearchDist, NUM_PREDATORS])
+                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
+                 commitSpeedFactor=COMMIT_SPEED_FACTOR, agentImage=AGENT_IMAGE, siteRadius=SITE_RADIUS,
+                 numPredators=NUM_PREDATORS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=True):
+        if useJson:
+            convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
+                hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
+                siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators = \
+                self.applyUserSettings(
+                    [convergenceFraction, simulationDuration, FONT_SIZE, LARGE_FONT_SIZE, numHubs, hubLocations,
+                     hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, SITE_RADIUS,
+                     siteNoCloserThan, siteNoFartherThan, AGENT_IMAGE, maxSearchDist, NUM_PREDATORS])
         self.setDisplayVariables(agentImage)
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
@@ -302,7 +303,6 @@ class Simulation(ABC):
                         exec(f"{SETTING_NAMES[i]} = {data[key]}")
                     except NameError:
                         exec(f"{SETTING_NAMES[i]} = \"{data[key]}\"")
-                    print(f"{SETTING_NAMES[i]} = \"{data[key]}\"")
                     retValues[i] = data[key]
         except FileNotFoundError:
             print("File 'mainmenu/settings.json' Not Found")
