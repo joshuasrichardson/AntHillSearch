@@ -16,7 +16,7 @@ class World:
     """ Represents the world around the ants old home """
 
     def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                 siteRadii, siteRadius=SITE_RADIUS, numPredators=10):
+                 siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -93,7 +93,7 @@ class World:
     def generatePredators(self, numPredators):
         predators = []
         for _ in range(numPredators):
-            predators.append(Predator(self.siteList[np.random.randint(0, len(self.siteList) - 1)], self))
+            predators.append(Predator(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)], self))
         return predators
 
     def getSiteList(self):

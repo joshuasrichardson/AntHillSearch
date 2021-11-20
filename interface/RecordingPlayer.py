@@ -23,18 +23,13 @@ class RecordingPlayer(Simulation):
         super().initializeAgentList()
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                        siteRadii, siteRadius=SITE_RADIUS):
+                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS):
         self.recorder.read()
-        print("1")
         addAfter = self.initHubsAgentCounts()
-        print("2")
         world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
                       siteQualities, siteRadii, siteRadius)
-        print("3")
         self.addAddedAgents(world, addAfter)
-        print("4")
         self.timer.simulationDuration = self.recorder.getNextTime()
-        print("5")
 
         return world
 

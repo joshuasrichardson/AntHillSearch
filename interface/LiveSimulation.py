@@ -39,9 +39,9 @@ class LiveSimulation(Simulation, ABC):
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                        siteQualities, siteRadii, siteRadius=SITE_RADIUS):
+                        siteQualities, siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS):
         world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii, siteRadius)
+                      siteQualities, siteRadii, siteRadius, numPredators)
         if Display.shouldDraw and SHOULD_DRAW_FOG:
             WorldDisplay.initFog(world.hubs)
 
@@ -69,22 +69,31 @@ class LiveSimulation(Simulation, ABC):
             for site in self.world.siteList:
                 self.recorder.recordSiteInfo(site)
 
+    def getNeighbors(self, bug, agentRectList):
+        bugRect = bug.getRect()
+        possibleNeighborList = bugRect.collidelistall(agentRectList)
+        agentNeighbors = []
+        for i in possibleNeighborList:
+            agentNeighbors.append(self.world.agentList[i])
+        return agentNeighbors
+
     def updateAgent(self, agent, agentRectList):
         if agent.getStateNumber() != DEAD:
             agent.updatePosition()
             if Display.shouldDraw:
                 agent.clearFog()
 
-            agentRect = agent.getAgentRect()
-            possibleNeighborList = agentRect.collidelistall(agentRectList)
-            agentNeighbors = []
-            for i in possibleNeighborList:
-                agentNeighbors.append(self.world.agentList[i])
+            agentNeighbors = self.getNeighbors(agent, agentRectList)
             agent.changeState(agentNeighbors)
             del agentNeighbors[:]
 
         if self.shouldRecord:
             self.recorder.recordAgentInfo(agent)
+
+    def updatePredator(self, predator, agentRectList):
+        predator.updatePosition()
+        agentNeighbors = self.getNeighbors(predator, agentRectList)
+        predator.attack(agentNeighbors)
 
     def report(self, agentRectList):
         self.setSitesEstimates(agentRectList)

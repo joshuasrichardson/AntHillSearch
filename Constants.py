@@ -12,6 +12,16 @@ TRIAL_SETTINGS = ["display/mainmenu/trial1settings.json",
 
 RESULTS_DIR = "recording/results/"
 
+SETTING_KEYS = ['convergenceFraction', 'simDuration', 'fontSize', 'largeFontSize', 'numHubs', 'hubLocations',
+                'hubRadii', 'hubAgentCounts', 'numSites', 'sitePositions', 'siteQualities', 'siteRadii',
+                'shouldRecord', 'siteRadius', 'siteNoCloserThan', 'siteNoFartherThan', 'agentImage',
+                'maxSearchDist', 'numPredators']
+
+SETTING_NAMES = ["CONVERGENCE_FRACTION", "SIM_DURATION", "FONT_SIZE", "LARGE_FONT_SIZE", "NUM_HUBS", "HUB_LOCATIONS",
+                 "HUB_RADII", "HUB_AGENT_COUNTS", "NUM_SITES", "SITE_POSITIONS", "SITE_QUALITIES", "SITE_RADII",
+                 "SHOULD_RECORD", "SITE_RADIUS", "SITE_NO_CLOSER_THAN", "SITE_NO_FARTHER_THAN", "AGENT_IMAGE",
+                 "MAX_SEARCH_DIST", "NUM_PREDATORS"]
+
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
 
@@ -140,7 +150,10 @@ MIN_QUALITY_MISJUDGMENT = 0  # How close agents' estimatedQuality can be from a 
 # If it really far off, sometimes agents can be taken to a lower quality site than the one they were at.
 MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from a site's actual quality.
 
+""" Predator default values """
+
 PREDATOR_IMAGE = "resources/spider.png"
+NUM_PREDATORS = 5
 
 """ Agent Transition Parameters """
 # Threshold probability,
