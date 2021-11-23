@@ -54,7 +54,7 @@ class Recorder:
 
         self.dataIndex = -1
 
-        self.timestampString = datetime.now().strftime('%b-%d-%Y-%H-%M-%S')
+        self.timestampString = datetime.now().strftime('%b-%d-%Y--%H:%M:%S')
         self.outputFileBase = f'{RESULTS_DIR}{self.timestampString}'
 
     def recordAgentInfo(self, agent):

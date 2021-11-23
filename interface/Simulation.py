@@ -233,7 +233,7 @@ class Simulation(ABC):
             deadAgents, self.world.initialHubAgentCounts[0]  # TODO: Make flexible for more hubs
 
     def getNumDeadAgents(self):
-        return self.world.numDeadAgents[0]
+        return self.world.numDeadAgents
 
     def printNumAgentsResults(self):
         for i in range(len(self.chosenHomes)):

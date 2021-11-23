@@ -86,7 +86,7 @@ class LiveSimulation(Simulation, ABC):
             if Display.shouldDraw:
                 agent.clearFog()
 
-            agentRect = agent.getAgentRect()
+            agentRect = agent.getRect()
 
             if agent.getStateNumber() != AT_NEST and agentRect.collidelist(self.world.predatorRectList) != -1:
                 agent.die()

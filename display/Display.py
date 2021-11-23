@@ -97,9 +97,10 @@ def drawFinish(surface, results):
     write(surface, f"{results[2]}/{results[4]} agents made it to the new site.", FONT_SIZE, x, y)
 
     y += FONT_SIZE
-    write(surface, f"{results[4] - results[3]}/{results[4]} agents survived.", FONT_SIZE, x, y)
+    totalDeadAgents = sum(results[3])
+    write(surface, f"{results[4] - totalDeadAgents}/{results[4]} agents survived.", FONT_SIZE, x, y)
 
-    for i, numDeadAnts in enumerate(results[2]):
+    for i, numDeadAnts in enumerate(results[3]):
         y += FONT_SIZE
         write(surface, "Colony " + str(i + 1) + " lost " + str(numDeadAnts) + " ants to predators.",
                 FONT_SIZE, x, y)
