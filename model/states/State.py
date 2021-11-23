@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED
+from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED, DEAD
 from display import Display
 
 
@@ -30,6 +30,9 @@ def numToState(num, agent):
     if num == GO:
         from model.states.GoState import GoState
         return GoState(agent)
+    if num == DEAD:
+        from model.states.DeadState import DeadState
+        return DeadState(agent)
 
 
 class State(ABC):
@@ -55,7 +58,7 @@ class State(ABC):
         for site in self.agent.knownSites:
             knownSiteRects.append(site.getSiteRect())
         for i, pos in enumerate(self.agent.knownSitesPositions):
-            rect = self.agent.getAgentRect()
+            rect = self.agent.getRect()
             atOldSitePos = rect.collidepoint(pos[0], pos[1])
             siteIndex = rect.collidelist(knownSiteRects)
             if atOldSitePos and siteIndex != i:
@@ -66,7 +69,7 @@ class State(ABC):
                 break
 
     def executeCommand(self):
-        self.agent.siteInRangeIndex = self.agent.getAgentRect().collidelist(self.agent.world.siteRectList)
+        self.agent.siteInRangeIndex = self.agent.getRect().collidelist(self.agent.world.siteRectList)
         if Display.drawFarAgents:  # If we are using an interface that lets us access things that are far from the hub
             if self.agent.siteInRangeIndex != -1:  # And the agent comes in contact with a site that has a command
                 return self.agent.world.siteList[self.agent.siteInRangeIndex].executeCommand(self.agent)  # Just do the command and be done with this round.

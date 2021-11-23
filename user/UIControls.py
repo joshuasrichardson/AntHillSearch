@@ -9,7 +9,7 @@ class UIControls(Controls):
 
     def handleEvents(self):
         for agent in self.world.agentList:
-            if agent.getAgentRect().collidelist(self.world.getHubsRects()) == -1 and agent.isSelected:
+            if agent.getRect().collidelist(self.world.getHubsRects()) == -1 and agent.isSelected:
                 agent.unselect()
                 self.selectedAgents.remove(agent)
                 if agent is self.selectedAgent:

@@ -105,6 +105,6 @@ def collidesWithSite(world, mousePos):
 def collidesWithAgent(world, mousePos):
     """" Returns whether the mouse cursor is over any agent in the world """
     for agent in world.agentList:
-        if agent.getAgentRect().collidepoint(mousePos):
+        if agent.getRect().collidepoint(mousePos):
             return True
     return False

@@ -160,7 +160,7 @@ class Agent:
     def getHub(self):
         return self.hub
 
-    def getAgentRect(self):
+    def getRect(self):
         return self.agentRect
 
     def incrementFollowers(self):

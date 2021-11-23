@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-import Constants
 from Constants import *
 from display import Display, SiteDisplay, AgentDisplay
 from display.WorldDisplay import drawWorldObjects
@@ -18,7 +17,8 @@ from user.Controls import Controls
 class Simulation(ABC):
     """ Runs most of the colony interface but leaves some details to classes that inherit this class """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES, shouldRecord=SHOULD_RECORD,
+    def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES,
+                 shouldRecord=SHOULD_RECORD,
                  convergenceFraction=CONVERGENCE_FRACTION, hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII,
                  hubAgentCounts=HUB_AGENT_COUNTS, sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES,
                  siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
@@ -26,25 +26,32 @@ class Simulation(ABC):
                  maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
-                 commitSpeedFactor=COMMIT_SPEED_FACTOR):
-        convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
-            hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
-            siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist = \
-            self.applyUserSettings(convergenceFraction, simulationDuration, FONT_SIZE, LARGE_FONT_SIZE, numHubs, hubLocations,
-                                   hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, SITE_RADIUS,
-                                   siteNoCloserThan, siteNoFartherThan, AGENT_IMAGE, maxSearchDist)
+                 commitSpeedFactor=COMMIT_SPEED_FACTOR, agentImage=AGENT_IMAGE, siteRadius=SITE_RADIUS,
+                 numPredators=NUM_PREDATORS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=False):
+        if useJson:
+            convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
+                hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
+                siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators = \
+                self.applyUserSettings(
+                    [convergenceFraction, simulationDuration, FONT_SIZE, LARGE_FONT_SIZE, numHubs, hubLocations,
+                     hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, SITE_RADIUS,
+                     siteNoCloserThan, siteNoFartherThan, AGENT_IMAGE, maxSearchDist, NUM_PREDATORS])
         self.setDisplayVariables(agentImage)
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.simulationDuration = simulationDuration
-        self.timer = SimulationTimer(self.simulationDuration, self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
+        self.timer = SimulationTimer(self.simulationDuration,
+                                     self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                                          siteQualities, siteRadii, siteRadius)  # The world that has all the sites and agents
+                                          siteQualities, siteRadii, siteRadius,
+                                          numPredators)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
-        self.chosenHomes = self.initChosenHomes(numHubs)  # The site that most of the agents are assigned to when the interface ends
+        self.chosenHomes = self.initChosenHomes(
+            numHubs)  # The site that most of the agents are assigned to when the interface ends
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
-                                  maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor)
+                                  maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily,
+                                  commitSpeedFactor)
 
         self.userControls = self.getControls()
 
@@ -54,7 +61,7 @@ class Simulation(ABC):
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteRadius=SITE_RADIUS):
+                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS):
         pass
 
     @staticmethod
@@ -109,7 +116,7 @@ class Simulation(ABC):
     def getAgentRectList(self):
         agentRectList = []
         for agent in self.world.agentList:
-            agentRectList.append(agent.getAgentRect())
+            agentRectList.append(agent.getRect())
         return agentRectList
 
     def update(self, agentRectList):
@@ -117,6 +124,7 @@ class Simulation(ABC):
         self.world.updateStateAndPhaseCounts()
         self.updateSites()
         self.updateAgents(agentRectList)
+        self.updatePredators(agentRectList)
         self.recordDisplays()
         self.save()
         self.report(agentRectList)
@@ -147,16 +155,26 @@ class Simulation(ABC):
             self.updateAgent(agent, agentRectList)
             self.world.updatePaths(agent)
 
+    def updatePredators(self, agentRectList):
+        for predator in self.world.predatorList:
+            self.updatePredator(predator, agentRectList)
+
     def recordDisplays(self):
         if self.shouldRecord:
             self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
             self.recorder.recordTime(self.timer.getRemainingTime())
             self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
             self.recorder.recordExecutedCommands(self.graphs.executedCommands)
-            self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY, Display.origWidth * Display.origWidth / Display.newWidth, Display.origHeight * Display.origHeight / Display.newHeight)
+            self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY,
+                                             Display.origWidth * Display.origWidth / Display.newWidth,
+                                             Display.origHeight * Display.origHeight / Display.newHeight)
 
     @abstractmethod
     def updateAgent(self, agent, agentRectList):
+        pass
+
+    @abstractmethod
+    def updatePredator(self, predator, agentRectList):
         pass
 
     def report(self, agentRectList):
@@ -168,7 +186,8 @@ class Simulation(ABC):
             site = self.world.siteList[siteIndex]
             for hubIndex in range(len(self.world.getHubs())):
                 if site.agentCounts[hubIndex] >= int((self.world.initialHubAgentCounts[hubIndex] -
-                                                      self.world.numDeadAgents[hubIndex]) * self.convergenceFraction) > 0:
+                                                      self.world.numDeadAgents[
+                                                          hubIndex]) * self.convergenceFraction) > 0:
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
         for hubIndex in range(len(self.world.getHubs())):
@@ -208,13 +227,21 @@ class Simulation(ABC):
         self.printNumAgentsResults()
         simulationTime = self.printTimeResults()
         qualities = self.printHomeQualities()
-        self.sendResults(self.chosenHomes, simulationTime, self.world.numDeadAgents, self.chosenHomes)
-        return qualities, simulationTime, self.world.numDeadAgents, self.chosenHomes
+        deadAgents = self.getNumDeadAgents()
+        self.sendResults(self.chosenHomes, simulationTime, deadAgents)
+        return qualities, simulationTime, self.chosenHomes[0].agentCounts[0], \
+            deadAgents, self.world.initialHubAgentCounts[0]  # TODO: Make flexible for more hubs
+
+    def getNumDeadAgents(self):
+        return self.world.numDeadAgents[0]
 
     def printNumAgentsResults(self):
         for i in range(len(self.chosenHomes)):
             print(str(self.chosenHomes[i].agentCounts[i]) + " out of " + str(self.world.initialHubAgentCounts[i]) +
                   " agents from hub " + str(i + 1) + " made it to the new home.")
+        for hubIndex in range(len(self.world.hubs)):
+            print(f"{self.world.initialHubAgentCounts[hubIndex] - self.world.numDeadAgents[hubIndex]} / "
+                  f"{self.world.initialHubAgentCounts[hubIndex]} agents survived.")
 
     def printTimeResults(self):
         simulationTime = self.simulationDuration
@@ -233,9 +260,10 @@ class Simulation(ABC):
         for home in self.chosenHomes:
             qualities.append(home.getQuality())
             print(str(home.getQuality()) + "/255.")
+
         return qualities
 
-    def sendResults(self, chosenSite, simulationTime, numDeadAnts, numChosenHome):
+    def sendResults(self, chosenSite, simulationTime, deadAgents):
         pass
 
     def setDisplayVariables(self, agentImage):
@@ -270,71 +298,25 @@ class Simulation(ABC):
         pass
 
     def getControls(self):
-        return Controls(self.timer, self.world.agentList, self.world, self.graphs)  # An object to handle events dealing with user interactions
+        return Controls(self.timer, self.world.agentList, self.world,
+                        self.graphs)  # An object to handle events dealing with user interactions
 
     @staticmethod
-    def applyUserSettings(cf, sd, fs, lfs, nh, hl, hr, hac, ns, sp, sq, sr, sRec, sRadius, snct, snft, ai, msd):
+    def applyUserSettings(retValues):
         try:
             with open('display/mainmenu/settings.json', 'r') as file:
                 data = json.load(file)
-            if 'convergenceFraction' in data:
-                cf = data['convergenceFraction']
-                Constants.CONVERGENCE_FRACTION = cf
-            if 'simDuration' in data:
-                sd = data['simDuration']
-                Constants.SIM_DURATION = sd
-            if 'fontSize' in data:
-                fs = data['fontSize']
-                Constants.FONT_SIZE = fs
-            if 'largeFontSize' in data:
-                lfs = data['largeFontSize']
-                Constants.LARGE_FONT_SIZE = lfs
-            if 'numHubs' in data:
-                nh = data['numHubs']
-                Constants.NUM_HUBS = nh
-            if 'hubLocations' in data:
-                hl = data['hubLocations']
-                Constants.HUB_LOCATIONS = hl
-            if 'hubRadii' in data:
-                hr = data['hubRadii']
-                Constants.HUB_RADII = hr
-            if 'hubAgentCounts' in data:
-                hac = data['hubAgentCounts']
-                Constants.HUB_AGENT_COUNTS = hac
-            if 'numSites' in data:
-                ns = data['numSites']
-                Constants.NUM_SITES = ns
-            if 'sitePositions' in data:
-                sp = data['sitePositions']
-                Constants.SITE_POSITIONS = sp
-            if 'siteQualities' in data:
-                sq = data['siteQualities']
-                Constants.SITE_QUALITIES = sq
-            if 'siteRadii' in data:
-                sr = data['siteRadii']
-                Constants.SITE_RADII = sr
-            if 'shouldRecord' in data:
-                sRec = data['shouldRecord']
-                Constants.SHOULD_RECORD = sRec
-            if 'siteRadius' in data:
-                sRadius = data['siteRadius']
-                Constants.SITE_RADIUS = sRadius
-            if 'siteNoCloserThan' in data:
-                snct = data['siteNoCloserThan']
-                Constants.SITE_NO_CLOSER_THAN = snct
-            if 'siteNoFartherThan' in data:
-                snft = data['siteNoFartherThan']
-                Constants.SITE_NO_FARTHER_THAN = snft
-            if 'agentImage' in data:
-                ai = data['agentImage']
-                Constants.AGENT_IMAGE = ai
-            if 'maxSearchDist' in data:
-                msd = data['maxSearchDist']
-                Constants.MAX_SEARCH_DIST = msd
+            for i, key in enumerate(SETTING_KEYS):
+                if key in data:
+                    try:
+                        exec(f"{SETTING_NAMES[i]} = {data[key]}")
+                    except NameError:
+                        exec(f"{SETTING_NAMES[i]} = \"{data[key]}\"")
+                    retValues[i] = data[key]
         except FileNotFoundError:
             print("File 'mainmenu/settings.json' Not Found")
             with open('display/mainmenu/settings.json', 'w'):
                 print("Created 'mainmenu/settings.json'")
         except json.decoder.JSONDecodeError:
             print("File 'mainmenu/settings.json' is empty")
-        return cf, sd, fs, lfs, nh, hl, hr, hac, ns, sp, sq, sr, sRec, sRadius, snct, snft, ai, msd
+        return retValues

@@ -5,7 +5,7 @@ import pygame
 from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_RETURN, K_BACKSPACE, MOUSEBUTTONDOWN, K_ESCAPE
 
 from ColonyExceptions import GameOver
-from display import Display, SiteDisplay, AgentDisplay
+from display import Display, SiteDisplay, AgentDisplay, PredatorDisplay
 from Constants import *
 from display.mainmenu.ArrayStateMachine import ArrayStateMachine
 from model.builder.SiteBuilder import getNewSite
@@ -14,61 +14,26 @@ from model.builder.SiteBuilder import getNewSite
 class Settings:
 
     def __init__(self):
-        self.convergenceFraction = CONVERGENCE_FRACTION
-        self.simDuration = SIM_DURATION
-        self.fontSize = FONT_SIZE
-        self.largeFontSize = LARGE_FONT_SIZE
-        self.numHubs = NUM_HUBS
-        self.hubLocations = HUB_LOCATIONS
-        self.hubRadii = HUB_RADII
-        self.hubAgentCounts = HUB_AGENT_COUNTS
-        self.numSites = NUM_SITES
-        self.sitePositions = SITE_POSITIONS
-        self.siteQualities = SITE_QUALITIES
-        self.siteRadii = SITE_RADII
-        self.shouldRecord = SHOULD_RECORD
-        self.siteRadius = SITE_RADIUS
-        self.siteNoCloserThan = SITE_NO_CLOSER_THAN
-        self.siteNoFartherThan = SITE_NO_FARTHER_THAN
-        self.agentImage = AGENT_IMAGE
-        self.maxSearchDist = MAX_SEARCH_DIST
-
-        self.values = [["Convergence Fraction", self.convergenceFraction],
-                       ["Simulation Duration", self.simDuration],
-                       ["Font Size", self.fontSize],
-                       ["Large Font Size", self.largeFontSize],
-                       ["Number of Hubs", self.numHubs],
-                       ["Hub Locations", self.hubLocations],
-                       ["Hub Radii", self.hubRadii],
-                       ["Hub Agent Counts", self.hubAgentCounts],
-                       ["Number of Sites", self.numSites],
-                       ["Site Positions", self.sitePositions],
-                       ["Site Qualities", self.siteQualities],
-                       ["Site Radii", self.siteRadii],
-                       ["Should Record", self.shouldRecord],
-                       ["Default Site Radius", self.siteRadius],
-                       ["Site No Closer Than", self.siteNoCloserThan],
-                       ["Site No Farther Than", self.siteNoFartherThan],
-                       ["Agent Image", self.agentImage],
-                       ["Max Search Distance", self.maxSearchDist]]
-        self.valueRects = [pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0),
-                           pygame.Rect(0, 0, 0, 0)]
+        self.values = [["Convergence Fraction", CONVERGENCE_FRACTION],
+                       ["Simulation Duration", SIM_DURATION],
+                       ["Font Size", FONT_SIZE],
+                       ["Large Font Size", LARGE_FONT_SIZE],
+                       ["Number of Hubs", NUM_HUBS],
+                       ["Hub Locations", HUB_LOCATIONS],
+                       ["Hub Radii", HUB_RADII],
+                       ["Hub Agent Counts", HUB_AGENT_COUNTS],
+                       ["Number of Sites", NUM_SITES],
+                       ["Site Positions", SITE_POSITIONS],
+                       ["Site Qualities", SITE_QUALITIES],
+                       ["Site Radii", SITE_RADII],
+                       ["Should Record", SHOULD_RECORD],
+                       ["Default Site Radius", SITE_RADIUS],
+                       ["Site No Closer Than", SITE_NO_CLOSER_THAN],
+                       ["Site No Farther Than", SITE_NO_FARTHER_THAN],
+                       ["Agent Image", AGENT_IMAGE],
+                       ["Max Search Distance", MAX_SEARCH_DIST],
+                       ["Number of Predators", NUM_PREDATORS]]
+        self.valueRects = [pygame.Rect(0, 0, 0, 0) for _ in range(len(self.values))]
         self.backButton = pygame.Rect(0, 0, 0, 0)
 
         self.userInputValue = 0
@@ -82,60 +47,9 @@ class Settings:
         try:
             with open('display/mainmenu/settings.json', 'r') as file:
                 self.data = json.load(file)
-            if 'convergenceFraction' in self.data:
-                self.convergenceFraction = self.data['convergenceFraction']
-                self.values[0][1] = self.convergenceFraction
-            if 'simDuration' in self.data:
-                self.simDuration = self.data['simDuration']
-                self.values[1][1] = self.simDuration
-            if 'fontSize' in self.data:
-                self.fontSize = self.data['fontSize']
-                self.values[2][1] = self.fontSize
-            if 'largeFontSize' in self.data:
-                self.largeFontSize = self.data['largeFontSize']
-                self.values[3][1] = self.largeFontSize
-            if 'numHubs' in self.data:
-                self.numHubs = self.data['numHubs']
-                self.values[4][1] = self.numHubs
-            if 'hubLocations' in self.data:
-                self.hubLocations = self.data['hubLocations']
-                self.values[5][1] = self.hubLocations
-            if 'hubRadii' in self.data:
-                self.hubRadii = self.data['hubRadii']
-                self.values[6][1] = self.hubRadii
-            if 'hubAgentCounts' in self.data:
-                self.hubAgentCounts = self.data['hubAgentCounts']
-                self.values[7][1] = self.hubAgentCounts
-            if 'numSites' in self.data:
-                self.numSites = self.data['numSites']
-                self.values[8][1] = self.numSites
-            if 'sitePositions' in self.data:
-                self.sitePositions = self.data['sitePositions']
-                self.values[9][1] = self.sitePositions
-            if 'siteQualities' in self.data:
-                self.siteQualities = self.data['siteQualities']
-                self.values[10][1] = self.siteQualities
-            if 'siteRadii' in self.data:
-                self.siteRadii = self.data['siteRadii']
-                self.values[11][1] = self.siteRadii
-            if 'shouldRecord' in self.data:
-                self.shouldRecord = self.data['shouldRecord']
-                self.values[12][1] = self.shouldRecord
-            if 'siteRadius' in self.data:
-                self.siteRadius = self.data['siteRadius']
-                self.values[13][1] = self.siteRadius
-            if 'siteNoCloserThan' in self.data:
-                self.siteNoCloserThan = self.data['siteNoCloserThan']
-                self.values[14][1] = self.siteNoCloserThan
-            if 'siteNoFartherThan' in self.data:
-                self.siteNoFartherThan = self.data['siteNoFartherThan']
-                self.values[15][1] = self.siteNoFartherThan
-            if 'agentImage' in self.data:
-                self.agentImage = self.data['agentImage']
-                self.values[16][1] = self.agentImage
-            if 'maxSearchDist' in self.data:
-                self.maxSearchDist = self.data['maxSearchDist']
-                self.values[17][1] = self.maxSearchDist
+            for i, key in enumerate(SETTING_KEYS):
+                if key in self.data:
+                    self.values[i][1] = self.data[key]
         except FileNotFoundError:
             print("File 'mainmenu/settings.json' Not Found")
         except json.decoder.JSONDecodeError:
@@ -145,7 +59,7 @@ class Settings:
         reading = True
         while reading:
             Display.screen.fill(SCREEN_COLOR)
-            Display.writeCenterPlus(Display.screen, "Settings", self.largeFontSize, -6 * self.largeFontSize)
+            Display.writeCenterPlus(Display.screen, "Settings", self.values[3][1], -6 * self.values[3][1])
             self.showSettings()
             self.drawBackButton()
             pygame.display.flip()
@@ -154,10 +68,10 @@ class Settings:
     def showSettings(self):
         x = 200
         for i, value in enumerate(self.values):
-            self.valueRects[i] = Display.write(Display.screen, value[0] + ": " + str(value[1]), int(self.fontSize * 1.5), x, 100 + i * self.fontSize * 2.3)
+            self.valueRects[i] = Display.write(Display.screen, value[0] + ": " + str(value[1]), int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3)
 
     def drawBackButton(self):
-        backImg = pygame.font.SysFont('Comic Sans MS', self.fontSize * 2).render("<- BACK", True, WORDS_COLOR).convert_alpha()
+        backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True, WORDS_COLOR).convert_alpha()
         self.backButton = pygame.Rect(50, 50, backImg.get_width(), backImg.get_height())
         Display.screen.blit(backImg, self.backButton.topleft)
 
@@ -197,130 +111,135 @@ class Settings:
 
     def changeValue(self, value):
         if value == "Convergence Fraction":
-            self.convergenceFraction = self.getUserInputPercent(self.convergenceFraction, self.valueRects[0].topright)
-            self.write('convergenceFraction', self.convergenceFraction)
+            self.values[0][1] = self.getUserInputPercent(self.values[0][1], self.valueRects[0].topright)
+            self.write('convergenceFraction', self.values[0][1])
         elif value == "Simulation Duration":
-            self.simDuration = self.getUserInputInt(self.simDuration, self.valueRects[1].topright)
-            if self.simDuration > MAX_TIME:
-                self.simDuration = MAX_TIME
-            if self.simDuration < 0:
-                self.simDuration = 0
-            self.write('simDuration', self.simDuration)
+            self.values[1][1] = self.getUserInputInt(self.values[1][1], self.valueRects[1].topright)
+            if self.values[1][1] > MAX_TIME:
+                self.values[1][1] = MAX_TIME
+            if self.values[1][1] < 0:
+                self.values[1][1] = 0
+            self.write('simDuration', self.values[1][1])
         elif value == "Font Size":
-            self.fontSize = self.getUserInputInt(self.fontSize, self.valueRects[2].topright)
-            if self.fontSize > 50:
-                self.fontSize = 50
-            if self.fontSize < 5:
-                self.fontSize = 5
-            self.write('fontSize', self.fontSize)
+            self.values[2][1] = self.getUserInputInt(self.values[2][1], self.valueRects[2].topright)
+            if self.values[2][1] > 50:
+                self.values[2][1] = 50
+            if self.values[2][1] < 5:
+                self.values[2][1] = 5
+            self.write('fontSize', self.values[2][1])
         elif value == "Large Font Size":
-            self.largeFontSize = self.getUserInputInt(self.largeFontSize, self.valueRects[3].topright)
-            if self.largeFontSize > 100:
-                self.largeFontSize = 100
-            if self.largeFontSize < 10:
-                self.largeFontSize = 10
-            self.write('largeFontSize', self.largeFontSize)
+            self.values[3][1] = self.getUserInputInt(self.values[3][1], self.valueRects[3].topright)
+            if self.values[3][1] > 100:
+                self.values[3][1] = 100
+            if self.values[3][1] < 10:
+                self.values[3][1] = 10
+            self.write('largeFontSize', self.values[3][1])
         elif value == "Number of Hubs":
-            self.numHubs = self.getUserInputInt(self.numHubs, self.valueRects[4].topright)
-            if self.numHubs > MAX_NUM_SITES / 6:
-                self.numHubs = int(MAX_NUM_SITES / 6)
-            if self.numHubs < 1:
-                self.numHubs = 1
-            self.write('numHubs', self.numHubs)
+            self.values[4][1] = self.getUserInputInt(self.values[4][1], self.valueRects[4].topright)
+            if self.values[4][1] > MAX_NUM_SITES / 6:
+                self.values[4][1] = int(MAX_NUM_SITES / 6)
+            if self.values[4][1] < 1:
+                self.values[4][1] = 1
+            self.write('numHubs', self.values[4][1])
         elif value == "Hub Locations":
-            self.hubLocations = self.getUserInputArray(self.hubLocations, self.valueRects[5].topright, 2)
-            for hubLoc in self.hubLocations:
-                if hubLoc[0] > Display.origWidth + self.maxSearchDist:
-                    hubLoc[0] = Display.origWidth + self.maxSearchDist
-                if hubLoc[1] > Display.origHeight + self.maxSearchDist:
-                    hubLoc[1] = Display.origHeight + self.maxSearchDist
-            self.write('hubLocations', self.hubLocations)
+            self.values[5][1] = self.getUserInputArray(self.values[5][1], self.valueRects[5].topright, 2)
+            for hubLoc in self.values[5][1]:
+                if hubLoc[0] > Display.origWidth + self.values[17][1]:
+                    hubLoc[0] = Display.origWidth + self.values[17][1]
+                if hubLoc[1] > Display.origHeight + self.values[17][1]:
+                    hubLoc[1] = Display.origHeight + self.values[17][1]
+            self.write('hubLocations', self.values[5][1])
         elif value == "Hub Radii":
-            self.hubRadii = self.getUserInputArray(self.hubRadii, self.valueRects[6].topright, 1)
-            for i in range(len(self.hubRadii)):
-                if self.hubRadii[i] > 100:
-                    self.hubRadii[i] = 100
-                if self.hubRadii[i] < 5:
-                    self.hubRadii[i] = 5
-            self.write('hubRadii', self.hubRadii)
+            self.values[6][1] = self.getUserInputArray(self.values[6][1], self.valueRects[6].topright, 1)
+            for i in range(len(self.values[6][1])):
+                if self.values[6][1][i] > 100:
+                    self.values[6][1][i] = 100
+                if self.values[6][1][i] < 5:
+                    self.values[6][1][i] = 5
+            self.write('hubRadii', self.values[6][1])
         elif value == "Hub Agent Counts":
-            self.hubAgentCounts = self.getUserInputArray(self.hubAgentCounts, self.valueRects[7].topright, 1)
-            for i in range(len(self.hubAgentCounts)):
-                if self.hubAgentCounts[i] > 200:
-                    self.hubAgentCounts[i] = 200
-                if self.hubAgentCounts[i] < 0:
-                    self.hubAgentCounts[i] = 0
-            self.write('hubAgentCounts', self.hubAgentCounts)
+            self.values[7][1] = self.getUserInputArray(self.values[7][1], self.valueRects[7].topright, 1)
+            for i in range(len(self.values[7][1])):
+                if self.values[7][1][i] > 200:
+                    self.values[7][1][i] = 200
+                if self.values[7][1][i] < 0:
+                    self.values[7][1][i] = 0
+            self.write('hubAgentCounts', self.values[7][1])
         elif value == "Number of Sites":
-            self.numSites = self.getUserInputInt(self.numSites, self.valueRects[8].topright)
-            if self.numSites > MAX_NUM_SITES:
-                self.numSites = MAX_NUM_SITES
-            if self.numSites < 0:
-                self.numSites = 0
-            self.write('numSites', self.numSites)
+            self.values[8][1] = self.getUserInputInt(self.values[8][1], self.valueRects[8].topright)
+            if self.values[8][1] > MAX_NUM_SITES:
+                self.values[8][1] = MAX_NUM_SITES
+            if self.values[8][1] < 0:
+                self.values[8][1] = 0
+            self.write('numSites', self.values[8][1])
         elif value == "Site Positions":
-            self.sitePositions = self.getUserInputArray(self.sitePositions, self.valueRects[9].topright, 2)
-            for pos in self.sitePositions:
-                if pos[0] > Display.origWidth + self.maxSearchDist:
-                    pos[0] = Display.origWidth + self.maxSearchDist
-                if pos[1] > Display.origHeight + self.maxSearchDist:
-                    pos[1] = Display.origHeight + self.maxSearchDist
-            self.write('sitePositions', self.sitePositions)
+            self.values[9][1] = self.getUserInputArray(self.values[9][1], self.valueRects[9].topright, 2)
+            for pos in self.values[9][1]:
+                if pos[0] > Display.origWidth + self.values[17][1]:
+                    pos[0] = Display.origWidth + self.values[17][1]
+                if pos[1] > Display.origHeight + self.values[17][1]:
+                    pos[1] = Display.origHeight + self.values[17][1]
+            self.write('sitePositions', self.values[9][1])
         elif value == "Site Qualities":
-            self.siteQualities = self.getUserInputArray(self.siteQualities, self.valueRects[10].topright, 1)
-            for i in range(len(self.siteQualities)):
-                if self.siteQualities[i] > 255:
-                    self.siteQualities[i] = 255
-                if self.siteQualities[i] < 0:
-                    self.siteQualities[i] = 0
-            self.write('siteQualities', self.siteQualities)
+            self.values[10][1] = self.getUserInputArray(self.values[10][1], self.valueRects[10].topright, 1)
+            for i in range(len(self.values[10][1])):
+                if self.values[10][1][i] > 255:
+                    self.values[10][1][i] = 255
+                if self.values[10][1][i] < 0:
+                    self.values[10][1][i] = 0
+            self.write('siteQualities', self.values[10][1])
         elif value == "Site Radii":
-            self.siteRadii = self.getUserInputArray(self.siteRadii, self.valueRects[11].topright, 1)
-            for i in range(len(self.siteRadii)):
-                if self.siteRadii[i] > 100:
-                    self.siteRadii[i] = 100
-                if self.siteRadii[i] < 5:
-                    self.siteRadii[i] = 5
-            self.write('siteRadii', self.siteRadii)
+            self.values[11][1] = self.getUserInputArray(self.values[11][1], self.valueRects[11].topright, 1)
+            for i in range(len(self.values[11][1])):
+                if self.values[11][1][i] > 100:
+                    self.values[11][1][i] = 100
+                if self.values[11][1][i] < 5:
+                    self.values[11][1][i] = 5
+            self.write('siteRadii', self.values[11][1])
         elif value == "Should Record":
-            self.shouldRecord = self.getUserInputBool(self.shouldRecord, self.valueRects[12].topright, str(not self.shouldRecord))
-            self.write('shouldRecord', self.shouldRecord)
+            self.values[12][1] = self.getUserInputBool(self.values[12][1], self.valueRects[12].topright, str(not self.values[12][1]))
+            self.write('shouldRecord', self.values[12][1])
         elif value == "Default Site Radius":
-            self.siteRadius = self.getUserInputInt(self.siteRadius, self.valueRects[13].topright)
-            if self.siteRadius > 100:
-                self.siteRadius = 100
-            if self.siteRadius < 5:
-                self.siteRadius = 5
-            self.write('siteRadius', self.siteRadius)
+            self.values[13][1] = self.getUserInputInt(self.values[13][1], self.valueRects[13].topright)
+            if self.values[13][1] > 100:
+                self.values[13][1] = 100
+            if self.values[13][1] < 5:
+                self.values[13][1] = 5
+            self.write('siteRadius', self.values[13][1])
         elif value == "Site No Closer Than":
-            self.siteNoCloserThan = self.getUserInputInt(self.siteNoCloserThan, self.valueRects[14].topright)
-            if self.siteNoCloserThan >= self.siteNoFartherThan:
-                self.siteNoCloserThan = self.siteNoFartherThan - 10
-            if self.siteNoCloserThan < 0:
-                self.siteNoCloserThan = 0
-            self.write('siteNoCloserThan', self.siteNoCloserThan)
+            self.values[14][1] = self.getUserInputInt(self.values[14][1], self.valueRects[14].topright)
+            if self.values[14][1] >= self.values[15][1]:
+                self.values[14][1] = self.values[15][1] - 10
+            if self.values[14][1] < 0:
+                self.values[14][1] = 0
+            self.write('siteNoCloserThan', self.values[14][1])
         elif value == "Site No Farther Than":
-            self.siteNoFartherThan = self.getUserInputInt(self.siteNoFartherThan, self.valueRects[15].topright)
-            if self.siteNoFartherThan > self.maxSearchDist:
-                self.siteNoFartherThan = self.maxSearchDist
-            if self.siteNoFartherThan <= self.siteNoCloserThan:
-                self.siteNoFartherThan = self.siteNoCloserThan + 10
-            self.write('siteNoFartherThan', self.siteNoFartherThan)
+            self.values[15][1] = self.getUserInputInt(self.values[15][1], self.valueRects[15].topright)
+            if self.values[15][1] > self.values[17][1]:
+                self.values[15][1] = self.values[17][1]
+            if self.values[15][1] <= self.values[14][1]:
+                self.values[15][1] = self.values[14][1] + 10
+            self.write('siteNoFartherThan', self.values[15][1])
         elif value == "Agent Image":
-            if self.agentImage == "resources/copter.png":
-                self.agentImage = self.getUserInputString(self.agentImage, self.valueRects[16].topright, "resources/ant.png")
+            if self.values[16][1] == "resources/copter.png":
+                self.values[16][1] = self.getUserInputString(self.values[16][1], self.valueRects[16].topright, "resources/ant.png")
             else:
-                self.agentImage = self.getUserInputString(self.agentImage, self.valueRects[16].topright, "resources/copter.png")
-            if self.agentImage != "resources/copter.png" and self.agentImage != "resources/ant.png":
-                self.agentImage = "resources/ant.png"
-            self.write('agentImage', self.agentImage)
+                self.values[16][1] = self.getUserInputString(self.values[16][1], self.valueRects[16].topright, "resources/copter.png")
+            if self.values[16][1] != "resources/copter.png" and self.values[16][1] != "resources/ant.png":
+                self.values[16][1] = "resources/ant.png"
+            self.write('agentImage', self.values[16][1])
         elif value == "Max Search Distance":
-            self.maxSearchDist = self.getUserInputInt(self.maxSearchDist, self.valueRects[17].topright)
-            if self.maxSearchDist < 10:
-                self.maxSearchDist = 10
-            if self.maxSearchDist > 5000:
-                self.maxSearchDist = 5000
-            self.write('maxSearchDist', self.maxSearchDist)
+            self.values[17][1] = self.getUserInputInt(self.values[17][1], self.valueRects[17].topright)
+            if self.values[17][1] < 10:
+                self.values[17][1] = 10
+            if self.values[17][1] > 5000:
+                self.values[17][1] = 5000
+            self.write('maxSearchDist', self.values[17][1])
+        elif value == "Number of Predators":
+            self.values[18][1] = self.getUserInputInt(self.values[18][1], self.valueRects[18].topright)
+            if self.values[18][1] > 15:
+                self.values[18][1] = 15
+            self.write("numPredators", self.values[18][1])
         self.setValuesWithJson()
 
     def write(self, key, value):
@@ -356,7 +275,7 @@ class Settings:
     def getUserInput(self, originalValue, pos, inputType):
         while 1:
             Display.screen.fill(SCREEN_COLOR)
-            Display.writeCenterPlus(Display.screen, "Settings", self.largeFontSize, -6 * self.largeFontSize)
+            Display.writeCenterPlus(Display.screen, "Settings", self.values[3][1], -6 * self.values[3][1])
             self.showSettings()
             self.showUserInput(pos)
             self.showUserInputVisuals()
@@ -465,14 +384,14 @@ class Settings:
         self.userInput = self.arrayStates.back()
 
     def showUserInput(self, pos):
-        Display.write(Display.screen, self.userInput, int(self.fontSize * 1.5), pos[0], pos[1], ASSESS_COLOR)
+        Display.write(Display.screen, self.userInput, int(self.values[2][1] * 1.5), pos[0], pos[1], ASSESS_COLOR)
 
     def showUserInputVisuals(self):
         if self.selectedRect == self.valueRects[0]:  # Convergence Fraction
-            self.drawConvergenceFraction(self.userInputValue);
-        if self.selectedRect == self.valueRects[1]:  # Simulation duration
-            Display.write(Display.screen, self.userInputValue, int(self.fontSize * 1.5), Display.origWidth - 100, 50)
-        if self.selectedRect == self.valueRects[2]:  # Font size
+            self.drawConvergenceFraction(self.userInputValue)
+        elif self.selectedRect == self.valueRects[1]:  # Simulation duration
+            Display.write(Display.screen, self.userInputValue, int(self.values[2][1] * 1.5), Display.origWidth - 100, 50)
+        elif self.selectedRect == self.valueRects[2]:  # Font size
             Display.writeCenter(Display.screen, "Simulation size", self.userInputValue)
             Display.writeCenterPlus(Display.screen, "Settings size", int(self.userInputValue * 1.5), int(self.userInputValue * 1.5))
         elif self.selectedRect == self.valueRects[3]:  # Large font size
@@ -483,9 +402,9 @@ class Settings:
             if self.arrayStates.isComplete2:
                 # TODO: If the hubs are too close together, force them to be farther apart
                 for pos in self.userInputValue:
-                    self.drawSite(pos, self.siteRadius, -1)
+                    self.drawSite(pos, self.values[13][1], -1)
             else:
-                self.drawSites(self.hubLocations, -1)
+                self.drawSites(self.values[5][1], -1)
         elif self.selectedRect == self.valueRects[6]:  # Hub Radii
             self.drawSitesRadii(-1)
         elif self.selectedRect == self.valueRects[7]:  # Hub Agent Counts
@@ -495,15 +414,15 @@ class Settings:
         elif self.selectedRect == self.valueRects[9]:  # Site Positions
             if self.arrayStates.isComplete2:
                 for pos in self.userInputValue:
-                    self.drawSite(pos, self.siteRadius, 200)
+                    self.drawSite(pos, self.values[13][1], 200)
             else:
-                self.drawSites(self.sitePositions, 200)
+                self.drawSites(self.values[9][1], 200)
         elif self.selectedRect == self.valueRects[10]:  # Site Qualities
             self.drawSitesQualities()
         elif self.selectedRect == self.valueRects[11]:  # Site Radii
             self.drawSitesRadii(200)
         elif self.selectedRect == self.valueRects[12]:  # Should Record
-            if self.shouldRecord:
+            if self.values[12][1]:
                 Display.drawCircle(Display.screen, (220, 0, 0), [15, 15], 10, width=1, adjust=False)
                 Display.drawLine(Display.screen, (220, 0, 0), [4, 24], [25, 5], adjust=False)
             else:
@@ -511,18 +430,20 @@ class Settings:
         elif self.selectedRect == self.valueRects[13]:  # Default Site Radius
             self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.userInputValue, 200)
         elif self.selectedRect == self.valueRects[14]:  # Site No Farther Than
-            self.drawArea(COMMIT_COLOR, self.siteNoFartherThan)
+            self.drawArea(COMMIT_COLOR, self.values[15][1])
             self.drawArea(ASSESS_COLOR, self.userInputValue)
         elif self.selectedRect == self.valueRects[15]:  # Site No Closer Than
             self.drawArea(COMMIT_COLOR, self.userInputValue)
-            self.drawArea(ASSESS_COLOR, self.siteNoCloserThan)
+            self.drawArea(ASSESS_COLOR, self.values[14][1])
         elif self.selectedRect == self.valueRects[16]:  # Agent Image
             self.drawAgents()
         elif self.selectedRect == self.valueRects[17]:  # Max Search Distance
             self.drawArea(SEARCH_COLOR, self.userInputValue)
+        elif self.selectedRect == self.valueRects[18]:  # Number of Predators
+            self.drawPredators(self.userInputValue)
 
     def drawConvergenceFraction(self, fraction):
-        AgentDisplay.agentImage = self.agentImage
+        AgentDisplay.agentImage = self.values[16][1]
         image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
         w = image.get_width() * 5
         h = image.get_height() * 20
@@ -556,50 +477,50 @@ class Settings:
 
     def drawSites(self, positions, quality):
         for pos in positions:
-            self.drawSite(pos, self.siteRadius, quality)
+            self.drawSite(pos, self.values[13][1], quality)
 
     def drawNumSites(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
         for i in range(self.userInputValue):
-            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.siteRadius + 10)
-            self.drawSite([x, y], self.siteRadius, quality)
+                x += 2 * (self.values[13][1] + 10)
+            self.drawSite([x, y], self.values[13][1], quality)
 
     def drawSitesRadii(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
-            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.siteRadius + 10)
+                x += 2 * (self.values[13][1] + 10)
             self.drawSite([x, y], self.userInputValue[i], quality)
 
     def drawSitesCounts(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
-            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.siteRadius + 10)
-            self.drawSite([x, y], self.siteRadius, quality, self.userInputValue[i])
+                x += 2 * (self.values[13][1] + 10)
+            self.drawSite([x, y], self.values[13][1], quality, self.userInputValue[i])
 
     def drawSitesQualities(self):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.largeFontSize * 3) / (2 * (self.siteRadius + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
-            y = 2 * (i % h) * (self.siteRadius + 10) + (self.largeFontSize * 3)
+            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.siteRadius + 10)
-            self.drawSite([x, y], self.siteRadius, self.userInputValue[i])
+                x += 2 * (self.values[13][1] + 10)
+            self.drawSite([x, y], self.values[13][1], self.userInputValue[i])
 
     def drawAgents(self):  # TODO: Make images selectable
         for i, imgFile in enumerate(AGENT_IMAGES):
             pos = [Display.origWidth / 2 + i * 30, Display.origHeight / 2]
             AgentDisplay.agentImage = imgFile
             image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
-            if imgFile != self.agentImage:
+            if imgFile != self.values[16][1]:
                 Display.drawDownArrow([pos[0] + image.get_width() / 2, pos[1]], BORDER_COLOR, False)
             Display.blitImage(Display.screen, image, pos, False)
 
@@ -608,4 +529,11 @@ class Settings:
         surf = pygame.Surface((Display.origWidth, Display.origHeight), pygame.SRCALPHA)
         Display.drawCircle(surf, fadedColor, [Display.origWidth / 2, Display.origHeight / 2], radius)
         Display.blitImage(Display.screen, surf, (0, 0), False)
-        self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.siteRadius, -1)
+        self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.values[13][1], -1)
+
+    @staticmethod
+    def drawPredators(numPredators):
+        for i in range(numPredators):
+            pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
+            image = PredatorDisplay.getPredatorImage([Display.origWidth / 2, Display.origHeight / 2])
+            Display.blitImage(Display.screen, image, pos, False)

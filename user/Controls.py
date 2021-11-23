@@ -326,7 +326,7 @@ class Controls:
         return False
 
     def selectAgent(self, mousePos):
-        selectedAgents = [a for a in self.agentList if a.getAgentRect().collidepoint(mousePos)]
+        selectedAgents = [a for a in self.agentList if a.getRect().collidepoint(mousePos)]
 
         if len(selectedAgents) > 0:
             self.selectedAgents = []
@@ -426,7 +426,7 @@ class Controls:
         return pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(left, top, width, height), 1)
 
     def selectAgents(self, rect):
-        selectedAgents = [a for a in self.agentList if a.getAgentRect().colliderect(rect)]
+        selectedAgents = [a for a in self.agentList if a.getRect().colliderect(rect)]
         if self.shouldSelectAgents:
             self.selectedAgents = selectedAgents
 
