@@ -57,3 +57,9 @@ class RecordingControls(Controls):
 
     def setSiteQuality(self):
         pass
+
+    def kill(self):
+        pass
+
+    def avoid(self, pos):
+        pass

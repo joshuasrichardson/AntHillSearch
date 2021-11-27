@@ -39,6 +39,7 @@ class World:
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
         self.agentsToDeleteIndexes = []
+        self.dangerZones = []
 
         self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
@@ -246,6 +247,7 @@ class World:
             self.states[TRANSPORT] = self.request.numTransport
             self.states[GO] = self.request.numGo
             self.states[CONVERGED] = self.request.numConverged
+            self.states[DEAD] = self.request.numDead
 
             self.phases[EXPLORE] = self.request.numExplore
             self.phases[ASSESS] = self.request.numAssess
@@ -292,3 +294,6 @@ class World:
 
     def incrementDeadAgents(self, hubIndex):
         self.numDeadAgents[hubIndex] += 1
+
+    def addDangerZone(self, pos):
+        self.dangerZones.append(pos)

@@ -1,7 +1,8 @@
 import numpy as np
+import pygame
 
+from Constants import KILL_THRESHOLD
 from display.PredatorDisplay import getPredatorImage
-from model.states.DeadState import DeadState
 
 
 class Predator:
@@ -18,6 +19,7 @@ class Predator:
         self.angle = np.random.uniform(0, 2 * np.pi)
         self.speed = np.random.randint(3, 5)
         self.numSteps = np.random.randint(0, 20)
+        self.discovered = False
 
     def getRect(self):
         return self.predatorRect
@@ -39,5 +41,10 @@ class Predator:
         self.angle = angle
 
     def attack(self, preyList):
-        for agent in preyList:
-            agent.die()
+        if np.random.exponential() > KILL_THRESHOLD:
+            for agent in preyList:
+                agent.die()
+        else:
+            for agent in preyList:
+                # if agent.getNearbyPlaceToAvoid() is None:
+                agent.avoid(self.pos)

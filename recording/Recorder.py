@@ -181,6 +181,9 @@ class Recorder:
         self.siteMarkerArgs.clear()
         self.siteMarkerNums.clear()
 
+        self.data.clear()
+        self.executedCommands.clear()
+
     def writeResults(self, positions, qualities, simulationTime, deadAgents):
         results = {'positions': positions,
                    'qualities': qualities,
@@ -191,6 +194,7 @@ class Recorder:
         with open(f'{RESULTS_DIR}/most_recent.json', 'w') as file:
             data = {'file_base': f'{self.outputFileBase}'}
             json.dump(data, file)
+        del results
 
     def read(self):
         with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:

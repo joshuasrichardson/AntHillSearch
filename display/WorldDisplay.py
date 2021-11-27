@@ -25,6 +25,7 @@ def drawWorldObjects(world):
         for siteIndex in range(0, len(world.siteList)):
             drawSite(world.siteList[siteIndex])
     drawFog()
+    drawDangerZones(world)
     drawMarkers(world)
     Display.drawLast()
 
@@ -48,6 +49,15 @@ def drawAgents(world):
 def drawPredators(world):
     for predator in world.predatorList:
         drawPredator(predator, Display.screen)
+
+
+def drawDangerZones(world):
+    for pos in world.dangerZones:
+        drawDangerZone(pos)
+
+
+def drawDangerZone(pos):
+    SiteDisplay.drawBlurredCircle(pos, (0, 0, 0), 80, 30, 8)
 
 
 def drawMarkers(world):

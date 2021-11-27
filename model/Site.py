@@ -1,7 +1,7 @@
 import numpy as np
 from pygame.rect import Rect
 
-from Constants import INITIAL_BLUR, AVOID_NAME
+from Constants import INITIAL_BLUR, AVOID_NAME, STOP_AVOID_NAME
 
 
 class Site:
@@ -154,7 +154,7 @@ class Site:
         self.markerName = markerName
 
     def executeCommand(self, agent):
-        if self.command is None or self.markerName is AVOID_NAME:
+        if self.command is None or self.markerName is AVOID_NAME or self.markerName is STOP_AVOID_NAME:
             return False
         self.command(agent, self.commandArg)
         return True

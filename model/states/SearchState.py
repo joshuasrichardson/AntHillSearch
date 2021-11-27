@@ -56,6 +56,8 @@ class SearchState(State):
 
         # If an agent nearby is transporting, get carried by that agent.
         for i in range(0, len(neighborList)):
+            if neighborList[i].getStateNumber() == DEAD:
+                self.agent.avoid(neighborList[i].getPosition())
             if neighborList[i].getStateNumber() == TRANSPORT:
                 self.getCarried(neighborList[i])
                 return

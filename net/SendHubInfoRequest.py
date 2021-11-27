@@ -24,6 +24,7 @@ class SendHubInfoRequest:
         self.numTransport = 0
         self.numGo = 0
         self.numConverged = 0
+        self.numDead = 0
 
         self.agentPhases = []
         self.agentStates = []
@@ -95,6 +96,8 @@ class SendHubInfoRequest:
             self.numGo -= 1
         elif self.agentStates[agentIndex] == CONVERGED:
             self.numConverged -= 1
+        elif self.agentStates[agentIndex] == DEAD:
+            self.numDead -= 1
 
     def incrementPhaseCount(self, agent):
         if agent.getPhaseNumber() == EXPLORE:
@@ -126,6 +129,8 @@ class SendHubInfoRequest:
             self.numGo += 1
         elif stateNum == CONVERGED:
             self.numConverged += 1
+        elif stateNum == DEAD:
+            self.numDead += 1
 
     def updateSiteInfo(self, agent):
         if self.siteIsNew(agent.assignedSite.pos):  # The first time a site is found, just add the current agent's estimated values
@@ -243,6 +248,7 @@ class SendHubInfoRequest:
                 'numTransport': self.numTransport,
                 'numGo': self.numGo,
                 'numConverged': self.numConverged,
+                'numDead': self.numDead,
 
                 'sitesPositions': self.sitesPositions,
                 'sitesQualities': self.sitesQualities,

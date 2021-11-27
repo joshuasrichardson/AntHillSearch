@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 
+import display.Display
 from Constants import *
 from display import SiteDisplay, WorldDisplay
 from display.AgentDisplay import getAgentImage
@@ -266,8 +267,14 @@ class Agent:
             self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
 
     def avoid(self, pos):
-        self.placesToAvoid.append(pos)
-        self.avoidMarkers.append(getAvoidMarker(pos))
+        if self.getNearbyPlaceToAvoid() is None:
+            self.placesToAvoid.append(pos)
+            if display.Display.shouldDraw:
+                self.avoidMarkers.append(getAvoidMarker(pos))
+
+    def stopAvoiding(self, index):
+        self.placesToAvoid.pop(index)
+        self.avoidMarkers.pop(index)
 
     def getAssignedSiteIndex(self):
         """ Returns the agent's assigned site's position in the world site list """

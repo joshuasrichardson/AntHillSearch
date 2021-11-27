@@ -4,7 +4,7 @@ import numpy as np
 import pygame
 from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
-    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k, K_r
 
 import Constants
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, COMMIT_COLOR, AT_NEST, \
@@ -112,6 +112,8 @@ class Controls:
                 self.go(adjustedMousePos)
             elif key == K_z:
                 self.avoid(adjustedMousePos)
+            elif key == K_r:
+                self.removeAvoids(adjustedMousePos)
             elif key == K_a:
                 self.assignSelectedAgents(adjustedMousePos)
             elif key == K_f:
@@ -553,6 +555,20 @@ class Controls:
         self.setSelectedSitesCommand(self.avoidCommand, list(pos), marker, Constants.AVOID_NAME)
         for a in self.selectedAgents:
             self.avoidCommand(a, pos)
+
+    def removeAvoids(self, pos):
+        if len(self.selectedAgents) > 0:
+            pos = [int(pos[0]), int(pos[1])]
+            self.addToExecutedEvents(f"{self.getNumLivingSelectedAgents()} agents stopped avoiding {pos}")
+        self.setSelectedSitesCommand(self.removeAvoidCommand, list(pos), None, Constants.STOP_AVOID_NAME)
+        for a in self.selectedAgents:
+            self.removeAvoidCommand(a, pos)
+
+    @staticmethod
+    def removeAvoidCommand(agent, pos):
+        for i, place in enumerate(reversed(agent.placesToAvoid)):
+            if abs(place[0] - pos[0]) < 100 and abs(place[1] - pos[1]) < 100:
+                agent.stopAvoiding(i)
 
     @staticmethod
     def avoidCommand(agent, mousePos):

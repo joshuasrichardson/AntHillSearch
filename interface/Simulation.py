@@ -233,14 +233,14 @@ class Simulation(ABC):
             deadAgents, self.world.initialHubAgentCounts[0]  # TODO: Make flexible for more hubs
 
     def getNumDeadAgents(self):
-        return self.world.numDeadAgents[0]
+        return self.world.numDeadAgents
 
     def printNumAgentsResults(self):
         for i in range(len(self.chosenHomes)):
-            print(str(self.chosenHomes[i].agentCounts[i]) + " out of " + str(self.world.initialHubAgentCounts[i]) +
-                  " agents from hub " + str(i + 1) + " made it to the new home.")
+            print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
+                  f"hub {i + 1} made it to the new home.")
         for hubIndex in range(len(self.world.hubs)):
-            print(f"{self.world.initialHubAgentCounts[hubIndex] - self.world.numDeadAgents[hubIndex]} / "
+            print(f"{self.world.initialHubAgentCounts[hubIndex] - self.world.numDeadAgents[hubIndex]}/"
                   f"{self.world.initialHubAgentCounts[hubIndex]} agents survived.")
 
     def printTimeResults(self):

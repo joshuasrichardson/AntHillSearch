@@ -97,7 +97,12 @@ def drawFinish(surface, results):
     write(surface, f"{results[2]}/{results[4]} agents made it to the new site.", FONT_SIZE, x, y)
 
     y += FONT_SIZE
-    write(surface, f"{results[4] - results[3]}/{results[4]} agents survived.", FONT_SIZE, x, y)
+    write(surface, f"{results[4] - sum(results[3])}/{results[4]} agents survived.", FONT_SIZE, x, y)
+
+    for i, numDeadAnts in enumerate(results[3]):
+        y += FONT_SIZE
+        write(surface, "Colony " + str(i + 1) + " lost " + str(numDeadAnts) + " ants to predators.",
+              FONT_SIZE, x, y)
 
 
 def getDestinationMarker(pos):
@@ -112,7 +117,8 @@ def getDestinationMarker(pos):
 
 def getAvoidMarker(pos):
     """ Loads, adjusts the size, and returns the image representing a place to avoid """
-    avoidPlace = pygame.image.load("resources/avoid.png").convert_alpha()
+    avoidPlace = pygame.image.load("resources/avoid.png")
+    avoidPlace = avoidPlace.convert_alpha()
     if avoidPlace.get_size()[0] > 2 * MIN_AVOID_DIST or avoidPlace.get_size()[1] > 2 * MIN_AVOID_DIST:
         avoidPlace = pygame.transform.scale(avoidPlace, (2 * MIN_AVOID_DIST, 2 * MIN_AVOID_DIST))
     rect = avoidPlace.get_rect().move(pos)
@@ -226,10 +232,13 @@ def blitImage(surface, source, destination, adjust=True):
     if adjust:
         try:
             dest = getAdjustedPos(destination[0], destination[1])
-            source = pygame.transform.scale(source, getZoomedSize(source.get_width(), source.get_height()))
         except:
             dest = getAdjustedPos(destination.left, destination.top)
-            source = pygame.transform.scale(source, getZoomedSize(destination.width, destination.height))
+        try:
+            source = pygame.transform.scale(source, getZoomedSize(source.get_width(), source.get_height()))
+        except AttributeError as e:
+            print(e.__cause__)
+            source = pygame.transform.scale(source, getZoomedSize(source.width, source.height))
     else:
         dest = destination
     return surface.blit(source, dest)

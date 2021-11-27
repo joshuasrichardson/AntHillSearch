@@ -101,6 +101,7 @@ GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first g
 """ Site marker names """
 GO_NAME = "Go"
 AVOID_NAME = "Avoid"
+STOP_AVOID_NAME = "StopAvoid"
 ASSIGN_NAME = "Assign"
 SET_STATE_NAME = "SetState"
 NO_MARKER_NAME = "None"
@@ -189,6 +190,8 @@ LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruit
 MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents to accept it
 # The lower this size is, the earlier agents switch over to the committed phase, making other agents come to their site easier.
 QUORUM_DIVIDEND = 5  # The minimum number of agents that need to be at a site before agents will commit to it
+
+KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an agent
 
 """ States and their colors """
 AT_NEST = 0            # Rest agent state

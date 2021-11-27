@@ -56,3 +56,6 @@ class UIControls(Controls):
 
     def setSiteQuality(self):
         pass
+
+    def kill(self):
+        pass
