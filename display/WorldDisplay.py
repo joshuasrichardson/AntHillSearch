@@ -21,11 +21,11 @@ def drawWorldObjects(world):
     if not Display.drawFarAgents:
         for siteIndex in range(0, len(world.siteList)):
             drawEstimatedSite(world.siteList[siteIndex])
+        drawDangerZones(world)
     else:
         for siteIndex in range(0, len(world.siteList)):
             drawSite(world.siteList[siteIndex])
     drawFog()
-    drawDangerZones(world)
     drawMarkers(world)
     Display.drawLast()
 

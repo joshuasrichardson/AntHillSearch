@@ -15,12 +15,12 @@ RESULTS_DIR = "recording/results/"
 SETTING_KEYS = ['convergenceFraction', 'simDuration', 'fontSize', 'largeFontSize', 'numHubs', 'hubLocations',
                 'hubRadii', 'hubAgentCounts', 'numSites', 'sitePositions', 'siteQualities', 'siteRadii',
                 'shouldRecord', 'siteRadius', 'siteNoCloserThan', 'siteNoFartherThan', 'agentImage',
-                'maxSearchDist', 'numPredators']
+                'maxSearchDist', 'numPredators', 'predPositions', 'recordAll']
 
 SETTING_NAMES = ["CONVERGENCE_FRACTION", "SIM_DURATION", "FONT_SIZE", "LARGE_FONT_SIZE", "NUM_HUBS", "HUB_LOCATIONS",
                  "HUB_RADII", "HUB_AGENT_COUNTS", "NUM_SITES", "SITE_POSITIONS", "SITE_QUALITIES", "SITE_RADII",
                  "SHOULD_RECORD", "SITE_RADIUS", "SITE_NO_CLOSER_THAN", "SITE_NO_FARTHER_THAN", "AGENT_IMAGE",
-                 "MAX_SEARCH_DIST", "NUM_PREDATORS"]
+                 "MAX_SEARCH_DIST", "NUM_PREDATORS", "PRED_POSITIONS", "RECORD_ALL"]
 
 FONT_SIZE = 13
 LARGE_FONT_SIZE = 40
@@ -54,9 +54,9 @@ SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending inform
 # Having this set to False makes the interface a little faster, but not much. However, it does prevent errors from not having the API running.
 USE_REST_API = False  # Whether the interface sends information about the hub to the rest API
 # Having this set to False makes the interface a little faster because it doesn't have to record all the time.
-SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
-# Having this set to False makes the interface a little faster because it doesn' have to record all user commands
-SHOULD_RECORD_COMMANDS_ONLY = True
+SHOULD_RECORD = False  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
+# Having this set to False makes the interface a little faster because it doesn't have to record all movements etc.
+RECORD_ALL = True
 # Having this set to False makes the interface a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the interface is drawn on the screen
 # Having this false makes the interface faster because the paths do not have to be drawn on the screen so much.
@@ -92,7 +92,7 @@ SITE_NO_CLOSER_THAN = 120  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 300  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
-SHOULD_DRAW_FOG = True
+SHOULD_DRAW_FOG = False
 
 # Does not affect interface besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
@@ -155,6 +155,7 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 
 PREDATOR_IMAGE = "resources/spider.png"
 NUM_PREDATORS = 5
+PRED_POSITIONS = []
 
 """ Agent Transition Parameters """
 # Threshold probability,

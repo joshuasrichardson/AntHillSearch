@@ -70,8 +70,8 @@ More details about the phases and states can be found by reading
 ["An agent-based model of collective nest choice by the ant Temnothorax albipennis"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/S0003347205002332) 
 by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R. 
 Franks. The model in this Anthill Search program is mostly based on the 
-model represented in the "Structure of the Model" section of this paper, b
-ut adjustments such as the converged phase and the Go state have been added.
+model represented in the "Structure of the Model" section of this paper, but 
+adjustments such as the Converged phase, Go state, and Dead state have been added.
 
 Another useful paper about this topic is found at 
 ["Nest Site Choices in Social Insects"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/B9780128096338012620?via%3Dihub) 
@@ -97,12 +97,8 @@ it is running.
    this <code>README.md</code>).
 2. If this is your first time running the program on your machine,
    enter <code>pip install -r requirements.txt</code>
-3. To change parameters from the default parameters, set 
-   parameters in the <code>main()</code> function in 
-   <code>colony.Colony.py</code> (see "Parameters" section 
-   for more details) or set which interface you would like to
-   use by uncommenting it out and commenting out the others
-   (see "Interfaces" section for more details).
+3. (Optional) To change parameters from the default parameters, see the
+   "Parameters" section below.
 4. Enter <code>python Colony.py</code> in the terminal.
 5. If desired, try using some user controls while the
    simulation is running (see "Controls" for more details).
@@ -112,7 +108,20 @@ it is running.
 The parameters set before the simulation begins can have a big
 impact on the set up and behavior of the simulation. The default 
 parameters and more information about them can be found in 
-<code>Constants.py</code>. Most of these can be overridden by 
+<code>Constants.py</code>. 
+
+There are 3 main ways to change the parameters:
+
+1. While the program is running, select the Settings tab, select
+   the option to change, and enter desired values.
+   Note that this method has limited parameters it can change, 
+   but it will override the other methods unless 
+   <code>useJson</code> is set to <code>False</code>.
+   
+2. Before running the program, set parameters in 
+   <code>Colony.py</code>'s <code>main()</code> method.
+
+Most of these can be overridden by 
 passing something else in as a parameter in
 <code>Colony.py</code>'s <code>main()</code> method. They are
 also overridden by settings set while the program is running

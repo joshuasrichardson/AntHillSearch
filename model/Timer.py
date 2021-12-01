@@ -38,7 +38,7 @@ class SimulationTimer:
         self.timer.start()
 
     def getRemainingTime(self, now=None):
-        """ Returns the time left in the interface """
+        """ Returns the time left in the simulation """
         if now is None:
             now = time.time()
         runTime = now - self.pauseTime - self.startTime

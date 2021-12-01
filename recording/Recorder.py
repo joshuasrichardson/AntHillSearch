@@ -3,7 +3,7 @@ import numbers
 
 from datetime import datetime
 
-from Constants import RESULTS_DIR
+from Constants import RESULTS_DIR, RECORD_ALL
 from model.phases import Phase
 from model.states import State
 
@@ -161,27 +161,30 @@ class Recorder:
         self.siteMarkerNums = []
 
     def write(self):
-        with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
-            json.dump(self.data, file)
+        if RECORD_ALL:
+            with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
+                json.dump(self.data, file)
+
+            self.agentPositions.clear()
+            self.agentAngles.clear()
+            self.agentStates.clear()
+            self.agentPhases.clear()
+            self.agentAssignments.clear()
+            self.agentsToDelete.clear()
+            self.predatorPositions.clear()
+            self.predatorAngles.clear()
+            self.sitePositions.clear()
+            self.siteQualities.clear()
+            self.siteRadii.clear()
+            self.siteMarkerNames.clear()
+            self.siteMarkerArgs.clear()
+            self.siteMarkerNums.clear()
+
+            self.data.clear()
+
         with open(f'{self.outputFileBase}_COMMANDS.json', 'w') as file:
             json.dump(self.executedCommands, file)
 
-        self.agentPositions.clear()
-        self.agentAngles.clear()
-        self.agentStates.clear()
-        self.agentPhases.clear()
-        self.agentAssignments.clear()
-        self.agentsToDelete.clear()
-        self.predatorPositions.clear()
-        self.predatorAngles.clear()
-        self.sitePositions.clear()
-        self.siteQualities.clear()
-        self.siteRadii.clear()
-        self.siteMarkerNames.clear()
-        self.siteMarkerArgs.clear()
-        self.siteMarkerNums.clear()
-
-        self.data.clear()
         self.executedCommands.clear()
 
     def writeResults(self, positions, qualities, simulationTime, deadAgents):

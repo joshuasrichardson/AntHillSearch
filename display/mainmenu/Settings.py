@@ -32,7 +32,9 @@ class Settings:
                        ["Site No Farther Than", SITE_NO_FARTHER_THAN],
                        ["Agent Image", AGENT_IMAGE],
                        ["Max Search Distance", MAX_SEARCH_DIST],
-                       ["Number of Predators", NUM_PREDATORS]]
+                       ["Number of Predators", NUM_PREDATORS],
+                       ["Predators' Positions", PRED_POSITIONS],
+                       ["Record All", not RECORD_ALL]]
         self.valueRects = [pygame.Rect(0, 0, 0, 0) for _ in range(len(self.values))]
         self.backButton = pygame.Rect(0, 0, 0, 0)
 
@@ -240,6 +242,12 @@ class Settings:
             if self.values[18][1] > 15:
                 self.values[18][1] = 15
             self.write("numPredators", self.values[18][1])
+        elif value == "Predators' Positions":
+            self.values[19][1] = self.getUserInputArray(self.values[19][1], self.valueRects[19].topright, 2)
+            self.write("predPositions", self.values[19][1])
+        elif value == "Record All":
+            self.values[20][1] = self.getUserInputBool(self.values[20][1], self.valueRects[20].topright, not self.values[20][1])
+            self.write("recordAll", self.values[20][1])
         self.setValuesWithJson()
 
     def write(self, key, value):

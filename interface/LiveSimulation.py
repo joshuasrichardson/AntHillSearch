@@ -41,9 +41,10 @@ class LiveSimulation(Simulation, ABC):
             raise InputError("Can't be more sites than maximum value", numSites)
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                        siteQualities, siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS):
+                        siteQualities, siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS,
+                        predPositions=PRED_POSITIONS):
         world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii, siteRadius, numPredators)
+                      siteQualities, siteRadii, siteRadius, numPredators, predPositions)
         if Display.shouldDraw and SHOULD_DRAW_FOG:
             WorldDisplay.initFog(world.hubs)
 
@@ -67,7 +68,7 @@ class LiveSimulation(Simulation, ABC):
             self.world.addAgent(agent)
 
     def updateSites(self):
-        if self.shouldRecord:
+        if self.shouldRecord and RECORD_ALL:
             for site in self.world.siteList:
                 self.recorder.recordSiteInfo(site)
 
@@ -89,7 +90,7 @@ class LiveSimulation(Simulation, ABC):
             agent.changeState(agentNeighbors)
             del agentNeighbors[:]
 
-        if self.shouldRecord:
+        if self.shouldRecord and RECORD_ALL:
             self.recorder.recordAgentInfo(agent)
 
     def updatePredator(self, predator, agentRectList):
@@ -97,7 +98,7 @@ class LiveSimulation(Simulation, ABC):
         agentNeighbors = self.getNeighbors(predator, agentRectList)
         predator.attack(agentNeighbors)
 
-        if self.shouldRecord:
+        if self.shouldRecord and RECORD_ALL:
             self.recorder.recordPredatorPosition(predator.pos)
             self.recorder.recordPredatorAngle(predator.angle)
 
@@ -126,6 +127,10 @@ class LiveSimulation(Simulation, ABC):
                                                                agent.estimateRadius(sites[siteIndex])])
                     agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
                     agent.assignedSite.updateBlur()
+                    if len(agent.recentlySeenPredatorPositions) > 0:
+                        for pos in agent.recentlySeenPredatorPositions:
+                            agent.world.addDangerZone(pos)
+                        agent.recentlySeenPredatorPositions.clear()
             except IndexError:
                 print("IndexError in LiveSimulation.setSitesEstimates. ")
 
@@ -141,8 +146,7 @@ class LiveSimulation(Simulation, ABC):
             self.recorder.save()
 
     def write(self):
-        if self.shouldRecord:
-            self.recorder.write()
+        self.recorder.write()
 
     def sendResults(self, chosenSites, simulationTime, deadAgents):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """

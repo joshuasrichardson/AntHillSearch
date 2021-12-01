@@ -28,14 +28,13 @@ class Simulation(ABC):
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR, agentImage=AGENT_IMAGE, siteRadius=SITE_RADIUS,
                  numPredators=NUM_PREDATORS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=False):
-        if useJson:
-            convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
-                hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
-                siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators = \
-                self.applyUserSettings(
-                    [convergenceFraction, simulationDuration, FONT_SIZE, LARGE_FONT_SIZE, numHubs, hubLocations,
-                     hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, SITE_RADIUS,
-                     siteNoCloserThan, siteNoFartherThan, AGENT_IMAGE, maxSearchDist, NUM_PREDATORS])
+        convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
+            hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
+            siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, predPositions = \
+            self.applyUserSettings(
+                [convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations,
+                 hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius,
+                 siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, PRED_POSITIONS], useJson)
         self.setDisplayVariables(agentImage)
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
@@ -44,8 +43,7 @@ class Simulation(ABC):
         self.timer = SimulationTimer(self.simulationDuration,
                                      self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                                          siteQualities, siteRadii, siteRadius,
-                                          numPredators)  # The world that has all the sites and agents
+                                          siteQualities, siteRadii, siteRadius, numPredators, predPositions)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
         self.chosenHomes = self.initChosenHomes(
             numHubs)  # The site that most of the agents are assigned to when the interface ends
@@ -58,10 +56,11 @@ class Simulation(ABC):
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
         self.initializeAgentList()  # Create the agents that will be used in the interface
+        self.remainingTime = self.simulationDuration
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS):
+                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS):
         pass
 
     @staticmethod
@@ -104,7 +103,13 @@ class Simulation(ABC):
         except GameOver:
             pass
 
+        self.stopTimer()
+
         return self.finish()
+
+    def stopTimer(self):
+        self.remainingTime = self.timer.getRemainingTime()
+        self.timer.cancel()
 
     def initializeRequest(self):
         pass  # The method is overridden by simulations that send requests to rest APIs
@@ -161,13 +166,14 @@ class Simulation(ABC):
 
     def recordDisplays(self):
         if self.shouldRecord:
-            self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
-            self.recorder.recordTime(self.timer.getRemainingTime())
-            self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
             self.recorder.recordExecutedCommands(self.graphs.executedCommands)
-            self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY,
-                                             Display.origWidth * Display.origWidth / Display.newWidth,
-                                             Display.origHeight * Display.origHeight / Display.newHeight)
+            if RECORD_ALL:
+                self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
+                self.recorder.recordTime(self.timer.getRemainingTime())
+                self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
+                self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY,
+                                                 Display.origWidth * Display.origWidth / Display.newWidth,
+                                                 Display.origHeight * Display.origHeight / Display.newHeight)
 
     @abstractmethod
     def updateAgent(self, agent, agentRectList):
@@ -246,13 +252,9 @@ class Simulation(ABC):
     def printTimeResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
-            simulationTime = self.getRemainingTime()
-            self.timer.cancel()
+            simulationTime = self.simulationDuration - self.remainingTime
             print("The simulation took " + str(simulationTime) + " seconds to complete.")
         return simulationTime
-
-    def getRemainingTime(self):
-        return self.timer.simulationDuration - self.timer.getRemainingTime()
 
     def printHomeQualities(self):
         qualities = []
@@ -302,21 +304,22 @@ class Simulation(ABC):
                         self.graphs)  # An object to handle events dealing with user interactions
 
     @staticmethod
-    def applyUserSettings(retValues):
-        try:
-            with open('display/mainmenu/settings.json', 'r') as file:
-                data = json.load(file)
-            for i, key in enumerate(SETTING_KEYS):
-                if key in data:
-                    try:
-                        exec(f"{SETTING_NAMES[i]} = {data[key]}")
-                    except NameError:
-                        exec(f"{SETTING_NAMES[i]} = \"{data[key]}\"")
-                    retValues[i] = data[key]
-        except FileNotFoundError:
-            print("File 'mainmenu/settings.json' Not Found")
-            with open('display/mainmenu/settings.json', 'w'):
-                print("Created 'mainmenu/settings.json'")
-        except json.decoder.JSONDecodeError:
-            print("File 'mainmenu/settings.json' is empty")
+    def applyUserSettings(retValues, useJson):
+        if useJson:
+            try:
+                with open('display/mainmenu/settings.json', 'r') as file:
+                    data = json.load(file)
+                for i, key in enumerate(SETTING_KEYS):
+                    if key in data:
+                        try:
+                            exec(f"{SETTING_NAMES[i]} = {data[key]}")
+                        except NameError:
+                            exec(f"{SETTING_NAMES[i]} = \"{data[key]}\"")
+                        retValues[i] = data[key]
+            except FileNotFoundError:
+                print("File 'mainmenu/settings.json' Not Found")
+                with open('display/mainmenu/settings.json', 'w'):
+                    print("Created 'mainmenu/settings.json'")
+            except json.decoder.JSONDecodeError:
+                print("File 'mainmenu/settings.json' is empty")
         return retValues

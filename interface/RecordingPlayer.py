@@ -1,5 +1,6 @@
 import time
 
+from model.Timer import SimulationTimer
 from Constants import *
 from display import Display, WorldDisplay
 from display.Graphs import SimulationGraphs
@@ -17,13 +18,14 @@ class RecordingPlayer(Simulation):
         self.delay = 0
         WorldDisplay.fog = None
         super().__init__(shouldRecord=False)
+        self.realTimer = SimulationTimer(self.simulationDuration, self.timeOut)
 
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
         super().initializeAgentList()
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS):
+                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS):
         self.recorder.read()
         addAfter = self.initHubsAgentCounts()
         world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
@@ -62,6 +64,18 @@ class RecordingPlayer(Simulation):
             hubIndex = world.hubs.index(hub)
             hub.incrementCount(hubIndex)
             self.hubAgentCounts[hubIndex] += 1
+
+    def runSimulation(self):
+        self.realTimer.start()
+        results = super().runSimulation()
+        return results
+
+    def stopTimer(self):
+        super().stopTimer()
+        realTime = self.realTimer.getRemainingTime()
+        self.realTimer.cancel()
+        print(f"Real simulation time: {self.simulationDuration - realTime}")
+        self.remainingTime = self.simulationDuration - self.getDuration()
 
     def runNextRound(self):
         self.userControls.handleEvents()
@@ -149,7 +163,7 @@ class RecordingPlayer(Simulation):
     def changeDelay(self, seconds):
         self.delay += seconds
 
-    def getRemainingTime(self):
+    def getDuration(self):
         return self.recorder.readResults()[2]
 
     def getNumDeadAgents(self):

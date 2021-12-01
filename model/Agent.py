@@ -36,7 +36,6 @@ class Agent:
         self.decisiveness = decisiveness  # Influences how quickly an agent can assess
         self.navigationSkills = navSkills  # Influences how likely an agent is to get lost
         self.estimationAccuracy = estAccuracy  # How far off an agent's estimate of the quality of a site will be on average.
-        # self.laziness = laziness  # How unwilling the agent is to change sites, even if the new site is better.
         self.assessmentThreshold = 5  # A number to influence how long an agent will assess a site. Should be longer for lower quality sites.
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
@@ -44,6 +43,7 @@ class Agent:
         self.angle = np.random.uniform(0, np.pi, 1)  # Angle the agent is moving
         self.placesToAvoid = []  # A list of points that the agent should stay away from
         self.avoidMarkers = []  # A list of markers indicating the positions the agents should avoid
+        self.recentlySeenPredatorPositions = []
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
@@ -267,14 +267,20 @@ class Agent:
             self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
 
     def avoid(self, pos):
-        if self.getNearbyPlaceToAvoid() is None:
+        if pos is not None and self.getNearbyPlaceToAvoid() is None:
             self.placesToAvoid.append(pos)
+            self.recentlySeenPredatorPositions.append(pos)
             if display.Display.shouldDraw:
                 self.avoidMarkers.append(getAvoidMarker(pos))
 
     def stopAvoiding(self, index):
         self.placesToAvoid.pop(index)
         self.avoidMarkers.pop(index)
+
+    def forgetDangerousSites(self, pos):
+        for site in self.knownSites:
+            if self.world.isClose(pos, site.getPosition(), MIN_AVOID_DIST):
+                self.removeKnownSite(site)
 
     def getAssignedSiteIndex(self):
         """ Returns the agent's assigned site's position in the world site list """
