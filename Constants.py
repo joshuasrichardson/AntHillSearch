@@ -6,32 +6,34 @@ CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assign
 # Shorter durations increase the likeliness that the colony will be split.
 SIM_DURATION = 120  # Time of the interface in seconds
 
+RESULTS_DIR = "recording/results/"  # The directory that stores the results
+
 TRIAL_SETTINGS = ["display/mainmenu/trial1settings.json",
                   "display/mainmenu/trial2settings.json",
-                  "display/mainmenu/trial3settings.json"]
+                  "display/mainmenu/trial3settings.json"]  # The files that have the settings for user trials
 
-RESULTS_DIR = "recording/results/"
-
+# Keys for settings that can be changed while the program is running
 SETTING_KEYS = ['convergenceFraction', 'simDuration', 'fontSize', 'largeFontSize', 'numHubs', 'hubLocations',
                 'hubRadii', 'hubAgentCounts', 'numSites', 'sitePositions', 'siteQualities', 'siteRadii',
                 'shouldRecord', 'siteRadius', 'siteNoCloserThan', 'siteNoFartherThan', 'agentImage',
                 'maxSearchDist', 'numPredators', 'predPositions', 'recordAll']
 
+# The names of the settings that can be changed while the program is running
 SETTING_NAMES = ["CONVERGENCE_FRACTION", "SIM_DURATION", "FONT_SIZE", "LARGE_FONT_SIZE", "NUM_HUBS", "HUB_LOCATIONS",
                  "HUB_RADII", "HUB_AGENT_COUNTS", "NUM_SITES", "SITE_POSITIONS", "SITE_QUALITIES", "SITE_RADII",
                  "SHOULD_RECORD", "SITE_RADIUS", "SITE_NO_CLOSER_THAN", "SITE_NO_FARTHER_THAN", "AGENT_IMAGE",
                  "MAX_SEARCH_DIST", "NUM_PREDATORS", "PRED_POSITIONS", "RECORD_ALL"]
 
-FONT_SIZE = 13
-LARGE_FONT_SIZE = 40
+FONT_SIZE = 13  # The font size of most words in the simulation
+LARGE_FONT_SIZE = 40  # The font size for titles and such
 
-NUM_HUBS = 2
-HUB_LOCATIONS = []
-HUB_RADII = []
+NUM_HUBS = 2  # The number of starting homes or the number of colonies
+HUB_LOCATIONS = []  # A list of positions of where the original homes are located
+HUB_RADII = []  # A list of the radius of the hubs
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
 # but it usually doesn't have a great effect on where they end up.
-HUB_AGENT_COUNTS = [100]
+HUB_AGENT_COUNTS = [100]  # Number of agents starting out at each hub
 
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
 NUM_SITES = 8      # Number of total sites
@@ -81,7 +83,7 @@ BORDER_COLOR = 105, 100, 70  # Dark Brown
 
 FOG_COLOR = 145, 140, 112  # Grey
 
-TRANSPARENT = 60, 60, 60
+TRANSPARENT = 60, 60, 60  # This value is set to represent a see-through color in the program
 
 """ Define colony size, hub location, and distribution parameters for sites """
 HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outside edge of the hub
@@ -92,7 +94,7 @@ SITE_NO_CLOSER_THAN = 120  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 300  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
-SHOULD_DRAW_FOG = False
+SHOULD_DRAW_FOG = True  # Whether unexplored areas will be covered in fog
 
 # Does not affect interface besides making it easier to see what's happening
 GRAPHS_TOP_LEFT = [20, 20]  # The position of the top left corner of the first graph.
@@ -153,9 +155,9 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 
 """ Predator default values """
 
-PREDATOR_IMAGE = "resources/spider.png"
-NUM_PREDATORS = 5
-PRED_POSITIONS = []
+PREDATOR_IMAGE = "resources/spider.png"  # The path of the predator image
+NUM_PREDATORS = 5  # The number of predators that go around attacking agents
+PRED_POSITIONS = []  # Where the predators will start. No position = random
 
 """ Agent Transition Parameters """
 # Threshold probability,
@@ -213,37 +215,41 @@ LEAD_FORWARD_COLOR = 204, 204, 0  # Yellow
 REVERSE_TANDEM = 5        # Going back to the original nest or another known site with a follower to recruit more
 REVERSE_TANDEM_COLOR = 0, 128, 128  # Teal
 
-TRANSPORT = 6
+TRANSPORT = 6             # Picking up other agents and bringing them to the assigned site
 TRANSPORT_COLOR = 0, 255, 0  # Green
 
-GO = 7
+GO = 7                    # Moving toward a specific position until getting there
 GO_COLOR = 0, 255, 255  # Cyan
 
-DEAD = 8
+DEAD = 8                  # No longer respond to anything.
 DEAD_COLOR = 140, 140, 140  # Grey
 
 NUM_POSSIBLE_STATES = 9
+# Colors that show up on the screen representing each state
 STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR, DEAD_COLOR]
+# The name of each state
 STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO', 'DEAD']
 
 """ Phases and their colors """
-EXPLORE = 0
+EXPLORE = 0                # Still at the hub or just leaving for the first time to search
 EXPLORE_COLOR = 0, 0, 255  # Blue
 
-ASSESS = 1
+ASSESS = 1                 # Found a potential site and considering whether it is good enough
 ASSESS_COLOR = 255, 0, 0   # Red
 
-CANVAS = 2
+CANVAS = 2                 # Partially committed to a site, and starting to lead others there
 CANVAS_COLOR = 204, 204, 0  # Yellow
 
-COMMIT = 3
+COMMIT = 3                 # Met quorum at a site and now fully committed to the site
 COMMIT_COLOR = 0, 255, 0  # Green
 
-CONVERGED = 4
+CONVERGED = 4              # Enough agents are at the site, so they can be done moving
 CONVERGED_COLOR = 255, 105, 180
 
 NUM_POSSIBLE_PHASES = 5
+# Colors that show up on the screen representing each phase
 PHASE_COLORS = [EXPLORE_COLOR, ASSESS_COLOR, CANVAS_COLOR, COMMIT_COLOR, CONVERGED_COLOR]
+# The name of each phase
 PHASES_LIST = ['EXPLORE', 'ASSESS', 'CANVAS', 'COMMIT', "CONVERGED"]
 
 """ Interaction """

@@ -31,6 +31,9 @@ class SimulationGraphs:
 
         self.selectAgentsRect = pygame.Rect(Display.origWidth - 3 * (14 * fontSize), Display.origHeight - (7 * fontSize + 2), 13 * fontSize, 2 * fontSize)
         self.selectSitesRect = pygame.Rect(Display.origWidth - 2 * (14.25 * fontSize), Display.origHeight - (7 * fontSize + 2), 13 * fontSize, 2 * fontSize)
+        if not Display.drawFarAgents:
+            self.selectAgentsRect = pygame.Rect(Display.origWidth - 3 * (14 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
+            self.selectSitesRect = pygame.Rect(Display.origWidth - 2 * (14.25 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
         self.selectAgentsSitesRect = pygame.Rect(Display.origWidth - 3 * (14 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
         self.selectSitesAgentsRect = pygame.Rect(Display.origWidth - 2 * (14.25 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
         self.commandSiteAgentsRect = pygame.Rect(Display.origWidth - (15 * fontSize), Display.origHeight - (5 * fontSize), 13 * fontSize, 2 * fontSize)
@@ -64,7 +67,7 @@ class SimulationGraphs:
                                   box.centery - (img.get_height() / 2)))
 
     def drawStateGraph(self, states):
-        if self.shouldDrawGraphs:
+        if self.shouldDrawGraphs and Display.drawFarAgents:
             self.y = GRAPHS_TOP_LEFT[1]
             pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (self.fontSize - 1) * len(states) + (self.fontSize * 2.4)), 1)
             self.write("STATES:")
@@ -78,7 +81,7 @@ class SimulationGraphs:
             self.incrementY()
 
     def drawPhaseGraph(self, phases):
-        if self.shouldDrawGraphs:
+        if self.shouldDrawGraphs and Display.drawFarAgents:
             pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (self.fontSize - 1) * len(phases) + (self.fontSize * 2.1)), 1)
             self.write("PHASES:")
             for phase, width in enumerate(phases):
@@ -114,29 +117,23 @@ class SimulationGraphs:
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):
         if self.shouldDrawGraphs:
-            self.y = GRAPHS_TOP_LEFT[1]
             self.drawSelectBox(shouldSelectAgents, self.selectAgentsRect)
             self.write4("Select Agents", shouldSelectAgents, self.selectAgentsRect)
 
-            self.incrementY()
             self.drawSelectBox(shouldSelectSites, self.selectSitesRect)
             self.write4("Select Sites", shouldSelectSites, self.selectSitesRect)
 
-            if Display.canSelectAnywhere:
-                self.incrementY()
+            if Display.drawFarAgents:
                 self.drawSelectBox(shouldSelectAgentSites, self.selectAgentsSitesRect)
                 self.write4("Select Agents Sites", shouldSelectAgentSites, self.selectAgentsSitesRect)
 
-                self.incrementY()
                 self.drawSelectBox(shouldSelectSiteAgents, self.selectSitesAgentsRect)
                 self.write4("Select Sites Agents", shouldSelectSiteAgents, self.selectSitesAgentsRect)
 
-            self.y = GRAPHS_TOP_LEFT[1]
             self.drawSelectBox(commandSiteAgents, self.commandSiteAgentsRect)
             self.write4("Command Site Agents", commandSiteAgents, self.commandSiteAgentsRect)
 
             if paused:
-                self.incrementY()
                 self.drawSelectBox(shouldShowOptions, self.showOptionsRect)
                 self.write4("Options", shouldShowOptions, self.showOptionsRect)
 

@@ -18,16 +18,18 @@ class Simulation(ABC):
     """ Runs most of the colony interface but leaves some details to classes that inherit this class """
 
     def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES,
-                 shouldRecord=SHOULD_RECORD,
-                 convergenceFraction=CONVERGENCE_FRACTION, hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII,
-                 hubAgentCounts=HUB_AGENT_COUNTS, sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES,
-                 siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
-                 hubCanMove=HUB_CAN_MOVE, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
-                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
-                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
+                 shouldRecord=SHOULD_RECORD, convergenceFraction=CONVERGENCE_FRACTION, hubLocations=HUB_LOCATIONS,
+                 hubRadii=HUB_RADII, hubAgentCounts=HUB_AGENT_COUNTS, sitePositions=SITE_POSITIONS,
+                 siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII, siteNoCloserThan=SITE_NO_CLOSER_THAN,
+                 siteNoFartherThan=SITE_NO_FARTHER_THAN, hubCanMove=HUB_CAN_MOVE, homogenousAgents=HOMOGENOUS_AGENTS,
+                 minSpeed=MIN_AGENT_SPEED, maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS,
+                 maxDecisiveness=MAX_DECISIVENESS, minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS,
+                 minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT,
+                 maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR, agentImage=AGENT_IMAGE, siteRadius=SITE_RADIUS,
                  numPredators=NUM_PREDATORS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=False):
+        # If the the settings in the display/mainmenu/settings.json file should override the values passed in,
+        # update all the settings.
         convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
             hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
             siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, predPositions = \
@@ -35,8 +37,10 @@ class Simulation(ABC):
                 [convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations,
                  hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius,
                  siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, PRED_POSITIONS], useJson)
+        # Set up the screen, agent image, and important boolean variables
         self.setDisplayVariables(agentImage)
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
+        # Set whether the hubs can move and how far away sites can be from the hubs.
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.simulationDuration = simulationDuration

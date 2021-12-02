@@ -12,8 +12,11 @@ from model.builder.SiteBuilder import getNewSite
 
 
 class Settings:
+    """ A tab accessible from the main menu that allows the user to change certain settings for the simulation.
+    Not all settings are able to be changed here. See Constants.py for more settings. """
 
     def __init__(self):
+        # A list of values that can be updated by the user
         self.values = [["Convergence Fraction", CONVERGENCE_FRACTION],
                        ["Simulation Duration", SIM_DURATION],
                        ["Font Size", FONT_SIZE],
@@ -35,17 +38,19 @@ class Settings:
                        ["Number of Predators", NUM_PREDATORS],
                        ["Predators' Positions", PRED_POSITIONS],
                        ["Record All", not RECORD_ALL]]
+        # The rectangles that make values selectable
         self.valueRects = [pygame.Rect(0, 0, 0, 0) for _ in range(len(self.values))]
-        self.backButton = pygame.Rect(0, 0, 0, 0)
+        self.backButton = pygame.Rect(0, 0, 0, 0)  # Button to go back to the main menu
 
-        self.userInputValue = 0
-        self.userInput = ''
-        self.data = {}
-        self.setValuesWithJson()
-        self.arrayStates = None
-        self.selectedRect = None
+        self.userInputValue = 0  # The value of the user's input
+        self.userInput = ''  # A string representation of the user's input
+        self.data = {}  # The data about the settings to be recorded to settings.json
+        self.setValuesWithJson()  # Set the values on the screen to match the values in settings.json
+        self.arrayStates = None  # Used for handling input that should be arrays
+        self.selectedRect = None  # The rectangle that has most recently been selected
 
     def setValuesWithJson(self):
+        """ Set the values on the screen to match the values in settings.json """
         try:
             with open('display/mainmenu/settings.json', 'r') as file:
                 self.data = json.load(file)
@@ -59,20 +64,23 @@ class Settings:
 
     def run(self):
         reading = True
-        while reading:
-            Display.screen.fill(SCREEN_COLOR)
+        while reading:  # While the user is reading the settings (or hasn't tried to exit)
+            Display.screen.fill(SCREEN_COLOR)  # Fill in the background
             Display.writeCenterPlus(Display.screen, "Settings", self.values[3][1], -6 * self.values[3][1])
-            self.showSettings()
-            self.drawBackButton()
-            pygame.display.flip()
-            reading = self.handleEvents()
+            self.showSettings()  # Draw the setting the user can select and change
+            self.drawBackButton()  # Draw the button used to return to the main menu
+            pygame.display.flip()  # Display drawn things on the screen
+            reading = self.handleEvents()  # Handle user input and stop reading if they chose the back button or exit
 
     def showSettings(self):
+        """ Write each value on the screen """
         x = 200
         for i, value in enumerate(self.values):
-            self.valueRects[i] = Display.write(Display.screen, value[0] + ": " + str(value[1]), int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3)
+            self.valueRects[i] = Display.write(Display.screen, value[0] + ": " + str(value[1]),
+                                               int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3)
 
     def drawBackButton(self):
+        """ Draw the button that allows the user to return to the main menu """
         backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True, WORDS_COLOR).convert_alpha()
         self.backButton = pygame.Rect(50, 50, backImg.get_width(), backImg.get_height())
         Display.screen.blit(backImg, self.backButton.topleft)

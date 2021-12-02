@@ -21,32 +21,36 @@ EXIT = "Exit"
 
 class StartUpDisplay:
     def __init__(self, interface):
-        Display.createScreen()
-        self.freshInterface = interface
-        self.simInterface = None
-        self.mousePos = [-1, -1]
-        self.tutorial = Tutorial(self.play)
-        self.settings = Settings()
+        Display.createScreen()  # Initialize the pygame screen
+        self.freshInterface = interface  # The interface to run when "Play" or "Practice" is selected
+        self.simInterface = None  # A constructed version of the interface that we will run
+        self.mousePos = [-1, -1]  # Where the mouse is (for when something is selected)
+        self.tutorial = Tutorial(self.play)  # The tutorial about how to play the game
+        self.settings = Settings()  # Settings that can be changed
 
     def run(self):
         try:
-            while 1:
-                Display.screen.fill(SCREEN_COLOR)
-                self.drawStartPage()
-                pygame.display.flip()
-                self.handleEvents()
-        except GameOver:
+            while 1:  # Keep going till the game is over
+                Display.screen.fill(SCREEN_COLOR)  # Fill in the background
+                self.drawStartPage()  # Draw game title and options the user can select
+                pygame.display.flip()  # Have the things that have been drawn show up
+                self.handleEvents()  # Handle any user input
+        except GameOver:  # End when the GameOver exception is raised
             pass
 
     def drawStartPage(self):
+        # Write the simulation title
         Display.writeCenterPlus(Display.screen, "Anthill Search", LARGE_FONT_SIZE, -4 * LARGE_FONT_SIZE)
+        # The options the user can select
         options = [DO_USER_EXPERIMENTS,
                    PRACTICE,
                    TUTORIAL,
                    REPLAY,
                    SETTINGS,
                    EXIT]
+        # Whether the mouse collides with a word
         collides = False
+        # Check each option to see if the mouse is over it
         for i, option in enumerate(options):
             rect = Display.writeCenterPlus(Display.screen, option, FONT_SIZE * 2, FONT_SIZE * 3 * i)
             if rect.collidepoint(self.mousePos):
@@ -54,19 +58,22 @@ class StartUpDisplay:
                 break
             collides = collides or rect.collidepoint(pygame.mouse.get_pos())
         if collides:
+            # Change the cursor to be a hand
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
         else:
+            # Change the cursor to be an arrow (same as default)
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     def handleEvents(self):
         for event in pygame.event.get():
-            if event.type == MOUSEBUTTONUP:
+            if event.type == MOUSEBUTTONUP:  # If the user clicked, update the mouse position
                 self.mousePos = pygame.mouse.get_pos()
-            elif event.type == QUIT:
+            elif event.type == QUIT:  # If the user pressed the x to close the game, stop the game
                 pygame.quit()
                 raise GameOver("Game Over")
 
     def start(self, option):
+        """ Start another page from the main menu """
         if option == DO_USER_EXPERIMENTS:
             self.doUserExperiments()
         elif option == PRACTICE:
@@ -82,27 +89,33 @@ class StartUpDisplay:
         self.mousePos = [-1, -1]
 
     def doUserExperiments(self):
+        """ Run a simulation for each set of settings """
         for trial, trialSetting in enumerate(TRIAL_SETTINGS):
             self.setSettings(trialSetting)
             self.play()
 
     @staticmethod
     def setSettings(trialSetting):
+        """ Copy the current trial's settings to the settings file that will be used in the simulation """
         with open(trialSetting, 'r') as trialFile, open('display/mainmenu/settings.json', 'w') as currentSettings:
             currentSettings.write(trialFile.read())
 
     def play(self):
+        """ Construct and start the simulation """
         del self.simInterface
         self.simInterface = self.freshInterface()
         self.simInterface.runSimulation()
 
     def startTutorial(self):
+        """ Start the tutorial to teach about how to play """
         self.tutorial.run()
 
     def replay(self):
+        """ Watch the most recent simulation's replay """
         try:
             from os.path import getsize
             file_path = f'{getMostRecentRecording()}_RECORDING.json'
+            # If the recording exists, play it, else tell the user there is no recording
             if getsize(file_path) > 0:
                 del self.simInterface
                 self.simInterface = RecordingPlayer()
@@ -114,6 +127,7 @@ class StartUpDisplay:
 
     @staticmethod
     def complainAboutMissingRecording():
+        """ Tell the user there is no recording so they can't play the recording """
         Display.writeCenterPlus(Display.screen, "No Recording Available", LARGE_FONT_SIZE, 130)
         Display.writeCenterPlus(Display.screen, "Please play the simulation with the recording", FONT_SIZE, 130 + LARGE_FONT_SIZE)
         Display.writeCenterPlus(Display.screen, "option on before trying to watch a recording.", FONT_SIZE, 130 + LARGE_FONT_SIZE + FONT_SIZE)
@@ -122,9 +136,11 @@ class StartUpDisplay:
         print(f"'{getMostRecentRecording()}_RECORDING.json' is empty.")
 
     def viewSettings(self):
+        """ Enter the settings tab """
         self.settings.run()
 
     @staticmethod
     def exit():
+        """ Close the pygame window and exit the program """
         pygame.quit()
         raise GameOver("Game Over")
