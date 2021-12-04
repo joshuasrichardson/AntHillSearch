@@ -9,7 +9,7 @@ from model.states import State
 
 
 def getMostRecentRecording():
-    with open(f'{RESULTS_DIR}/most_recent.json', 'r') as file:
+    with open(f'{RESULTS_DIR}most_recent.json', 'r') as file:
         data = json.load(file)
         return data['file_base']
 

@@ -4,7 +4,7 @@ import pygame.display
 from pygame import MOUSEBUTTONUP, QUIT
 
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE, TRIAL_SETTINGS
+from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE, TRIAL_SETTINGS, SEARCH_COLOR
 from display import Display
 from display.mainmenu.Settings import Settings
 from display.mainmenu.Tutorial import Tutorial
@@ -49,15 +49,18 @@ class StartUpDisplay:
                    SETTINGS,
                    EXIT]
         # Whether the mouse collides with a word
-        collides = False
+        mouseIsOverAnOption = False
         # Check each option to see if the mouse is over it
         for i, option in enumerate(options):
             rect = Display.writeCenterPlus(Display.screen, option, FONT_SIZE * 2, FONT_SIZE * 3 * i)
             if rect.collidepoint(self.mousePos):
                 self.start(option)
                 break
-            collides = collides or rect.collidepoint(pygame.mouse.get_pos())
-        if collides:
+            mouseIsOverCurrentOption = rect.collidepoint(pygame.mouse.get_pos())
+            mouseIsOverAnOption = mouseIsOverAnOption or mouseIsOverCurrentOption
+            if mouseIsOverCurrentOption:
+                Display.writeCenterPlus(Display.screen, option, FONT_SIZE * 2, FONT_SIZE * 3 * i, SEARCH_COLOR)
+        if mouseIsOverAnOption:
             # Change the cursor to be a hand
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
         else:

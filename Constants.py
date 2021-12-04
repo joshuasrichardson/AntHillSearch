@@ -15,14 +15,14 @@ TRIAL_SETTINGS = ["display/mainmenu/trial1settings.json",
 # Keys for settings that can be changed while the program is running
 SETTING_KEYS = ['convergenceFraction', 'simDuration', 'fontSize', 'largeFontSize', 'numHubs', 'hubLocations',
                 'hubRadii', 'hubAgentCounts', 'numSites', 'sitePositions', 'siteQualities', 'siteRadii',
-                'shouldRecord', 'siteRadius', 'siteNoCloserThan', 'siteNoFartherThan', 'agentImage',
-                'maxSearchDist', 'numPredators', 'predPositions', 'recordAll']
+                'shouldRecord', 'recordAll', 'siteRadius', 'siteNoCloserThan', 'siteNoFartherThan', 'agentImage',
+                'maxSearchDist', 'numPredators', 'predPositions']
 
 # The names of the settings that can be changed while the program is running
 SETTING_NAMES = ["CONVERGENCE_FRACTION", "SIM_DURATION", "FONT_SIZE", "LARGE_FONT_SIZE", "NUM_HUBS", "HUB_LOCATIONS",
                  "HUB_RADII", "HUB_AGENT_COUNTS", "NUM_SITES", "SITE_POSITIONS", "SITE_QUALITIES", "SITE_RADII",
-                 "SHOULD_RECORD", "SITE_RADIUS", "SITE_NO_CLOSER_THAN", "SITE_NO_FARTHER_THAN", "AGENT_IMAGE",
-                 "MAX_SEARCH_DIST", "NUM_PREDATORS", "PRED_POSITIONS", "RECORD_ALL"]
+                 "SHOULD_RECORD", "RECORD_ALL", "SITE_RADIUS", "SITE_NO_CLOSER_THAN", "SITE_NO_FARTHER_THAN",
+                 "AGENT_IMAGE", "MAX_SEARCH_DIST", "NUM_PREDATORS", "PRED_POSITIONS"]
 
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such

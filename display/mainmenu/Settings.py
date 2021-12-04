@@ -30,14 +30,14 @@ class Settings:
                        ["Site Qualities", SITE_QUALITIES],
                        ["Site Radii", SITE_RADII],
                        ["Should Record", SHOULD_RECORD],
+                       ["Record All", RECORD_ALL],
                        ["Default Site Radius", SITE_RADIUS],
                        ["Site No Closer Than", SITE_NO_CLOSER_THAN],
                        ["Site No Farther Than", SITE_NO_FARTHER_THAN],
                        ["Agent Image", AGENT_IMAGE],
                        ["Max Search Distance", MAX_SEARCH_DIST],
                        ["Number of Predators", NUM_PREDATORS],
-                       ["Predators' Positions", PRED_POSITIONS],
-                       ["Record All", not RECORD_ALL]]
+                       ["Predators' Positions", PRED_POSITIONS]]
         # The rectangles that make values selectable
         self.valueRects = [pygame.Rect(0, 0, 0, 0) for _ in range(len(self.values))]
         self.backButton = pygame.Rect(0, 0, 0, 0)  # Button to go back to the main menu
@@ -78,14 +78,20 @@ class Settings:
         for i, value in enumerate(self.values):
             self.valueRects[i] = Display.write(Display.screen, value[0] + ": " + str(value[1]),
                                                int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3)
+            if self.valueRects[i].collidepoint(pygame.mouse.get_pos()):
+                Display.write(Display.screen, value[0] + ": " + str(value[1]),
+                              int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3, SEARCH_COLOR)
 
     def drawBackButton(self):
         """ Draw the button that allows the user to return to the main menu """
         backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True, WORDS_COLOR).convert_alpha()
         self.backButton = pygame.Rect(50, 50, backImg.get_width(), backImg.get_height())
+        if self.backButton.collidepoint(pygame.mouse.get_pos()):
+            backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True, SEARCH_COLOR).convert_alpha()
         Display.screen.blit(backImg, self.backButton.topleft)
 
     def handleEvents(self):
+        """ Handle user input """
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONUP:
                 return self.mouseButtonPressed(pygame.mouse.get_pos())
@@ -97,21 +103,25 @@ class Settings:
         return True
 
     def mouseButtonPressed(self, pos):
+        """ What to do when the mouse button has been clicked """
         if self.backButton.collidepoint(pos):
             return False
         for i, rect in enumerate(self.valueRects):
             if rect.collidepoint(pos):
                 self.selectedRect = rect
                 self.changeValue(self.values[i][0])
+                break
         return True
 
     def setMouse(self):
+        """ Change the style of the mouse """
         if self.collidesWithSelectable(pygame.mouse.get_pos()):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     def collidesWithSelectable(self, pos):
+        """ Returns whether the position is overlapping with something that can be selected """
         if self.backButton.collidepoint(pos):
             return True
         for rect in self.valueRects:
@@ -154,10 +164,10 @@ class Settings:
         elif value == "Hub Locations":
             self.values[5][1] = self.getUserInputArray(self.values[5][1], self.valueRects[5].topright, 2)
             for hubLoc in self.values[5][1]:
-                if hubLoc[0] > Display.origWidth + self.values[17][1]:
-                    hubLoc[0] = Display.origWidth + self.values[17][1]
-                if hubLoc[1] > Display.origHeight + self.values[17][1]:
-                    hubLoc[1] = Display.origHeight + self.values[17][1]
+                if hubLoc[0] > Display.origWidth + self.values[18][1]:
+                    hubLoc[0] = Display.origWidth + self.values[18][1]
+                if hubLoc[1] > Display.origHeight + self.values[18][1]:
+                    hubLoc[1] = Display.origHeight + self.values[18][1]
             self.write('hubLocations', self.values[5][1])
         elif value == "Hub Radii":
             self.values[6][1] = self.getUserInputArray(self.values[6][1], self.valueRects[6].topright, 1)
@@ -185,10 +195,10 @@ class Settings:
         elif value == "Site Positions":
             self.values[9][1] = self.getUserInputArray(self.values[9][1], self.valueRects[9].topright, 2)
             for pos in self.values[9][1]:
-                if pos[0] > Display.origWidth + self.values[17][1]:
-                    pos[0] = Display.origWidth + self.values[17][1]
-                if pos[1] > Display.origHeight + self.values[17][1]:
-                    pos[1] = Display.origHeight + self.values[17][1]
+                if pos[0] > Display.origWidth + self.values[18][1]:
+                    pos[0] = Display.origWidth + self.values[18][1]
+                if pos[1] > Display.origHeight + self.values[18][1]:
+                    pos[1] = Display.origHeight + self.values[18][1]
             self.write('sitePositions', self.values[9][1])
         elif value == "Site Qualities":
             self.values[10][1] = self.getUserInputArray(self.values[10][1], self.valueRects[10].topright, 1)
@@ -209,53 +219,54 @@ class Settings:
         elif value == "Should Record":
             self.values[12][1] = self.getUserInputBool(self.values[12][1], self.valueRects[12].topright, str(not self.values[12][1]))
             self.write('shouldRecord', self.values[12][1])
-        elif value == "Default Site Radius":
-            self.values[13][1] = self.getUserInputInt(self.values[13][1], self.valueRects[13].topright)
-            if self.values[13][1] > 100:
-                self.values[13][1] = 100
-            if self.values[13][1] < 5:
-                self.values[13][1] = 5
-            self.write('siteRadius', self.values[13][1])
-        elif value == "Site No Closer Than":
-            self.values[14][1] = self.getUserInputInt(self.values[14][1], self.valueRects[14].topright)
-            if self.values[14][1] >= self.values[15][1]:
-                self.values[14][1] = self.values[15][1] - 10
-            if self.values[14][1] < 0:
-                self.values[14][1] = 0
-            self.write('siteNoCloserThan', self.values[14][1])
-        elif value == "Site No Farther Than":
-            self.values[15][1] = self.getUserInputInt(self.values[15][1], self.valueRects[15].topright)
-            if self.values[15][1] > self.values[17][1]:
-                self.values[15][1] = self.values[17][1]
-            if self.values[15][1] <= self.values[14][1]:
-                self.values[15][1] = self.values[14][1] + 10
-            self.write('siteNoFartherThan', self.values[15][1])
-        elif value == "Agent Image":
-            if self.values[16][1] == "resources/copter.png":
-                self.values[16][1] = self.getUserInputString(self.values[16][1], self.valueRects[16].topright, "resources/ant.png")
-            else:
-                self.values[16][1] = self.getUserInputString(self.values[16][1], self.valueRects[16].topright, "resources/copter.png")
-            if self.values[16][1] != "resources/copter.png" and self.values[16][1] != "resources/ant.png":
-                self.values[16][1] = "resources/ant.png"
-            self.write('agentImage', self.values[16][1])
-        elif value == "Max Search Distance":
-            self.values[17][1] = self.getUserInputInt(self.values[17][1], self.valueRects[17].topright)
-            if self.values[17][1] < 10:
-                self.values[17][1] = 10
-            if self.values[17][1] > 5000:
-                self.values[17][1] = 5000
-            self.write('maxSearchDist', self.values[17][1])
-        elif value == "Number of Predators":
-            self.values[18][1] = self.getUserInputInt(self.values[18][1], self.valueRects[18].topright)
-            if self.values[18][1] > 15:
-                self.values[18][1] = 15
-            self.write("numPredators", self.values[18][1])
-        elif value == "Predators' Positions":
-            self.values[19][1] = self.getUserInputArray(self.values[19][1], self.valueRects[19].topright, 2)
-            self.write("predPositions", self.values[19][1])
         elif value == "Record All":
-            self.values[20][1] = self.getUserInputBool(self.values[20][1], self.valueRects[20].topright, not self.values[20][1])
-            self.write("recordAll", self.values[20][1])
+            self.values[13][1] = self.getUserInputBool(self.values[13][1], self.valueRects[13].topright, str(not self.values[13][1]))
+            self.write("recordAll", self.values[13][1])
+        elif value == "Default Site Radius":
+            self.values[14][1] = self.getUserInputInt(self.values[14][1], self.valueRects[14].topright)
+            if self.values[14][1] > 100:
+                self.values[14][1] = 100
+            if self.values[14][1] < 5:
+                self.values[14][1] = 5
+            self.write('siteRadius', self.values[14][1])
+        elif value == "Site No Closer Than":
+            self.values[15][1] = self.getUserInputInt(self.values[15][1], self.valueRects[15].topright)
+            if self.values[15][1] >= self.values[16][1]:
+                self.values[15][1] = self.values[16][1] - 10
+            if self.values[15][1] < 0:
+                self.values[15][1] = 0
+            self.write('siteNoCloserThan', self.values[15][1])
+        elif value == "Site No Farther Than":
+            self.values[16][1] = self.getUserInputInt(self.values[16][1], self.valueRects[16].topright)
+            if self.values[16][1] > self.values[18][1]:
+                self.values[16][1] = self.values[18][1]
+            if self.values[16][1] <= self.values[15][1]:
+                self.values[16][1] = self.values[15][1] + 10
+            self.write('siteNoFartherThan', self.values[16][1])
+        elif value == "Agent Image":
+            print(f"AgentImage: {self.values[17][1]}")
+            if self.values[17][1] == "resources/copter.png":
+                self.values[17][1] = self.getUserInputString(self.values[17][1], self.valueRects[17].topright, "resources/ant.png")
+            else:
+                self.values[17][1] = self.getUserInputString(self.values[17][1], self.valueRects[17].topright, "resources/copter.png")
+            if self.values[17][1] != "resources/copter.png" and self.values[17][1] != "resources/ant.png":
+                self.values[17][1] = "resources/ant.png"
+            self.write('agentImage', self.values[17][1])
+        elif value == "Max Search Distance":
+            self.values[18][1] = self.getUserInputInt(self.values[18][1], self.valueRects[18].topright)
+            if self.values[18][1] < 10:
+                self.values[18][1] = 10
+            if self.values[18][1] > 5000:
+                self.values[18][1] = 5000
+            self.write('maxSearchDist', self.values[18][1])
+        elif value == "Number of Predators":
+            self.values[19][1] = self.getUserInputInt(self.values[19][1], self.valueRects[19].topright)
+            if self.values[19][1] > 15:
+                self.values[19][1] = 15
+            self.write("numPredators", self.values[19][1])
+        elif value == "Predators' Positions":
+            self.values[20][1] = self.getUserInputArray(self.values[20][1], self.valueRects[20].topright, 2)
+            self.write("predPositions", self.values[20][1])
         self.setValuesWithJson()
 
     def write(self, key, value):
@@ -418,7 +429,7 @@ class Settings:
             if self.arrayStates.isComplete2:
                 # TODO: If the hubs are too close together, force them to be farther apart
                 for pos in self.userInputValue:
-                    self.drawSite(pos, self.values[13][1], -1)
+                    self.drawSite(pos, self.values[14][1], -1)
             else:
                 self.drawSites(self.values[5][1], -1)
         elif self.selectedRect == self.valueRects[6]:  # Hub Radii
@@ -430,7 +441,7 @@ class Settings:
         elif self.selectedRect == self.valueRects[9]:  # Site Positions
             if self.arrayStates.isComplete2:
                 for pos in self.userInputValue:
-                    self.drawSite(pos, self.values[13][1], 200)
+                    self.drawSite(pos, self.values[14][1], 200)
             else:
                 self.drawSites(self.values[9][1], 200)
         elif self.selectedRect == self.valueRects[10]:  # Site Qualities
@@ -443,23 +454,24 @@ class Settings:
                 Display.drawLine(Display.screen, (220, 0, 0), [4, 24], [25, 5], adjust=False)
             else:
                 Display.drawCircle(Display.screen, (220, 0, 0), [15, 15], 10, adjust=False)
-        elif self.selectedRect == self.valueRects[13]:  # Default Site Radius
+        elif self.selectedRect == self.valueRects[14]:  # Default Site Radius
             self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.userInputValue, 200)
-        elif self.selectedRect == self.valueRects[14]:  # Site No Farther Than
-            self.drawArea(COMMIT_COLOR, self.values[15][1])
+        elif self.selectedRect == self.valueRects[15]:  # Site No Farther Than
+            self.drawArea(COMMIT_COLOR, self.values[16][1])
             self.drawArea(ASSESS_COLOR, self.userInputValue)
-        elif self.selectedRect == self.valueRects[15]:  # Site No Closer Than
+        elif self.selectedRect == self.valueRects[16]:  # Site No Closer Than
             self.drawArea(COMMIT_COLOR, self.userInputValue)
-            self.drawArea(ASSESS_COLOR, self.values[14][1])
-        elif self.selectedRect == self.valueRects[16]:  # Agent Image
+            self.drawArea(ASSESS_COLOR, self.values[15][1])
+        elif self.selectedRect == self.valueRects[17]:  # Agent Image
             self.drawAgents()
-        elif self.selectedRect == self.valueRects[17]:  # Max Search Distance
+        elif self.selectedRect == self.valueRects[18]:  # Max Search Distance
             self.drawArea(SEARCH_COLOR, self.userInputValue)
-        elif self.selectedRect == self.valueRects[18]:  # Number of Predators
+        elif self.selectedRect == self.valueRects[19]:  # Number of Predators
             self.drawPredators(self.userInputValue)
+        # TODO: Predator's positions
 
     def drawConvergenceFraction(self, fraction):
-        AgentDisplay.agentImage = self.values[16][1]
+        AgentDisplay.agentImage = self.values[17][1]
         image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
         w = image.get_width() * 5
         h = image.get_height() * 20
@@ -493,50 +505,50 @@ class Settings:
 
     def drawSites(self, positions, quality):
         for pos in positions:
-            self.drawSite(pos, self.values[13][1], quality)
+            self.drawSite(pos, self.values[14][1], quality)
 
     def drawNumSites(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(self.userInputValue):
-            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
+            y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.values[13][1] + 10)
-            self.drawSite([x, y], self.values[13][1], quality)
+                x += 2 * (self.values[14][1] + 10)
+            self.drawSite([x, y], self.values[14][1], quality)
 
     def drawSitesRadii(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
-            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
+            y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.values[13][1] + 10)
+                x += 2 * (self.values[14][1] + 10)
             self.drawSite([x, y], self.userInputValue[i], quality)
 
     def drawSitesCounts(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
-            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
+            y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.values[13][1] + 10)
-            self.drawSite([x, y], self.values[13][1], quality, self.userInputValue[i])
+                x += 2 * (self.values[14][1] + 10)
+            self.drawSite([x, y], self.values[14][1], quality, self.userInputValue[i])
 
     def drawSitesQualities(self):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[13][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
-            y = 2 * (i % h) * (self.values[13][1] + 10) + (self.values[3][1] * 3)
+            y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
-                x += 2 * (self.values[13][1] + 10)
-            self.drawSite([x, y], self.values[13][1], self.userInputValue[i])
+                x += 2 * (self.values[14][1] + 10)
+            self.drawSite([x, y], self.values[14][1], self.userInputValue[i])
 
     def drawAgents(self):  # TODO: Make images selectable
         for i, imgFile in enumerate(AGENT_IMAGES):
             pos = [Display.origWidth / 2 + i * 30, Display.origHeight / 2]
             AgentDisplay.agentImage = imgFile
             image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
-            if imgFile != self.values[16][1]:
+            if imgFile != self.values[17][1]:
                 Display.drawDownArrow([pos[0] + image.get_width() / 2, pos[1]], BORDER_COLOR, False)
             Display.blitImage(Display.screen, image, pos, False)
 
@@ -545,7 +557,7 @@ class Settings:
         surf = pygame.Surface((Display.origWidth, Display.origHeight), pygame.SRCALPHA)
         Display.drawCircle(surf, fadedColor, [Display.origWidth / 2, Display.origHeight / 2], radius)
         Display.blitImage(Display.screen, surf, (0, 0), False)
-        self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.values[13][1], -1)
+        self.drawSite([Display.origWidth / 2, Display.origHeight / 2], self.values[15][1], -1)
 
     @staticmethod
     def drawPredators(numPredators):

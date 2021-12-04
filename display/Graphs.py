@@ -51,22 +51,28 @@ class SimulationGraphs:
         self.y += self.fontSize
 
     def write(self, words):
+        """ Write the given words on the screen starting where the x and y coordinates are set """
         img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (self.x, self.y))
 
     def write2(self, words):
+        """ Write the given words on the screen starting where the second x and y coordinates are set """
         img = self.font.render(words, True, WORDS_COLOR).convert_alpha()
         Display.screen.blit(img, (self.x2, self.y))
 
     def write4(self, words, selected, box):
+        """ Write the given words on the screen in the given box and change the color if it is selected """
         color = WORDS_COLOR
         if selected:
             color = SCREEN_COLOR
+        if box.collidepoint(pygame.mouse.get_pos()):
+            color = SEARCH_COLOR
         img = self.font.render(words, True, color).convert_alpha()
         Display.screen.blit(img, (box.centerx - (img.get_width() / 2),
                                   box.centery - (img.get_height() / 2)))
 
     def drawStateGraph(self, states):
+        """ Draw the graph showing the number of agents in each state """
         if self.shouldDrawGraphs and Display.drawFarAgents:
             self.y = GRAPHS_TOP_LEFT[1]
             pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (self.fontSize - 1) * len(states) + (self.fontSize * 2.4)), 1)
@@ -81,6 +87,7 @@ class SimulationGraphs:
             self.incrementY()
 
     def drawPhaseGraph(self, phases):
+        """ Draw the graph showing the number of agents in each phase """
         if self.shouldDrawGraphs and Display.drawFarAgents:
             pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (self.fontSize - 1) * len(phases) + (self.fontSize * 2.1)), 1)
             self.write("PHASES:")
@@ -94,6 +101,7 @@ class SimulationGraphs:
             self.incrementY()
 
     def drawPredictionsGraph(self, siteList):
+        """ Draw the graph showing the probability of converging to each site and the predicted time """
         pass
         # if self.shouldDrawGraphs:
         #     top = self.y - 3
@@ -116,6 +124,7 @@ class SimulationGraphs:
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):
+        """ Draw boxes that can be selected to change what objects are selectable """
         if self.shouldDrawGraphs:
             self.drawSelectBox(shouldSelectAgents, self.selectAgentsRect)
             self.write4("Select Agents", shouldSelectAgents, self.selectAgentsRect)
@@ -138,15 +147,13 @@ class SimulationGraphs:
                 self.write4("Options", shouldShowOptions, self.showOptionsRect)
 
     def drawSelectBox(self, shouldSelect, rectangle):
+        """ Draw a box that is either selected or not """
         color = self.getShouldSelectColor(shouldSelect)
-        pygame.draw.rect(Display.screen, color, rectangle)
+        Display.drawRect(Display.screen, color, rectangle, adjust=False)
 
     @staticmethod
     def getShouldSelectColor(shouldSelect):
-        if shouldSelect:
-            return WORDS_COLOR
-        else:
-            return BORDER_COLOR
+        return WORDS_COLOR if shouldSelect else BORDER_COLOR
 
     def collidesWithAnyButton(self, position):
         return self.collidesWithSelectAgentsButton(position) or \
@@ -233,19 +240,28 @@ class SimulationGraphs:
         Display.screen.blit(img, (left * 2 - img.get_width() / 2, top - 60))
         left = left + leftMargin
         if self.pageNumber == 0:
+            color = WORDS_COLOR
+            if self.collidesWithNextButton(pygame.mouse.get_pos()):
+                color = SEARCH_COLOR
             self.drawOptionsPage0(left, top, height, leftMargin, x)
-            nextImg = self.font.render("NEXT >", True, WORDS_COLOR).convert_alpha()
+            nextImg = self.font.render("NEXT >", True, color).convert_alpha()
             self.nextButton = pygame.Rect(x * 3 / 4 - 2 * nextImg.get_width(), top + height - 25,
                                           nextImg.get_width(), nextImg.get_height())
             Display.screen.blit(nextImg, self.nextButton.topleft)
         else:
+            color = WORDS_COLOR
+            if self.collidesWithPreviousButton(pygame.mouse.get_pos()):
+                color = SEARCH_COLOR
             self.drawOptionsPage1(left, top, height)
-            prevImg = self.font.render("< PREVIOUS", True, WORDS_COLOR).convert_alpha()
+            prevImg = self.font.render("< PREVIOUS", True, color).convert_alpha()
             self.previousButton = pygame.Rect(x * 1 / 4 + prevImg.get_width() / 2, top + height - 25,
                                               prevImg.get_width(), prevImg.get_height())
             Display.screen.blit(prevImg, self.previousButton.topleft)
 
-        closeImg = self.font.render("CLOSE", True, WORDS_COLOR).convert_alpha()
+        color = WORDS_COLOR
+        if self.collidesWithCloseButton(pygame.mouse.get_pos()):
+            color = SEARCH_COLOR
+        closeImg = self.font.render("CLOSE", True, color).convert_alpha()
         self.closeButton = pygame.Rect(x * 3 / 4 - 2 * closeImg.get_width(), top + 10,
                                        closeImg.get_width(), closeImg.get_height())
         Display.screen.blit(closeImg, self.closeButton.topleft)
@@ -445,16 +461,22 @@ class SimulationGraphs:
 
     def drawPauseButton(self):
         if self.shouldDrawGraphs:
-            pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
-            pygame.draw.rect(Display.screen, WORDS_COLOR, (self.pauseButton.left + 4, self.pauseButton.top + 3,
-                                                           self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
-            pygame.draw.rect(Display.screen, WORDS_COLOR, (self.pauseButton.left + 11, self.pauseButton.top + 3,
-                                                           self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
+            borderRect = pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
+            color = WORDS_COLOR
+            if borderRect.collidepoint(pygame.mouse.get_pos()):
+                color = SEARCH_COLOR
+            pygame.draw.rect(Display.screen, color, (self.pauseButton.left + 4, self.pauseButton.top + 3,
+                                                     self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
+            pygame.draw.rect(Display.screen, color, (self.pauseButton.left + 11, self.pauseButton.top + 3,
+                                                     self.pauseButton.width / 4, self.pauseButton.height / 3 * 2 + 1))
 
     def drawPlayButton(self):
         if self.shouldDrawGraphs:
-            pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
-            pygame.draw.polygon(Display.screen, WORDS_COLOR, [[self.pauseButton.left + 4, self.pauseButton.top + 4],
+            borderRect = pygame.draw.rect(Display.screen, BORDER_COLOR, self.pauseButton, 1)
+            color = WORDS_COLOR
+            if borderRect.collidepoint(pygame.mouse.get_pos()):
+                color = SEARCH_COLOR
+            pygame.draw.polygon(Display.screen, color, [[self.pauseButton.left + 4, self.pauseButton.top + 4],
                                                               [self.pauseButton.right - 4, self.pauseButton.centery],
                                                               [self.pauseButton.left + 4, self.pauseButton.bottom - 4]])
 

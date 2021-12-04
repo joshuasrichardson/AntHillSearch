@@ -31,26 +31,25 @@ class Simulation(ABC):
         # If the the settings in the display/mainmenu/settings.json file should override the values passed in,
         # update all the settings.
         convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
-            hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius, \
-            siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, predPositions = \
+            hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, recordAll, \
+            siteRadius, siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, predPositions = \
             self.applyUserSettings(
                 [convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations,
-                 hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, siteRadius,
-                 siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, PRED_POSITIONS], useJson)
+                 hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord,
+                 RECORD_ALL, siteRadius, siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators,
+                 PRED_POSITIONS], useJson)
         # Set up the screen, agent image, and important boolean variables
         self.setDisplayVariables(agentImage)
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         # Set whether the hubs can move and how far away sites can be from the hubs.
         SiteSettings.setSettings(siteNoCloserThan, siteNoFartherThan, hubCanMove)
         self.timeRanOut = False  # Whether there is no more time left in the interface
-        self.simulationDuration = simulationDuration
-        self.timer = SimulationTimer(self.simulationDuration,
-                                     self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
+        self.simulationDuration = simulationDuration  # Time of the simulation if agents don't converge to a site
+        self.timer = SimulationTimer(self.simulationDuration, self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii, siteRadius, numPredators, predPositions)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
-        self.chosenHomes = self.initChosenHomes(
-            numHubs)  # The site that most of the agents are assigned to when the interface ends
+        self.chosenHomes = self.initChosenHomes(numHubs)  # The site that most of the agents are assigned to when the interface ends
         AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily,
                                   commitSpeedFactor)
@@ -60,7 +59,7 @@ class Simulation(ABC):
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
         self.initializeAgentList()  # Create the agents that will be used in the interface
-        self.remainingTime = self.simulationDuration
+        self.remainingTime = self.simulationDuration  # Time left in the simulation
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,

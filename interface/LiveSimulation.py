@@ -31,7 +31,7 @@ class LiveSimulation(Simulation, ABC):
                          siteNoCloserThan, siteNoFartherThan, hubCanMove, homogenousAgents, minSpeed,
                          maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
                          maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor, numPredators=numPredators,
-        useJson=useJson)
+                         useJson=useJson)
         self.previousSendTime = datetime.datetime.now()
         self.useRestAPI = useRestAPI
 

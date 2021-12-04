@@ -40,41 +40,42 @@ def createScreen():
     return screen
 
 
-def writeBigCenter(surface, words):
-    writeCenter(surface, words, LARGE_FONT_SIZE)
-
-
-def writeCenter(surface, words, fontSize):
+def writeCenter(surface, words, fontSize=LARGE_FONT_SIZE, color=WORDS_COLOR):
+    """ Writes words in middle of the surface with the given font size and color """
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
-    img = font.render(f"{words}", True, WORDS_COLOR).convert_alpha()
+    img = font.render(f"{words}", True, color).convert_alpha()
     surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60))
     del img
 
 
-def writeCenterPlus(surface, words, fontSize, y):
+def writeCenterPlus(surface, words, fontSize, y, color=WORDS_COLOR):
+    """ Writes words in middle of the surface (x-axis) with the given font size and color in the given y position """
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
-    img = font.render(f"{words}", True, WORDS_COLOR).convert_alpha()
+    img = font.render(f"{words}", True, color).convert_alpha()
     return surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
                         surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
 
 
 def write(surface, words, fontSize, x, y, color=WORDS_COLOR):
+    """ Writes words on the surface with the given font size and color in the given position """
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
     img = font.render(f"{words}", True, color).convert_alpha()
     return surface.blit(img, (x, y))
 
 
 def drawPause(surface):
-    writeBigCenter(surface, "Paused")
+    """ Writes "Paused" in the middle of the screen"""
+    writeCenter(surface, "Paused")
 
 
 def drawFinish(surface, results):
+    """ Tells the user the simulation has ended and shows some of the results on the screen """
     surf = pygame.Surface((origWidth, origHeight), pygame.SRCALPHA)
     pygame.draw.rect(surf, (225, 220, 190, 200), (0, 0, origWidth, origHeight))  # Draw partially transparent surface over the screen
     surface.blit(surf, (0, 0))
 
-    writeBigCenter(surface, "Complete")
+    writeCenter(surface, "Complete")
 
     x = origWidth * 4 / 9
     y = origHeight / 2 - 2 * FONT_SIZE
