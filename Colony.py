@@ -17,8 +17,6 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-# FIXME: Recording reports that all agents survived no matter how many died.
-
 # Style changes
 # TODO: Draw small lines around the hubs showing which directions ants left or came back
 # TODO: Mark a site that has been converged to when there are multiple hubs
@@ -41,7 +39,7 @@ def main():
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
-        # runEmpiricalTestingInterface(25)  # The interface that does not draw and is faster than the others.
+        # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
     except GameOver:
         pass
 

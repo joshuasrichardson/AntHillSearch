@@ -27,7 +27,7 @@ SETTING_NAMES = ["CONVERGENCE_FRACTION", "SIM_DURATION", "FONT_SIZE", "LARGE_FON
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such
 
-NUM_HUBS = 2  # The number of starting homes or the number of colonies
+NUM_HUBS = 1  # The number of starting homes or the number of colonies
 HUB_LOCATIONS = []  # A list of positions of where the original homes are located
 HUB_RADII = []  # A list of the radius of the hubs
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
@@ -36,7 +36,7 @@ HUB_RADII = []  # A list of the radius of the hubs
 HUB_AGENT_COUNTS = [100]  # Number of agents starting out at each hub
 
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
-NUM_SITES = 8      # Number of total sites
+NUM_SITES = 5      # Number of total sites
 # Setting these, especially the good ones, closer to the hub location makes the interface end sooner
 # [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100], [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
 SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a position here,
@@ -90,9 +90,9 @@ HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outsi
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_CLOSER_THAN = 120  # How close to hub can a default site be?
+SITE_NO_CLOSER_THAN = 300  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_FARTHER_THAN = 300  # How far away from hub can a default site be?
+SITE_NO_FARTHER_THAN = 1000  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 SHOULD_DRAW_FOG = True  # Whether unexplored areas will be covered in fog
 

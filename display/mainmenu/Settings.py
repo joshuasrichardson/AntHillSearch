@@ -8,6 +8,8 @@ from ColonyExceptions import GameOver
 from display import Display, SiteDisplay, AgentDisplay, PredatorDisplay
 from Constants import *
 from display.mainmenu.ArrayStateMachine import ArrayStateMachine
+from display.mainmenu.PercentageSetting import PercentageSetting
+from display.mainmenu.IntegerSetting import IntegerSetting
 from model.builder.SiteBuilder import getNewSite
 
 
@@ -16,6 +18,27 @@ class Settings:
     Not all settings are able to be changed here. See Constants.py for more settings. """
 
     def __init__(self):
+        self.valuesNames = {'convergenceFraction': "Convergence Fraction",
+                            'simDuration': "Simulation Duration",
+                            'fontSize': "Font Size",
+                            'largeFontSize': "Large Font Size",
+                            'numHubs': "Number of Hubs",
+                            'hubLocations': "Hub Locations",
+                            'hubRadii': "Hub Radii",
+                            'hubAgentCounts': "Hub Agent Counts",
+                            'numSites': "Number of Sites",
+                            'sitePositions': "Site Positions",
+                            'siteQualities': "Site Qualities",
+                            'siteRadii': "Site Radii",
+                            'shouldRecord': "Should Record",
+                            'recordAll': "Record All",
+                            'siteRadius': "Default Site Radius",
+                            'siteNoCloserThan': "Site No Closer Than",
+                            'siteNoFartherThan': "Site No Farther Than",
+                            'agentImage': "Agent Image",
+                            'maxSearchDist': "Max Search Distance",
+                            'numPredators': "Number of Predators",
+                            'predPositions': "Predators' Positions"}
         # A list of values that can be updated by the user
         self.values = [["Convergence Fraction", CONVERGENCE_FRACTION],
                        ["Simulation Duration", SIM_DURATION],
@@ -38,6 +61,7 @@ class Settings:
                        ["Max Search Distance", MAX_SEARCH_DIST],
                        ["Number of Predators", NUM_PREDATORS],
                        ["Predators' Positions", PRED_POSITIONS]]
+
         # The rectangles that make values selectable
         self.valueRects = [pygame.Rect(0, 0, 0, 0) for _ in range(len(self.values))]
         self.backButton = pygame.Rect(0, 0, 0, 0)  # Button to go back to the main menu
@@ -48,6 +72,23 @@ class Settings:
         self.setValuesWithJson()  # Set the values on the screen to match the values in settings.json
         self.arrayStates = None  # Used for handling input that should be arrays
         self.selectedRect = None  # The rectangle that has most recently been selected
+
+        # self.settings = [PercentageSetting("convergenceFraction", "Convergence Fraction", CONVERGENCE_FRACTION,
+        #                                    Display.write(Display.screen, "Convergence Fraction: 100%",
+        #                                                  int(self.data['fontSize'] * 1.5), 500, 100),
+        #                                    self.drawConvergenceFraction, self),
+        #                  IntegerSetting("simDuration", "Simulation Duration", SIM_DURATION,
+        #                                 Display.write(Display.screen, "Simulation Duration:",
+        #                                               int(self.data['fontSize'] * 1.5), 500, 120),
+        #                                 self.showSimDuration, self),
+        #                  IntegerSetting("fontSize", "Font Size", FONT_SIZE,
+        #                                 Display.write(Display.screen, "Font Size:",
+        #                                               int(self.data['fontSize'] * 1.5), 500, 140),
+        #                                 self.showFontSize, self),
+        #                  IntegerSetting("largeFontSize", "Large Font Size", LARGE_FONT_SIZE,
+        #                                 Display.write(Display.screen, "Large Font Size:",
+        #                                               int(self.data['fontSize'] * 1.5), 500, 160),
+        #                                 self.showLargeFontSize, self)]
 
     def setValuesWithJson(self):
         """ Set the values on the screen to match the values in settings.json """
@@ -75,19 +116,35 @@ class Settings:
     def showSettings(self):
         """ Write each value on the screen """
         x = 200
-        for i, value in enumerate(self.values):
-            self.valueRects[i] = Display.write(Display.screen, value[0] + ": " + str(value[1]),
-                                               int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3)
+        # for i, value in enumerate(self.values):
+        #     self.valueRects[i] = Display.write(Display.screen, value[0] + ": " + str(value[1]),
+        #                                        int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3)
+        #     if self.valueRects[i].collidepoint(pygame.mouse.get_pos()):
+        #         Display.write(Display.screen, value[0] + ": " + str(value[1]),
+        #                       int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3, SEARCH_COLOR)
+        for setting in self.settings:
+            Display.write(Display.screen, f"{setting.name}: {setting.value}", int(self.data['fontSize'] * 1.5),
+                          setting.rect.left, setting.rect.top)
+            if setting.rect.collidepoint(pygame.mouse.get_pos()):
+                Display.write(Display.screen, f"{setting.name}: {setting.value}", int(self.data['fontSize'] * 1.5),
+                              setting.rect.left, setting.rect.top, SEARCH_COLOR)
+
+        for i, key in enumerate(sorted(self.data)):
+            self.valueRects[i] = Display.write(Display.screen, self.valuesNames[key] + ": " + str(self.data[key]),
+                                               int(self.data['fontSize'] * 1.5), x,
+                                               100 + i * self.data['fontSize'] * 2.3)
             if self.valueRects[i].collidepoint(pygame.mouse.get_pos()):
-                Display.write(Display.screen, value[0] + ": " + str(value[1]),
-                              int(self.values[2][1] * 1.5), x, 100 + i * self.values[2][1] * 2.3, SEARCH_COLOR)
+                Display.write(Display.screen, self.valuesNames[key] + ": " + str(self.data[key]),
+                              int(self.data['fontSize'] * 1.5), x, 100 + i * self.data['fontSize'] * 2.3, SEARCH_COLOR)
 
     def drawBackButton(self):
         """ Draw the button that allows the user to return to the main menu """
-        backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True, WORDS_COLOR).convert_alpha()
+        backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True,
+                                                                                     WORDS_COLOR).convert_alpha()
         self.backButton = pygame.Rect(50, 50, backImg.get_width(), backImg.get_height())
         if self.backButton.collidepoint(pygame.mouse.get_pos()):
-            backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True, SEARCH_COLOR).convert_alpha()
+            backImg = pygame.font.SysFont('Comic Sans MS', self.values[2][1] * 2).render("<- BACK", True,
+                                                                                         SEARCH_COLOR).convert_alpha()
         Display.screen.blit(backImg, self.backButton.topleft)
 
     def handleEvents(self):
@@ -106,6 +163,12 @@ class Settings:
         """ What to do when the mouse button has been clicked """
         if self.backButton.collidepoint(pos):
             return False
+        for setting in self.settings:
+            if setting.rect.collidepoint(pos):
+                self.selectedRect = setting.rect
+                setting.getUserInput(setting.value, setting.rect.topright)
+                self.write(setting.key, setting.value)
+                break
         for i, rect in enumerate(self.valueRects):
             if rect.collidepoint(pos):
                 self.selectedRect = rect
@@ -130,10 +193,13 @@ class Settings:
         return False
 
     def changeValue(self, value):
+        # for setting in self.settings:
+        #     setting.getUserInput(setting.value, setting.rect.topright)
+        #     self.write(setting.key, setting.value)
         if value == "Convergence Fraction":
             self.values[0][1] = self.getUserInputPercent(self.values[0][1], self.valueRects[0].topright)
             self.write('convergenceFraction', self.values[0][1])
-        elif value == "Simulation Duration":
+        if value == "Simulation Duration":
             self.values[1][1] = self.getUserInputInt(self.values[1][1], self.valueRects[1].topright)
             if self.values[1][1] > MAX_TIME:
                 self.values[1][1] = MAX_TIME
@@ -217,10 +283,12 @@ class Settings:
                     self.values[11][1][i] = 5
             self.write('siteRadii', self.values[11][1])
         elif value == "Should Record":
-            self.values[12][1] = self.getUserInputBool(self.values[12][1], self.valueRects[12].topright, str(not self.values[12][1]))
+            self.values[12][1] = self.getUserInputBool(self.values[12][1], self.valueRects[12].topright,
+                                                       str(not self.values[12][1]))
             self.write('shouldRecord', self.values[12][1])
         elif value == "Record All":
-            self.values[13][1] = self.getUserInputBool(self.values[13][1], self.valueRects[13].topright, str(not self.values[13][1]))
+            self.values[13][1] = self.getUserInputBool(self.values[13][1], self.valueRects[13].topright,
+                                                       str(not self.values[13][1]))
             self.write("recordAll", self.values[13][1])
         elif value == "Default Site Radius":
             self.values[14][1] = self.getUserInputInt(self.values[14][1], self.valueRects[14].topright)
@@ -246,9 +314,11 @@ class Settings:
         elif value == "Agent Image":
             print(f"AgentImage: {self.values[17][1]}")
             if self.values[17][1] == "resources/copter.png":
-                self.values[17][1] = self.getUserInputString(self.values[17][1], self.valueRects[17].topright, "resources/ant.png")
+                self.values[17][1] = self.getUserInputString(self.values[17][1], self.valueRects[17].topright,
+                                                             "resources/ant.png")
             else:
-                self.values[17][1] = self.getUserInputString(self.values[17][1], self.valueRects[17].topright, "resources/copter.png")
+                self.values[17][1] = self.getUserInputString(self.values[17][1], self.valueRects[17].topright,
+                                                             "resources/copter.png")
             if self.values[17][1] != "resources/copter.png" and self.values[17][1] != "resources/ant.png":
                 self.values[17][1] = "resources/ant.png"
             self.write('agentImage', self.values[17][1])
@@ -413,16 +483,26 @@ class Settings:
     def showUserInput(self, pos):
         Display.write(Display.screen, self.userInput, int(self.values[2][1] * 1.5), pos[0], pos[1], ASSESS_COLOR)
 
+    def showSimDuration(self, value):
+        Display.write(Display.screen, self.userInputValue, int(self.values[2][1] * 1.5), Display.origWidth - 100, 50)
+
+    def showFontSize(self, value):
+        Display.writeCenter(Display.screen, "Simulation size", self.userInputValue)
+        Display.writeCenterPlus(Display.screen, "Settings size", int(self.userInputValue * 1.5),
+                                int(self.userInputValue * 1.5))
+
+    def showLargeFontSize(self, value):
+        Display.writeCenter(Display.screen, "This size", self.userInputValue)
+
     def showUserInputVisuals(self):
         if self.selectedRect == self.valueRects[0]:  # Convergence Fraction
             self.drawConvergenceFraction(self.userInputValue)
         elif self.selectedRect == self.valueRects[1]:  # Simulation duration
-            Display.write(Display.screen, self.userInputValue, int(self.values[2][1] * 1.5), Display.origWidth - 100, 50)
+            self.showSimDuration(self.userInputValue)
         elif self.selectedRect == self.valueRects[2]:  # Font size
-            Display.writeCenter(Display.screen, "Simulation size", self.userInputValue)
-            Display.writeCenterPlus(Display.screen, "Settings size", int(self.userInputValue * 1.5), int(self.userInputValue * 1.5))
+            self.showFontSize(self.userInputValue)
         elif self.selectedRect == self.valueRects[3]:  # Large font size
-            Display.writeCenter(Display.screen, "This size", self.userInputValue)
+            self.showLargeFontSize(self.userInputValue)
         elif self.selectedRect == self.valueRects[4]:  # Num hubs
             self.drawNumSites(-1)
         elif self.selectedRect == self.valueRects[5]:  # Hub Positions
@@ -509,7 +589,8 @@ class Settings:
 
     def drawNumSites(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (
+                2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(self.userInputValue):
             y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
@@ -518,7 +599,8 @@ class Settings:
 
     def drawSitesRadii(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (
+                2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
             y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
@@ -527,7 +609,8 @@ class Settings:
 
     def drawSitesCounts(self, quality):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (
+                2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
             y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
@@ -536,7 +619,8 @@ class Settings:
 
     def drawSitesQualities(self):
         x = Display.origWidth / 2
-        h = int((Display.origHeight - self.values[3][1] * 3) / (2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
+        h = int((Display.origHeight - self.values[3][1] * 3) / (
+                2 * (self.values[14][1] + 10)))  # The number of sites that can fit in a column
         for i in range(len(self.userInputValue)):
             y = 2 * (i % h) * (self.values[14][1] + 10) + (self.values[3][1] * 3)
             if i % h == 0 and i > 0:
