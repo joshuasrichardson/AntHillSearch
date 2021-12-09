@@ -160,8 +160,8 @@ class Recorder:
         self.siteMarkerArgs = []
         self.siteMarkerNums = []
 
-    def write(self):
-        if RECORD_ALL:
+    def write(self, recordAll):
+        if recordAll:
             with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
                 json.dump(self.data, file)
 

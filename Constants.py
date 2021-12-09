@@ -8,9 +8,10 @@ SIM_DURATION = 120  # Time of the interface in seconds
 
 RESULTS_DIR = "recording/results/"  # The directory that stores the results
 
-TRIAL_SETTINGS = ["display/mainmenu/trial1settings.json",
-                  "display/mainmenu/trial2settings.json",
-                  "display/mainmenu/trial3settings.json"]  # The files that have the settings for user trials
+SETTINGS_FILE_NAME = "display/mainmenu/settings/settings.json"
+TRIAL_SETTINGS = ["display/mainmenu/settings/trial1settings.json",
+                  "display/mainmenu/settings/trial2settings.json",
+                  "display/mainmenu/settings/trial3settings.json"]  # The files that have the settings for user trials
 
 # Keys for settings that can be changed while the program is running
 SETTING_KEYS = ['convergenceFraction', 'simDuration', 'fontSize', 'largeFontSize', 'numHubs', 'hubLocations',
@@ -92,7 +93,7 @@ SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 300  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_FARTHER_THAN = 1000  # How far away from hub can a default site be?
+SITE_NO_FARTHER_THAN = 800  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 SHOULD_DRAW_FOG = True  # Whether unexplored areas will be covered in fog
 

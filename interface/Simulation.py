@@ -38,6 +38,7 @@ class Simulation(ABC):
                  hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord,
                  RECORD_ALL, siteRadius, siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators,
                  PRED_POSITIONS], useJson)
+        self.recordAll = recordAll
         # Set up the screen, agent image, and important boolean variables
         self.setDisplayVariables(agentImage)
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
@@ -170,7 +171,7 @@ class Simulation(ABC):
     def recordDisplays(self):
         if self.shouldRecord:
             self.recorder.recordExecutedCommands(self.graphs.executedCommands)
-            if RECORD_ALL:
+            if self.recordAll:
                 self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
                 self.recorder.recordTime(self.timer.getRemainingTime())
                 self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
@@ -211,7 +212,7 @@ class Simulation(ABC):
 
     def finish(self):
         if self.shouldRecord:
-            self.write()
+            self.write(self.recordAll)
         self.determineChosenHomes()
         results = self.printResults()
         if Display.shouldDraw:
@@ -223,7 +224,7 @@ class Simulation(ABC):
     def save(self):
         pass
 
-    def write(self):
+    def write(self, recordAll):
         pass
 
     def determineChosenHomes(self):
@@ -310,19 +311,20 @@ class Simulation(ABC):
     def applyUserSettings(retValues, useJson):
         if useJson:
             try:
-                with open('display/mainmenu/settings.json', 'r') as file:
+                with open(SETTINGS_FILE_NAME, 'r') as file:
                     data = json.load(file)
                 for i, key in enumerate(SETTING_KEYS):
                     if key in data:
                         try:
-                            exec(f"{SETTING_NAMES[i]} = {data[key]}")
+                            print(f"{SETTING_NAMES[i]} = {data[key]}")
+                            exec(f"global {SETTING_NAMES[i]}\n{SETTING_NAMES[i]} = {data[key]}")
                         except NameError:
                             exec(f"{SETTING_NAMES[i]} = \"{data[key]}\"")
                         retValues[i] = data[key]
             except FileNotFoundError:
-                print("File 'mainmenu/settings.json' Not Found")
+                print(f"File '{SETTINGS_FILE_NAME}' Not Found")
                 with open('display/mainmenu/settings.json', 'w'):
                     print("Created 'mainmenu/settings.json'")
             except json.decoder.JSONDecodeError:
-                print("File 'mainmenu/settings.json' is empty")
+                print(f"File '{SETTINGS_FILE_NAME}' is empty")
         return retValues

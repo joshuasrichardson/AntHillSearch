@@ -4,9 +4,9 @@ import pygame.display
 from pygame import MOUSEBUTTONUP, QUIT
 
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE, TRIAL_SETTINGS, SEARCH_COLOR
+from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE, TRIAL_SETTINGS, SEARCH_COLOR, SETTINGS_FILE_NAME
 from display import Display
-from display.mainmenu.Settings import Settings
+from display.mainmenu.settings.Settings import Settings
 from display.mainmenu.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 from recording.Recorder import getMostRecentRecording
@@ -100,7 +100,7 @@ class StartUpDisplay:
     @staticmethod
     def setSettings(trialSetting):
         """ Copy the current trial's settings to the settings file that will be used in the simulation """
-        with open(trialSetting, 'r') as trialFile, open('display/mainmenu/settings.json', 'w') as currentSettings:
+        with open(trialSetting, 'r') as trialFile, open(SETTINGS_FILE_NAME, 'w') as currentSettings:
             currentSettings.write(trialFile.read())
 
     def play(self):

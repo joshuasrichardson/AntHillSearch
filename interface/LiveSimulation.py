@@ -68,7 +68,7 @@ class LiveSimulation(Simulation, ABC):
             self.world.addAgent(agent)
 
     def updateSites(self):
-        if self.shouldRecord and RECORD_ALL:
+        if self.shouldRecord and self.recordAll:
             for site in self.world.siteList:
                 self.recorder.recordSiteInfo(site)
 
@@ -90,7 +90,7 @@ class LiveSimulation(Simulation, ABC):
             agent.changeState(agentNeighbors)
             del agentNeighbors[:]
 
-        if self.shouldRecord and RECORD_ALL:
+        if self.shouldRecord and self.recordAll:
             self.recorder.recordAgentInfo(agent)
 
     def updatePredator(self, predator, agentRectList):
@@ -98,7 +98,7 @@ class LiveSimulation(Simulation, ABC):
         agentNeighbors = self.getNeighbors(predator, agentRectList)
         predator.attack(agentNeighbors)
 
-        if self.shouldRecord and RECORD_ALL:
+        if self.shouldRecord and self.recordAll:
             self.recorder.recordPredatorPosition(predator.pos)
             self.recorder.recordPredatorAngle(predator.angle)
 
@@ -145,8 +145,8 @@ class LiveSimulation(Simulation, ABC):
         if self.shouldRecord:
             self.recorder.save()
 
-    def write(self):
-        self.recorder.write()
+    def write(self, recordAll):
+        self.recorder.write(recordAll)
 
     def sendResults(self, chosenSites, simulationTime, deadAgents):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """

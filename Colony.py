@@ -27,6 +27,7 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Have ants avoid sites that have ants from other colonies?
 # TODO: Set site positions in settings by clicking where you want it to go.
 # TODO: Add an option to show all current settings in the settings tab
+# TODO: Be able to change things in settings without typing (dragging sites around, etc.)
 # TODO: Think about how to display predictions
 
 
