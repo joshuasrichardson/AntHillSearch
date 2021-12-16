@@ -24,6 +24,7 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 # TODO: Add table of contents to tutorial and make tutorial better
 
 # Additional features
+# TODO: Set checkpoint
 # TODO: Have ants avoid sites that have ants from other colonies?
 # TODO: Set site positions in settings by clicking where you want it to go.
 # TODO: Add an option to show all current settings in the settings tab
@@ -33,16 +34,15 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        # startUpScreen = StartUpDisplay(EngineerInterface)  # Start up display makes it look more like a game. Comes with a main menu.
-        startUpScreen = StartUpDisplay(UserInterface)
-        startUpScreen.run()
+        # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
+        # StartUpDisplay(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
-        # runEmpiricalTestingInterface(1)  # The interface that does not draw and is faster than the others.
+        runEmpiricalTestingInterface()  # The interface that does not draw and is faster than the others.
     except GameOver:
-        pass
+        exit(0)
 
 
 def runSimWithInterface(colony):
@@ -55,31 +55,39 @@ def runSimWithInterface(colony):
 
 
 def runEmpiricalTestingInterface(numSimulations=1):
-    chosenSiteQualities = []  # A list of the qualities of the sites that the agents from each hub converged to.
-    convergenceTimes = []  # A list of how long it took each colony to converge in seconds.
-    arrivals = []  # A list of the number of agents from each colony that arrived at their new site.
-    deaths = []  # A list of the number of deaths in each colony.
-    totals = []  # A list of the number of total agents in each colony.
-    for i in range(numSimulations):  # Run the simulation as many times as you want
-        print("Simulation " + str(i + 1) + ":")
-        print()
-        colony = EmpiricalTestingInterface(useRestAPI=False, useJson=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
-        # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
-        results = colony.runSimulation()  # Starts the interface
-        # Store results from each simulation so we can see a summary of all the simulations below.
-        chosenSiteQualities.append(results[0])
-        convergenceTimes.append(results[1])
-        arrivals.append(results[2])
-        deaths.append(results[3])
-        totals.append(results[4])
-        del colony
-        gc.collect()
+    try:
+        chosenSiteQualities = []  # A list of the qualities of the sites that the agents from each hub converged to.
+        convergenceTimes = []  # A list of how long it took each colony to converge in seconds.
+        chosenHomes = []  # A list of the homes the agents converged to.
+        deaths = []  # A list of the number of deaths in each colony.
+        totals = []  # A list of the number of total agents in each colony.
+        for i in range(numSimulations):  # Run the simulation as many times as you want
+            print(f"Simulation {i + 1}:")
+            colony = EmpiricalTestingInterface(useRestAPI=False, useJson=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+            # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
+            results = colony.runSimulation()  # Starts the interface
+            # Store results from each simulation so we can see a summary of all the simulations below.
+            chosenSiteQualities.append(results["qualities"])
+            convergenceTimes.append(results["simulationTime"])
+            chosenHomes.append(results["chosenHomes"])
+            deaths.append(results["deadAgents"])
+            totals.append(results["initialHubAgentCounts"])
+            del colony
+            gc.collect()
 
-    print(f"Qualities: {chosenSiteQualities}")
-    print(f"Durations: {convergenceTimes}")
-    print(f"Arrivals: {arrivals}")
-    print(f"Deaths: {deaths}")
-    print(f"Total Agents: {totals}")
+        arrivals = []
+        for i in range(len(chosenHomes)):
+            for j, home in enumerate(chosenHomes[i]):
+                arrivals.append(f"{home.agentCounts[j]}/{totals[i][j]}")
+
+        print(f"Qualities: {chosenSiteQualities}")
+        print(f"Durations: {convergenceTimes}")
+        print(f"Arrivals: {arrivals}")
+        print(f"Deaths: {deaths}")
+        print(f"Total Agents: {totals}")
+    except KeyboardInterrupt:
+        colony.timer.cancel()
+        raise GameOver("Simulations canceled by user")
 
 
 main()

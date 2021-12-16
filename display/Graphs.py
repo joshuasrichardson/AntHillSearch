@@ -6,11 +6,12 @@ from display import Display
 
 class SimulationGraphs:
 
-    def __init__(self, numAgents, fontSize, largeFontSize):
+    def __init__(self, numAgents, fontSize, largeFontSize, controlOptions=CONTROL_OPTIONS):
         self.executedCommands = []
         self.scrollIndex = -1
         self.pageNumber = 0
         self.remainingTime = 0
+        self.controlOptions = controlOptions
 
         self.fontSize = fontSize
         self.largeFontSize = largeFontSize
@@ -139,8 +140,9 @@ class SimulationGraphs:
                 self.drawSelectBox(shouldSelectSiteAgents, self.selectSitesAgentsRect)
                 self.write4("Select Sites Agents", shouldSelectSiteAgents, self.selectSitesAgentsRect)
 
-            self.drawSelectBox(commandSiteAgents, self.commandSiteAgentsRect)
-            self.write4("Command Site Agents", commandSiteAgents, self.commandSiteAgentsRect)
+            if len(self.controlOptions["siteOptions"]) > 5:  # If it's not the recording interface
+                self.drawSelectBox(commandSiteAgents, self.commandSiteAgentsRect)
+                self.write4("Command Site Agents", commandSiteAgents, self.commandSiteAgentsRect)
 
             if paused:
                 self.drawSelectBox(shouldShowOptions, self.showOptionsRect)
@@ -181,7 +183,8 @@ class SimulationGraphs:
         return self.selectSitesAgentsRect.collidepoint(position[0], position[1])
 
     def collidesWithCommandSiteAgentsButton(self, position):
-        return self.commandSiteAgentsRect.collidepoint(position[0], position[1])
+        return self.commandSiteAgentsRect.collidepoint(position[0], position[1]) \
+               and len(self.controlOptions["siteOptions"]) > 5
 
     def collidesWithOptionsButton(self, position):
         return self.showOptionsRect.collidepoint(position[0], position[1])
@@ -271,81 +274,13 @@ class SimulationGraphs:
         self.write4("Exit Simulation", False, self.exitButton)
 
     def drawOptionsPage0(self, left, top, height, leftMargin, x):
-        agentOptions = ['Select',
-                        'Wide Select',
-                        'Set Group',
-                        'Select Group',
-                        'Half',
-                        'Next',
-                        'Previous',
-                        'Speed Up',
-                        'Slow Down',
-                        'Move',
-                        'Assign to Site',
-                        'Avoid',
-                        'Set State',
-                        'Kill',
-                        'Create',
-                        'Delete',
-                        'Unselect']
-
-        agentOptionButtons = ['- LEFT CLICK',
-                              '- DRAG LEFT CLICK',
-                              '- CTRL + 0-9',
-                              '- 0-9',
-                              '- H',
-                              '- RIGHT ARROW',
-                              '- LEFT ARROW',
-                              '- F',
-                              '- S',
-                              '- SPACE or RIGHT CLICK',
-                              '- A',
-                              '- Z',
-                              '- ALT + 0-6',
-                              '- K',
-                              '- X',
-                              '- DEL or /',
-                              '- ESC']
+        agentOptions = self.controlOptions["agentOptions"]
+        agentOptionButtons = self.controlOptions["agentOptionButtons"]
 
         longerListSize = len(agentOptions)
 
-        siteOptions = ['Select',
-                       'Wide Select',
-                       'Next',
-                       'Previous',
-                       'Move',
-                       'Set Quality',
-                       'Raise Quality',
-                       'Lower Quality',
-                       'Expand',
-                       'Shrink',
-                       'Create',
-                       'Delete',
-                       'Set Go Point',
-                       'Set Assign Site',
-                       'Set Avoid Area',
-                       'Set Agents State',
-                       'Remove Command',
-                       'Unselect']
-
-        siteOptionButtons = ['- LEFT CLICK',
-                             '- DRAG LEFT CLICK',
-                             '- RIGHT ARROW',
-                             '- LEFT ARROW',
-                             '- DRAG LEFT CLICK',
-                             '- 0-9/BACKSPACE + RETURN',
-                             '- UP ARROW',
-                             '- DOWN ARROW',
-                             '- = (+)',
-                             '- -',
-                             '- C',
-                             '- DEL or /',
-                             '- SPACE or RIGHT CLICK',
-                             '- A',
-                             '- Z',
-                             '- ALT + 0-6',
-                             '- .',
-                             '- ESC']
+        siteOptions = self.controlOptions["siteOptions"]
+        siteOptionButtons = self.controlOptions["siteOptionButtons"]
 
         if len(siteOptions) > longerListSize:
             longerListSize = len(siteOptions)
@@ -477,8 +412,8 @@ class SimulationGraphs:
             if borderRect.collidepoint(pygame.mouse.get_pos()):
                 color = SEARCH_COLOR
             pygame.draw.polygon(Display.screen, color, [[self.pauseButton.left + 4, self.pauseButton.top + 4],
-                                                              [self.pauseButton.right - 4, self.pauseButton.centery],
-                                                              [self.pauseButton.left + 4, self.pauseButton.bottom - 4]])
+                                                        [self.pauseButton.right - 4, self.pauseButton.centery],
+                                                        [self.pauseButton.left + 4, self.pauseButton.bottom - 4]])
 
     def setRemainingTime(self, seconds):
         self.remainingTime = seconds

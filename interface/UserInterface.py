@@ -51,7 +51,7 @@ class UserInterface(LiveSimulation):
         return False
 
     def getGraphs(self, numAgents, fontSize, largeFontSize):
-        return SimulationGraphs(numAgents, fontSize, largeFontSize)
+        return SimulationGraphs(numAgents, fontSize, largeFontSize, UI_CONTROL_OPTIONS)
 
     def getControls(self):
         return UIControls(self.timer, self.world.agentList, self.world, self.graphs)

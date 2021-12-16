@@ -79,7 +79,7 @@ def drawFinish(surface, results):
 
     x = origWidth * 4 / 9
     y = origHeight / 2 - 2 * FONT_SIZE
-    simDuration = round(results[1], 2)
+    simDuration = round(results["simulationTime"], 2)
     write(surface, "Click anywhere or press", FONT_SIZE, x, y)
     y += FONT_SIZE
     write(surface, "any key to continue.", FONT_SIZE, x, y)
@@ -90,17 +90,19 @@ def drawFinish(surface, results):
         write(surface, "Simulation Duration: " + str(simDuration), FONT_SIZE, x, y)
     y += FONT_SIZE
 
-    for i, quality in enumerate(results[0]):
+    for i, quality in enumerate(results["qualities"]):
         y += FONT_SIZE
         write(surface, f"Colony {i + 1}'s Site Quality: {quality}", FONT_SIZE, x, y)
 
-    y += FONT_SIZE
-    write(surface, f"{results[2]}/{results[4]} agents made it to the new site.", FONT_SIZE, x, y)
+    for i, chosenHome in enumerate(results["chosenHomes"]):
+        y += FONT_SIZE
+        write(surface, f"{chosenHome.agentCounts[i]}/{results['initialHubAgentCounts'][i]} agents made it to the new site.", FONT_SIZE, x, y)
 
     y += FONT_SIZE
-    write(surface, f"{results[4] - sum(results[3])}/{results[4]} agents survived.", FONT_SIZE, x, y)
+    write(surface, f"{sum(results['initialHubAgentCounts']) - sum(results['deadAgents'])}/"
+                   f"{sum(results['initialHubAgentCounts'])} agents survived.", FONT_SIZE, x, y)
 
-    for i, numDeadAnts in enumerate(results[3]):
+    for i, numDeadAnts in enumerate(results['deadAgents']):
         y += FONT_SIZE
         write(surface, "Colony " + str(i + 1) + " lost " + str(numDeadAnts) + " ants to predators.",
               FONT_SIZE, x, y)

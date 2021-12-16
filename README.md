@@ -45,9 +45,15 @@ For simulations where there is more than one hub, we added a Converged
 phase. This phase was not in the original model, but we added it
 so that the user can see which groups of agents still need to find a site.
 
+Predators can also be added to the simulation. When the agents come
+in contact with the predators, the predators attack them. If the agents
+get away safely, they avoid the area, if not, they die and stay there
+till the end of the simulation. Agents who come across dead agents 
+turn around and avoid coming back to that area.
+
 ### States
 
-Agents' phases include At Nest, Search, Lead Forward, Follow,
+Agents' states include At Nest, Search, Lead Forward, Follow,
 Transport, Reverse Tandem, and Carried. At Nest means the agent is
 at one of the sites (which can include the hub). Search means the
 agent is out looking for other sites to evaluate. Lead Forward is 
@@ -112,20 +118,24 @@ parameters and more information about them can be found in
 
 There are 3 main ways to change the parameters:
 
-1. While the program is running, select the Settings tab, select
-   the option to change, and enter desired values.
-   Note that this method has limited parameters it can change, 
+1. While the program is running, select the Settings tab from 
+   the main menu, select the option to be changed, and enter 
+   desired values.
+   Note that this method can only change certain parameters, 
    but it will override the other methods unless 
    <code>useJson</code> is set to <code>False</code>.
    
 2. Before running the program, set parameters in 
-   <code>Colony.py</code>'s <code>main()</code> method.
+   the Simulation constructor in <code>Colony.py</code>'s 
+   <code>main()</code> method. If <code>useJson</code> is 
+   set to True, values in <code>display/mainmenu/settings/settings.json</code> 
+   will override the values set here.
+   
+3. Change the values in <code>Constants.py</code>. If <code>useJson</code> is 
+   set to True, values in <code>display/mainmenu/settings/settings.json</code> 
+   will override the values set here. Values set by method 2 will always override
+   values set by method 3.
 
-Most of these can be overridden by 
-passing something else in as a parameter in
-<code>Colony.py</code>'s <code>main()</code> method. They are
-also overridden by settings set while the program is running
-that appear in the <code>display/mainmenu/settings.json</code> file.
 Important methods and their parameters to know about are listed 
 below.
 
@@ -222,6 +232,11 @@ shown here can be changed in the inheriting classes.
 - <code>commitSpeedFactor</code>: Number that determines how much faster agents get when they 
   commit.
   
+- <code>numPredators</code>: Number that determines how many predators are generated.
+
+- <code>useJson</code>: Boolean that determines whether the values in 
+  <code>display/mainmenu/settings/settings.json</code> will override the 
+  default values and values set in the constructor.
   
 ### <code>RecordingPlayer()</code>
 
@@ -229,25 +244,13 @@ Constructor for the <code>RecordingPlayer</code> class. This class can be used i
 <code>LiveSimulation</code> to replay a previously recorded simulation from the recording.json
 file.
 
-This method has no parameters because everything is determined by the recording.json file.
-
-
-### <code>Simulation.initializeAgentList()</code>
-
-Generates a list of agents with the specified attributes.
-
-This method must be called before <code>runSimulation()</code> is called 
-or else the simulation will end immediately because there will not be
-any agents.
-
-- <code>hubAgentCounts</code>: A list of integers that set the number of agents at each hub 
-  at the start of the simulation. If a hub is not assigned a number of agents here, it will
-  be given a random number of agents.
+This method has no parameters because everything is determined by the 
+<code>recording/*date-time*_RECORDING.json</code> file.
   
   
 ### <code>LiveSimulation.randomizeInitialState()</code>
 
-Assigns each agent in the simulation a random site to start from.
+Assigns each agent in the simulation a random site and position to start from.
 
 This method has no parameters. Also, note that it cannot be called with the 
 RecordingPlayer.
@@ -255,20 +258,22 @@ RecordingPlayer.
 
 ### <code>LiveSimulation.addAgents()</code>
 
-Adds agents to the simulation (in addition to the "numAgents" specified in the constructor).
-These agents can be given specific starting states, phases, locations, and assignments.
+Adds agents to the simulation (in addition to the <code>numAgents</code> specified in 
+the constructor). These agents can be given specific starting states, phases, 
+locations, and assignments.
 
-- <code>numAgents</code> (required): Integer to set the number of agents to create with the specified state, 
-  phase, assignedSite, and startingPosition.
+- <code>numAgents</code> (required): Integer to set the number of agents to create with 
+  the specified state, phase, assignedSite, and startingPosition.
   
 - <code>state</code> (required): State that the agents start in.
   
 - <code>phase</code> (required): Integer to set the phase that the agents start in.
   
-- <code>assignedSiteIndex</code> (required): Integer that sets the agents' assigned site to the 
-  nth site in the site list.
+- <code>assignedSiteIndex</code> (required): Integer that sets the agents' assigned 
+  site to the nth site in the site list.
   
-- <code>startingPosition</code>: Ordered pair that sets where the agents start in the simulation.
+- <code>startingPosition</code>: Ordered pair that sets where the agents start in 
+  the simulation.
 
 Note that this method can not be used with the RecordingPlayer.
 
@@ -291,18 +296,30 @@ can still be manually set by the user as is shown for the
 LiveSimulation in the "Parameters" section above, but different
 default values apply.
 
+This interface is good for testing new functionality and more 
+clearly seeing how the simulation works.
+
 ### UserInterface
 
 This interface does not show as much information as the Engineering 
 Interface. Agents and their paths are only drawn when they are close 
-to the hub, and sites drawn only reflect what the agents that have
+to the hub, and the sites drawn only reflect what the agents that have
 returned to the hub have estimated about them. This interface allows
 some user controls, but they are limited to what can be done from the 
 hub. All parameters can still be manually set by the user as is shown 
 for the LiveSimulation in the "Parameters" section above, but 
 different default values apply.
 
+This interface is good if you want the user to have the perspective of 
+a leader at the hub.
+
 ### EmpiricalTestingInterface
+
+This interface is good for collecting results quickly without user 
+interactions. It is about 3.29 times faster than the 
+<code>UserInterface</code>. (You can multiply the duration by 3.29
+to figure out how long the same simulation would have taken if it had
+been run in the <code>UserInterface</code>.)
 
 This interface is the one that shows the least information. Nothing
 is drawn on the screen, and the user has no control over what happens. 
@@ -320,28 +337,28 @@ section above, but different default values apply.
 This interface shows about as much information as the Engineering
 Interface, but users have no control over what happens. Parameters
 have no effect on the simulation because all the information comes
-from the <code>recording.json</code> file.
+from the <code>recording/*date-time*_RECORDING.json</code> file.
 
 ## Controls
 
 The controls allow a user to interact with the 
-simulation by doing things like telling agents
+simulation by doing things such as telling agents
 where to go, creating sites, pausing, etc. These
 can be adjusted by changing statements in the 
 <code>handleEvent</code> method found in <code>
 user.Controls</code> Below is a complete list of
-all the controls available right now (There will 
+all the controls available right now (There may 
 be more to come).
 
 ### Agent Controls
 
 - <strong>Select Agent</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
   <p>Users can select agents by clicking on them with the mouse. 
-  The selected agent's information will then show up on the side
-  of the screen, and a circle will be drawn around the agent to 
-  help the user keep track of where it is. Selected agents can also
-  be told where to go, assigned to a site, or deleted (see "Move Agent,"
-  "Assign Agent to Site," and "Delete Agent" below).</p>
+  A circle will be drawn around the selected agent to help the user 
+  keep track of where it is. Selected agents can also be told where 
+  to go, assigned to a site, told to avoid an area, killed, or deleted 
+  (see "Move Agent," "Assign Agent to Site," "Delete Agent," "Avoid Area,"
+  and "Kill Agent" below).</p>
   
 - <strong>Wide Select</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, 
   <code>MOUSEBUTTONUP</code>:
@@ -349,8 +366,10 @@ be more to come).
   somewhere with the mouse, sliding the mouse over the 
   agents they want to select, and releasing the mouse button.
   When a group of agents is selected and the "Move Agent,"
-  "Assign Agent to Site," or "Delete Agent" command is used,
-  the command applies to all the selected agents.</p>
+  "Assign Agent to Site," "Delete Agent," "Avoid Area,"
+  or "Kill Agent" command is used, the command applies to 
+  all the selected agents. The number of agents currently 
+  selected shows up on the screen next to the cursor.</p>
 
 - <strong>Set Agent Group</strong> - <code>CTRL</code>, <code>0-9</code>:
   <p>Users can set the selected agents to be a group that can 

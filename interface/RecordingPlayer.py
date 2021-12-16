@@ -185,7 +185,7 @@ class RecordingPlayer(Simulation):
         return True
 
     def getGraphs(self, numAgents, fontSize, largeFontSize):
-        return SimulationGraphs(numAgents, fontSize, largeFontSize)
+        return SimulationGraphs(numAgents, fontSize, largeFontSize, RECORDING_CONTROL_OPTIONS)
 
     def calcNumAgents(self, hubAgentCounts):
         return self.recorder.getNumAgents()

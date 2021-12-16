@@ -37,7 +37,7 @@ HUB_RADII = []  # A list of the radius of the hubs
 HUB_AGENT_COUNTS = [100]  # Number of agents starting out at each hub
 
 # More sites lead to longer simulations and higher likeliness of the colony splitting.
-NUM_SITES = 5      # Number of total sites
+NUM_SITES = 5  # Number of total sites
 # Setting these, especially the good ones, closer to the hub location makes the interface end sooner
 # [[200, 100], [200, 200], [200, 300], [200, 400], [200, 500], [200, 600], [300, 100], [400, 100], [500, 100], [600, 100], [700, 100], [800, 100], [900, 100], [1000, 100], [1100, 100]]
 SITE_POSITIONS = []  # The quality of each site. If a site is not assigned a position here,
@@ -73,7 +73,7 @@ HUB_CAN_MOVE = True  # Whether the hub can be moved
 
 DRAW_FAR_AGENTS = True  # Whether agents that aren't right by the hub are drawn
 
-MAX_TIME = 5000     # Maximum allowed duration in seconds
+MAX_TIME = 5000  # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 
 SCREEN_COLOR = 225, 220, 190  # Light brown
@@ -111,7 +111,8 @@ NO_MARKER_NAME = "None"
 
 """ Agent parameters """
 AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
-AGENT_IMAGES = ["resources/copter.png", "resources/ant.png"]  # A list of names of files that users can set their agent image to
+AGENT_IMAGES = ["resources/copter.png",
+                "resources/ant.png"]  # A list of names of files that users can set their agent image to
 HOMOGENOUS_AGENTS = False  # Determines whether the agents have all the same attributes (speed, decisiveness, etc.)
 #                            If set to true, they will all have the MAX number as their attribute.
 # Having this set to True helps the interface go faster if user controls are used. If they are not used, it makes no difference.
@@ -136,7 +137,7 @@ MIN_AGENT_SPEED = 10  # The slowest possible agent's initial speed
 MAX_AGENT_SPEED = 12  # The fastest possible agent's initial speed  # Actual speed is AGENT_SPEED * TIME_STEP
 # The higher this is, the more their speeds increase when they commit
 COMMIT_SPEED_FACTOR = 3  # The number to multiply the agents' speed by when they commit to a site.
-MAX_FOLLOWERS = 2   # Maximum number of agents that can follow the same lead agent to a site
+MAX_FOLLOWERS = 2  # Maximum number of agents that can follow the same lead agent to a site
 
 # This being lower makes agents take longer to assess, and thus makes the interface longer
 MIN_DECISIVENESS = 0.5  # The factor of the least decisive agent possible (slowest assesser)
@@ -198,53 +199,54 @@ QUORUM_DIVIDEND = 5  # The minimum number of agents that need to be at a site be
 KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an agent
 
 """ States and their colors """
-AT_NEST = 0            # Rest agent state
+AT_NEST = 0  # Rest agent state
 AT_NEST_COLOR = 0, 0, 0  # Black
 
-SEARCH = 1                # Explore agent state
+SEARCH = 1  # Explore agent state
 SEARCH_COLOR = 0, 0, 255  # Blue
 
 CARRIED = 2
 CARRIED_COLOR = 128, 0, 128  # Purple
 
-FOLLOW = 3                # Following another ant to a nest
+FOLLOW = 3  # Following another ant to a nest
 FOLLOW_COLOR = 255, 165, 0  # Orange
 
-LEAD_FORWARD = 4          # After accepting a site, start to recruit other agents there
+LEAD_FORWARD = 4  # After accepting a site, start to recruit other agents there
 LEAD_FORWARD_COLOR = 204, 204, 0  # Yellow
 
-REVERSE_TANDEM = 5        # Going back to the original nest or another known site with a follower to recruit more
+REVERSE_TANDEM = 5  # Going back to the original nest or another known site with a follower to recruit more
 REVERSE_TANDEM_COLOR = 0, 128, 128  # Teal
 
-TRANSPORT = 6             # Picking up other agents and bringing them to the assigned site
+TRANSPORT = 6  # Picking up other agents and bringing them to the assigned site
 TRANSPORT_COLOR = 0, 255, 0  # Green
 
-GO = 7                    # Moving toward a specific position until getting there
+GO = 7  # Moving toward a specific position until getting there
 GO_COLOR = 0, 255, 255  # Cyan
 
-DEAD = 8                  # No longer respond to anything.
+DEAD = 8  # No longer respond to anything.
 DEAD_COLOR = 140, 140, 140  # Grey
 
 NUM_POSSIBLE_STATES = 9
 # Colors that show up on the screen representing each state
-STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR, TRANSPORT_COLOR, GO_COLOR, DEAD_COLOR]
+STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR,
+                TRANSPORT_COLOR, GO_COLOR, DEAD_COLOR]
 # The name of each state
 STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO', 'DEAD']
 
 """ Phases and their colors """
-EXPLORE = 0                # Still at the hub or just leaving for the first time to search
+EXPLORE = 0  # Still at the hub or just leaving for the first time to search
 EXPLORE_COLOR = 0, 0, 255  # Blue
 
-ASSESS = 1                 # Found a potential site and considering whether it is good enough
-ASSESS_COLOR = 255, 0, 0   # Red
+ASSESS = 1  # Found a potential site and considering whether it is good enough
+ASSESS_COLOR = 255, 0, 0  # Red
 
-CANVAS = 2                 # Partially committed to a site, and starting to lead others there
+CANVAS = 2  # Partially committed to a site, and starting to lead others there
 CANVAS_COLOR = 204, 204, 0  # Yellow
 
-COMMIT = 3                 # Met quorum at a site and now fully committed to the site
+COMMIT = 3  # Met quorum at a site and now fully committed to the site
 COMMIT_COLOR = 0, 255, 0  # Green
 
-CONVERGED = 4              # Enough agents are at the site, so they can be done moving
+CONVERGED = 4  # Enough agents are at the site, so they can be done moving
 CONVERGED_COLOR = 255, 105, 180
 
 NUM_POSSIBLE_PHASES = 5
@@ -255,3 +257,53 @@ PHASES_LIST = ['EXPLORE', 'ASSESS', 'CANVAS', 'COMMIT', "CONVERGED"]
 
 """ Interaction """
 SELECTED_COLOR = 0, 255, 244  # Cyan
+
+AGENT_OPTIONS = ['Select', 'Wide Select', 'Set Group', 'Select Group', 'Half', 'Next', 'Previous', 'Speed Up',
+                 'Slow Down', 'Move', 'Assign to Site', 'Avoid', 'Set State', 'Kill', 'Create', 'Delete', 'Unselect']
+
+AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- CTRL + 0-9', '- 0-9', '- H', '- RIGHT ARROW',
+                        '- LEFT ARROW', '- F', '- S', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- K',
+                        '- X', '- DEL or /', '- ESC']
+
+SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Move', 'Set Quality', 'Raise Quality', 'Lower Quality',
+                'Expand', 'Shrink', 'Create', 'Delete', 'Set Go Point', 'Set Assign Site', 'Set Avoid Area',
+                'Set Agents States', 'Remove Command', 'Unselect']
+
+SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW', '- DRAG LEFT CLICK',
+                       '- 0-9/BACKSPACE + RETURN', '- UP ARROW', '- DOWN ARROW', '- = (+)', '- -', '- C',
+                       '- DEL or /', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
+
+CONTROL_OPTIONS = {"agentOptions": AGENT_OPTIONS,
+                   "agentOptionButtons": AGENT_OPTION_BUTTONS,
+                   "siteOptions": SITE_OPTIONS,
+                   "siteOptionButtons": SITE_OPTION_BUTTONS}
+
+UI_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 'Move', 'Assign to Site', 'Avoid', 'Set State',
+                    'Unselect']
+
+UI_AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- H', '- RIGHT ARROW', '- LEFT ARROW',
+                           '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- ESC']
+
+UI_SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Set Go Point', 'Set Assign Site', 'Set Avoid Area',
+                   'Set Agents States', 'Remove Command', 'Unselect']
+
+UI_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW',
+                          '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
+
+UI_CONTROL_OPTIONS = {"agentOptions": UI_AGENT_OPTIONS,
+                      "agentOptionButtons": UI_AGENT_OPTION_BUTTONS,
+                      "siteOptions": UI_SITE_OPTIONS,
+                      "siteOptionButtons": UI_SITE_OPTION_BUTTONS}
+
+RECORDING_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 'Unselect']
+
+RECORDING_AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- H', '- RIGHT ARROW', '- LEFT ARROW', '- ESC']
+
+RECORDING_SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Unselect']
+
+RECORDING_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW', '- ESC']
+
+RECORDING_CONTROL_OPTIONS = {"agentOptions": RECORDING_AGENT_OPTIONS,
+                             "agentOptionButtons": RECORDING_AGENT_OPTION_BUTTONS,
+                             "siteOptions": RECORDING_SITE_OPTIONS,
+                             "siteOptionButtons": RECORDING_SITE_OPTION_BUTTONS}

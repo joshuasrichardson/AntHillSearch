@@ -235,12 +235,13 @@ class Simulation(ABC):
 
     def printResults(self):
         self.printNumAgentsResults()
-        simulationTime = self.printTimeResults()
-        qualities = self.printHomeQualities()
-        deadAgents = self.getNumDeadAgents()
-        self.sendResults(self.chosenHomes, simulationTime, deadAgents)
-        return qualities, simulationTime, self.chosenHomes[0].agentCounts[0], \
-            deadAgents, self.world.initialHubAgentCounts[0]  # TODO: Make flexible for more hubs
+        results = {"simulationTime": self.printTimeResults(),
+                   "qualities": self.printHomeQualities(),
+                   "deadAgents": self.getNumDeadAgents(),
+                   "chosenHomes": self.chosenHomes,
+                   "initialHubAgentCounts": self.world.initialHubAgentCounts}
+        self.sendResults(self.chosenHomes, results["simulationTime"], results["deadAgents"])
+        return results
 
     def getNumDeadAgents(self):
         return self.world.numDeadAgents
@@ -248,24 +249,24 @@ class Simulation(ABC):
     def printNumAgentsResults(self):
         for i in range(len(self.chosenHomes)):
             print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
-                  f"hub {i + 1} made it to the new home.")
+                  f"colony {i + 1} made it to the new home.")
         for hubIndex in range(len(self.world.hubs)):
             print(f"{self.world.initialHubAgentCounts[hubIndex] - self.world.numDeadAgents[hubIndex]}/"
-                  f"{self.world.initialHubAgentCounts[hubIndex]} agents survived.")
+                  f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex} survived.")
 
     def printTimeResults(self):
         simulationTime = 10000  # Large number that means the agents did not find the new home in time.
         if not self.timeRanOut:
             simulationTime = self.simulationDuration - self.remainingTime
-            print("The simulation took " + str(simulationTime) + " seconds to complete.")
+            print(f"The simulation took {simulationTime} seconds to complete.")
         return simulationTime
 
     def printHomeQualities(self):
         qualities = []
         print("Their homes are ranked: ")
-        for home in self.chosenHomes:
+        for i, home in enumerate(self.chosenHomes):
             qualities.append(home.getQuality())
-            print(str(home.getQuality()) + "/255.")
+            print(f"Colony {i + 1} - {home.getQuality()}/255.")
 
         return qualities
 
@@ -316,7 +317,6 @@ class Simulation(ABC):
                 for i, key in enumerate(SETTING_KEYS):
                     if key in data:
                         try:
-                            print(f"{SETTING_NAMES[i]} = {data[key]}")
                             exec(f"global {SETTING_NAMES[i]}\n{SETTING_NAMES[i]} = {data[key]}")
                         except NameError:
                             exec(f"{SETTING_NAMES[i]} = \"{data[key]}\"")
