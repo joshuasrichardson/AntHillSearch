@@ -18,9 +18,9 @@ from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 # FIXME: Site position estimates (hub shouldn't move, and sites should not be drawn on top of the hub).
+# FIXME: Agents need to converge when other agents at the nest they are visiting have converged.
 
 # Style changes
-# TODO: Mark a site that has been converged to when there are multiple hubs.
 # TODO: Make zoom better: zoom from middle of screen, prevent zooming or scrolling out of the initial fog's area, make initial fog the same shape as the screen, when there is more than 1 hub, make sure that the fog extends beyond the farthest sites/searchable area.
 # TODO: Add table of contents to tutorial and make tutorial better.
 
@@ -35,8 +35,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        StartUpDisplay(UserInterface).run()
+        StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
+        # StartUpDisplay(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control

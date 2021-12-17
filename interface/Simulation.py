@@ -199,11 +199,13 @@ class Simulation(ABC):
                                                       self.world.numDeadAgents[
                                                           hubIndex]) * self.convergenceFraction) > 0:
                     self.chosenHomes[hubIndex] = site
+                    self.chosenHomes[hubIndex].chosen = True
                     numConverged += 1
         for hubIndex in range(len(self.world.getHubs())):
             if self.world.initialHubAgentCounts[hubIndex] == 0:
                 self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]
                 numConverged += 1
+                self.chosenHomes[hubIndex].chosen = True
         return numConverged >= len(self.world.getHubs())
 
     def timeOut(self):

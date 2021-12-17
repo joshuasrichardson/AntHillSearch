@@ -19,6 +19,7 @@ class Site:
         self.agentCount = numAgents  # The number of agents assigned to the site
         self.agentCounts = self.initAgentCounts(numHubs)  # The number of agents assigned to the site from each hub
         self.wasFound = False  # Whether the agents have visited the site yet
+        self.chosen = False  # Whether agents have converged to the site
 
         self.isSelected = False  # Whether the site is selected (helps with user controls)
         self.command = None  # The command that is executed on agents when they arrive at the site

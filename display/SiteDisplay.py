@@ -2,7 +2,8 @@
 import numpy
 import pygame
 
-from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS, FONT_SIZE
+from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS, FONT_SIZE, \
+    CONVERGED_COLOR
 from display import Display
 from display.Display import drawDashedLine, getBlurredImage, drawCircle, drawLine
 
@@ -26,6 +27,8 @@ def drawSite(site):
         if site.isSelected:
             img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(f"Quality: {site.getQuality()}", True, WORDS_COLOR).convert_alpha()
             Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20 + FONT_SIZE)))  # Show the site quality above the site
+        if site.chosen:
+            drawConvergedMark(site)
 
 
 def drawCircleLines(surface, circle, color, inc, adjust=True):
@@ -143,3 +146,15 @@ def drawBlurredSite(site, pos, color, size, radius, blurAmount):
 def getDensity(quality):
     """ Get the space between lines """
     return int(quality / 20) + 2
+
+
+def drawConvergedMark(site):
+    rect = site.getSiteRect()
+    Display.drawDownRightArrow(rect.topleft, CONVERGED_COLOR)
+    Display.drawUpRightArrow(rect.bottomleft, CONVERGED_COLOR)
+    Display.drawUpLeftArrow(rect.bottomright, CONVERGED_COLOR)
+    Display.drawDownLeftArrow(rect.topright, CONVERGED_COLOR)
+    Display.drawDownArrow([rect.centerx, rect.top], CONVERGED_COLOR)
+    Display.drawRightArrow([rect.left, rect.centery], CONVERGED_COLOR)
+    Display.drawUpArrow([rect.centerx, rect.bottom], CONVERGED_COLOR)
+    Display.drawLeftArrow([rect.right, rect.centery], CONVERGED_COLOR)
