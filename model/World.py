@@ -3,7 +3,6 @@ import random
 import time
 
 import numpy as np
-from pygame import Rect
 
 import Constants
 from Constants import *
@@ -28,7 +27,6 @@ class World:
         self.sitesRadii = siteRadii  # A list of the radius of each site
 
         self.hubsRects = []
-        self.hubsObserveRects = []
         self.hubs = self.createHubs(numHubs, self.hubLocations, self.hubRadii, self.initialHubAgentCounts)  # The agents' original home
         self.createSites(numSites, numHubs, siteRadius)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
@@ -89,7 +87,8 @@ class World:
             site = self.siteList[random.randint(0, len(self.siteList) - 1)]
             agent.addToKnownSites(site)
             agent.assignSite(site)
-            agent.setPosition(agent.assignedSite.getPosition()[0], agent.assignedSite.getPosition()[1])
+            pos = agent.assignedSite.getPosition()
+            agent.setPosition(pos[0], pos[1])
 
     def generatePredators(self, numPredators, predPositions):
         predators = []
@@ -220,8 +219,7 @@ class World:
         for hub in hubs:
             hubRect = hub.getSiteRect()
             self.hubsRects.append(hubRect)
-            self.hubsObserveRects.append(Rect(hubRect.left - HUB_OBSERVE_DIST, hubRect.top - HUB_OBSERVE_DIST,
-                                         hubRect.width + 2 * HUB_OBSERVE_DIST, hubRect.height + 2 * HUB_OBSERVE_DIST))
+
         return hubs
 
     def getHubs(self):
@@ -229,9 +227,6 @@ class World:
 
     def getHubsRects(self):
         return self.hubsRects
-
-    def getHubsObserveRects(self):
-        return self.hubsObserveRects
 
     def updateStateAndPhaseCounts(self):
         """ Counts the phase and state of each agent so they can be displayed to the user """

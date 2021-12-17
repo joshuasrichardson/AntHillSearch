@@ -87,7 +87,7 @@ FOG_COLOR = 145, 140, 112  # Grey
 TRANSPARENT = 60, 60, 60  # This value is set to represent a see-through color in the program
 
 """ Define colony size, hub location, and distribution parameters for sites """
-HUB_OBSERVE_DIST = 30  # The farthest distance agents can be seen from the outside edge of the hub
+HUB_OBSERVE_DIST = 80  # The farthest distance agents can be seen from the center of the hub
 # Bigger sites are easier to find, so bigger sites lead to shorter simulations.
 SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
@@ -194,7 +194,7 @@ LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruit
 # The lower this value is, the lower the quality of nests that agents accept can be initially; however, it doesn't make much of a difference in the long run, because agents move from lower-ranked sites to higher-ranked sites either way.
 MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents to accept it
 # The lower this size is, the earlier agents switch over to the committed phase, making other agents come to their site easier.
-QUORUM_DIVIDEND = 5  # The minimum number of agents that need to be at a site before agents will commit to it
+QUORUM_DIVIDEND = 6  # numAgents/QUORUM_DIVIDEND agents need to be at a site before agents will commit to it
 
 KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an agent
 

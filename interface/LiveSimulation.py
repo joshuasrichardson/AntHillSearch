@@ -82,7 +82,7 @@ class LiveSimulation(Simulation, ABC):
 
     def updateAgent(self, agent, agentRectList):
         if agent.getStateNumber() != DEAD:
-            agent.updatePosition()
+            agent.moveForward()
             if Display.shouldDraw:
                 agent.clearFog()
 
@@ -94,7 +94,7 @@ class LiveSimulation(Simulation, ABC):
             self.recorder.recordAgentInfo(agent)
 
     def updatePredator(self, predator, agentRectList):
-        predator.updatePosition()
+        predator.moveForward()
         agentNeighbors = self.getNeighbors(predator, agentRectList)
         predator.attack(agentNeighbors)
 

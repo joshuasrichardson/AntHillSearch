@@ -19,6 +19,6 @@ def getPredatorImage(pos):
 
 
 def drawPredator(predator, surface):
-    if Display.drawFarAgents or predator.getRect().collidelist(predator.world.getHubsObserveRects()) != -1:
+    if Display.drawFarAgents:
         w, h = predator.predatorHandle.get_size()  # Rotate the agent's image to face the direction they are heading
         rotateImage(surface, predator.predatorHandle, predator.pos, [w / 2, h / 2], (-predator.angle * 180 / np.pi))

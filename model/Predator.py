@@ -25,18 +25,21 @@ class Predator:
     def getRect(self):
         return self.predatorRect
 
-    def updatePosition(self, position=None):
+    def setPosition(self, x, y):
+        self.predatorRect.centerx = x
+        self.predatorRect.centery = y
+        self.pos = list([x, y])
+
+    def moveForward(self):
         self.numSteps += 1
-        if position is None:  # If the position is not specified, continue moving along the same path as before
-            self.predatorRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.sin(self.angle)))
-            self.predatorRect.centery = int(np.round(float(self.pos[1]) + self.speed * -np.cos(self.angle)))
-            if self.numSteps > 20:
-                self.numSteps = 0
-                self.angle += 2 * np.pi / 4
-        else:  # Else, update the position to match the parameter
-            self.predatorRect.centerx = position[0]
-            self.predatorRect.centery = position[1]
-        self.pos = list([self.predatorRect.centerx, self.predatorRect.centery])
+        self.setPosition(int(np.round(float(self.pos[0]) + self.speed * np.sin(self.angle))),
+                         int(np.round(float(self.pos[1]) + self.speed * -np.cos(self.angle))))
+        if self.numSteps > 20:
+            self.turn()
+
+    def turn(self):
+        self.numSteps = 0
+        self.angle += 2 * np.pi / 4
 
     def setAngle(self, angle):
         self.angle = angle

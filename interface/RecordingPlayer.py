@@ -148,7 +148,7 @@ class RecordingPlayer(Simulation):
 
     def updateAgent(self, agent, agentRectList):
         pos = self.recorder.getNextAgentPosition()
-        agent.updatePosition(pos)
+        agent.setPosition(pos[0], pos[1])
         angle = self.recorder.getNextAgentAngle()
         agent.setAngle(angle)
         agent.setState(self.recorder.getNextState(agent))
@@ -157,7 +157,8 @@ class RecordingPlayer(Simulation):
         agent.assignSite(siteToAssign)
 
     def updatePredator(self, predator, agentRectList):
-        predator.updatePosition(self.recorder.getNextPredatorPosition())
+        pos = self.recorder.getNextPredatorPosition()
+        predator.setPosition(pos[0], pos[1])
         predator.setAngle(self.recorder.getNextPredatorAngle())
 
     def changeDelay(self, seconds):

@@ -81,7 +81,7 @@ def initFog(hubs):
         pos = hub.getPosition()
         x = pos[0] + Constants.MAX_SEARCH_DIST
         y = pos[1] + Constants.MAX_SEARCH_DIST
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], HUB_OBSERVE_DIST + hub.radius * 2, 0)
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], HUB_OBSERVE_DIST, 0)
 
 
 def drawFog():

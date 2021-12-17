@@ -322,8 +322,8 @@ class Controls:
             self.selectSite(mousePos)
 
     def byAHub(self, pos):
-        for rect in self.world.getHubsObserveRects():
-            if rect.collidepoint(pos):
+        for hub in self.world.getHubs():
+            if self.world.isClose(pos, hub.getPosition(), Constants.HUB_OBSERVE_DIST):
                 return True
         return False
 
@@ -371,10 +371,8 @@ class Controls:
         left, top = Display.getReadjustedPos(self.selectRect.left, self.selectRect.top)
         w, h = Display.getUnzoomedSize(self.selectRect.w, self.selectRect.h)
         rect = pygame.Rect(left, top, w, h)
-        agent = None
-        if Display.canSelectAnywhere or self.selectRect.collidelist(self.world.getHubsObserveRects()) != -1:
-            agent = self.selectAgents(rect)
-            self.selectSites(rect)
+        agent = self.selectAgents(rect)
+        self.selectSites(rect)
         if self.shouldSelectAgentSites:
             self.selectAgentsSite(agent)
 
@@ -428,7 +426,8 @@ class Controls:
         return pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(left, top, width, height), 1)
 
     def selectAgents(self, rect):
-        selectedAgents = [a for a in self.agentList if a.getRect().colliderect(rect)]
+        selectedAgents = [a for a in self.agentList if a.getRect().colliderect(rect) and (Display.canSelectAnywhere or
+                                                                                          a.isCloseToHub())]
         if self.shouldSelectAgents:
             self.selectedAgents = selectedAgents
 

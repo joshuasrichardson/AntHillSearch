@@ -2,7 +2,7 @@
 import numpy as np
 import pygame
 
-from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, ASSESS_COLOR
+from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, ASSESS_COLOR, HUB_OBSERVE_DIST
 from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
@@ -12,9 +12,12 @@ agentImage = AGENT_IMAGE
 
 
 def drawAgent(agent, surface):
-    if not Display.drawFarAgents and agent.getRect().collidelist(agent.world.getHubsObserveRects()) != -1:
-        drawPath(agent, surface)  # If we are only drawing close agents, then only show their path when they are close to the hub and can report it. Else this part is taken care of in the world display class.
-    if Display.drawFarAgents or agent.getRect().collidelist(agent.world.getHubsObserveRects()) != -1:
+    if not Display.drawFarAgents:
+        if agent.isClose(agent.getHub().getPosition(), HUB_OBSERVE_DIST):
+            drawPath(agent, surface)  # If we are only drawing close agents, then only show their path when they are close to the hub and can report it. Else this part is taken care of in the world display class.
+        else:
+            drawLastKnownPos(agent)
+    if Display.drawFarAgents or agent.isClose(agent.getHub().getPosition(), HUB_OBSERVE_DIST):
         if agent.isTheSelected:  # Only draw the following for one of the selected agents
             drawKnownSiteMarkers(agent, surface)
             drawAssignedSite(agent)
@@ -25,6 +28,10 @@ def drawAgent(agent, surface):
             Display.drawCircle(surface, agent.getPhaseColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
         w, h = agent.agentHandle.get_size()  # Rotate the agent's image to face the direction they are heading
         rotateImage(surface, agent.agentHandle, agent.pos, [w / 2, h / 2], (-agent.angle * 180 / np.pi) - 132)
+
+
+def drawLastKnownPos(agent):
+    Display.drawCircle(Display.screen, agent.lastKnownPhaseColor, agent.lastSeenPos, 3, adjust=True)
 
 
 def getAgentImage(pos):
@@ -49,7 +56,7 @@ def setAgentMarker(agent):
 
 def drawMarker(agent, surface):
     """ Draws the agent's specified marker on the screen (i.e. the go marker) """
-    if (Display.drawFarAgents or agent.getRect().collidelist(agent.world.getHubsObserveRects()) != -1) \
+    if (Display.drawFarAgents or agent.isCloseToHub()) \
             and agent.marker is not None:
         drawDashedLine(surface, BORDER_COLOR, agent.pos, agent.marker[1].center)
         Display.blitImage(Display.screen, agent.marker[0], agent.marker[1])
@@ -57,7 +64,7 @@ def drawMarker(agent, surface):
 
 def drawPlacesToAvoid(agent, surface):
     """ Draws the places the agent should avoid on the screen """
-    if Display.drawFarAgents or agent.getRect().collidelist(agent.world.getHubsObserveRects()) != -1:
+    if Display.drawFarAgents or agent.isCloseToHub():
         for marker in agent.avoidMarkers:
             drawDashedLine(surface, ASSESS_COLOR, agent.pos, marker[1].center, width=4, dashLength=3)
             Display.blitImage(Display.screen, marker[0], marker[1])

@@ -4,7 +4,7 @@ import numpy as np
 
 import display.Display
 from Constants import *
-from display import SiteDisplay, WorldDisplay
+from display import SiteDisplay, WorldDisplay, Display
 from display.AgentDisplay import getAgentImage
 from display.Display import getAvoidMarker
 from model.builder import AgentSettings
@@ -22,8 +22,9 @@ class Agent:
         self.world = world  # The colony the agent lives in
         self.hub = self.world.getClosestHub(startingPosition)
 
-        self.prevPos = list(startingPosition)  # Initial position
+        self.prevPos = list(startingPosition)  # Where the agent was during the last iteration
         self.pos = [startingPosition[0] + np.random.choice([-1, 1]), startingPosition[1] + np.random.choice([-1, 1])]   # Initial position
+        self.lastSeenPos = self.pos  # Where the agent was last seen
         self.path = []  # A list of the positions the agent has recently come from
         self.agentHandle = getAgentImage(self.pos)  # Image on screen representing the agent
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
@@ -47,6 +48,7 @@ class Agent:
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
         self.phase = ExplorePhase()  # The current phase or level of commitment (explore, assess, canvas, commit)
+        self.lastKnownPhaseColor = self.getPhaseColor()  # The color of the phase of the agent when they left the hub
 
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
@@ -108,19 +110,17 @@ class Agent:
         return self.pos
 
     def setPosition(self, x, y):
+        self.prevPos = self.pos
         self.agentRect.centerx = x
         self.agentRect.centery = y
         self.pos = list([x, y])
+        if not Display.drawFarAgents and self.isClose(self.hub.getPosition(), HUB_OBSERVE_DIST):
+            self.lastSeenPos = self.pos
+            self.lastKnownPhaseColor = self.getPhaseColor()
 
-    def updatePosition(self, position=None):
-        self.prevPos = self.pos
-        if position is None:  # If the position is not specified, continue moving along the same path as before
-            self.agentRect.centerx = int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle)))
-            self.agentRect.centery = int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle)))
-        else:  # Else, update the position to match the parameter
-            self.agentRect.centerx = position[0]
-            self.agentRect.centery = position[1]
-        self.pos = list([self.agentRect.centerx, self.agentRect.centery])
+    def moveForward(self):
+        self.setPosition(int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle))),
+                         int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle))))
 
     def updateFollowPosition(self):
         """ Updates the agent's position to be just behind their lead agent """
@@ -150,7 +150,7 @@ class Agent:
         """ Erases fog rectangles from the screen where the agent has been """
         if SiteDisplay.knowSitePosAtStart:
             WorldDisplay.eraseFog(self.pos)
-        elif self.isClose(self.getHub().getPosition(), self.getHub().radius + HUB_OBSERVE_DIST) and \
+        elif self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST) and \
                 not SiteDisplay.knowSitePosAtStart:
             for command in self.eraseFogCommands:
                 command[0](command[1])  # Execute each of the eraseFogCommands that have been appended since the last visit to the hub
@@ -166,6 +166,9 @@ class Agent:
 
     def incrementFollowers(self):
         self.numFollowers += 1
+
+    def isCloseToHub(self):
+        return self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST)
 
     def isCloseToASite(self):
         """ Returns whether the agent is next to a site or not """
