@@ -154,7 +154,7 @@ class Controls:
                     self.appendNumber(int(event.unicode))
                 elif key == K_BACKSPACE:
                     self.deleteLastDigit()
-                elif key == K_RETURN:
+                elif key == K_RETURN and self.shouldDrawQuality:
                     self.setSiteQuality()
             else:
                 self.potentialQuality = 0
@@ -295,7 +295,7 @@ class Controls:
     def putDownDragSite(self):
         if self.dragSite is not None:
             if self.dragSite.getSiteRect().center != self.oldRect.center:
-                self.addToExecutedEvents("Moved site from " + str(self.oldRect.center) + " to " + str(self.dragSite.getPosition()))
+                self.addToExecutedEvents(f"Moved site from {self.oldRect.center} to {self.dragSite.getPosition()}")
                 self.dragSite.wasFound = False
             self.world.siteRectList = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.siteRectList]
             self.world.hubsRects = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.hubsRects]
@@ -593,11 +593,11 @@ class Controls:
                 if arg is not None:
                     try:
                         pos = [int(arg[0]), int(arg[1])]
-                        self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s command point to " + str(pos))
+                        self.addToExecutedEvents(f"Set site at {site.getPosition()}'s command point to {pos}")
                     except TypeError:
-                        self.addToExecutedEvents("Set site at " + str(site.getPosition()) + "'s command to " + STATES_LIST[arg])
+                        self.addToExecutedEvents(f"Set site at {site.getPosition()}'s command to {STATES_LIST[arg]}")
                 else:
-                    self.addToExecutedEvents("Removed site at " + str(site.getPosition()) + "'s command")
+                    self.addToExecutedEvents(f"Removed site at {site.getPosition()}'s command")
                 site.setCommand(command, arg, marker, markerName)
 
     def setSiteCommand(self, site, markerNameArgNum):
@@ -641,29 +641,29 @@ class Controls:
     def raiseQuality(self):
         for site in self.selectedSites:
             site.setQuality(site.getQuality() + 1)
-            self.addToExecutedEvents("Raised site at " + str(site.getPosition()) + "'s quality to " + str(site.getQuality()))
+            self.addToExecutedEvents(f"Raised site at {site.getPosition()}'s quality to {site.getQuality()}")
             site.setColor(site.getQuality())
 
     def lowerQuality(self):
         for site in self.selectedSites:
             site.setQuality(site.getQuality() - 1)
-            self.addToExecutedEvents("Lowered site at " + str(site.getPosition()) + "'s quality to " + str(site.getQuality()))
+            self.addToExecutedEvents(f"Lowered site at {site.getPosition()}'s quality to {site.getQuality()}")
             site.setColor(site.getQuality())
 
     def expand(self):
         for site in self.selectedSites:
             site.radius += 1
-            self.addToExecutedEvents("Expanded site at " + str(site.getPosition()) + "'s radius to " + str(site.radius))
+            self.addToExecutedEvents(f"Expanded site at {site.getPosition()}'s radius to {site.radius}")
 
     def shrink(self):
         for site in self.selectedSites:
             site.radius -= 1
-            self.addToExecutedEvents("Shrunk site at " + str(site.getPosition()) + "'s radius to " + str(site.radius))
+            self.addToExecutedEvents(f"Shrunk site at {site.getPosition()}'s radius to {site.radius}")
 
     def createSite(self, position):
         self.world.createSite(position[0], position[1], SITE_RADIUS, 128, len(self.world.getHubs()))
         pos = [int(position[0]), int(position[1])]
-        self.addToExecutedEvents("Created site at " + str(pos))
+        self.addToExecutedEvents(f"Created site at {pos}")
 
     def createAgent(self, position):
         agent = AgentBuilder.getNewAgent(self.world, self.world.getClosestHub(position), position)
@@ -674,7 +674,7 @@ class Controls:
         agent.speed = self.world.agentList[0].uncommittedSpeed * agent.speedCoefficient
         self.world.addAgent(agent)
         pos = [int(position[0]), int(position[1])]
-        self.addToExecutedEvents("Created agent at " + str(pos))
+        self.addToExecutedEvents(f"Created agent at {pos}")
 
     def delete(self):
         self.deleteSelectedSites()
@@ -685,7 +685,7 @@ class Controls:
         while len(self.selectedSites) > 0:
             site = self.selectedSites[i]
             if site.getQuality() >= 0:
-                self.addToExecutedEvents("Deleted site at " + str(site.getPosition()))
+                self.addToExecutedEvents(f"Deleted site at {site.getPosition()}")
             for agent in self.agentList:
                 if not self.world.getHubs().__contains__(site):
                     if agent.assignedSite is site:
@@ -723,7 +723,7 @@ class Controls:
     def setSiteQuality(self):
         for site in self.selectedSites:
             if site.getQuality() != -1:
-                self.addToExecutedEvents("Set quality of site at " + str(site.getPosition()) + " to " + str(self.potentialQuality))
+                self.addToExecutedEvents(f"Set quality of site at {site.getPosition()} to {self.potentialQuality}")
             site.setQuality(self.potentialQuality)
             site.setColor(self.potentialQuality)
         self.potentialQuality = 0

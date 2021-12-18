@@ -2,7 +2,8 @@
 import numpy as np
 import pygame
 
-from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, ASSESS_COLOR, HUB_OBSERVE_DIST
+from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, ASSESS_COLOR, \
+    HUB_OBSERVE_DIST, DEAD
 from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
@@ -66,7 +67,7 @@ def drawPlacesToAvoid(agent, surface):
     """ Draws the places the agent should avoid on the screen """
     if Display.drawFarAgents or agent.isCloseToHub():
         for marker in agent.avoidMarkers:
-            drawDashedLine(surface, ASSESS_COLOR, agent.pos, marker[1].center, width=4, dashLength=3)
+            drawDashedLine(surface, ASSESS_COLOR, agent.pos, marker[1].center, width=3, dashLength=2)
             Display.blitImage(Display.screen, marker[0], marker[1])
 
 
@@ -86,4 +87,5 @@ def drawKnownSiteMarkers(agent, surface):
 
 def drawAssignedSite(agent):
     """ Marks the site the agent is assigned to and draws a line from the agent to the site """
-    drawAssignmentMarker(agent.assignedSite, agent.pos, agent.getPhaseColor())
+    if agent.getStateNumber() != DEAD:
+        drawAssignmentMarker(agent.assignedSite, agent.pos, agent.getPhaseColor())

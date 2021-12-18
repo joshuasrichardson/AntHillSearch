@@ -3,7 +3,7 @@ import requests
 from Constants import *
 
 
-class SendHubInfoRequest:
+class HubInfoRequest:
     """ A Request object holding information that is known from the hub.
     This request can be send to a rest API. """
 
@@ -134,10 +134,8 @@ class SendHubInfoRequest:
 
     def updateSiteInfo(self, agent):
         if self.siteIsNew(agent.assignedSite.pos):  # The first time a site is found, just add the current agent's estimated values
-            print(f"Site is new and index is {agent.world.siteList.index(agent.assignedSite)}")
             self.sitesPositions.append(agent.assignedSite.pos)
             self.sitesEstimatedPositions.append(agent.estimatedSitePosition)
-            print(f"pOSITION {agent.estimatedSitePosition}")
             self.sitesPreviousNPositions.append([agent.estimatedSitePosition])
             self.sitesQualities.append(agent.estimatedQuality)
             self.sitesPreviousNQualities.append([agent.estimatedQuality])

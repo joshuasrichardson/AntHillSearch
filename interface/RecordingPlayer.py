@@ -153,8 +153,11 @@ class RecordingPlayer(Simulation):
         agent.setAngle(angle)
         agent.setState(self.recorder.getNextState(agent))
         agent.setPhase(self.recorder.getNextPhase())
-        siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
-        agent.assignSite(siteToAssign)
+        try:
+            siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
+            agent.assignSite(siteToAssign)
+        except TypeError:
+            agent.die()
 
     def updatePredator(self, predator, agentRectList):
         pos = self.recorder.getNextPredatorPosition()

@@ -29,7 +29,7 @@ class Settings:
                          IntegerSetting("simDuration", "Simulation Duration", x, self.nextY(), showSimDuration, self),
                          IntegerSetting("fontSize", "Font Size", x, self.nextY(), showFontSize, self),
                          IntegerSetting("largeFontSize", "Large Font Size", x, self.nextY(), showLargeFontSize, self),
-                         IntegerSetting("numHubs", "Number of Hubs", x, self.nextY(), drawNumSites, self),
+                         IntegerSetting("numHubs", "Number of Hubs", x, self.nextY(), drawNumHubs, self),
                          PositionSetting("hubLocations", "Hub Locations", x, self.nextY(), drawHubsPositions, self),
                          ListSetting("hubRadii", "Hub Radii", x, self.nextY(), drawHubsRadii, self),
                          ListSetting("hubAgentCounts", "Hub Agent Counts", x, self.nextY(), drawHubsCounts, self),

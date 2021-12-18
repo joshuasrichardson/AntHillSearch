@@ -110,7 +110,15 @@ def drawSites(self, positions, quality):
         drawSite(pos, self.settingMenu.data["siteRadius"], quality)
 
 
+def drawNumHubs(self):
+    drawNumNests(self, -1)
+
+
 def drawNumSites(self):
+    drawNumNests(self, 128)
+
+
+def drawNumNests(self, quality):
     x = Display.origWidth / 2
     h = int((Display.origHeight - self.settingMenu.data["largeFontSize"] * 3) / (
             2 * (self.settingMenu.data["siteRadius"] + 10)))  # The number of sites that can fit in a column
@@ -118,7 +126,7 @@ def drawNumSites(self):
         y = 2 * (i % h) * (self.settingMenu.data["siteRadius"] + 10) + (self.settingMenu.data["largeFontSize"] * 3)
         if i % h == 0 and i > 0:
             x += 2 * (self.settingMenu.data["siteRadius"] + 10)
-        drawSite([x, y], self.settingMenu.data["siteRadius"], self.value)
+        drawSite([x, y], self.settingMenu.data["siteRadius"], quality)
 
 
 def drawHubsRadii(self):

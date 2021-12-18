@@ -119,8 +119,11 @@ class Agent:
             self.lastKnownPhaseColor = self.getPhaseColor()
 
     def moveForward(self):
-        self.setPosition(int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle))),
-                         int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle))))
+        if self.getPhaseNumber() == CONVERGED:
+            self.setPosition(self.assignedSite.getPosition()[0], self.assignedSite.getPosition()[1])
+        else:
+            self.setPosition(int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle))),
+                             int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle))))
 
     def updateFollowPosition(self):
         """ Updates the agent's position to be just behind their lead agent """
@@ -215,7 +218,7 @@ class Agent:
 
     def addToKnownSites(self, site):
         """ Lets the agent know about the site so they can recruit from it (or to it if they think it's the best) """
-        if not self.knownSites.__contains__(site):
+        if not self.knownSites.__contains__(site) and site is not None:
             self.knownSites.append(site)
             self.knownSitesPositions.append(site.getPosition())
 
@@ -252,10 +255,8 @@ class Agent:
     def estimateSitePosition(self, site):
         """ Returns an estimate of a site position that is within estimationAccuracy * 2 pixels from the actual position """
         if site is self.getHub():
-            print(f"Site Index: {self.world.siteList.index(site)} and is hub")
             estimatedSitePosition = self.getHub().getPosition()
         else:
-            print(f"Site Index: {self.world.siteList.index(site)} and is not hub")
             estimatedSitePosition = site.getPosition().copy()
             estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
             estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
@@ -320,6 +321,7 @@ class Agent:
         if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * CONVERGENCE_FRACTION:
             self.setPhase(ConvergedPhase())
             self.setState(AtNestState(self))
+            self.assignedSite.chosen = True
             return True
         return False
 
@@ -386,5 +388,6 @@ class Agent:
         if self.getStateNumber() != DEAD:
             from model.states.DeadState import DeadState
             self.setState(DeadState(self))  # This will stop the ant from moving etc.
-            self.assignSite(self.getHub())  # Assign them back to the hub because their number no longer counts toward converging
+            self.assignedSite.decrementCount(self.getHubIndex())  # They no longer count toward converging to a site
+            self.assignedSite = None
             self.world.incrementDeadAgents(self.getHubIndex())  # Need to keep track of how many died so the number needed to converge goes down.

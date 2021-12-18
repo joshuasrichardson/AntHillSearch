@@ -60,6 +60,8 @@ class AtNestState(State):
             if neighborState == TRANSPORT:  # If an agent nearby is transporting, get carried by that agent.
                 self.getCarried(neighborList[i])
                 return
+            if neighborList[i].getPhaseNumber() == CONVERGED:
+                self.agent.tryConverging()
 
         # Let the agent's estimated quality of the site get closer to the actual quality as they spend time at the site.
         if self.agent.estimatedQuality > self.agent.assignedSite.getQuality():

@@ -9,7 +9,7 @@ from display import Display, WorldDisplay
 from interface.Simulation import Simulation
 from model.World import World
 from model.builder import AgentBuilder
-from net.SendHubInfoRequest import SendHubInfoRequest
+from net.HubInfoRequest import HubInfoRequest
 
 
 class LiveSimulation(Simulation, ABC):
@@ -52,7 +52,7 @@ class LiveSimulation(Simulation, ABC):
 
     def initializeAgentList(self):
         super().initializeAgentList()
-        self.world.request = SendHubInfoRequest(self.world.agentList)
+        self.world.request = HubInfoRequest(self.world.agentList)
 
     def randomizeInitialState(self):
         self.world.randomizeState()
@@ -122,8 +122,6 @@ class LiveSimulation(Simulation, ABC):
                             sites[siteIndex].wasFound = True
                             # If the site's estimates were not reported before the agent got assigned to another site, report them here.
                             if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
-                                print(f"Site Index: {siteIndex}")
-                                print(f"World Site Index: {self.world.siteList.index(sites[siteIndex])}")
                                 sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
                                                                agent.estimateQuality(sites[siteIndex]),
                                                                agent.estimateAgentCount(sites[siteIndex]),

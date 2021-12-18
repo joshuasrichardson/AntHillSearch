@@ -107,7 +107,10 @@ class World:
 
     def getSiteIndex(self, site):
         """ Returns the position of the site in the world's site list """
-        return self.siteList.index(site)
+        try:
+            return self.siteList.index(site)
+        except ValueError:
+            return None
 
     def setSitePosition(self, site, pos):
         siteIndex = self.siteList.index(site)

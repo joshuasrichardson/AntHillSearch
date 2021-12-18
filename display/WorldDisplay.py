@@ -98,10 +98,10 @@ def eraseFog(pos):
 
 def drawPotentialQuality(world, potentialQuality, font):
     """ Draws the value the selected sites will be set to if the user pushes Enter """
-    img = font.render("Set quality: " + str(potentialQuality), True, (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
+    img = font.render(f"Set quality: {potentialQuality}", True, (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
     for site in world.siteList:
         if site.isSelected and site.getQuality() != -1:
-            Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 31), 15, 10))
+            Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 45), 15, 10))
 
 
 def collidesWithSite(world, mousePos):

@@ -3,6 +3,7 @@ from abc import abstractmethod
 import numpy as np
 from pygame import Rect
 
+from Constants import COMMIT
 from model.builder import AgentSettings
 from model.states.State import State
 
@@ -42,7 +43,7 @@ class RecruitState(State):
             if self.arrivedAtOrPassedSite(self.agent.assignedSite.getPosition()):  # If they get to the assigned site
                 self.agent.numFollowers = 0
                 self.agent.comingWithFollowers = False
-                if self.agent.tryConverging():
+                if self.agent.getPhaseNumber() == COMMIT and self.agent.tryConverging():
                     return
                 self.arriveAtSite(len(neighborList))
             return
@@ -72,7 +73,7 @@ class RecruitState(State):
         rect = Rect(left, top, self.agent.speed, self.agent.speed)
         return rect.collidepoint(sitePos)
 
-    def chooseSiteToRecruitFrom(self):  # Todo: Figure out why they don't go recruit from the hub when it has moved, but they do from the other sites that have moved once they have found them again.
+    def chooseSiteToRecruitFrom(self):
         indexOfSiteToRecruitFrom = np.random.randint(0, len(self.agent.knownSites))
         self.agent.recruitSite = self.agent.knownSites[indexOfSiteToRecruitFrom]
         while self.agent.recruitSite == self.agent.assignedSite:
