@@ -78,17 +78,14 @@ class Simulation(ABC):
         self.world.agentList = agents
 
     def initializeAgentList(self):
-        hubIndex = 0
-        for count in self.world.initialHubAgentCounts:
+        for hubIndex, count in enumerate(self.world.initialHubAgentCounts):
+            if hubIndex >= len(self.world.getHubs()):
+                break
             for i in range(count):
                 agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[hubIndex])
                 agent.setState(AtNestState(agent))
                 self.world.agentList.append(agent)
                 self.world.agentGroups[i % 10].append(agent)
-            hubIndex += 1
-            if hubIndex >= len(self.world.getHubs()):
-                break
-        self.initializeRequest()
 
     def initChosenHomes(self, numHubs):
         chosenHomes = []
@@ -99,13 +96,17 @@ class Simulation(ABC):
     def runSimulation(self):
         foundNewHome = False
         self.timer.start()
+        numRounds = 0
 
         try:
             while not foundNewHome and not self.timeRanOut:
                 self.runNextRound()
+                numRounds += 1
                 foundNewHome = self.checkIfSimulationEnded()
         except GameOver:
             pass
+
+        print(f"Number of Rounds: {numRounds}")
 
         self.stopTimer()
 
@@ -114,9 +115,6 @@ class Simulation(ABC):
     def stopTimer(self):
         self.remainingTime = self.timer.getRemainingTime()
         self.timer.cancel()
-
-    def initializeRequest(self):
-        pass  # The method is overridden by simulations that send requests to rest APIs
 
     def runNextRound(self):
         agentRectList = self.getAgentRectList()
@@ -136,7 +134,6 @@ class Simulation(ABC):
         self.updatePredators(agentRectList)
         self.recordDisplays()
         self.save()
-        self.report(agentRectList)
 
     def draw(self):
         drawWorldObjects(self.world)
@@ -164,9 +161,17 @@ class Simulation(ABC):
             self.updateAgent(agent, agentRectList)
             self.world.updatePaths(agent)
 
+    @abstractmethod
+    def updateAgent(self, agent, agentRectList):
+        pass
+
     def updatePredators(self, agentRectList):
         for predator in self.world.predatorList:
             self.updatePredator(predator, agentRectList)
+
+    @abstractmethod
+    def updatePredator(self, predator, agentRectList):
+        pass
 
     def recordDisplays(self):
         if self.shouldRecord:
@@ -179,18 +184,9 @@ class Simulation(ABC):
                                                  Display.origWidth * Display.origWidth / Display.newWidth,
                                                  Display.origHeight * Display.origHeight / Display.newHeight)
 
-    @abstractmethod
-    def updateAgent(self, agent, agentRectList):
-        pass
-
-    @abstractmethod
-    def updatePredator(self, predator, agentRectList):
-        pass
-
-    def report(self, agentRectList):
-        pass
-
     def checkIfSimulationEnded(self):
+        """ Compare the number of agents at each site from each hub to the number of agents initially at each hub
+        times the convergence fraction to see if the the agents from all hubs have converged to a new site. """
         numConverged = 0
         for siteIndex in range(len(self.world.getHubs()), len(self.world.siteList)):
             site = self.world.siteList[siteIndex]
@@ -209,6 +205,7 @@ class Simulation(ABC):
         return numConverged >= len(self.world.getHubs())
 
     def timeOut(self):
+        """ Method to be called when the simulation timer runs out. sets timeRanOut to True to break the main loop. """
         print("The simulation time has run out.")
         self.timeRanOut = True
 
@@ -257,10 +254,8 @@ class Simulation(ABC):
                   f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex} survived.")
 
     def printTimeResults(self):
-        simulationTime = 10000  # Large number that means the agents did not find the new home in time.
-        if not self.timeRanOut:
-            simulationTime = self.simulationDuration - self.remainingTime
-            print(f"The simulation took {simulationTime} seconds to complete.")
+        simulationTime = self.simulationDuration - self.remainingTime
+        print(f"The simulation took {simulationTime} seconds to complete.")
         return simulationTime
 
     def printHomeQualities(self):
@@ -284,34 +279,42 @@ class Simulation(ABC):
 
     @abstractmethod
     def getScreen(self):
+        """ Gets the screen to draw the simulation on (or None if the simulation will not be drawn) """
         pass
 
     @abstractmethod
     def getShouldDraw(self):
+        """ Gets a boolean deciding whether the simulation will be drawn on the screen """
         pass
 
     @abstractmethod
     def getDrawFarAgents(self):
+        """ Gets a boolean deciding whether the agents outside the view of the hub should be drawn """
         pass
 
     @abstractmethod
     def getKnowSitePosAtStart(self):
+        """ Gets a boolean deciding whether the user knows where the sites are to begin """
         pass
 
     @abstractmethod
     def getShouldDrawPaths(self):
+        """ Gets a boolean deciding whether ants paths should be drawn """
         pass
 
     @abstractmethod
     def getGraphs(self, numAgents, fontSize, largeFontSize):
+        """ Gets the graphs used to display information on the screen """
         pass
 
     def getControls(self):
+        """ Initializes and returns an object to handle user input """
         return Controls(self.timer, self.world.agentList, self.world,
                         self.graphs)  # An object to handle events dealing with user interactions
 
     @staticmethod
     def applyUserSettings(retValues, useJson):
+        """ Sets the simulation values to match the values in {SETTINGS_FILE_NAME} """
         if useJson:
             try:
                 with open(SETTINGS_FILE_NAME, 'r') as file:
@@ -325,8 +328,8 @@ class Simulation(ABC):
                         retValues[i] = data[key]
             except FileNotFoundError:
                 print(f"File '{SETTINGS_FILE_NAME}' Not Found")
-                with open('display/mainmenu/settings.json', 'w'):
-                    print("Created 'mainmenu/settings.json'")
+                with open(f'{SETTINGS_FILE_NAME}', 'w'):
+                    print(f"Created '{SETTINGS_FILE_NAME}'")
             except json.decoder.JSONDecodeError:
                 print(f"File '{SETTINGS_FILE_NAME}' is empty")
         return retValues

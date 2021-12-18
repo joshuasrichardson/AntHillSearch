@@ -17,7 +17,6 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-# FIXME: Site position estimates (hub shouldn't move, and sites should not be drawn on top of the hub).
 # FIXME: Agents need to converge when other agents at the nest they are visiting have converged.
 
 # Style changes
@@ -35,8 +34,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        # StartUpDisplay(UserInterface).run()
+        # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
+        StartUpDisplay(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control

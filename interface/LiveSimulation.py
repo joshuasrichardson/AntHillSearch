@@ -50,7 +50,8 @@ class LiveSimulation(Simulation, ABC):
 
         return world
 
-    def initializeRequest(self):
+    def initializeAgentList(self):
+        super().initializeAgentList()
         self.world.request = SendHubInfoRequest(self.world.agentList)
 
     def randomizeInitialState(self):
@@ -67,13 +68,18 @@ class LiveSimulation(Simulation, ABC):
             agent.setPhase(phase)
             self.world.addAgent(agent)
 
+    def update(self, agentRectList):
+        super().update(agentRectList)
+        self.setSitesEstimates(agentRectList)
+        if self.useRestAPI:
+            self.updateRestAPI()
+
     def updateSites(self):
         if self.shouldRecord and self.recordAll:
             for site in self.world.siteList:
                 self.recorder.recordSiteInfo(site)
 
-    def getNeighbors(self, bug, agentRectList):
-        bugRect = bug.getRect()
+    def getNeighbors(self, bugRect, agentRectList):
         possibleNeighborList = bugRect.collidelistall(agentRectList)
         agentNeighbors = []
         for i in possibleNeighborList:
@@ -86,7 +92,7 @@ class LiveSimulation(Simulation, ABC):
             if Display.shouldDraw:
                 agent.clearFog()
 
-            agentNeighbors = self.getNeighbors(agent, agentRectList)
+            agentNeighbors = self.getNeighbors(agent.getRect(), agentRectList)
             agent.changeState(agentNeighbors)
             del agentNeighbors[:]
 
@@ -95,17 +101,12 @@ class LiveSimulation(Simulation, ABC):
 
     def updatePredator(self, predator, agentRectList):
         predator.moveForward()
-        agentNeighbors = self.getNeighbors(predator, agentRectList)
+        agentNeighbors = self.getNeighbors(predator.getRect(), agentRectList)
         predator.attack(agentNeighbors)
 
         if self.shouldRecord and self.recordAll:
             self.recorder.recordPredatorPosition(predator.pos)
             self.recorder.recordPredatorAngle(predator.angle)
-
-    def report(self, agentRectList):
-        self.setSitesEstimates(agentRectList)
-        if self.useRestAPI:
-            self.updateRestAPI()
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()
@@ -116,11 +117,13 @@ class LiveSimulation(Simulation, ABC):
                 for agentIndex in hubAgentsIndices:
                     agent = self.world.agentList[agentIndex]
                     sites = agent.knownSites
-                    for siteIndex in range(0, len(sites)):
+                    for siteIndex in range(len(sites)):
                         if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
                             sites[siteIndex].wasFound = True
                             # If the site's estimates were not reported before the agent got assigned to another site, report them here.
                             if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
+                                print(f"Site Index: {siteIndex}")
+                                print(f"World Site Index: {self.world.siteList.index(sites[siteIndex])}")
                                 sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
                                                                agent.estimateQuality(sites[siteIndex]),
                                                                agent.estimateAgentCount(sites[siteIndex]),

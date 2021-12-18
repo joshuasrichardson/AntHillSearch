@@ -236,9 +236,7 @@ class Agent:
         """ Sets the site the agent will be assessing or recruiting to """
         if self.assignedSite is not None:
             self.assignedSite.decrementCount(self.getHubIndex())
-        if site.getPosition()[0] != self.assignedSite.getPosition()[0] and\
-                site.getPosition()[1] != self.assignedSite.getPosition()[1] and\
-                site is not self.assignedSite:  # If the site they are assigned to is not the one they came from
+        if site is not self.assignedSite:  # If the site they are assigned to is not the one they came from
             self.setPhase(AssessPhase())  # Start assessing it, and estimate its values
             self.estimatedQuality = self.estimateQuality(site)
             self.estimatedAgentCount = self.estimateAgentCount(site)
@@ -254,8 +252,10 @@ class Agent:
     def estimateSitePosition(self, site):
         """ Returns an estimate of a site position that is within estimationAccuracy * 2 pixels from the actual position """
         if site is self.getHub():
+            print(f"Site Index: {self.world.siteList.index(site)} and is hub")
             estimatedSitePosition = self.getHub().getPosition()
         else:
+            print(f"Site Index: {self.world.siteList.index(site)} and is not hub")
             estimatedSitePosition = site.getPosition().copy()
             estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
             estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
