@@ -26,8 +26,8 @@ class EngineerInterface(LiveSimulation):
     def runNextRound(self):
         self.userControls.handleEvents()
         Display.screen.fill(SCREEN_COLOR)
-        super().runNextRound()
         self.draw()
+        super().runNextRound()
 
     def update(self, agentRectList):
         self.graphs.setRemainingTime(self.timer.getRemainingTime())

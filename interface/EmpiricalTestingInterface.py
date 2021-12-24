@@ -47,3 +47,7 @@ class EmpiricalTestingInterface(LiveSimulation):
 
     def getGraphs(self, numAgents, fontSize, largeFontSize):
         return None
+
+    @staticmethod
+    def drawBorder():
+        pass

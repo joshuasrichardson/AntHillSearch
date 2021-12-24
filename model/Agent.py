@@ -237,6 +237,8 @@ class Agent:
 
     def assignSite(self, site):
         """ Sets the site the agent will be assessing or recruiting to """
+        if site is None:
+            return
         if self.assignedSite is not None:
             self.assignedSite.decrementCount(self.getHubIndex())
         if site is not self.assignedSite:  # If the site they are assigned to is not the one they came from

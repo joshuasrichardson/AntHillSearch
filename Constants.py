@@ -80,7 +80,7 @@ SCREEN_COLOR = 225, 220, 190  # Light brown
 
 WORDS_COLOR = 0, 41, 0  # Dark green
 
-BORDER_COLOR = 105, 100, 70  # Dark Brown
+BORDER_COLOR = 105, 100, 70, 255  # Dark Brown
 
 FOG_COLOR = 145, 140, 112  # Grey
 

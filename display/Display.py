@@ -1,10 +1,9 @@
 """ Settings and methods related to the display """
-
 import numpy as np
 import pygame
 
 from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
-    SITE_RADIUS, FONT_SIZE, MIN_AVOID_DIST
+    SITE_RADIUS, FONT_SIZE, MIN_AVOID_DIST, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -19,19 +18,21 @@ origWidth = 0
 origHeight = 0
 newWidth = 0
 newHeight = 0
+worldSize = 0, 0
+worldLeft = 0
+worldTop = 0
+worldRight = 0
+worldBottom = 0
 
 
 def createScreen():
     """ Creates and returns the main screen that the interface will be drawn on """
-    global screen
-    global origWidth
-    global origHeight
-    global newWidth
-    global newHeight
+    global screen, origWidth, origHeight, newWidth, newHeight
     if not pygame.display.get_init():
         pygame.display.init()
         pygame.font.init()
-        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
+        pygame.event.set_allowed(
+            [pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN])
         screen = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
         origWidth = screen.get_width()
         origHeight = screen.get_height()
@@ -54,7 +55,7 @@ def writeCenterPlus(surface, words, fontSize, y, color=WORDS_COLOR):
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
     img = font.render(f"{words}", True, color).convert_alpha()
     return surface.blit(img, (surface.get_size()[0] / 2 - (img.get_width() / 2),
-                        surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
+                              surface.get_size()[1] / 2 - (img.get_height() / 2) - 60 + y))
 
 
 def write(surface, words, fontSize, x, y, color=WORDS_COLOR):
@@ -72,7 +73,8 @@ def drawPause(surface):
 def drawFinish(surface, results):
     """ Tells the user the simulation has ended and shows some of the results on the screen """
     surf = pygame.Surface((origWidth, origHeight), pygame.SRCALPHA)
-    pygame.draw.rect(surf, (225, 220, 190, 200), (0, 0, origWidth, origHeight))  # Draw partially transparent surface over the screen
+    pygame.draw.rect(surf, (225, 220, 190, 200),
+                     (0, 0, origWidth, origHeight))  # Draw partially transparent surface over the screen
     surface.blit(surf, (0, 0))
 
     writeCenter(surface, "Complete")
@@ -93,14 +95,19 @@ def drawFinish(surface, results):
     for i, quality in enumerate(results["qualities"]):
         y += FONT_SIZE
         write(surface, f"Colony {i + 1}'s Site Quality: {quality}", FONT_SIZE, x, y)
+    y += FONT_SIZE
 
     for i, chosenHome in enumerate(results["chosenHomes"]):
         y += FONT_SIZE
-        write(surface, f"{chosenHome.agentCounts[i]}/{results['initialHubAgentCounts'][i]} agents made it to the new site.", FONT_SIZE, x, y)
+        write(surface,
+              f"{chosenHome.agentCounts[i]}/{results['initialHubAgentCounts'][i]} agents made it to the new site.",
+              FONT_SIZE, x, y)
+    y += FONT_SIZE
 
     y += FONT_SIZE
     write(surface, f"{sum(results['initialHubAgentCounts']) - sum(results['deadAgents'])}/"
                    f"{sum(results['initialHubAgentCounts'])} agents survived.", FONT_SIZE, x, y)
+    y += FONT_SIZE
 
     for i, numDeadAnts in enumerate(results['deadAgents']):
         y += FONT_SIZE
@@ -154,7 +161,7 @@ def drawDashedLine(surface, color, startPos, endPos, width=1, dashLength=10, exc
     # x-y-value-pairs of where dashes start (and on next, will end)
     dashKnots = np.array([np.linspace(startPos[i], endPos[i], numDashes) for i in range(2)]).transpose()
 
-    return [drawLine(surface, color, tuple(dashKnots[n]), tuple(dashKnots[n+1]), width)
+    return [drawLine(surface, color, tuple(dashKnots[n]), tuple(dashKnots[n + 1]), width)
             for n in range(int(excludeCorners), numDashes - int(excludeCorners), 2)]
 
 
@@ -331,48 +338,113 @@ def drawLast():
 
 
 def zoomIn():
-    global newWidth
-    global newHeight
-    global zoom
-    global displacementX
-    global displacementY
+    global newWidth, newHeight, zoom, displacementX, displacementY
     if newWidth < 2000:
+        oldCenterX, oldCenterY = getReadjustedPos(origWidth / 2, origHeight / 2)
         zoom += 1
-        newWidth = int(origWidth + ((zoom / 10) * origWidth))
-        newHeight = int(origHeight + ((zoom / 10) * origHeight))
+        newWidth = int(origWidth + ((zoom / 15) * origWidth))
+        newHeight = int(origHeight + ((zoom / 15) * origHeight))
+        newCenterX, newCenterY = getReadjustedPos(origWidth / 2, origHeight / 2)
+        diffX = newCenterX - oldCenterX
+        diffY = newCenterY - oldCenterY
+        displacementX += diffX
+        displacementY += diffY
 
 
 def zoomOut():
-    global newWidth
-    global newHeight
-    global zoom
-    global displacementX
-    global displacementY
-    if newWidth > 200 or newWidth == 0:
+    global newWidth, newHeight, zoom, displacementX, displacementY
+    w, h = worldSize
+    adjW, _ = getZoomedSize(w, h)
+    if adjW > origWidth or newWidth == 0:
+        oldCenterX, oldCenterY = getReadjustedPos(origWidth / 2, origHeight / 2)
         zoom -= 1
-        newWidth = int(origWidth + ((zoom / 10) * origWidth))
-        newHeight = int(origHeight + ((zoom / 10) * origHeight))
+        newWidth = int(origWidth + ((zoom / 15) * origWidth))
+        newHeight = int(origHeight + ((zoom / 15) * origHeight))
+        newCenterX, newCenterY = getReadjustedPos(origWidth / 2, origHeight / 2)
+        diffX = newCenterX - oldCenterX
+        diffY = newCenterY - oldCenterY
+        displacementX += diffX
+        displacementY += diffY
+    adjW, _ = getZoomedSize(w, h)
+    if adjW < origWidth:
+        newWidth = int((origWidth ** 2) / w)
+        newHeight = int((origHeight ** 2) / h)
+    adjustScreen()
+
+
+def adjustScreen():
+    global displacementX, displacementY
+    adjW, adjH = getUnzoomedSize(origWidth, origHeight)
+    while adjW - displacementX > worldRight:  # Too far right
+        displacementX += 25  # Move left
+    while adjH - displacementY > worldBottom:  # Too far down
+        displacementY += 25  # Move up
+    while -displacementY < worldTop:  # Too far up
+        displacementY -= 25  # Move down
+    while -displacementX < worldLeft:  # Too far left
+        displacementX -= 25  # Move right
+
+
+def moveScreen(mousePos):
+    global displacementX, displacementY, worldLeft, worldTop, worldRight, worldBottom
+    adjW, adjH = getUnzoomedSize(origWidth, origHeight)
+    if mousePos[0] >= origWidth - 3 and adjW - displacementX < worldRight:
+        displacementX -= 25
+        addToDrawLast(drawRightArrow, mousePos, COMMIT_COLOR, False)
+    if mousePos[1] <= 3 and -displacementY > worldTop:
+        displacementY += 25
+        addToDrawLast(drawUpArrow, mousePos, COMMIT_COLOR, False)
+    if mousePos[0] <= 3 and -displacementX > worldLeft:
+        displacementX += 25
+        addToDrawLast(drawLeftArrow, mousePos, COMMIT_COLOR, False)
+    if mousePos[1] >= origHeight - 30 and adjH - displacementY < worldBottom:
+        displacementY -= 25
+        addToDrawLast(drawDownArrow, mousePos, COMMIT_COLOR, False)
 
 
 def getAdjustedPos(origX, origY):
+    global origWidth, origHeight, newWidth, newHeight
     newX = ((origX + displacementX) / origWidth) * newWidth
     newY = ((origY + displacementY) / origHeight) * newHeight
     return [newX, newY]
 
 
 def getReadjustedPos(origX, origY):
+    global origWidth, origHeight, newWidth, newHeight
     newX = (origX / newWidth) * origWidth - displacementX
     newY = (origY / newHeight) * origHeight - displacementY
     return [newX, newY]
 
 
 def getZoomedSize(origW, origH):
+    global origWidth, origHeight, newWidth, newHeight
     newW = int((origW / origWidth) * newWidth)
     newH = int((origH / origHeight) * newHeight)
     return [newW, newH]
 
 
 def getUnzoomedSize(origW, origH):
+    global origWidth, origHeight, newWidth, newHeight
     newW = int((origW / newWidth) * origWidth)
     newH = int((origH / newHeight) * origHeight)
     return [newW, newH]
+
+
+def initWorldSize():
+    global origWidth, origHeight, worldSize, worldLeft, worldTop, worldRight, worldBottom
+    w, h = origWidth, origHeight
+    m = MAX_SEARCH_DIST * 2 + h
+    while h < m:
+        w += origWidth
+        h += origHeight
+    worldSize = w, h
+    worldLeft = (origWidth - w) / 2
+    worldTop = (origHeight - h) / 2
+    worldRight = worldLeft + w
+    worldBottom = worldTop + h
+
+
+def drawBorder():
+    global worldSize, worldLeft, worldTop, worldRight, worldBottom
+    w, h = worldSize
+    drawRect(screen, BORDER_COLOR, pygame.Rect(worldLeft, worldTop, w, h), 20)

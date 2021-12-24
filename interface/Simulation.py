@@ -139,6 +139,7 @@ class Simulation(ABC):
         drawWorldObjects(self.world)
         self.drawGraphs()
         self.userControls.drawChanges()
+        self.drawBorder()
         pygame.display.flip()
 
     def drawGraphs(self):
@@ -149,6 +150,10 @@ class Simulation(ABC):
         self.graphs.drawRemainingTime()
         self.graphs.drawPauseButton()
         self.graphs.drawStateNumbers()
+
+    @staticmethod
+    def drawBorder():
+        Display.drawBorder()
 
     def setNextRound(self):
         pass

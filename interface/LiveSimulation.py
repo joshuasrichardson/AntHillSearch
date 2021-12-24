@@ -126,8 +126,11 @@ class LiveSimulation(Simulation, ABC):
                                                                agent.estimateQuality(sites[siteIndex]),
                                                                agent.estimateAgentCount(sites[siteIndex]),
                                                                agent.estimateRadius(sites[siteIndex])])
-                    agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
-                    agent.assignedSite.updateBlur()
+                    try:
+                        agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
+                        agent.assignedSite.updateBlur()
+                    except AttributeError:
+                        pass  # If the agent is killed by a hub, this exception will be thrown here.
                     if len(agent.recentlySeenPredatorPositions) > 0:
                         for pos in agent.recentlySeenPredatorPositions:
                             agent.world.addDangerZone(pos)

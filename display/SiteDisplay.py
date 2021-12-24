@@ -18,7 +18,7 @@ def drawSite(site):
             Display.drawCircle(Display.screen, SELECTED_COLOR, site.pos, site.radius + 2, 0)  # Draw a circle over the background showing that the site is selected
         site.siteRect = pygame.Rect(site.pos[0] - site.radius, site.pos[1] - site.radius, site.radius * 2, site.radius * 2)
         Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
-        drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
+        # drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
         if site.isSelected:
             img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(f"Agents: {site.agentCount}", True, BORDER_COLOR).convert_alpha()
         else:
@@ -137,7 +137,7 @@ def drawBlurredSite(site, pos, color, size, radius, blurAmount):
     image = pygame.Surface([size, size], pygame.SRCALPHA, 32)
     image = image.convert_alpha()
     rect = pygame.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
-    drawCircleLines(image, rect, BORDER_COLOR, getDensity(site.estimatedQuality), False)
+    # drawCircleLines(image, rect, BORDER_COLOR, getDensity(site.estimatedQuality), False)
     blur = getBlurredImage(image, blurAmount)
     site.estimatedSiteRect = (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2))
     Display.blitImage(Display.screen, blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))

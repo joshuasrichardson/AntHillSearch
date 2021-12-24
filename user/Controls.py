@@ -58,6 +58,7 @@ class Controls:
         self.graphs.drawRemainingTime()
         self.graphs.drawPlayButton()
         self.drawChanges()
+        Display.drawBorder()
         Display.drawPause(Display.screen)
         if self.shouldShowOptions:
             self.graphs.drawOptions()
@@ -216,19 +217,7 @@ class Controls:
 
     def moveScreen(self):
         if not pygame.key.get_mods() & pygame.KMOD_CAPS:
-            mousePos = pygame.mouse.get_pos()
-            if mousePos[0] >= Display.screen.get_width() - 3 and Display.displacementX >= -Constants.MAX_SEARCH_DIST + Display.origWidth - Display.newWidth:
-                Display.displacementX -= 25
-                Display.addToDrawLast(Display.drawRightArrow, mousePos, COMMIT_COLOR, False)
-            if mousePos[1] <= 3 and Display.displacementY <= Constants.MAX_SEARCH_DIST:
-                Display.displacementY += 25
-                Display.addToDrawLast(Display.drawUpArrow, mousePos, COMMIT_COLOR, False)
-            if mousePos[0] <= 3 and Display.displacementX <= Constants.MAX_SEARCH_DIST:
-                Display.displacementX += 25
-                Display.addToDrawLast(Display.drawLeftArrow, mousePos, COMMIT_COLOR, False)
-            if mousePos[1] >= Display.screen.get_height() - 30 and Display.displacementY >= -Constants.MAX_SEARCH_DIST + Display.origHeight - Display.newHeight:
-                Display.displacementY -= 25
-                Display.addToDrawLast(Display.drawDownArrow, mousePos, COMMIT_COLOR, False)
+            Display.moveScreen(pygame.mouse.get_pos())
         if self.paused:
             self.draw()
 

@@ -1,7 +1,6 @@
 """ Methods related to the world's display """
 import pygame
 
-import Constants
 from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO_MARKER_NAME
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
@@ -71,28 +70,27 @@ def drawMarkers(world):
 
 def initFog(hubs):
     global fog
-    w, h = Display.screen.get_size()
-    w += (Constants.MAX_SEARCH_DIST * 2)
-    h += (Constants.MAX_SEARCH_DIST * 2)
+    Display.initWorldSize()
+    w, h = Display.worldSize
     fog = pygame.Surface((w, h))
     fog.fill(FOG_COLOR)
     fog.set_colorkey(TRANSPARENT)
     for hub in hubs:
         pos = hub.getPosition()
-        x = pos[0] + Constants.MAX_SEARCH_DIST
-        y = pos[1] + Constants.MAX_SEARCH_DIST
+        x = pos[0] - Display.worldLeft
+        y = pos[1] - Display.worldTop
         pygame.draw.circle(fog, TRANSPARENT, [x, y], HUB_OBSERVE_DIST, 0)
 
 
 def drawFog():
     if fog is not None:
-        Display.blitImage(Display.screen, fog, (-Constants.MAX_SEARCH_DIST, -Constants.MAX_SEARCH_DIST))
+        Display.blitImage(Display.screen, fog, (Display.worldLeft, Display.worldTop))
 
 
 def eraseFog(pos):
     if fog is not None:
-        x = pos[0] + Constants.MAX_SEARCH_DIST
-        y = pos[1] + Constants.MAX_SEARCH_DIST
+        x = pos[0] - Display.worldLeft
+        y = pos[1] - Display.worldTop
         pygame.draw.circle(fog, TRANSPARENT, [x, y], 20, 0)
 
 

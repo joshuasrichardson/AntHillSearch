@@ -420,7 +420,7 @@ class SimulationGraphs:
 
     def drawRemainingTime(self):
         if self.shouldDrawGraphs:
-            img = self.font.render(str(int(self.remainingTime)), True, WORDS_COLOR).convert_alpha()
+            img = self.font.render(str(round(self.remainingTime)), True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (Display.origWidth - 100, img.get_height()))
 
     def drawScreenBorder(self):

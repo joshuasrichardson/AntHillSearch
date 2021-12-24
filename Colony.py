@@ -17,14 +17,10 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-# Style changes
-# TODO: Make zoom better: zoom from middle of screen, prevent zooming or scrolling out of the initial fog's area, make initial fog the same shape as the screen, when there is more than 1 hub, make sure that the fog extends beyond the farthest sites/searchable area.
+# TODO: When there is more than 1 hub, make sure that the fog extends beyond the farthest sites/searchable area.
 # TODO: Add table of contents to tutorial and make tutorial better.
-
-# Additional features
 # TODO: Set checkpoint
 # TODO: Have ants avoid sites that have ants from other colonies?
-# TODO: Set site positions in settings by clicking where you want it to go.
 # TODO: Add an option to show all current settings in the settings tab.
 # TODO: Be able to change things in settings without typing (dragging sites around, etc.).
 # TODO: Think about how to display predictions.
@@ -32,8 +28,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        # StartUpDisplay(UserInterface).run()
+        # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
+        StartUpDisplay(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
