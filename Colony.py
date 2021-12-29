@@ -17,7 +17,7 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-# TODO: When there is more than 1 hub, make sure that the fog extends beyond the farthest sites/searchable area.
+# TODO: Speed up the simulation
 # TODO: Add table of contents to tutorial and make tutorial better.
 # TODO: Set checkpoint
 # TODO: Have ants avoid sites that have ants from other colonies?

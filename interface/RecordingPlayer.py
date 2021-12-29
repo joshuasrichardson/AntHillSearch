@@ -28,12 +28,14 @@ class RecordingPlayer(Simulation):
                         siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS):
         self.recorder.read()
         addAfter = self.initHubsAgentCounts()
-        world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii, siteRadius, numPredators=self.recorder.getNumPredators())
-        self.addAddedAgents(world, addAfter)
+        self.world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
+                           siteQualities, siteRadii, siteRadius, numPredators=self.recorder.getNumPredators())
+        self.addAddedAgents(self.world, addAfter)
+        self.initializeAgentList()
         self.timer.simulationDuration = self.recorder.getNextTime()
+        Display.initWorldSize()
 
-        return world
+        return self.world
 
     def initHubsAgentCounts(self):
         addAfter = []
@@ -75,13 +77,6 @@ class RecordingPlayer(Simulation):
         realTime = self.realTimer.getRemainingTime()
         self.realTimer.cancel()
         print(f"Real simulation time: {self.simulationDuration - realTime}")
-        self.remainingTime = self.simulationDuration - self.getDuration()
-
-    def runNextRound(self):
-        self.userControls.handleEvents()
-        Display.screen.fill(SCREEN_COLOR)
-        self.draw()
-        super().runNextRound()
 
     def update(self, agentRectList):
         self.slowDownOrSpeedUp()
@@ -167,8 +162,11 @@ class RecordingPlayer(Simulation):
     def changeDelay(self, seconds):
         self.delay += seconds
 
-    def getDuration(self):
-        return self.recorder.readResults()[2]
+    def printTimeResults(self):
+        times = self.recorder.readResults()[2]
+        for i, duration in enumerate(times):
+            print(f"Colony {i + 1} took {duration} seconds to finish.")
+        return times
 
     def getNumDeadAgents(self):
         return self.recorder.readResults()[3]

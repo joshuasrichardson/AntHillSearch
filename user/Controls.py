@@ -7,7 +7,7 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k, K_r
 
 import Constants
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, COMMIT_COLOR, AT_NEST, \
+from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, AT_NEST, \
     TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, SET_STATE_NAME, GO_NAME
 from display import Display
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
@@ -175,9 +175,9 @@ class Controls:
             if event.type == KEYDOWN and event.key == K_o:
                 self.shouldShowOptions = not self.shouldShowOptions
             if event.type == MOUSEBUTTONUP:
-                if self.graphs.collidesWithCloseButton(mousePos):
+                if self.graphs.collidesWithCloseButton(mousePos, self.paused):
                     self.shouldShowOptions = False
-                elif self.graphs.collidesWithExitButton(mousePos):
+                elif self.graphs.collidesWithExitButton(mousePos, self.paused):
                     self.timer.cancel()
                     raise GameOver("Exited Successfully")
         if event.type == QUIT:
@@ -206,7 +206,7 @@ class Controls:
 
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos) or \
-                self.graphs.collidesWithAnyButton(mousePos)
+                self.graphs.collidesWithAnyButton(mousePos, self.paused)
 
     def getNumLivingSelectedAgents(self):
         numLiving = 0
@@ -240,11 +240,11 @@ class Controls:
             self.shouldSelectSiteAgents = not self.shouldSelectSiteAgents
         elif self.graphs.collidesWithCommandSiteAgentsButton(mousePos):
             self.shouldCommandSiteAgents = not self.shouldCommandSiteAgents
-        elif self.graphs.collidesWithOptionsButton(mousePos):
+        elif self.graphs.collidesWithOptionsButton(mousePos, self.paused):
             self.shouldShowOptions = not self.shouldShowOptions
-        elif self.graphs.collidesWithNextButton(mousePos):
+        elif self.graphs.collidesWithNextButton(mousePos, self.paused):
             self.graphs.nextScreen()
-        elif self.graphs.collidesWithPreviousButton(mousePos):
+        elif self.graphs.collidesWithPreviousButton(mousePos, self.paused):
             self.graphs.previousScreen()
         elif self.graphs.collidesWithPauseButton(mousePos):
             self.pause()
@@ -351,7 +351,7 @@ class Controls:
                 self.selectedAgent.isTheSelected = True
 
     def startSelectRect(self, mousePos):
-        if not self.graphs.collidesWithAnyButton(mousePos):
+        if not self.graphs.collidesWithAnyButton(mousePos, self.paused):
             self.selectRectCorner = mousePos
 
     def wideSelect(self, mousePos):

@@ -19,7 +19,7 @@ class UIControls(Controls):
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithSite(self.world, adjustedMousePos) or \
                collidesWithAgent(self.world, adjustedMousePos) and self.byAHub(adjustedMousePos) or \
-               self.graphs.collidesWithAnyButton(mousePos)
+               self.graphs.collidesWithAnyButton(mousePos, self.paused)
 
     def drag(self):
         pass

@@ -43,12 +43,15 @@ class LiveSimulation(Simulation, ABC):
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                         siteQualities, siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS,
                         predPositions=PRED_POSITIONS):
-        world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                      siteQualities, siteRadii, siteRadius, numPredators, predPositions)
-        if Display.shouldDraw and SHOULD_DRAW_FOG:
-            WorldDisplay.initFog(world.hubs)
+        self.world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
+                           siteQualities, siteRadii, siteRadius, numPredators, predPositions)
+        self.initializeAgentList()
+        if Display.shouldDraw:
+            Display.initWorldSize()
+            if SHOULD_DRAW_FOG:
+                WorldDisplay.initFog(self.world.hubs)
 
-        return world
+        return self.world
 
     def initializeAgentList(self):
         super().initializeAgentList()
@@ -152,7 +155,7 @@ class LiveSimulation(Simulation, ABC):
     def write(self, recordAll):
         self.recorder.write(recordAll)
 
-    def sendResults(self, chosenSites, simulationTime, deadAgents):
+    def sendResults(self, chosenSites, simulationTimes, deadAgents):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there """
         if self.useRestAPI or self.shouldRecord:
             positions = []
@@ -161,6 +164,6 @@ class LiveSimulation(Simulation, ABC):
                 positions.append(site.getPosition())
                 qualities.append(site.getQuality())
             if self.useRestAPI:
-                self.world.request.sendResults(positions, qualities, simulationTime, deadAgents)
+                self.world.request.sendResults(positions, qualities, simulationTimes, deadAgents)
             if self.shouldRecord:
-                self.recorder.writeResults(positions, qualities, simulationTime, deadAgents)
+                self.recorder.writeResults(positions, qualities, simulationTimes, deadAgents)

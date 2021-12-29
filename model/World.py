@@ -27,7 +27,7 @@ class World:
         self.sitesRadii = siteRadii  # A list of the radius of each site
 
         self.hubsRects = []
-        self.hubs = self.createHubs(numHubs, self.hubLocations, self.hubRadii, self.initialHubAgentCounts)  # The agents' original home
+        self.hubs = self.createHubs(numHubs)  # The agents' original homes
         self.createSites(numSites, numHubs, siteRadius)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
@@ -205,23 +205,44 @@ class World:
         for siteIndex in range(0, len(self.siteList)):
             self.siteList[siteIndex].normalizeQuality(span, zero, self.siteQualities)
 
-    def createHubs(self, numHubs, locations, radii, agentCounts):
+    def centerHubs(self, hubs):
+        if len(hubs) > 1 and Display.shouldDraw:
+            leftMostPos = np.inf
+            rightMostPos = -np.inf
+            upMostPos = np.inf
+            downMostPos = -np.inf
+            for site in self.siteList:
+                leftMostPos = site.pos[0] if site.pos[0] < leftMostPos else leftMostPos
+                rightMostPos = site.pos[0] if site.pos[0] > rightMostPos else rightMostPos
+                upMostPos = site.pos[1] if site.pos[1] < upMostPos else upMostPos
+                downMostPos = site.pos[1] if site.pos[1] > downMostPos else downMostPos
+            midX = (rightMostPos + leftMostPos) / 2
+            midY = (downMostPos + upMostPos) / 2
+            displacementX = midX - Display.origWidth / 2
+            displacementY = midY - Display.origHeight / 2
+            for i, site in enumerate(self.siteList):
+                site.setPosition([site.pos[0] - displacementX, site.pos[1] - displacementY])
+                self.siteRectList[i] = site.getSiteRect()
+                self.hubsRects[i] = site.getSiteRect()
+                self.hubLocations[i][0] -= displacementX
+                self.hubLocations[i][1] -= displacementY
+
+    def createHubs(self, numHubs):
         hubs = []
         for i in range(numHubs):
-            pos = locations[i]
-            rad = radii[i]
+            pos = self.hubLocations[i]
+            rad = self.hubRadii[i]
             hubSite = SiteBuilder.getNewSite(numHubs, pos[0], pos[1], rad, -1)
-            count = agentCounts[i]
+            count = self.initialHubAgentCounts[i]
             hubSite.agentCount = count
             hubSite.setEstimates([pos, -1, count, rad])
             hubSite.blurAmount = 1
             hubSite.blurRadiusDiff = 0
             self.siteList.append(hubSite)
             self.siteRectList.append(hubSite.getSiteRect())
+            self.hubsRects.append(hubSite.getSiteRect())
             hubs.append(hubSite)
-        for hub in hubs:
-            hubRect = hub.getSiteRect()
-            self.hubsRects.append(hubRect)
+        self.centerHubs(hubs)
 
         return hubs
 
@@ -286,7 +307,7 @@ class World:
         return closestHub
 
     def getClosestAgentWithState(self, pos, stateNums):
-        minDist = 100000
+        minDist = np.inf
         closestAgent = None
         for agent in self.agentList:
             if stateNums.__contains__(agent.getStateNumber()):

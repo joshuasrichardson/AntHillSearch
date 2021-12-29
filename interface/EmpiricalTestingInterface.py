@@ -30,6 +30,9 @@ class EmpiricalTestingInterface(LiveSimulation):
             self.recorder.recordExecutedCommands([])
             self.recorder.recordScreenBorder(None, None, None, None)
 
+    def runNextRound(self):
+        self.update(self.getAgentRectList())
+
     def getScreen(self):
         return None
 

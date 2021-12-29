@@ -73,46 +73,41 @@ def drawPause(surface):
 def drawFinish(surface, results):
     """ Tells the user the simulation has ended and shows some of the results on the screen """
     surf = pygame.Surface((origWidth, origHeight), pygame.SRCALPHA)
-    pygame.draw.rect(surf, (225, 220, 190, 200),
-                     (0, 0, origWidth, origHeight))  # Draw partially transparent surface over the screen
+    # Draw a partially transparent surface over the screen
+    pygame.draw.rect(surf, (225, 220, 190, 200), (0, 0, origWidth, origHeight))
     surface.blit(surf, (0, 0))
 
-    writeCenter(surface, "Complete")
-
+    writeCenterPlus(surface, "Complete", LARGE_FONT_SIZE, -(origHeight / 2 - 3 * LARGE_FONT_SIZE))
     x = origWidth * 4 / 9
-    y = origHeight / 2 - 2 * FONT_SIZE
-    simDuration = round(results["simulationTime"], 2)
+    y = origHeight / 6
     write(surface, "Click anywhere or press", FONT_SIZE, x, y)
     y += FONT_SIZE
     write(surface, "any key to continue.", FONT_SIZE, x, y)
-    y += FONT_SIZE * 2
-    if simDuration == 10000:
-        write(surface, "The ants did not move in time.", FONT_SIZE, x, y)
-    else:
-        write(surface, "Simulation Duration: " + str(simDuration), FONT_SIZE, x, y)
-    y += FONT_SIZE
 
-    for i, quality in enumerate(results["qualities"]):
-        y += FONT_SIZE
-        write(surface, f"Colony {i + 1}'s Site Quality: {quality}", FONT_SIZE, x, y)
-    y += FONT_SIZE
+    words = ["Colony", "Time", "Quality", "Arrivals", "Deaths"]
+    for i in range(len(results["chosenHomes"])):
+        words.append(f"{i + 1}")
+        words.append(f"{round(results['simulationTimes'][i], 2)}")
+        words.append(f"{results['qualities'][i]}")
+        words.append(f"{results['chosenHomes'][i].agentCounts[i]}/{results['initialHubAgentCounts'][i]}")
+        words.append(f"{results['deadAgents'][i]}")
+    drawResultsGrid(len(results["chosenHomes"]) + 1, len(results), words)
 
-    for i, chosenHome in enumerate(results["chosenHomes"]):
-        y += FONT_SIZE
-        write(surface,
-              f"{chosenHome.agentCounts[i]}/{results['initialHubAgentCounts'][i]} agents made it to the new site.",
-              FONT_SIZE, x, y)
-    y += FONT_SIZE
 
-    y += FONT_SIZE
-    write(surface, f"{sum(results['initialHubAgentCounts']) - sum(results['deadAgents'])}/"
-                   f"{sum(results['initialHubAgentCounts'])} agents survived.", FONT_SIZE, x, y)
-    y += FONT_SIZE
-
-    for i, numDeadAnts in enumerate(results['deadAgents']):
-        y += FONT_SIZE
-        write(surface, "Colony " + str(i + 1) + " lost " + str(numDeadAnts) + " ants to predators.",
-              FONT_SIZE, x, y)
+def drawResultsGrid(numRows, numColumns, words):
+    x = origWidth / 6
+    y = origHeight / 4
+    w = (origWidth / numColumns) / 1.5
+    h = (origHeight / numRows) / 2
+    for row in range(numRows):
+        for column in range(numColumns):
+            drawRect(screen, BORDER_COLOR, pygame.Rect(x, y, w, h), 1, False)
+            font = pygame.font.SysFont('Comic Sans MS', FONT_SIZE)
+            img = font.render(f"{words[row * numColumns + column]}", True, WORDS_COLOR).convert_alpha()
+            screen.blit(img, (x + ((w - img.get_width()) / 2), y + ((h - img.get_height()) / 2)))
+            x += w
+        y += h
+        x = origWidth / 6
 
 
 def getDestinationMarker(pos):

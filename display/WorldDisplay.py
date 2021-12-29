@@ -70,7 +70,6 @@ def drawMarkers(world):
 
 def initFog(hubs):
     global fog
-    Display.initWorldSize()
     w, h = Display.worldSize
     fog = pygame.Surface((w, h))
     fog.fill(FOG_COLOR)

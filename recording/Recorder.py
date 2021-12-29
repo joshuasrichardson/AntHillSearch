@@ -3,7 +3,7 @@ import numbers
 
 from datetime import datetime
 
-from Constants import RESULTS_DIR, RECORD_ALL
+from Constants import RESULTS_DIR
 from model.phases import Phase
 from model.states import State
 
@@ -187,10 +187,10 @@ class Recorder:
 
         self.executedCommands.clear()
 
-    def writeResults(self, positions, qualities, simulationTime, deadAgents):
+    def writeResults(self, positions, qualities, simulationTimes, deadAgents):
         results = {'positions': positions,
                    'qualities': qualities,
-                   'simulationTime': simulationTime,
+                   'simulationTimes': simulationTimes,
                    'deadAgents': deadAgents}
         with open(f'{self.outputFileBase}_RESULTS.json', 'w') as file:
             json.dump(results, file)
@@ -209,7 +209,7 @@ class Recorder:
         try:
             with open(f'{getMostRecentRecording()}_RESULTS.json', 'r') as file:
                 results = json.load(file)
-                return results['positions'], results['qualities'], results['simulationTime'], results['deadAgents']
+                return results['positions'], results['qualities'], results['simulationTimes'], results['deadAgents']
         except FileNotFoundError:
             print(f"File '{getMostRecentRecording()}_RESULTS.json' not found.")
             open(f'{getMostRecentRecording()}_RESULTS.json', 'w')

@@ -157,18 +157,18 @@ class SimulationGraphs:
     def getShouldSelectColor(shouldSelect):
         return WORDS_COLOR if shouldSelect else BORDER_COLOR
 
-    def collidesWithAnyButton(self, position):
+    def collidesWithAnyButton(self, position, paused):
         return self.collidesWithSelectAgentsButton(position) or \
                     self.collidesWithSelectSitesButton(position) or \
                     self.collidesWithSelectAgentsSitesButton(position) or \
                     self.collidesWithSelectSitesAgentsButton(position) or \
                     self.collidesWithCommandSiteAgentsButton(position) or \
-                    self.collidesWithOptionsButton(position) or \
+                    self.collidesWithOptionsButton(position, paused) or \
                     self.collidesWithPauseButton(position) or \
-                    self.collidesWithNextButton(position) or \
-                    self.collidesWithPreviousButton(position) or \
-                    self.collidesWithCloseButton(position) or \
-                    self.collidesWithExitButton(position)
+                    self.collidesWithNextButton(position, paused) or \
+                    self.collidesWithPreviousButton(position, paused) or \
+                    self.collidesWithCloseButton(position, paused) or \
+                    self.collidesWithExitButton(position, paused)
 
     def collidesWithSelectAgentsButton(self, position):
         return self.selectAgentsRect.collidepoint(position[0], position[1])
@@ -186,31 +186,23 @@ class SimulationGraphs:
         return self.commandSiteAgentsRect.collidepoint(position[0], position[1]) \
                and len(self.controlOptions["siteOptions"]) > 5
 
-    def collidesWithOptionsButton(self, position):
-        return self.showOptionsRect.collidepoint(position[0], position[1])
+    def collidesWithOptionsButton(self, position, paused):
+        return paused and self.showOptionsRect.collidepoint(position[0], position[1])
 
     def collidesWithPauseButton(self, position):
         return self.pauseButton.collidepoint(position[0], position[1])
 
-    def collidesWithNextButton(self, position):
-        if self.nextButton is None:
-            return False
-        return self.nextButton.collidepoint(position)
+    def collidesWithNextButton(self, position, paused):
+        return self.nextButton is not None and paused and self.nextButton.collidepoint(position)
 
-    def collidesWithPreviousButton(self, position):
-        if self.previousButton is None:
-            return False
-        return self.previousButton.collidepoint(position)
+    def collidesWithPreviousButton(self, position, paused):
+        return self.previousButton is not None and paused and self.previousButton.collidepoint(position)
 
-    def collidesWithCloseButton(self, position):
-        if self.closeButton is None:
-            return False
-        return self.closeButton.collidepoint(position)
+    def collidesWithCloseButton(self, position, paused):
+        return self.closeButton is not None and paused and self.closeButton.collidepoint(position)
 
-    def collidesWithExitButton(self, position):
-        if self.exitButton is None:
-            return False
-        return self.exitButton.collidepoint(position)
+    def collidesWithExitButton(self, position, paused):
+        return self.exitButton is not None and paused and self.exitButton.collidepoint(position)
 
     def drawStateNumbers(self):
         if self.shouldDrawStateNumbers:
@@ -244,7 +236,7 @@ class SimulationGraphs:
         left = left + leftMargin
         if self.pageNumber == 0:
             color = WORDS_COLOR
-            if self.collidesWithNextButton(pygame.mouse.get_pos()):
+            if self.collidesWithNextButton(pygame.mouse.get_pos(), True):
                 color = SEARCH_COLOR
             self.drawOptionsPage0(left, top, height, leftMargin, x)
             nextImg = self.font.render("NEXT >", True, color).convert_alpha()
@@ -253,7 +245,7 @@ class SimulationGraphs:
             Display.screen.blit(nextImg, self.nextButton.topleft)
         else:
             color = WORDS_COLOR
-            if self.collidesWithPreviousButton(pygame.mouse.get_pos()):
+            if self.collidesWithPreviousButton(pygame.mouse.get_pos(), True):
                 color = SEARCH_COLOR
             self.drawOptionsPage1(left, top, height)
             prevImg = self.font.render("< PREVIOUS", True, color).convert_alpha()
@@ -262,7 +254,7 @@ class SimulationGraphs:
             Display.screen.blit(prevImg, self.previousButton.topleft)
 
         color = WORDS_COLOR
-        if self.collidesWithCloseButton(pygame.mouse.get_pos()):
+        if self.collidesWithCloseButton(pygame.mouse.get_pos(), True):
             color = SEARCH_COLOR
         closeImg = self.font.render("CLOSE", True, color).convert_alpha()
         self.closeButton = pygame.Rect(x * 3 / 4 - 2 * closeImg.get_width(), top + 10,

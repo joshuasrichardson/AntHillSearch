@@ -24,12 +24,6 @@ class UserInterface(LiveSimulation):
                          maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
                          maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor, useJson=useJson)
 
-    def runNextRound(self):
-        self.userControls.handleEvents()
-        Display.screen.fill(SCREEN_COLOR)
-        self.draw()
-        super().runNextRound()
-
     def update(self, agentRectList):
         self.graphs.setRemainingTime(self.timer.getRemainingTime())
         super().update(agentRectList)

@@ -47,20 +47,16 @@ class Simulation(ABC):
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.simulationDuration = simulationDuration  # Time of the simulation if agents don't converge to a site
         self.timer = SimulationTimer(self.simulationDuration, self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
+        AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
+                                  maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily,
+                                  commitSpeedFactor)
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                                           siteQualities, siteRadii, siteRadius, numPredators, predPositions)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
         self.chosenHomes = self.initChosenHomes(numHubs)  # The site that most of the agents are assigned to when the interface ends
-        AgentSettings.setSettings(homogenousAgents, minSpeed, maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills,
-                                  maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily,
-                                  commitSpeedFactor)
-
         self.userControls = self.getControls()
-
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
-        self.initializeAgentList()  # Create the agents that will be used in the interface
-        self.remainingTime = self.simulationDuration  # Time left in the simulation
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
@@ -113,10 +109,12 @@ class Simulation(ABC):
         return self.finish()
 
     def stopTimer(self):
-        self.remainingTime = self.timer.getRemainingTime()
         self.timer.cancel()
 
     def runNextRound(self):
+        self.userControls.handleEvents()
+        Display.screen.fill(SCREEN_COLOR)
+        self.draw()
         agentRectList = self.getAgentRectList()
         self.update(agentRectList)
 
@@ -201,10 +199,16 @@ class Simulation(ABC):
                                                           hubIndex]) * self.convergenceFraction) > 0:
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
+                    hub = self.world.getHubs()[hubIndex]
+                    if hub.time == 0:
+                        hub.time = self.timer.getRemainingTime()
         for hubIndex in range(len(self.world.getHubs())):
             if self.world.initialHubAgentCounts[hubIndex] == 0:
                 self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]
                 numConverged += 1
+                hub = self.world.getHubs()[hubIndex]
+                if hub.time == 0:
+                    hub.time = self.timer.getRemainingTime()
         return numConverged >= len(self.world.getHubs())
 
     def timeOut(self):
@@ -236,37 +240,44 @@ class Simulation(ABC):
                     self.chosenHomes[i] = home
 
     def printResults(self):
-        self.printNumAgentsResults()
-        results = {"simulationTime": self.printTimeResults(),
+        results = {"simulationTimes": self.printTimeResults(),
                    "qualities": self.printHomeQualities(),
-                   "deadAgents": self.getNumDeadAgents(),
+                   "deadAgents": self.printNumAgentsResults(),
                    "chosenHomes": self.chosenHomes,
                    "initialHubAgentCounts": self.world.initialHubAgentCounts}
-        self.sendResults(self.chosenHomes, results["simulationTime"], results["deadAgents"])
+        self.sendResults(self.chosenHomes, results["simulationTimes"], results["deadAgents"])
         return results
 
     def getNumDeadAgents(self):
         return self.world.numDeadAgents
 
     def printNumAgentsResults(self):
+        numDead = self.getNumDeadAgents()
         for i in range(len(self.chosenHomes)):
             print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
                   f"colony {i + 1} made it to the new home.")
         for hubIndex in range(len(self.world.hubs)):
-            print(f"{self.world.initialHubAgentCounts[hubIndex] - self.world.numDeadAgents[hubIndex]}/"
-                  f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex} survived.")
+            print(f"{self.world.initialHubAgentCounts[hubIndex] - numDead[hubIndex]}/"
+                  f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex + 1} survived.")
+        return numDead
 
     def printTimeResults(self):
-        simulationTime = self.simulationDuration - self.remainingTime
-        print(f"The simulation took {simulationTime} seconds to complete.")
-        return simulationTime
+        times = []
+        for i, hub in enumerate(self.world.getHubs()):
+            if hub.time == 0:
+                simulationTime = self.simulationDuration
+            else:
+                simulationTime = self.simulationDuration - hub.time
+            times.append(simulationTime)
+            print(f"Colony {i + 1} took {simulationTime} seconds to finish.")
+        return times
 
     def printHomeQualities(self):
         qualities = []
         print("Their homes are ranked: ")
         for i, home in enumerate(self.chosenHomes):
             qualities.append(home.getQuality())
-            print(f"Colony {i + 1} - {home.getQuality()}/255.")
+            print(f"Colony {i + 1}: {home.getQuality()}/255.")
 
         return qualities
 
