@@ -19,7 +19,6 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 # TODO: Speed up the simulation
 # TODO: Add table of contents to tutorial and make tutorial better.
-# TODO: Set checkpoint
 # TODO: Have ants avoid sites that have ants from other colonies?
 # TODO: Add an option to show all current settings in the settings tab.
 # TODO: Be able to change things in settings without typing (dragging sites around, etc.).
@@ -28,8 +27,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        StartUpDisplay(UserInterface).run()
+        StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
+        # StartUpDisplay(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control

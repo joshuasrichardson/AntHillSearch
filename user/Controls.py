@@ -4,7 +4,7 @@ import numpy as np
 import pygame
 from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
-    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k, K_r
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k, K_r, K_w
 
 import Constants
 from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, AT_NEST, \
@@ -111,6 +111,8 @@ class Controls:
             key = event.key
             if key == K_SPACE:
                 self.go(adjustedMousePos)
+            elif key == K_w:
+                self.addCheckPoint(adjustedMousePos)
             elif key == K_z:
                 self.avoid(adjustedMousePos)
             elif key == K_r:
@@ -518,6 +520,13 @@ class Controls:
         if len(self.selectedSites) > 0:
             self.selectedSiteIndex -= 1
             self.selectedSite = self.selectedSites[self.selectedSiteIndex % len(self.selectedSites)]
+
+    def addCheckPoint(self, mousePos):
+        if len(self.selectedAgents) > 0:
+            pos = [int(mousePos[0]), int(mousePos[1])]
+            self.addToExecutedEvents(f"Added check point at {pos} for {self.getNumLivingSelectedAgents()} agents")
+        for agent in self.selectedAgents:
+            agent.checkPoints.append(mousePos)
 
     def go(self, mousePos):
         if len(self.selectedAgents) > 0:

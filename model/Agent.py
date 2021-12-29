@@ -70,6 +70,7 @@ class Agent:
         self.isSelected = False  # Whether the user clicked on the agent or its site most recently
         self.isTheSelected = False  # Whether the agent is the one with its information shown
         self.marker = None  # A marker to be drawn on the screen representing an action the agent will perform
+        self.checkPoints = []  # A list of places the agent has to go to on the way to their GO destination
         self.eraseFogCommands = []  # A list of eraseFog methods and agentRects used to clear fog after an agent has returned to the hub
 
     def setState(self, state):
