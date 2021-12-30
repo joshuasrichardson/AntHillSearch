@@ -19,14 +19,15 @@ def drawSite(site):
         site.siteRect = pygame.Rect(site.pos[0] - site.radius, site.pos[1] - site.radius, site.radius * 2, site.radius * 2)
         Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
         # drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
+
+        fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 2 * -Display.zoom
+
+        words = f"Agents: {site.agentCount}" if site.isSelected else f"{site.agentCount}"
+        img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, BORDER_COLOR).convert_alpha()
+        Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 2 * fontSize)))  # Show the number of agents assigned to the site above the site
         if site.isSelected:
-            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(f"Agents: {site.agentCount}", True, BORDER_COLOR).convert_alpha()
-        else:
-            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(str(site.agentCount), True, BORDER_COLOR).convert_alpha()
-        Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20)))  # Show the number of agents assigned to the site above the site
-        if site.isSelected:
-            img = pygame.font.SysFont('Comic Sans MS', FONT_SIZE).render(f"Quality: {site.getQuality()}", True, WORDS_COLOR).convert_alpha()
-            Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 20 + FONT_SIZE)))  # Show the site quality above the site
+            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {site.getQuality()}", True, WORDS_COLOR).convert_alpha()
+            Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 3 * fontSize)))  # Show the site quality above the site
         if site.chosen:
             drawConvergedMark(site)
 
@@ -114,13 +115,21 @@ def drawEstimatedSite(site):
             drawBlurredCircle(site.estimatedPosition, SELECTED_COLOR, site.radius * 4,
                               site.estimatedRadius + site.blurRadiusDiff + 2, site.blurAmount)
 
-        color = site.getEstimatedColor()  # Gets a color based on the estimated value of the site
-        drawBlurredSite(site, site.estimatedPosition, color, site.radius * 4,
+        drawBlurredSite(site, site.estimatedPosition, site.getEstimatedColor(), site.radius * 4,
                         site.estimatedRadius + site.blurRadiusDiff, site.blurAmount)  # Draws the site with lines representing the quality and blurriness representing how well known the site is
 
-        img = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.estimatedAgentCount)), True, BORDER_COLOR).convert_alpha()  # Draw the estimated number of agents assigned to the site
+        fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 3 * -Display.zoom
+
+        words = f"Agents: {int(site.agentCount)}" if site.isSelected else f"{int(site.estimatedAgentCount)}"
+        img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, BORDER_COLOR).convert_alpha()  # Draw the estimated number of agents assigned to the site
         Display.blitImage(Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
-                          site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 24)))
+                          site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 2 * fontSize)))
+        if site.isSelected:
+            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {int(site.estimatedQuality)}", True, WORDS_COLOR).convert_alpha()
+            Display.blitImage(Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
+                              site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 3 * fontSize)))  # Show the site quality above the site
+        if site.chosen:
+            drawConvergedMark(site)
 
 
 def drawBlurredCircle(pos, color, size, radius, blurAmount):
