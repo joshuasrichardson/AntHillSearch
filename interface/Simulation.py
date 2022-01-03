@@ -291,10 +291,9 @@ class Simulation(ABC):
         AgentDisplay.agentImage = agentImage
         SiteDisplay.knowSitePosAtStart = self.getKnowSitePosAtStart()
 
-    @abstractmethod
     def getScreen(self):
         """ Gets the screen to draw the simulation on (or None if the simulation will not be drawn) """
-        pass
+        return Display.createScreen()
 
     @abstractmethod
     def getShouldDraw(self):

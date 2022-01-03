@@ -5,8 +5,7 @@ from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
-from display.SiteDisplay import drawEstimatedSite, drawSite
-
+from display.SiteDisplay import drawEstimatedSite, drawSite, knowSitePosAtStart
 
 fog = None
 
@@ -18,12 +17,12 @@ def drawWorldObjects(world):
     drawAgents(world)
     drawPredators(world)
     if not Display.drawFarAgents:
-        for siteIndex in range(0, len(world.siteList)):
-            drawEstimatedSite(world.siteList[siteIndex])
+        for site in world.siteList:
+            drawEstimatedSite(site)
         drawDangerZones(world)
     else:
-        for siteIndex in range(0, len(world.siteList)):
-            drawSite(world.siteList[siteIndex])
+        for site in world.siteList:
+            drawSite(site)
     drawFog()
     drawMarkers(world)
     Display.drawLast()
@@ -64,7 +63,7 @@ def drawMarkers(world):
         if agent.isSelected is not None:
             AgentDisplay.drawMarker(agent, Display.screen)
     for site in world.siteList:
-        if site.markerName is not NO_MARKER_NAME:
+        if site.markerName is not NO_MARKER_NAME and site.isSelected:
             SiteDisplay.drawMarker(site)
 
 

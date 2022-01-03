@@ -2,8 +2,8 @@
 import numpy as np
 import pygame
 
-from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, ASSESS_COLOR, \
-    HUB_OBSERVE_DIST, DEAD
+from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, \
+    HUB_OBSERVE_DIST, DEAD, MIN_AVOID_DIST, AVOID_MARKER_XY
 from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
@@ -23,7 +23,7 @@ def drawAgent(agent, surface):
             drawKnownSiteMarkers(agent, surface)
             drawAssignedSite(agent)
             setAgentMarker(agent)
-            drawPlacesToAvoid(agent, surface)
+            drawPlacesToAvoid(agent)
         if agent.isSelected:  # Only draw state and phase circles for the selected agents
             Display.drawCircle(surface, agent.getStateColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
             Display.drawCircle(surface, agent.getPhaseColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
@@ -32,7 +32,7 @@ def drawAgent(agent, surface):
 
 
 def drawLastKnownPos(agent):
-    Display.drawCircle(Display.screen, agent.lastKnownPhaseColor, agent.lastSeenPos, 3, adjust=True)
+    Display.drawCircle(Display.screen, agent.lastKnownPhaseColor, agent.lastSeenPos, 4, adjust=True)
 
 
 def getAgentImage(pos):
@@ -63,12 +63,13 @@ def drawMarker(agent, surface):
         Display.blitImage(Display.screen, agent.marker[0], agent.marker[1])
 
 
-def drawPlacesToAvoid(agent, surface):
+def drawPlacesToAvoid(agent):
     """ Draws the places the agent should avoid on the screen """
     if Display.drawFarAgents or agent.isCloseToHub():
-        for marker in agent.avoidMarkers:
-            drawDashedLine(surface, ASSESS_COLOR, agent.pos, marker[1].center, width=3, dashLength=2)
-            Display.blitImage(Display.screen, marker[0], marker[1])
+        for pos in agent.placesToAvoid:
+            Display.drawLine(Display.screen, (155, 0, 0, 120), [pos[0] - AVOID_MARKER_XY, pos[1] + AVOID_MARKER_XY],
+                             [pos[0] + AVOID_MARKER_XY, pos[1] - AVOID_MARKER_XY], 4)
+            Display.drawCircle(Display.screen, (155, 0, 0, 120), pos, MIN_AVOID_DIST, 4)
 
 
 def drawPath(agent, surface):

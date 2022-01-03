@@ -3,7 +3,7 @@ import numpy
 import pygame
 
 from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS, FONT_SIZE, \
-    CONVERGED_COLOR
+    CONVERGED_COLOR, AVOID_MARKER_XY, MIN_AVOID_DIST
 from display import Display
 from display.Display import drawDashedLine, getBlurredImage, drawCircle, drawLine
 
@@ -18,16 +18,15 @@ def drawSite(site):
             Display.drawCircle(Display.screen, SELECTED_COLOR, site.pos, site.radius + 2, 0)  # Draw a circle over the background showing that the site is selected
         site.siteRect = pygame.Rect(site.pos[0] - site.radius, site.pos[1] - site.radius, site.radius * 2, site.radius * 2)
         Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
-        # drawCircleLines(Display.screen, site.siteRect, BORDER_COLOR, site.getDensity(site.quality))  # Draw grid lines representing the quality of the site (more lines is worse)
-
         fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 2 * -Display.zoom
 
-        words = f"Agents: {site.agentCount}" if site.isSelected else f"{site.agentCount}"
-        img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, BORDER_COLOR).convert_alpha()
-        Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 2 * fontSize)))  # Show the number of agents assigned to the site above the site
+        if site.wasFound:
+            words = f"Agents: {site.agentCount}" if site.isSelected else f"{site.agentCount}"
+            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, WORDS_COLOR).convert_alpha()
+            Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 2 * fontSize)))  # Show the number of agents assigned to the site above the site
         if site.isSelected:
             img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {site.getQuality()}", True, WORDS_COLOR).convert_alpha()
-            Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 3 * fontSize)))  # Show the site quality above the site
+            Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 3 * fontSize)))  # Show the site quality above the site
         if site.chosen:
             drawConvergedMark(site)
 
@@ -74,10 +73,18 @@ def drawQuality(site):
 
 def drawMarker(site):
     """ Draw a marker on the screen representing the command that will be applied to agents that come to the site """
+    for pos in site.areasToAvoid:
+        Display.drawLine(Display.screen, (155, 0, 0, 120), [pos[0] - AVOID_MARKER_XY, pos[1] + AVOID_MARKER_XY],
+                         [pos[0] + AVOID_MARKER_XY, pos[1] - AVOID_MARKER_XY], 4)
+        Display.drawCircle(Display.screen, (155, 0, 0, 120), pos, MIN_AVOID_DIST, 4)
+    lastPoint = site.pos
+    for point in site.checkPoints:
+        drawDashedLine(Display.screen, BORDER_COLOR, lastPoint, point)
+        lastPoint = point
     if site.marker is not None:
         try:
             # Draw a dashed line from the site to the marker
-            drawDashedLine(Display.screen, BORDER_COLOR, site.pos, site.marker[1].center)
+            drawDashedLine(Display.screen, BORDER_COLOR, lastPoint, site.marker[1].center)
             # Draw the marker
             Display.blitImage(Display.screen, site.marker[0], site.marker[1])
         except TypeError:
@@ -91,7 +98,7 @@ def drawAssignmentMarker(site, fromPos, color):
     else:
         try:
             drawAssignmentMarker2(site.estimatedSiteRect, color)  # Draw the marker around where the agents think it is
-        except:  # If the agents haven't estimated the position yet, an exception will be made.
+        except AttributeError:  # If the agents haven't estimated the position yet, an exception will be made.
             pass  # In that case, we just don't show anything
 
 
@@ -121,13 +128,13 @@ def drawEstimatedSite(site):
         fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 3 * -Display.zoom
 
         words = f"Agents: {int(site.agentCount)}" if site.isSelected else f"{int(site.estimatedAgentCount)}"
-        img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, BORDER_COLOR).convert_alpha()  # Draw the estimated number of agents assigned to the site
-        Display.blitImage(Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
-                          site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 2 * fontSize)))
+        img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, WORDS_COLOR).convert_alpha()
+        Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
+                              site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 2 * fontSize)))  # Draw the estimated number of agents assigned to the site
         if site.isSelected:
             img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {int(site.estimatedQuality)}", True, WORDS_COLOR).convert_alpha()
-            Display.blitImage(Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
-                              site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 3 * fontSize)))  # Show the site quality above the site
+            Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
+                                  site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 3 * fontSize)))  # Show the site quality above the site
         if site.chosen:
             drawConvergedMark(site)
 
@@ -145,16 +152,11 @@ def drawBlurredSite(site, pos, color, size, radius, blurAmount):
     """ Draws a blurry circle with blurred lines """
     image = pygame.Surface([size, size], pygame.SRCALPHA, 32)
     image = image.convert_alpha()
-    rect = pygame.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
-    # drawCircleLines(image, rect, BORDER_COLOR, getDensity(site.estimatedQuality), False)
+    pygame.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
     blur = getBlurredImage(image, blurAmount)
-    site.estimatedSiteRect = (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2))
+    site.estimatedSiteRect = pygame.Rect(pos[0] - site.estimatedRadius, pos[1] - site.estimatedRadius,
+                                         site.estimatedRadius * 2, site.estimatedRadius * 2)
     Display.blitImage(Display.screen, blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
-
-
-def getDensity(quality):
-    """ Get the space between lines """
-    return int(quality / 20) + 2
 
 
 def drawConvergedMark(site):

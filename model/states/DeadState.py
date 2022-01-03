@@ -13,7 +13,7 @@ class DeadState(State):
     def changeState(self, neighborList) -> None:
         pass
 
-    def executeCommand(self):
+    def executeCommands(self):
         return True
 
     def toString(self):

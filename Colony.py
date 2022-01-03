@@ -27,8 +27,8 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 def main():
     try:
-        StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        # StartUpDisplay(UserInterface).run()
+        # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
+        StartUpDisplay(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
@@ -61,7 +61,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
             results = colony.runSimulation()  # Starts the interface
             # Store results from each simulation so we can see a summary of all the simulations below.
             chosenSiteQualities.append(results["qualities"])
-            convergenceTimes.append(results["simulationTime"])
+            convergenceTimes.append(results["simulationTimes"])
             chosenHomes.append(results["chosenHomes"])
             deaths.append(results["deadAgents"])
             totals.append(results["initialHubAgentCounts"])

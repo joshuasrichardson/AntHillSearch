@@ -171,9 +171,6 @@ class RecordingPlayer(Simulation):
     def getNumDeadAgents(self):
         return self.recorder.readResults()[3]
 
-    def getScreen(self):
-        return Display.createScreen()
-
     def getShouldDraw(self):
         return True
 

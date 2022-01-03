@@ -1,12 +1,8 @@
 import random
 
-import numpy as np
-
-import display.Display
 from Constants import *
 from display import SiteDisplay, WorldDisplay, Display
 from display.AgentDisplay import getAgentImage
-from display.Display import getAvoidMarker
 from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ConvergedPhase import ConvergedPhase
@@ -43,7 +39,6 @@ class Agent:
         self.target = list(startingPosition)  # The position the agent is going to
         self.angle = np.random.uniform(0, np.pi, 1)  # Angle the agent is moving
         self.placesToAvoid = []  # A list of points that the agent should stay away from
-        self.avoidMarkers = []  # A list of markers indicating the positions the agents should avoid
         self.recentlySeenPredatorPositions = []
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
@@ -77,7 +72,7 @@ class Agent:
         self.state = state
 
     def changeState(self, neighborList):
-        if self.state.executeCommand():
+        if self.state.executeCommands():
             return
         self.state.changeState(neighborList)
 
@@ -277,12 +272,11 @@ class Agent:
         if pos is not None and self.getNearbyPlaceToAvoid() is None:
             self.placesToAvoid.append(pos)
             self.recentlySeenPredatorPositions.append(pos)
-            if display.Display.shouldDraw:
-                self.avoidMarkers.append(getAvoidMarker(pos))
+            if len(self.placesToAvoid) > MAX_NUM_AVOIDS:
+                self.placesToAvoid.pop(0)
 
     def stopAvoiding(self, index):
         self.placesToAvoid.pop(index)
-        self.avoidMarkers.pop(index)
 
     def forgetDangerousSites(self, pos):
         for site in self.knownSites:
@@ -394,3 +388,6 @@ class Agent:
             self.assignedSite.decrementCount(self.getHubIndex())  # They no longer count toward converging to a site
             self.assignedSite = None
             self.world.incrementDeadAgents(self.getHubIndex())  # Need to keep track of how many died so the number needed to converge goes down.
+            self.checkPoints = []
+            self.placesToAvoid = []
+            self.target = None

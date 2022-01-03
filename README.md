@@ -21,10 +21,9 @@ best of N problem).
 In the simulation, the hub (the agents' original home) is 
 represented by a black circle, and the other sites are 
 represented by circles with different shades of red or green
-depending on their quality. The bright green sites with fewer 
-stripes are the best, and the bright red sites with many 
-stripes are the worst. Brownish sites with an average number 
-of stripes are somewhere in the middle. Agents are represented 
+depending on their quality. The bright green sites are the best, 
+and the bright red sites are the worst. Brownish sites are 
+somewhere in the middle. Agents are represented 
 by smaller copters or ants (depending on the settings) and, when 
 they are selected, surrounded by circles with colors representing 
 their current phase and state.
@@ -419,6 +418,10 @@ be more to come).
   simulation down because the time still runs at the same speed.
   It is just a way to make each agent move slower.</p>
 
+- <strong>Set Check Point</strong> - <code>W</code>:
+  <p>Users can tell agents where to go on the way to their destination
+  before using the "Move Agent" command by pressing <code>w</code>.</p>
+
 - <strong>Move Agent</strong> - <code>SPACE</code> or <code>RIGHT_CLICK</code>:
   <p>Users can tell agents where to go by selecting the agents 
   (see "Select Agent" and "Wide Select" above), moving the mouse
@@ -542,6 +545,10 @@ be more to come).
   <code>MOUSEBUTTONUP</code>:
   <p>Users can move sites by clicking them with the mouse, dragging 
   them to a new location, and releasing the mouse button.</p>
+
+- <strong>Set Check Point</strong> - <code>W</code>:
+  <p>Users can tell agents where to go on the way to their destination
+  before using the "Command Agents to Go" command by pressing <code>w</code>.</p>
 
 - <strong>Command Agents to Go</strong> - <code>SPACE</code> or <code>RIGHT_CLICK</code>:
   <p>Users can set a point where all agents who stop at the selected site must

@@ -1,5 +1,4 @@
 from Constants import *
-from display import Display
 from display.Graphs import SimulationGraphs
 from interface.LiveSimulation import LiveSimulation
 from user.UIControls import UIControls
@@ -28,9 +27,6 @@ class UserInterface(LiveSimulation):
         self.graphs.setRemainingTime(self.timer.getRemainingTime())
         super().update(agentRectList)
         self.userControls.moveScreen()
-
-    def getScreen(self):
-        return Display.createScreen()
 
     def getShouldDraw(self):
         return True

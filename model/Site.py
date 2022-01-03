@@ -1,7 +1,9 @@
+from copy import copy
+
 import numpy as np
 from pygame.rect import Rect
 
-from Constants import INITIAL_BLUR, AVOID_NAME, STOP_AVOID_NAME
+from Constants import INITIAL_BLUR, AVOID_NAME, STOP_AVOID_NAME, GO_NAME, NO_MARKER_NAME
 
 
 class Site:
@@ -26,6 +28,8 @@ class Site:
         self.commandArg = None  # The position of the command (for commands like go)
         self.marker = None  # A marker to be drawn on the screen representing the command
         self.markerName = None  # A way to identify which marker the site has for a recording
+        self.checkPoints = []
+        self.areasToAvoid = []
 
         self.estimatedPosition = None  # The average position of where agents think the site is located
         self.estimatedQuality = None  # The average quality of what agents think it is
@@ -154,8 +158,15 @@ class Site:
         self.commandArg = arg
         self.marker = marker
         self.markerName = markerName
+        if self.markerName == NO_MARKER_NAME:
+            self.checkPoints = []
+            self.areasToAvoid = []
 
-    def executeCommand(self, agent):
+    def executeCommands(self, agent):
+        if self.markerName == GO_NAME:
+            agent.checkPoints = copy(self.checkPoints)
+        for area in self.areasToAvoid:
+            agent.avoid(area)
         if self.command is None or self.markerName is AVOID_NAME or self.markerName is STOP_AVOID_NAME:
             return False
         self.command(agent, self.commandArg)

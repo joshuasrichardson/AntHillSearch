@@ -1,6 +1,6 @@
 import numpy as np
 
-from Constants import KILL_THRESHOLD
+from Constants import KILL_THRESHOLD, DEAD
 from display.PredatorDisplay import getPredatorImage
 
 
@@ -47,7 +47,9 @@ class Predator:
     def attack(self, preyList):
         if np.random.exponential() > KILL_THRESHOLD:
             for agent in preyList:
-                agent.die()
+                if agent.getStateNumber() != DEAD:
+                    agent.die()
         else:
             for agent in preyList:
-                agent.avoid(self.pos)
+                if agent.getStateNumber() != DEAD:
+                    agent.avoid(self.pos)

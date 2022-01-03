@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
-    SITE_RADIUS, FONT_SIZE, MIN_AVOID_DIST, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR
+    SITE_RADIUS, FONT_SIZE, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -120,17 +120,6 @@ def getDestinationMarker(pos):
     return arrows, rect
 
 
-def getAvoidMarker(pos):
-    """ Loads, adjusts the size, and returns the image representing a place to avoid """
-    avoidPlace = pygame.image.load("resources/avoid.png")
-    avoidPlace = avoidPlace.convert_alpha()
-    if avoidPlace.get_size()[0] > 2 * MIN_AVOID_DIST or avoidPlace.get_size()[1] > 2 * MIN_AVOID_DIST:
-        avoidPlace = pygame.transform.scale(avoidPlace, (2 * MIN_AVOID_DIST, 2 * MIN_AVOID_DIST))
-    rect = avoidPlace.get_rect().move(pos)
-    rect.center = pos
-    return avoidPlace, rect
-
-
 def getAssignmentMarker(pos):
     """ Loads, adjusts the size, and returns the image representing an assignment """
     target = pygame.image.load("resources/target.png").convert_alpha()
@@ -195,6 +184,14 @@ def rotateImage(surface, image, pos, originPos, angle):
     blitImage(surface, rotatedImage, origin)
 
 
+def onScreenX(x):
+    return 0 < x < origWidth
+
+
+def onScreenY(y):
+    return 0 < y < origHeight
+
+
 def drawRect(surf, color, rect, width=0, adjust=True):
     if not adjust:
         rectangle = rect
@@ -202,7 +199,11 @@ def drawRect(surf, color, rect, width=0, adjust=True):
         left, top = getAdjustedPos(rect.left, rect.top)
         w, h = getZoomedSize(rect.width, rect.height)
         rectangle = pygame.Rect(left, top, w, h)
-    return pygame.draw.rect(surf, color, rectangle, width)
+    if onScreenX(rectangle.left) or onScreenX(rectangle.right) or \
+            onScreenY(rectangle.top) or onScreenY(rectangle.bottom):
+        return pygame.draw.rect(surf, color, rectangle, width)
+    else:
+        return rectangle
 
 
 def drawCircle(surface, color, pos, radius, width=0, adjust=True):
@@ -211,7 +212,12 @@ def drawCircle(surface, color, pos, radius, width=0, adjust=True):
     else:
         position = getAdjustedPos(pos[0], pos[1])
         radius = getZoomedSize(radius, radius)[0]
-    return pygame.draw.circle(surface, color, position, radius, width)
+    x, y = position
+    if onScreenX(x - radius) or onScreenX(x + radius) or \
+            onScreenY(y - radius) or onScreenY(y + radius):
+        return pygame.draw.circle(surface, color, position, radius, width)
+    else:
+        return pygame.Rect(x - radius, y - radius, radius * 2, radius * 2)
 
 
 def drawPolygon(surface, color, positions, adjust=True):
@@ -237,7 +243,7 @@ def blitImage(surface, source, destination, adjust=True):
     if adjust:
         try:
             dest = getAdjustedPos(destination[0], destination[1])
-        except:
+        except AttributeError:
             dest = getAdjustedPos(destination.left, destination.top)
         try:
             source = pygame.transform.scale(source, getZoomedSize(source.get_width(), source.get_height()))
@@ -334,7 +340,7 @@ def drawLast():
 
 def zoomIn():
     global newWidth, newHeight, zoom, displacementX, displacementY
-    if newWidth < 2000:
+    if newWidth < 1600:
         oldCenterX, oldCenterY = getReadjustedPos(origWidth / 2, origHeight / 2)
         zoom += 1
         newWidth = int(origWidth + ((zoom / 15) * origWidth))

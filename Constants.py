@@ -1,6 +1,8 @@
 """ Global constants used in swarm interface program """
 
 # The lower the convergence fraction is, the faster the interface goes because lower fractions require less agents to go to a site
+import numpy as np
+
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
@@ -126,6 +128,8 @@ HUB_MIN_Y = 0 - MAX_SEARCH_DIST  # The farthest left a hub can randomly be place
 HUB_MAX_X = 1250 + MAX_SEARCH_DIST  # The farthest right a hub can randomly be placed.
 HUB_MAX_Y = 650 + MAX_SEARCH_DIST  # The farthest right a hub can randomly be placed.
 MIN_AVOID_DIST = 100  # The closest an ant can get to a point the it is avoiding.
+AVOID_MARKER_XY = MIN_AVOID_DIST * np.sin(np.pi / 4)  # x and y distances to corners of circle.
+MAX_NUM_AVOIDS = 4  # The max number of areas an agent or site can avoid.
 # Setting the speed too high actually makes the interface take longer because the agents don't turn as
 # sharp and find sites as easily.
 # Setting it low makes the interface take longer just because the agents aren't moving as fast.
@@ -259,36 +263,37 @@ PHASES_LIST = ['EXPLORE', 'ASSESS', 'CANVAS', 'COMMIT', "CONVERGED"]
 SELECTED_COLOR = 0, 255, 244  # Cyan
 
 AGENT_OPTIONS = ['Select', 'Wide Select', 'Set Group', 'Select Group', 'Half', 'Next', 'Previous', 'Speed Up',
-                 'Slow Down', 'Move', 'Assign to Site', 'Avoid', 'Set State', 'Kill', 'Create', 'Delete', 'Unselect']
+                 'Slow Down', 'Set Check Point', 'Move', 'Assign to Site', 'Avoid', 'Set State', 'Kill', 'Create',
+                 'Delete', 'Unselect']
 
 AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- CTRL + 0-9', '- 0-9', '- H', '- RIGHT ARROW',
-                        '- LEFT ARROW', '- F', '- S', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- K',
-                        '- X', '- DEL or /', '- ESC']
+                        '- LEFT ARROW', '- F', '- S', '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6',
+                        '- K', '- X', '- DEL or /', '- ESC']
 
 SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Move', 'Set Quality', 'Raise Quality', 'Lower Quality',
-                'Expand', 'Shrink', 'Create', 'Delete', 'Set Go Point', 'Set Assign Site', 'Set Avoid Area',
-                'Set Agents States', 'Remove Command', 'Unselect']
+                'Expand', 'Shrink', 'Create', 'Delete', 'Set Check Point', 'Set Go Point', 'Set Assign Site',
+                'Set Avoid Area', 'Set Agents States', 'Remove Command', 'Unselect']
 
 SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW', '- DRAG LEFT CLICK',
                        '- 0-9/BACKSPACE + RETURN', '- UP ARROW', '- DOWN ARROW', '- = (+)', '- -', '- C',
-                       '- DEL or /', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
+                       '- DEL or /', '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
 
 CONTROL_OPTIONS = {"agentOptions": AGENT_OPTIONS,
                    "agentOptionButtons": AGENT_OPTION_BUTTONS,
                    "siteOptions": SITE_OPTIONS,
                    "siteOptionButtons": SITE_OPTION_BUTTONS}
 
-UI_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 'Move', 'Assign to Site', 'Avoid', 'Set State',
-                    'Unselect']
+UI_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 'Set Check Point', 'Move', 'Assign to Site',
+                    'Avoid', 'Set State', 'Unselect']
 
 UI_AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- H', '- RIGHT ARROW', '- LEFT ARROW',
-                           '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- ESC']
+                           '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- ESC']
 
-UI_SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Set Go Point', 'Set Assign Site', 'Set Avoid Area',
-                   'Set Agents States', 'Remove Command', 'Unselect']
+UI_SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Set Check Point', 'Set Go Point', 'Set Assign Site',
+                   'Set Avoid Area', 'Set Agents States', 'Remove Command', 'Unselect']
 
 UI_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW',
-                          '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
+                          '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
 
 UI_CONTROL_OPTIONS = {"agentOptions": UI_AGENT_OPTIONS,
                       "agentOptionButtons": UI_AGENT_OPTION_BUTTONS,

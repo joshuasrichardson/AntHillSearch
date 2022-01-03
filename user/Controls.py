@@ -12,7 +12,7 @@ from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, AT_NEST, \
 from display import Display
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
-from display.Display import getDestinationMarker, getAssignmentMarker, getAvoidMarker
+from display.Display import getDestinationMarker, getAssignmentMarker
 from model.builder import AgentBuilder, SiteSettings
 from model.phases.ExplorePhase import ExplorePhase
 from model.states import State
@@ -436,7 +436,7 @@ class Controls:
         return None
 
     def selectSites(self, rect):
-        selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(rect)]
+        selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(rect) and s.wasFound]
         if self.shouldSelectSites:
             self.selectedSites = selectedSites
 
@@ -527,6 +527,12 @@ class Controls:
             self.addToExecutedEvents(f"Added check point at {pos} for {self.getNumLivingSelectedAgents()} agents")
         for agent in self.selectedAgents:
             agent.checkPoints.append(mousePos)
+        if self.shouldCommandSiteAgents:
+            if len(self.selectedSites) > 0:
+                pos = [int(mousePos[0]), int(mousePos[1])]
+                self.addToExecutedEvents(f"Added check point at {pos} for {len(self.selectedSites)} sites")
+            for site in self.selectedSites:
+                site.checkPoints.append(mousePos)
 
     def go(self, mousePos):
         if len(self.selectedAgents) > 0:
@@ -548,10 +554,21 @@ class Controls:
         if len(self.selectedAgents) > 0:
             pos = [int(pos[0]), int(pos[1])]
             self.addToExecutedEvents(f"{self.getNumLivingSelectedAgents()} agents started avoiding {pos}")
-        marker = getAvoidMarker(pos)
-        self.setSelectedSitesCommand(self.avoidCommand, list(pos), marker, Constants.AVOID_NAME)
         for a in self.selectedAgents:
             self.avoidCommand(a, pos)
+        if self.shouldCommandSiteAgents:
+            if len(self.selectedSites) > 0:
+                pos = [int(pos[0]), int(pos[1])]
+                self.addToExecutedEvents(f"{len(self.selectedSites)} sites started avoiding {pos}")
+            for site in self.selectedSites:
+                site.areasToAvoid.append(pos)
+                if len(site.areasToAvoid) > Constants.MAX_NUM_AVOIDS:
+                    self.addToExecutedEvents(f"Removed command to avoid {site.areasToAvoid.pop(0)}")
+
+    @staticmethod
+    def avoidCommand(agent, mousePos):
+        if agent.getStateNumber() != Constants.DEAD:
+            agent.avoid(mousePos)
 
     def removeAvoids(self, pos):
         if len(self.selectedAgents) > 0:
@@ -566,11 +583,6 @@ class Controls:
         for i, place in enumerate(reversed(agent.placesToAvoid)):
             if abs(place[0] - pos[0]) < 100 and abs(place[1] - pos[1]) < 100:
                 agent.stopAvoiding(i)
-
-    @staticmethod
-    def avoidCommand(agent, mousePos):
-        if agent.getStateNumber() != Constants.DEAD:
-            agent.avoid(mousePos)
 
     @staticmethod
     def assignCommand(agent, mousePos):
