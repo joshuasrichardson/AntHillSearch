@@ -116,6 +116,7 @@ class RecordingPlayer(Simulation):
             marker = self.recorder.getNextSiteMarker()
 
             try:
+                self.world.siteList[i].wasFound = True
                 self.world.siteList[i].setPosition(pos)
                 self.world.siteList[i].setQuality(quality)
                 self.world.siteList[i].radius = rad

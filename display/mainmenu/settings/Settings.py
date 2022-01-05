@@ -1,6 +1,6 @@
 import json
 
-from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION
+from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_ESCAPE
 
 from ColonyExceptions import GameOver
 from Constants import *
@@ -93,6 +93,8 @@ class Settings:
                 return self.mouseButtonPressed(pygame.mouse.get_pos())
             elif event.type == MOUSEMOTION:
                 self.updateCursor()
+            elif event.type == KEYDOWN and event.key == K_ESCAPE:
+                return False
             if event.type == QUIT:
                 pygame.quit()
                 raise GameOver("Game Over")

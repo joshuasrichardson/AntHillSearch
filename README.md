@@ -110,7 +110,7 @@ it is running.
 
 ## Parameters
 
-The parameters set before the simulation begins can have a big
+The parameters can have a big
 impact on the set up and behavior of the simulation. The default 
 parameters and more information about them can be found in 
 <code>Constants.py</code>. 
@@ -118,10 +118,10 @@ parameters and more information about them can be found in
 There are 3 main ways to change the parameters:
 
 1. While the program is running, select the Settings tab from 
-   the main menu, select the option to be changed, and enter 
-   desired values.
+   the main menu, select the option to be changed, type the 
+   desired values, and press enter.
    Note that this method can only change certain parameters, 
-   but it will override the other methods unless 
+   but it will override the methods below unless 
    <code>useJson</code> is set to <code>False</code>.
    
 2. Before running the program, set parameters in 
@@ -158,7 +158,7 @@ shown here can be changed in the inheriting classes.
   
 - <code>useRestAPI</code>: Boolean that decides whether to send information from the hubs to the Rest API.
   Note that when running the simulation with this value set to True, the RestAPI needs to be started before 
-  the simulation is started.
+  the simulation starts.
 
 - <code>shouldRecord</code>: Boolean that decides whether the simulation is recorded to the recording.json file.
  

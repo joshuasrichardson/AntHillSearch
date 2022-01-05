@@ -1,5 +1,5 @@
 import pygame
-from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION
+from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_ESCAPE, K_RIGHT, K_LEFT
 
 from ColonyExceptions import GameOver
 from Constants import FONT_SIZE, LARGE_FONT_SIZE, WORDS_COLOR, BORDER_COLOR, SCREEN_COLOR, SEARCH_COLOR
@@ -18,10 +18,10 @@ class Tutorial:
 
         self.mousePos = [0, 0]
 
-        self.pageNumber = 0
+        self.pageNumber = -1
         self.pages = []
-        for page in range(2, 11):
-            self.pages.append("resources/instructions/page" + str(page) + ".png")
+        for page in range(1, 29):
+            self.pages.append("display/mainmenu/tutorial/instructions/page" + str(page) + ".png")
         self.pages.append(None)
 
     def run(self):
@@ -36,35 +36,44 @@ class Tutorial:
             pass
 
     def showInstructions(self):
-        if self.pageNumber == 0:
-            self.drawPage1()
+        if self.pageNumber == -1:
+            self.drawIntroPage()
         elif self.pageNumber == len(self.pages) - 1:
             self.drawLastPage()
         else:
             self.drawPage()
 
-    def drawPage1(self):
+    def drawIntroPage(self):
         Display.writeCenterPlus(Display.screen, "Anthill Search", LARGE_FONT_SIZE, -4 * LARGE_FONT_SIZE)
         instructions = ["The ants old home has been broken!",
-                        "Your task is to help them find the ",
-                        "best new home in the area."]
+                        "Your mission is to help them ",
+                        "find the best new home in the area ",
+                        "in the shortest time possible ",
+                        "with as many survivors as possible."]
         for i, instruction in enumerate(instructions):
             Display.writeCenterPlus(Display.screen, instruction, FONT_SIZE * 2, FONT_SIZE * 2 * i)
         self.drawBackButton()
         self.drawNextButton()
 
     def drawPage(self):
-        page2 = pygame.image.load(self.pages[self.pageNumber])
-        page2 = page2.convert_alpha()
-        page2 = pygame.transform.scale(page2, (Display.origWidth, Display.origHeight))
-        Display.screen.blit(page2, [0, 0])
+        page = pygame.image.load(self.pages[self.pageNumber]).convert_alpha()
+        page = pygame.transform.scale(page, (Display.origWidth, Display.origHeight))
+        Display.screen.blit(page, [0, 0])
         self.drawBackButton()
         self.drawPreviousButton()
         self.drawNextButton()
 
     def drawLastPage(self):
         Display.writeCenterPlus(Display.screen, "Anthill Search", LARGE_FONT_SIZE, -4 * LARGE_FONT_SIZE)
-        instructions = ["Good luck!"]
+        instructions = ["Remember:",
+                        "",
+                        " Good quality home ",
+                        " Short time ",
+                        " Many survivors ",
+                        "",
+                        "Good luck!",
+                        "",
+                        "Press play to do a practice round."]
         for i, instruction in enumerate(instructions):
             Display.writeCenterPlus(Display.screen, instruction, FONT_SIZE * 2, FONT_SIZE * 2 * i)
         self.drawBackButton()
@@ -114,6 +123,13 @@ class Tutorial:
                 return self.mouseButtonPressed(pygame.mouse.get_pos())
             elif event.type == MOUSEMOTION:
                 self.setMouse()
+            elif event.type == KEYDOWN:
+                if event.key == K_LEFT and self.pageNumber >= 0:
+                    self.pageNumber -= 1
+                elif event.key == K_RIGHT and self.pageNumber < len(self.pages) - 1:
+                    self.pageNumber += 1
+                elif event.key == K_ESCAPE:
+                    return False
             elif event.type == QUIT:
                 pygame.quit()
                 raise GameOver("Game Over")

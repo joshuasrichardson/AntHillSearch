@@ -6,8 +6,9 @@ from pygame import MOUSEBUTTONUP, QUIT
 from ColonyExceptions import GameOver
 from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE, TRIAL_SETTINGS, SEARCH_COLOR, SETTINGS_FILE_NAME
 from display import Display
+from display.mainmenu.InterfaceSelector import InterfaceSelector
 from display.mainmenu.settings.Settings import Settings
-from display.mainmenu.Tutorial import Tutorial
+from display.mainmenu.tutorial.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 from recording.Recorder import getMostRecentRecording
 
@@ -22,10 +23,12 @@ EXIT = "Exit"
 class StartUpDisplay:
     def __init__(self, interface):
         Display.createScreen()  # Initialize the pygame screen
+        self.defaultInterface = interface  # The interface to be played when the "Play" option is selected
         self.freshInterface = interface  # The interface to run when "Play" or "Practice" is selected
+        self.interfaceSelector = InterfaceSelector()  # An object used to change the interface
         self.simInterface = None  # A constructed version of the interface that we will run
         self.mousePos = [-1, -1]  # Where the mouse is (for when something is selected)
-        self.tutorial = Tutorial(self.play)  # The tutorial about how to play the game
+        self.tutorial = Tutorial(self.practice)  # The tutorial about how to play the game
         self.settings = Settings()  # Settings that can be changed
 
     def run(self):
@@ -80,7 +83,7 @@ class StartUpDisplay:
         if option == DO_USER_EXPERIMENTS:
             self.doUserExperiments()
         elif option == PRACTICE:
-            self.play()
+            self.practice()
         elif option == TUTORIAL:
             self.startTutorial()
         elif option == REPLAY:
@@ -102,6 +105,13 @@ class StartUpDisplay:
         """ Copy the current trial's settings to the settings file that will be used in the simulation """
         with open(trialSetting, 'r') as trialFile, open(SETTINGS_FILE_NAME, 'w') as currentSettings:
             currentSettings.write(trialFile.read())
+
+    def practice(self):
+        interface = self.interfaceSelector.chooseInterface()
+        if interface is not None:
+            self.freshInterface = interface
+            self.play()
+        self.freshInterface = self.defaultInterface
 
     def play(self):
         """ Construct and start the simulation """
