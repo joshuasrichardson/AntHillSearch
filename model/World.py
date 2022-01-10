@@ -95,11 +95,18 @@ class World:
 
         for i in range(numPredators):
             try:
-                predators.append(Predator(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
-                                          self, predPositions[i]))
+                if len(self.siteList) < len(self.hubs) + 2:
+                    predators.append(Predator(self.siteList[len(self.hubs)], self, predPositions[i]))
+                else:
+                    predators.append(Predator(self.siteList[np.random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                                              self, predPositions[i]))
             except IndexError:
-                predators.append(Predator(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
-                                          self))
+                if len(self.siteList) < 2:
+                    predators.append(Predator(self.siteList[len(self.hubs)], self))
+                else:
+                    predators.append(Predator(self.siteList[np.random.default_rng(12345).integers(len(self.hubs),len(self.siteList) - 1)],
+                                              self))
+
         return predators
 
     def getSiteList(self):

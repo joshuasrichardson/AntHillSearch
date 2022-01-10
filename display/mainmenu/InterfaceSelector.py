@@ -25,8 +25,8 @@ class InterfaceSelector:
         reading = True
         while reading:  # Keep going till the game is over
             Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-            Display.blitImage(Display.screen, self.uiImage, self.uiButton.topleft)
-            Display.blitImage(Display.screen, self.eiImage, self.eiButton.topleft)
+            Display.blitImage(Display.screen, self.uiImage, self.uiButton.topleft, False)
+            Display.blitImage(Display.screen, self.eiImage, self.eiButton.topleft, False)
             pygame.display.flip()  # Have the things that have been drawn show up
             reading = self.handleEvents()  # Handle any user input
         return self.interface

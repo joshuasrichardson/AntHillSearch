@@ -17,9 +17,6 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-# TODO: Speed up the simulation
-# TODO: Add table of contents to tutorial and make tutorial better.
-# TODO: Have ants avoid sites that have ants from other colonies?
 # TODO: Add an option to show all current settings in the settings tab.
 # TODO: Be able to change things in settings without typing (dragging sites around, etc.).
 # TODO: Think about how to display predictions.

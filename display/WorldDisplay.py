@@ -108,6 +108,17 @@ def collidesWithSite(world, mousePos):
     return False
 
 
+def collidesWithEstimatedSite(world, mousePos):
+    """ Returns whether the mouse cursor is over any site in the world """
+    for site in world.siteList:
+        try:
+            if site.wasFound and site.getEstSiteRect().collidepoint(mousePos):
+                return True
+        except AttributeError:
+            pass
+    return False
+
+
 def collidesWithAgent(world, mousePos):
     """" Returns whether the mouse cursor is over any agent in the world """
     for agent in world.agentList:

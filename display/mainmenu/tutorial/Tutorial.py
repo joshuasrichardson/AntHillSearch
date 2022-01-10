@@ -155,7 +155,7 @@ class Tutorial:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     def collidesWithSelectable(self, pos):
-        return self.playButton.collidepoint(pos) or \
-                self.prevButton.collidepoint(pos) or \
-                self.nextButton.collidepoint(pos) or \
+        return self.playButton.collidepoint(pos) and self.pageNumber == len(self.pages) - 1 or \
+                self.prevButton.collidepoint(pos) and self.pageNumber != -1 or \
+                self.nextButton.collidepoint(pos) and self.pageNumber != len(self.pages) - 1 or \
                 self.backButton.collidepoint(pos)

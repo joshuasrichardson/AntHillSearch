@@ -118,6 +118,7 @@ class StartUpDisplay:
         del self.simInterface
         self.simInterface = self.freshInterface()
         self.simInterface.runSimulation()
+        Display.resetScreen()
 
     def startTutorial(self):
         """ Start the tutorial to teach about how to play """

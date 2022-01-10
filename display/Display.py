@@ -41,6 +41,15 @@ def createScreen():
     return screen
 
 
+def resetScreen():
+    global zoom, origWidth, origHeight, newWidth, newHeight, displacementX, displacementY
+    zoom = 0
+    newWidth = origWidth
+    newHeight = origHeight
+    displacementX = 0
+    displacementY = 0
+
+
 def writeCenter(surface, words, fontSize=LARGE_FONT_SIZE, color=WORDS_COLOR):
     """ Writes words in middle of the surface with the given font size and color """
     font = pygame.font.SysFont('Comic Sans MS', fontSize)

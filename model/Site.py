@@ -139,6 +139,9 @@ class Site:
     def getSiteRect(self):
         return self.siteRect
 
+    def getEstSiteRect(self):
+        return self.estimatedSiteRect
+
     def incrementCount(self, hubIndex):
         self.agentCount += 1
         self.agentCounts[hubIndex] += 1

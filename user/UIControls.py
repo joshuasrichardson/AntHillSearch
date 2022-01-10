@@ -1,4 +1,4 @@
-from display.WorldDisplay import collidesWithSite, collidesWithAgent
+from display.WorldDisplay import collidesWithEstimatedSite, collidesWithAgent
 from user.Controls import Controls
 
 
@@ -17,7 +17,7 @@ class UIControls(Controls):
         super().handleEvents()
 
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
-        return collidesWithSite(self.world, adjustedMousePos) or \
+        return collidesWithEstimatedSite(self.world, adjustedMousePos) or \
                collidesWithAgent(self.world, adjustedMousePos) and self.byAHub(adjustedMousePos) or \
                self.graphs.collidesWithAnyButton(mousePos, self.paused)
 
