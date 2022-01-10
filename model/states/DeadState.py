@@ -10,6 +10,9 @@ class DeadState(State):
         super().__init__(agent)
         self.stateNumber = DEAD
 
+    def doStateActions(self, neighborList) -> None:
+        pass
+
     def changeState(self, neighborList) -> None:
         pass
 

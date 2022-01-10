@@ -71,10 +71,10 @@ class Agent:
     def setState(self, state):
         self.state = state
 
-    def changeState(self, neighborList):
+    def doStateActions(self, neighborList):
         if self.state.executeCommands():
             return
-        self.state.changeState(neighborList)
+        self.state.doStateActions(neighborList)
 
     def getStateNumber(self):
         return self.state.stateNumber

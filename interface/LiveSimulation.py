@@ -96,7 +96,7 @@ class LiveSimulation(Simulation, ABC):
                 agent.clearFog()
 
             agentNeighbors = self.getNeighbors(agent.getRect(), agentRectList)
-            agent.changeState(agentNeighbors)
+            agent.doStateActions(agentNeighbors)
             del agentNeighbors[:]
 
         if self.shouldRecord and self.recordAll:

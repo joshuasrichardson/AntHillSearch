@@ -1,5 +1,3 @@
-import numpy as np
-
 from Constants import *
 from model.phases.AssessPhase import AssessPhase
 from model.states.State import State
@@ -33,11 +31,8 @@ class SearchState(State):
         self.setState(self, self.agent.target)
         self.agent.marker = None
 
-        avoidPlace = self.agent.getNearbyPlaceToAvoid()
-        if avoidPlace is not None:  # If the agent is too close to a place they are supposed to avoid
-            self.moveAway(avoidPlace)  # Turn away from it.
         # If agent finds a site within range then assess it
-        elif self.agent.siteInRangeIndex != -1:
+        if self.agent.siteInRangeIndex != -1:
             self.agent.addToKnownSites(self.agent.world.siteList[self.agent.siteInRangeIndex])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.estimateQuality(self.agent.world.siteList[self.agent.siteInRangeIndex]) > self.agent.estimatedQuality\
@@ -62,6 +57,10 @@ class SearchState(State):
                 self.getCarried(neighborList[i])
                 return
 
+    def moveAway(self, pos):
+        self.agent.setAngle(self.agent.getAngle() + np.pi)
+        self.goBackTowardSite(self.agent.getHub())
+
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:
             self.agent.leadAgent = transporter
@@ -80,18 +79,6 @@ class SearchState(State):
             y = self.agent.getPosition()[1] - 1
         self.agent.setPosition(x, y)
         self.agent.setAngle(self.agent.angle - (1.1 * np.pi))
-
-    def moveAway(self, pos):
-        if pos[0] < self.agent.getPosition()[0]:
-            x = self.agent.getPosition()[0] + 1
-        else:
-            x = self.agent.getPosition()[0] - 1
-        if pos[1] < self.agent.getPosition()[1]:
-            y = self.agent.getPosition()[1] + 1
-        else:
-            y = self.agent.getPosition()[1] - 1
-        self.agent.setPosition(x, y)
-        self.agent.setAngle(self.agent.angle - np.random.uniform(np.pi / 2, np.pi))
 
     def toString(self):
         return "SEARCH"
