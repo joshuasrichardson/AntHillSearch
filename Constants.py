@@ -29,6 +29,7 @@ SETTING_NAMES = ["CONVERGENCE_FRACTION", "SIM_DURATION", "FONT_SIZE", "LARGE_FON
 
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such
+INITIAL_ZOOM = -6  # How far in or out the zoom is at the beginning
 
 NUM_HUBS = 1  # The number of starting homes or the number of colonies
 HUB_LOCATIONS = []  # A list of positions of where the original homes are located
@@ -178,7 +179,7 @@ PRED_POSITIONS = []  # Where the predators will start. No position = random
 AT_NEST_THRESHOLD = 6  # Influences the likelihood that an agent will go back to their assigned site from searching.
 
 # Lower threshold makes agents more likely to start searching from AT_NEST(not hub)
-SEARCH_THRESHOLD = 3  # Should go from AT_NEST to SEARCH
+SEARCH_THRESHOLD = 4  # Should go from AT_NEST to SEARCH
 # With 100 agents, 8 ==> about 1 agent every second; if transitions from search are disabled,
 # it takes about 45 seconds for half of the agents to go from AT_NEST to SEARCH
 SEARCH_FROM_HUB_THRESHOLD = 8  # Should go from AT_NEST(hub) to SEARCH
@@ -198,7 +199,7 @@ LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruit
 # The lower this value is, the lower the quality of nests that agents accept can be initially; however, it doesn't make much of a difference in the long run, because agents move from lower-ranked sites to higher-ranked sites either way.
 MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents to accept it
 # The lower this size is, the earlier agents switch over to the committed phase, making other agents come to their site easier.
-QUORUM_DIVIDEND = 6  # numAgents/QUORUM_DIVIDEND agents need to be at a site before agents will commit to it
+QUORUM_DIVIDEND = 7  # numAgents/QUORUM_DIVIDEND agents need to be at a site before agents will commit to it
 
 KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an agent
 

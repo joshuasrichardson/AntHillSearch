@@ -58,8 +58,8 @@ class SearchState(State):
                 return
 
     def moveAway(self, pos):
-        self.agent.setAngle(self.agent.getAngle() + np.pi)
-        self.goBackTowardSite(self.agent.getHub())
+        self.agent.setAngle(np.arctan2(self.agent.getAssignedSitePosition()[1] - self.agent.pos[1],
+                                       self.agent.getAssignedSitePosition()[0] - self.agent.pos[0]))
 
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:

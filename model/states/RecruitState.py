@@ -45,7 +45,7 @@ class RecruitState(State):
                 self.agent.comingWithFollowers = False
                 if self.agent.getPhaseNumber() == COMMIT and self.agent.tryConverging():
                     return
-                self.arriveAtSite(len(neighborList))
+                self.arriveAtSite(neighborList)
             return
 
         if len(self.agent.knownSites) > 1:

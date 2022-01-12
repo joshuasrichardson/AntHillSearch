@@ -46,10 +46,8 @@ class LiveSimulation(Simulation, ABC):
         self.world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                            siteQualities, siteRadii, siteRadius, numPredators, predPositions)
         self.initializeAgentList()
-        if Display.shouldDraw:
-            Display.initWorldSize()
-            if SHOULD_DRAW_FOG:
-                WorldDisplay.initFog(self.world.hubs)
+        if Display.shouldDraw and SHOULD_DRAW_FOG:
+            WorldDisplay.initFog(self.world.hubs)
 
         return self.world
 

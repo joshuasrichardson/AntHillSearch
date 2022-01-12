@@ -2,8 +2,6 @@
 import random
 import time
 
-import numpy as np
-
 import Constants
 from Constants import *
 from display import Display
@@ -51,7 +49,7 @@ class World:
         t1 = time.time()
         while len(self.hubLocations) < numHubs:
             nextPos = self.generateNextPos()
-            while self.tooCloseToOtherHubs(nextPos):
+            while self.tooCloseToEdge(nextPos) or self.tooCloseToOtherHubs(nextPos):
                 # Make sure the hubs are not too close together
                 nextPos = self.generateNextPos()
                 if time.time() - t1 > 0.7:
@@ -71,13 +69,15 @@ class World:
         y = int(np.sin(angle) * dist + neighborHubLocation[1])
         return [x, y]
 
+    @staticmethod
+    def tooCloseToEdge(nextPos):
+        return nextPos[0] < HUB_MIN_X or nextPos[0] > HUB_MAX_X or nextPos[1] < HUB_MIN_Y or nextPos[1] > HUB_MAX_Y
+
     def tooCloseToOtherHubs(self, nextPos):
-        """ If another hub is too close, return that hub's position. """
+        """ If another hub is too close, return True. """
         for i, pos in enumerate(self.hubLocations):
             if abs(pos[0] - nextPos[0]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i] and \
-                    abs(pos[1] - nextPos[1]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i] or \
-                    nextPos[0] < HUB_MIN_X or nextPos[0] > HUB_MAX_X or \
-                    nextPos[1] < HUB_MIN_Y or nextPos[1] > HUB_MAX_Y:
+                    abs(pos[1] - nextPos[1]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i]:
                 return True
         return False
 
@@ -104,7 +104,7 @@ class World:
                 if len(self.siteList) < 2:
                     predators.append(Predator(self.siteList[len(self.hubs)], self))
                 else:
-                    predators.append(Predator(self.siteList[np.random.default_rng(12345).integers(len(self.hubs),len(self.siteList) - 1)],
+                    predators.append(Predator(self.siteList[np.random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
                                               self))
 
         return predators
