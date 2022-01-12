@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
-    SITE_RADIUS, FONT_SIZE, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR
+    SITE_RADIUS, FONT_SIZE, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR, INITIAL_ZOOM
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -36,8 +36,8 @@ def createScreen():
         screen = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
         origWidth = screen.get_width()
         origHeight = screen.get_height()
-        newWidth = origWidth
-        newHeight = origHeight
+        initWorldSize()
+        resetScreen()
     return screen
 
 
@@ -48,6 +48,10 @@ def resetScreen():
     newHeight = origHeight
     displacementX = 0
     displacementY = 0
+    while zoom < INITIAL_ZOOM:
+        zoomIn()
+    while zoom > INITIAL_ZOOM:
+        zoomOut()
 
 
 def writeCenter(surface, words, fontSize=LARGE_FONT_SIZE, color=WORDS_COLOR):
@@ -445,8 +449,8 @@ def initWorldSize():
     w, h = origWidth, origHeight
     m = MAX_SEARCH_DIST * 2 + h
     while h < m:
-        w += origWidth
-        h += origHeight
+        w += (origWidth / 16)
+        h += (origHeight / 16)
     worldSize = w, h
     worldLeft = (origWidth - w) / 2
     worldTop = (origHeight - h) / 2

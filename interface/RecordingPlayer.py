@@ -33,7 +33,6 @@ class RecordingPlayer(Simulation):
         self.addAddedAgents(self.world, addAfter)
         self.initializeAgentList()
         self.timer.simulationDuration = self.recorder.getNextTime()
-        Display.initWorldSize()
 
         return self.world
 

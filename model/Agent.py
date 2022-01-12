@@ -71,10 +71,10 @@ class Agent:
     def setState(self, state):
         self.state = state
 
-    def changeState(self, neighborList):
+    def doStateActions(self, neighborList):
         if self.state.executeCommands():
             return
-        self.state.changeState(neighborList)
+        self.state.doStateActions(neighborList)
 
     def getStateNumber(self):
         return self.state.stateNumber
@@ -310,9 +310,17 @@ class Agent:
                 agent.leadAgent = leadAgent
         return True
 
-    def quorumMet(self, numNeighbors):
+    def quorumMet(self, neighborList):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
-        return numNeighbors > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND
+        return len(neighborList) > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND or \
+            self.neighborIsCommitted(neighborList)
+
+    @staticmethod
+    def neighborIsCommitted(neighborList):
+        for neighbor in neighborList:
+            if neighbor.getStateNumber() == COMMIT:
+                return True
+        return False
 
     def tryConverging(self):
         if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * CONVERGENCE_FRACTION:

@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -78,8 +80,15 @@ class State(ABC):
                 return self.agent.assignedSite.executeCommands(self.agent)
             return False
 
+    def doStateActions(self, neighborList) -> None:
+        avoidPlace = self.agent.getNearbyPlaceToAvoid()
+        if avoidPlace is not None:  # If the agent is too close to a place they are supposed to avoid
+            self.moveAway(avoidPlace)  # Turn away from it.
+        else:
+            self.changeState(neighborList)
+
     @abstractmethod
-    def changeState(self, neighborList) -> None:
+    def changeState(self, neighborList):
         pass
 
     @abstractmethod
@@ -89,3 +98,17 @@ class State(ABC):
     @abstractmethod
     def getColor(self):
         pass
+
+    def moveAway(self, pos):
+        dangerAngle = np.arctan2(pos[1] - self.agent.pos[1], pos[0] - self.agent.pos[0])
+
+        if pos[0] < self.agent.getPosition()[0] and math.isclose(pos[1], self.agent.getPosition()[1], abs_tol=self.agent.speed):
+            # If they are directly to the right of the position, then the stuff in the else statement won't work
+            # because sometimes the angles are negative and sometimes they are positive. To resolve this,
+            # all the ants to the right of the position will just turn left so they don't get stuck.
+            newAngle = dangerAngle - np.pi / 2
+        else:
+            angleDiff = (self.agent.getAngle() - dangerAngle)
+            newAngle = (dangerAngle + np.pi / 2) if angleDiff > 0 else (dangerAngle - np.pi / 2)
+
+        self.agent.setAngle(newAngle)

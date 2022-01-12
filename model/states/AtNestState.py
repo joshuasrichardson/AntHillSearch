@@ -32,7 +32,7 @@ class AtNestState(State):
 
         if phaseNumber == ASSESS:
             if self.agent.isDoneAssessing():
-                self.acceptOrReject(len(neighborList))
+                self.acceptOrReject(neighborList)
                 return
 
         elif phaseNumber == CANVAS:
@@ -79,10 +79,10 @@ class AtNestState(State):
             self.agent.leadAgent.incrementFollowers()
             self.setState(FollowState(self.agent), self.agent.leadAgent.getPosition())
 
-    def acceptOrReject(self, numNeighbors):
+    def acceptOrReject(self, neighborList):
         # If they determine the site is good enough after they've been there long enough,
         if self.agent.estimatedQuality > MIN_ACCEPT_VALUE:
-            if self.agent.quorumMet(numNeighbors):
+            if self.agent.quorumMet(neighborList):
                 # enough agents are already at the site, so they skip canvasing and go straight to the committed phase
                 self.agent.setPhase(CommitPhase())
                 self.agent.transportOrReverseTandem(self)
@@ -95,6 +95,10 @@ class AtNestState(State):
             self.agent.setPhase(ExplorePhase())
             from model.states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
+
+    def moveAway(self, pos):
+        self.agent.setAngle(np.arctan2(self.agent.getAssignedSitePosition()[1] - self.agent.pos[1],
+                                       self.agent.getAssignedSitePosition()[0] - self.agent.pos[0]))
 
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:
