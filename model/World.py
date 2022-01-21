@@ -3,6 +3,7 @@ import random
 import time
 
 import Constants
+import Utils
 from Constants import *
 from display import Display
 from model.Predator import Predator
@@ -76,8 +77,7 @@ class World:
     def tooCloseToOtherHubs(self, nextPos):
         """ If another hub is too close, return True. """
         for i, pos in enumerate(self.hubLocations):
-            if abs(pos[0] - nextPos[0]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i] and \
-                    abs(pos[1] - nextPos[1]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i]:
+            if Utils.isClose(pos, nextPos, Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i]):
                 return True
         return False
 
@@ -340,5 +340,4 @@ class World:
     @staticmethod
     def isClose(newZonePos, position, distance):
         """ Returns a boolean representing whether the new position is within the specified distance of the specified position """
-        dist = np.sqrt(np.square(abs(newZonePos[0] - position[0])) + np.square(abs(newZonePos[1] - position[1])))
-        return dist <= distance
+        return Utils.isClose(newZonePos, position, distance)

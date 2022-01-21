@@ -1,5 +1,6 @@
 import numpy as np
 
+import Utils
 from Constants import KILL_THRESHOLD, DEAD
 from display.PredatorDisplay import getPredatorImage
 
@@ -21,6 +22,17 @@ class Predator:
         self.angle = np.random.uniform(0, 2 * np.pi)  # The direction the predator is facing in radians
         self.speed = np.random.randint(3, 5)  # The speed the predator is moving
         self.numSteps = np.random.randint(0, 20)  # The number of steps the predator has taken since turing
+        self.checkPos()
+
+    def checkPos(self):
+        """ Make sure the predators aren't too close to a hub """
+        for hub in self.world.getHubs():
+            if self.pos[0] < hub.getPosition()[0]:  # If the predator is too close to the hub on the left side,
+                while self.pos[0] + 30 * self.speed > hub.getPosition()[0]:
+                    self.pos[0] -= 20  # Move farther left
+            else:  # If the predator is too close to the hub on the right side,
+                while self.pos[0] - 30 * self.speed < hub.getPosition()[0]:
+                    self.pos[0] += 20  # Move farther right
 
     def getRect(self):
         return self.predatorRect
@@ -32,8 +44,8 @@ class Predator:
 
     def moveForward(self):
         self.numSteps += 1
-        self.setPosition(int(np.round(float(self.pos[0]) + self.speed * np.sin(self.angle))),
-                         int(np.round(float(self.pos[1]) + self.speed * -np.cos(self.angle))))
+        x, y = Utils.getNextPosition(self.pos, self.speed, self.angle)
+        self.setPosition(x, y)
         if self.numSteps > 20:
             self.turn()
 

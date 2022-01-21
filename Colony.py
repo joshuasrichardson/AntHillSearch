@@ -23,6 +23,7 @@ from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
 
 def main():
+
     try:
         # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
         StartUpDisplay(UserInterface).run()

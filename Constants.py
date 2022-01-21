@@ -231,12 +231,15 @@ GO_COLOR = 0, 255, 255  # Cyan
 DEAD = 8  # No longer respond to anything.
 DEAD_COLOR = 140, 140, 140  # Grey
 
-NUM_POSSIBLE_STATES = 9
+ESCAPE = 9  # Trying to run away from predators.
+ESCAPE_COLOR = 255, 255, 255  # White
+
+NUM_POSSIBLE_STATES = 10
 # Colors that show up on the screen representing each state
 STATE_COLORS = [AT_NEST_COLOR, SEARCH_COLOR, CARRIED_COLOR, FOLLOW_COLOR, LEAD_FORWARD_COLOR, REVERSE_TANDEM_COLOR,
-                TRANSPORT_COLOR, GO_COLOR, DEAD_COLOR]
+                TRANSPORT_COLOR, GO_COLOR, DEAD_COLOR, ESCAPE_COLOR]
 # The name of each state
-STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO', 'DEAD']
+STATES_LIST = ['AT_NEST', 'SEARCH', 'CARRIED', 'FOLLOW', 'LEAD_FWD', 'RVRS_TNDM', 'TRANSPORT', 'GO', 'DEAD', 'ESCAPE']
 
 """ Phases and their colors """
 EXPLORE = 0  # Still at the hub or just leaving for the first time to search
