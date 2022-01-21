@@ -316,3 +316,11 @@ RECORDING_CONTROL_OPTIONS = {"agentOptions": RECORDING_AGENT_OPTIONS,
                              "agentOptionButtons": RECORDING_AGENT_OPTION_BUTTONS,
                              "siteOptions": RECORDING_SITE_OPTIONS,
                              "siteOptionButtons": RECORDING_SITE_OPTION_BUTTONS}
+
+""" Json result keys """
+SIM_TIMES_NAME = "simulationTimes"
+HOME_POSITIONS_NAME = "chosenHomesPositions"
+HOME_QUALITIES_NAME = "chosenHomesQualities"
+NUM_ARRIVALS_NAME = "numArrivals"
+NUM_DEAD_NAME = "numDeadAgents"
+TOTAL_NAME = "totalNumAgents"

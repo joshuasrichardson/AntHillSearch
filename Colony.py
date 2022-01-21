@@ -47,32 +47,30 @@ def runSimWithInterface(colony):
 
 def runEmpiricalTestingInterface(numSimulations=1):
     try:
-        chosenSiteQualities = []  # A list of the qualities of the sites that the agents from each hub converged to.
         convergenceTimes = []  # A list of how long it took each colony to converge in seconds.
-        chosenHomes = []  # A list of the homes the agents converged to.
+        chosenHomesPositions = []  # A list of the positions of the homes the agents converged to.
+        chosenHomesQualities = []  # A list of the qualities of the homes the agents converged to.
         deaths = []  # A list of the number of deaths in each colony.
         totals = []  # A list of the number of total agents in each colony.
+        arrivals = []  # The number of agents that got assigned to the new sites.
         for i in range(numSimulations):  # Run the simulation as many times as you want
             print(f"Simulation {i + 1}:")
             colony = EmpiricalTestingInterface(useRestAPI=False, useJson=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
             # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
             results = colony.runSimulation()  # Starts the interface
             # Store results from each simulation so we can see a summary of all the simulations below.
-            chosenSiteQualities.append(results["qualities"])
-            convergenceTimes.append(results["simulationTimes"])
-            chosenHomes.append(results["chosenHomes"])
-            deaths.append(results["deadAgents"])
-            totals.append(results["initialHubAgentCounts"])
+            convergenceTimes.append(results[SIM_TIMES_NAME])
+            chosenHomesQualities.append(results[HOME_QUALITIES_NAME])
+            chosenHomesPositions.append(results[HOME_POSITIONS_NAME])
+            deaths.append(results[NUM_DEAD_NAME])
+            totals.append(results[TOTAL_NAME])
+            arrivals.append(NUM_ARRIVALS_NAME)
             del colony
             gc.collect()
 
-        arrivals = []
-        for i in range(len(chosenHomes)):
-            for j, home in enumerate(chosenHomes[i]):
-                arrivals.append(f"{home.agentCounts[j]}/{totals[i][j]}")
-
-        print(f"Qualities: {chosenSiteQualities}")
         print(f"Durations: {convergenceTimes}")
+        print(f"Qualities: {chosenHomesQualities}")
+        print(f"Positions: {chosenHomesPositions}")
         print(f"Arrivals: {arrivals}")
         print(f"Deaths: {deaths}")
         print(f"Total Agents: {totals}")

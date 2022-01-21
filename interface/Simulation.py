@@ -240,26 +240,33 @@ class Simulation(ABC):
                     self.chosenHomes[i] = home
 
     def printResults(self):
-        results = {"simulationTimes": self.printTimeResults(),
-                   "qualities": self.printHomeQualities(),
-                   "deadAgents": self.printNumAgentsResults(),
-                   "chosenHomes": self.chosenHomes,
-                   "initialHubAgentCounts": self.world.initialHubAgentCounts}
-        self.sendResults(self.chosenHomes, results["simulationTimes"], results["deadAgents"])
+        numArrivals, numDeaths = self.printNumAgentsResults()
+        positions = []
+        for site in self.chosenHomes:
+            positions.append(site.getPosition())
+        results = {SIM_TIMES_NAME: self.printTimeResults(),
+                   HOME_QUALITIES_NAME: self.printHomeQualities(),
+                   HOME_POSITIONS_NAME: positions,
+                   NUM_ARRIVALS_NAME: numArrivals,
+                   NUM_DEAD_NAME: numDeaths,
+                   TOTAL_NAME: self.world.initialHubAgentCounts}
+        self.sendResults(results)
         return results
 
     def getNumDeadAgents(self):
         return self.world.numDeadAgents
 
     def printNumAgentsResults(self):
+        numArrived = []
         numDead = self.getNumDeadAgents()
         for i in range(len(self.chosenHomes)):
+            numArrived.append(self.chosenHomes[i].agentCounts[i])
             print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
                   f"colony {i + 1} made it to the new home.")
         for hubIndex in range(len(self.world.hubs)):
-            print(f"{self.world.initialHubAgentCounts[hubIndex] - numDead[hubIndex]}/"
-                  f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex + 1} survived.")
-        return numDead
+            print(f"{numDead[hubIndex]}/"
+                  f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex + 1} died.")
+        return numArrived, numDead
 
     def printTimeResults(self):
         times = []
@@ -281,7 +288,7 @@ class Simulation(ABC):
 
         return qualities
 
-    def sendResults(self, chosenSite, simulationTime, deadAgents):
+    def sendResults(self, results):
         pass
 
     def setDisplayVariables(self, agentImage):
