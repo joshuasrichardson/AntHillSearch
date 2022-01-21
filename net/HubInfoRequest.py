@@ -253,11 +253,6 @@ class HubInfoRequest:
                 'sitesRadii': self.sitesRadii}
 
     @staticmethod
-    def sendResults(positions, qualities, simulationTime, deadAgents):
-
-        data = {'chosenSitesPositions': positions,
-                'chosenSitesQualities': qualities,
-                'simulationTime': simulationTime,
-                'deadAgents': deadAgents}
-        response = requests.post('http://localhost:5000/sendResults', data=data)
+    def sendResultsToAPI(results):
+        response = requests.post('http://localhost:5000/sendResults', data=results)
         print("Simulation Results: {}".format(response.text))

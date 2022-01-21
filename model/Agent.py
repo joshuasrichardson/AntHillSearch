@@ -1,5 +1,6 @@
 import random
 
+import Utils
 from Constants import *
 from display import SiteDisplay, WorldDisplay, Display
 from display.AgentDisplay import getAgentImage
@@ -118,8 +119,8 @@ class Agent:
         if self.getPhaseNumber() == CONVERGED:
             self.setPosition(self.assignedSite.getPosition()[0], self.assignedSite.getPosition()[1])
         else:
-            self.setPosition(int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle))),
-                             int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle))))
+            x, y = Utils.getNextPosition(self.pos, self.speed, self.angle)
+            self.setPosition(x, y)
 
     def updateFollowPosition(self):
         """ Updates the agent's position to be just behind their lead agent """
@@ -177,15 +178,15 @@ class Agent:
         return False
 
     def getNearbyPlaceToAvoid(self):
+        closePositions = []
         for pos in self.placesToAvoid:
             if self.isClose(pos, MIN_AVOID_DIST):
-                return pos
-        return None
+                closePositions.append(pos)
+        return closePositions
 
     def isClose(self, position, distance):
         """ Returns a boolean representing whether the agent is within the specified distance of the specified position """
-        dist = np.sqrt(np.square(abs(self.pos[0] - position[0])) + np.square(abs(self.pos[1] - position[1])))
-        return dist <= distance
+        return Utils.isClose(self.pos, position, distance)
 
     def isTooFarAway(self, site):
         """ Returns a boolean representing whether the agent is outside their searching area """
@@ -269,14 +270,23 @@ class Agent:
             self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
 
     def avoid(self, pos):
-        if pos is not None and self.getNearbyPlaceToAvoid() is None:
+        if pos is not None and len(self.getNearbyPlaceToAvoid()) == 0:
             self.placesToAvoid.append(pos)
             self.recentlySeenPredatorPositions.append(pos)
             if len(self.placesToAvoid) > MAX_NUM_AVOIDS:
                 self.placesToAvoid.pop(0)
+            if self.isClose(pos, MIN_AVOID_DIST):
+                self.escape([pos])
+            self.forgetDangerousSites(pos)
+
+    def escape(self, positions):
+        from model.states.EscapeState import EscapeState
+        stateNumber = self.state.prevStateNum if self.getStateNumber() == ESCAPE else self.getStateNumber()
+        self.setState(EscapeState(self, stateNumber, positions))
 
     def stopAvoiding(self, index):
-        self.placesToAvoid.pop(index)
+        if len(self.placesToAvoid) > index:
+            self.placesToAvoid.pop(index)
 
     def forgetDangerousSites(self, pos):
         for site in self.knownSites:

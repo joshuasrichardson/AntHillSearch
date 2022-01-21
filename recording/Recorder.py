@@ -187,11 +187,7 @@ class Recorder:
 
         self.executedCommands.clear()
 
-    def writeResults(self, positions, qualities, simulationTimes, deadAgents):
-        results = {'positions': positions,
-                   'qualities': qualities,
-                   'simulationTimes': simulationTimes,
-                   'deadAgents': deadAgents}
+    def writeResults(self, results):
         with open(f'{self.outputFileBase}_RESULTS.json', 'w') as file:
             json.dump(results, file)
         with open(f'{RESULTS_DIR}/most_recent.json', 'w') as file:
@@ -208,8 +204,7 @@ class Recorder:
     def readResults():
         try:
             with open(f'{getMostRecentRecording()}_RESULTS.json', 'r') as file:
-                results = json.load(file)
-                return results['positions'], results['qualities'], results['simulationTimes'], results['deadAgents']
+                return json.load(file)
         except FileNotFoundError:
             print(f"File '{getMostRecentRecording()}_RESULTS.json' not found.")
             open(f'{getMostRecentRecording()}_RESULTS.json', 'w')

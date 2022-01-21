@@ -5,7 +5,7 @@ from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
-from display.SiteDisplay import drawEstimatedSite, drawSite, knowSitePosAtStart
+from display.SiteDisplay import drawEstimatedSite, drawSite
 
 fog = None
 

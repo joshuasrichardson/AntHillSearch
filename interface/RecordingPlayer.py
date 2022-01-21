@@ -163,13 +163,13 @@ class RecordingPlayer(Simulation):
         self.delay += seconds
 
     def printTimeResults(self):
-        times = self.recorder.readResults()[2]
+        times = self.recorder.readResults()[SIM_TIMES_NAME]
         for i, duration in enumerate(times):
             print(f"Colony {i + 1} took {duration} seconds to finish.")
         return times
 
     def getNumDeadAgents(self):
-        return self.recorder.readResults()[3]
+        return self.recorder.readResults()[NUM_DEAD_NAME]
 
     def getShouldDraw(self):
         return True

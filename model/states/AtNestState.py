@@ -1,5 +1,3 @@
-import numpy as np
-
 from Constants import *
 from model.phases.CanvasPhase import CanvasPhase
 from model.phases.CommitPhase import CommitPhase
@@ -95,10 +93,6 @@ class AtNestState(State):
             self.agent.setPhase(ExplorePhase())
             from model.states.SearchState import SearchState
             self.setState(SearchState(self.agent), None)
-
-    def moveAway(self, pos):
-        self.agent.setAngle(np.arctan2(self.agent.getAssignedSitePosition()[1] - self.agent.pos[1],
-                                       self.agent.getAssignedSitePosition()[0] - self.agent.pos[0]))
 
     def getCarried(self, transporter):
         if transporter.numFollowers < MAX_FOLLOWERS:

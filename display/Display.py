@@ -3,7 +3,8 @@ import numpy as np
 import pygame
 
 from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
-    SITE_RADIUS, FONT_SIZE, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR, INITIAL_ZOOM
+    SITE_RADIUS, FONT_SIZE, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR, INITIAL_ZOOM, HOME_QUALITIES_NAME, \
+    SIM_TIMES_NAME, NUM_ARRIVALS_NAME, TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -97,14 +98,15 @@ def drawFinish(surface, results):
     y += FONT_SIZE
     write(surface, "any key to continue.", FONT_SIZE, x, y)
 
-    words = ["Colony", "Time", "Quality", "Arrivals", "Deaths"]
-    for i in range(len(results["chosenHomes"])):
+    words = ["Colony", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
+    for i in range(len(results[HOME_QUALITIES_NAME])):
         words.append(f"{i + 1}")
-        words.append(f"{round(results['simulationTimes'][i], 2)}")
-        words.append(f"{results['qualities'][i]}")
-        words.append(f"{results['chosenHomes'][i].agentCounts[i]}/{results['initialHubAgentCounts'][i]}")
-        words.append(f"{results['deadAgents'][i]}")
-    drawResultsGrid(len(results["chosenHomes"]) + 1, len(results), words)
+        words.append(f"{round(results[SIM_TIMES_NAME][i], 2)}")
+        words.append(f"{results[HOME_QUALITIES_NAME][i]}")
+        words.append(f"{results[HOME_POSITIONS_NAME][i]}")
+        words.append(f"{results[NUM_ARRIVALS_NAME][i]}/{results[TOTAL_NAME][i]}")
+        words.append(f"{results[NUM_DEAD_NAME][i]}")
+    drawResultsGrid(len(results[HOME_QUALITIES_NAME]) + 1, len(results), words)
 
 
 def drawResultsGrid(numRows, numColumns, words):

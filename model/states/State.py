@@ -1,9 +1,7 @@
-import math
-
 import numpy as np
 from abc import ABC, abstractmethod
 
-from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED, DEAD
+from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED, DEAD, ESCAPE
 from display import Display
 
 
@@ -35,6 +33,9 @@ def numToState(num, agent):
     if num == DEAD:
         from model.states.DeadState import DeadState
         return DeadState(agent)
+    if num == ESCAPE:
+        from model.states.EscapeState import EscapeState
+        return EscapeState(agent, SEARCH, [[0, 0]])
 
 
 class State(ABC):
@@ -81,11 +82,11 @@ class State(ABC):
             return False
 
     def doStateActions(self, neighborList) -> None:
-        avoidPlace = self.agent.getNearbyPlaceToAvoid()
-        if avoidPlace is not None:  # If the agent is too close to a place they are supposed to avoid
-            self.moveAway(avoidPlace)  # Turn away from it.
-        else:
+        avoidPlaces = self.agent.getNearbyPlaceToAvoid()
+        if len(avoidPlaces) == 0:
             self.changeState(neighborList)
+        else:  # If the agent is too close to a place they are supposed to avoid
+            self.agent.escape(avoidPlaces)  # Turn away from it.
 
     @abstractmethod
     def changeState(self, neighborList):
@@ -98,17 +99,3 @@ class State(ABC):
     @abstractmethod
     def getColor(self):
         pass
-
-    def moveAway(self, pos):
-        dangerAngle = np.arctan2(pos[1] - self.agent.pos[1], pos[0] - self.agent.pos[0])
-
-        if pos[0] < self.agent.getPosition()[0] and math.isclose(pos[1], self.agent.getPosition()[1], abs_tol=self.agent.speed):
-            # If they are directly to the right of the position, then the stuff in the else statement won't work
-            # because sometimes the angles are negative and sometimes they are positive. To resolve this,
-            # all the ants to the right of the position will just turn left so they don't get stuck.
-            newAngle = dangerAngle - np.pi / 2
-        else:
-            angleDiff = (self.agent.getAngle() - dangerAngle)
-            newAngle = (dangerAngle + np.pi / 2) if angleDiff > 0 else (dangerAngle - np.pi / 2)
-
-        self.agent.setAngle(newAngle)

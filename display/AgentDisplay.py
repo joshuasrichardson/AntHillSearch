@@ -50,15 +50,14 @@ def getAgentImage(pos):
 def setAgentMarker(agent):
     """ Draws the position on the screen that the agent is heading toward """
     if agent.target is not None:
-        agent.marker = getDestinationMarker(agent.target)
+        agent.marker = getDestinationMarker(agent.target)  # TODO: Might be able to reduce calls to this
     else:
         agent.marker = None
 
 
 def drawMarker(agent, surface):
     """ Draws the agent's specified marker on the screen (i.e. the go marker) """
-    if (Display.drawFarAgents or agent.isCloseToHub()) \
-            and agent.marker is not None:
+    if (Display.drawFarAgents or agent.isCloseToHub()) and agent.marker is not None:
         drawDashedLine(surface, BORDER_COLOR, agent.pos, agent.marker[1].center)
         Display.blitImage(Display.screen, agent.marker[0], agent.marker[1])
 
