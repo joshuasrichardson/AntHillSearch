@@ -57,6 +57,7 @@ class Simulation(ABC):
         self.userControls = self.getControls()
         self.shouldRecord = shouldRecord  # Whether the interface should be recorded
         self.convergenceFraction = convergenceFraction  # The percentage of agents who need to be assigned to a site before the interface will end
+        self.numRounds = 0
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
@@ -92,21 +93,21 @@ class Simulation(ABC):
     def runSimulation(self):
         foundNewHome = False
         self.timer.start()
-        numRounds = 0
 
         try:
             while not foundNewHome and not self.timeRanOut:
                 self.runNextRound()
-                numRounds += 1
+                self.numRounds = self.getNextNumRounds()
                 foundNewHome = self.checkIfSimulationEnded()
         except GameOver:
             pass
 
-        print(f"Number of Rounds: {numRounds}")
-
         self.stopTimer()
 
         return self.finish()
+
+    def getNextNumRounds(self):
+        return self.numRounds + 1
 
     def stopTimer(self):
         self.timer.cancel()
@@ -241,10 +242,12 @@ class Simulation(ABC):
 
     def printResults(self):
         numArrivals, numDeaths = self.printNumAgentsResults()
+        self.printNumRounds()
         positions = []
         for site in self.chosenHomes:
             positions.append(site.getPosition())
-        results = {SIM_TIMES_NAME: self.printTimeResults(),
+        results = {NUM_ROUNDS_NAME: self.numRounds,
+                   SIM_TIMES_NAME: self.printTimeResults(),
                    HOME_QUALITIES_NAME: self.printHomeQualities(),
                    HOME_POSITIONS_NAME: positions,
                    NUM_ARRIVALS_NAME: numArrivals,
@@ -285,8 +288,10 @@ class Simulation(ABC):
         for i, home in enumerate(self.chosenHomes):
             qualities.append(home.getQuality())
             print(f"Colony {i + 1}: {home.getQuality()}/255.")
-
         return qualities
+
+    def printNumRounds(self):
+        print(f"Number of Rounds: {self.numRounds}")
 
     def sendResults(self, results):
         pass

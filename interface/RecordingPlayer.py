@@ -71,6 +71,9 @@ class RecordingPlayer(Simulation):
         results = super().runSimulation()
         return results
 
+    def getNextNumRounds(self):
+        return self.recorder.getNumRounds()
+
     def stopTimer(self):
         super().stopTimer()
         realTime = self.realTimer.getRemainingTime()

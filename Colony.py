@@ -43,6 +43,7 @@ def runSimWithInterface(colony):
 
 def runEmpiricalTestingInterface(numSimulations=1):
     try:
+        iterations = []  # A list of the number of iterations taken to complete each simulation.
         convergenceTimes = []  # A list of how long it took each colony to converge in seconds.
         chosenHomesPositions = []  # A list of the positions of the homes the agents converged to.
         chosenHomesQualities = []  # A list of the qualities of the homes the agents converged to.
@@ -55,6 +56,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
             # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
             results = colony.runSimulation()  # Starts the interface
             # Store results from each simulation so we can see a summary of all the simulations below.
+            iterations.append(results[NUM_ROUNDS_NAME])
             convergenceTimes.append(results[SIM_TIMES_NAME])
             chosenHomesQualities.append(results[HOME_QUALITIES_NAME])
             chosenHomesPositions.append(results[HOME_POSITIONS_NAME])
@@ -64,6 +66,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
             del colony
             gc.collect()
 
+        print(f"Iterations: {iterations}")
         print(f"Durations: {convergenceTimes}")
         print(f"Qualities: {chosenHomesQualities}")
         print(f"Positions: {chosenHomesPositions}")

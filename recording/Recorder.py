@@ -3,7 +3,7 @@ import numbers
 
 from datetime import datetime
 
-from Constants import RESULTS_DIR
+from Constants import RESULTS_DIR, NUM_ROUNDS_NAME
 from model.phases import Phase
 from model.states.NumToStateConverter import numToState
 
@@ -284,6 +284,9 @@ class Recorder:
 
     def getNextScreenBorder(self):
         return self.screenBorder
+
+    def getNumRounds(self):
+        return self.readResults()[NUM_ROUNDS_NAME]
 
     def getNumAgents(self):
         if self.dataIndex >= 0:

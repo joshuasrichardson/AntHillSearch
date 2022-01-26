@@ -4,7 +4,7 @@ import pygame
 
 from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
     SITE_RADIUS, FONT_SIZE, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR, INITIAL_ZOOM, HOME_QUALITIES_NAME, \
-    SIM_TIMES_NAME, NUM_ARRIVALS_NAME, TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME
+    SIM_TIMES_NAME, NUM_ARRIVALS_NAME, TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME, NUM_ROUNDS_NAME
 
 screen = None
 shouldDraw = SHOULD_DRAW
@@ -98,9 +98,10 @@ def drawFinish(surface, results):
     y += FONT_SIZE
     write(surface, "any key to continue.", FONT_SIZE, x, y)
 
-    words = ["Colony", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
+    words = ["Colony", "Rounds", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
     for i in range(len(results[HOME_QUALITIES_NAME])):
         words.append(f"{i + 1}")
+        words.append(f"{results[NUM_ROUNDS_NAME]}")
         words.append(f"{round(results[SIM_TIMES_NAME][i], 2)}")
         words.append(f"{results[HOME_QUALITIES_NAME][i]}")
         words.append(f"{results[HOME_POSITIONS_NAME][i]}")
