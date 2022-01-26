@@ -1,7 +1,7 @@
 import numpy as np
 
 import Utils
-from Constants import KILL_THRESHOLD, DEAD
+from Constants import KILL_THRESHOLD, DEAD, PREDATOR_ANGLE
 from display.PredatorDisplay import getPredatorImage
 
 
@@ -44,14 +44,14 @@ class Predator:
 
     def moveForward(self):
         self.numSteps += 1
-        x, y = Utils.getNextPosition(self.pos, self.speed, self.angle)
+        x, y = Utils.getNextPosition(self.pos, self.speed, self.angle - PREDATOR_ANGLE)
         self.setPosition(x, y)
         if self.numSteps > 20:
             self.turn()
 
     def turn(self):
         self.numSteps = 0
-        self.angle += 2 * np.pi / 4
+        self.angle += np.pi / 2
 
     def setAngle(self, angle):
         self.angle = angle

@@ -10,23 +10,37 @@ from display.Display import drawDashedLine, getBlurredImage, drawCircle, drawLin
 knowSitePosAtStart = DRAW_ESTIMATES  # Whether the user knows where the sites are at the start of the interface
 
 
-def drawSite(site):
-    """ Draws the site and some things associated with it on the screen """
-    if site.wasFound or knowSitePosAtStart:  # If the agents have already discovered the site
-        Display.drawCircle(Display.screen, BORDER_COLOR, site.pos, site.radius + 2, 0)  # Draw a background for the site that blends with the surface better than the site color
+def drawSite(site, pos, radius, quality, blurAmount=0):
+    if site.wasFound or knowSitePosAtStart:
+        if blurAmount > 0:
+            drawBlurredCircle(pos, BORDER_COLOR, site.radius * 4, radius + 2, blurAmount + 0.7)
+        else:
+            Display.drawCircle(Display.screen, BORDER_COLOR, pos, radius + 2, 0)
+
         if site.isSelected:
-            Display.drawCircle(Display.screen, SELECTED_COLOR, site.pos, site.radius + 2, 0)  # Draw a circle over the background showing that the site is selected
-        site.siteRect = pygame.Rect(site.pos[0] - site.radius, site.pos[1] - site.radius, site.radius * 2, site.radius * 2)
-        Display.drawCircle(Display.screen, site.color, site.pos, site.radius, 0)  # Draw a circle the color representing the quality of the site
-        fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 2 * -Display.zoom
+            if blurAmount > 0:
+                drawBlurredCircle(pos, SELECTED_COLOR, site.radius * 4, radius + 2, blurAmount)
+            else:
+                Display.drawCircle(Display.screen, SELECTED_COLOR, pos, site.radius + 2, 0)
+
+        if blurAmount > 0:
+            drawBlurredSite(site, pos, site.getEstimatedColor(), site.radius * 4, radius, blurAmount)
+        else:
+            Display.drawCircle(Display.screen, site.color, pos, radius, 0)
+
+        fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 3 * -Display.zoom
 
         if site.wasFound:
-            words = f"Agents: {site.agentCount}" if site.isSelected else f"{site.agentCount}"
+            words = f"Agents: {int(site.agentCount)}" if site.isSelected else f"{int(site.agentCount)}"
             img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, WORDS_COLOR).convert_alpha()
-            Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 2 * fontSize)))  # Show the number of agents assigned to the site above the site
-        if site.isSelected:
-            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {site.getQuality()}", True, WORDS_COLOR).convert_alpha()
-            Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (site.radius + 3 * fontSize)))  # Show the site quality above the site
+            Display.addToDrawLast(Display.blitImage, Display.screen, img, (pos[0] - (img.get_width() / 2),
+                                                                           pos[1] - (radius + 2 * fontSize)))
+
+        if site.isSelected and site.quality != -1:
+            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {int(quality)}", True, WORDS_COLOR).convert_alpha()
+            Display.addToDrawLast(Display.blitImage, Display.screen, img,
+                                  (pos[0] - (img.get_width() / 2), pos[1] - (radius + 3 * fontSize)))  # Show the site quality above the site
+
         if site.chosen:
             drawConvergedMark(site)
 
@@ -108,35 +122,6 @@ def drawAssignmentMarker2(rect, color):
     Display.drawUpRightArrow(rect.bottomleft, color)
     Display.drawUpLeftArrow(rect.bottomright, color)
     Display.drawDownLeftArrow(rect.topright, color)
-
-
-def drawEstimatedSite(site):
-    """ Draws what the user knows about the site from the hub """
-    # Only draw the site if it has been found, or if the site positions are all known at the start of the interface
-    if site.wasFound or knowSitePosAtStart:
-        # Draw a background behind the site to make it blend with the screen better
-        drawBlurredCircle(site.estimatedPosition, BORDER_COLOR, site.radius * 4,
-                          site.estimatedRadius + site.blurRadiusDiff + 2, site.blurAmount + 0.7)
-
-        if site.isSelected:  # Draw the selection circle
-            drawBlurredCircle(site.estimatedPosition, SELECTED_COLOR, site.radius * 4,
-                              site.estimatedRadius + site.blurRadiusDiff + 2, site.blurAmount)
-
-        drawBlurredSite(site, site.estimatedPosition, site.getEstimatedColor(), site.radius * 4,
-                        site.estimatedRadius + site.blurRadiusDiff, site.blurAmount)  # Draws the site with lines representing the quality and blurriness representing how well known the site is
-
-        fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 3 * -Display.zoom
-
-        words = f"Agents: {int(site.agentCount)}" if site.isSelected else f"{int(site.estimatedAgentCount)}"
-        img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, WORDS_COLOR).convert_alpha()
-        Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
-                              site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 2 * fontSize)))  # Draw the estimated number of agents assigned to the site
-        if site.isSelected:
-            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {int(site.estimatedQuality)}", True, WORDS_COLOR).convert_alpha()
-            Display.addToDrawLast(Display.blitImage, Display.screen, img, (site.estimatedPosition[0] - (img.get_width() / 2),
-                                  site.estimatedPosition[1] - (site.estimatedRadius + site.blurRadiusDiff + 3 * fontSize)))  # Show the site quality above the site
-        if site.chosen:
-            drawConvergedMark(site)
 
 
 def drawBlurredCircle(pos, color, size, radius, blurAmount):

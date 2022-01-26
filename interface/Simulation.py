@@ -113,10 +113,10 @@ class Simulation(ABC):
 
     def runNextRound(self):
         self.userControls.handleEvents()
-        Display.screen.fill(SCREEN_COLOR)
-        self.draw()
         agentRectList = self.getAgentRectList()
         self.update(agentRectList)
+        Display.screen.fill(SCREEN_COLOR)
+        self.draw()
 
     def getAgentRectList(self):
         agentRectList = []

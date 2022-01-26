@@ -5,7 +5,7 @@ from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
-from display.SiteDisplay import drawEstimatedSite, drawSite
+from display.SiteDisplay import drawSite
 
 fog = None
 
@@ -18,11 +18,13 @@ def drawWorldObjects(world):
     drawPredators(world)
     if not Display.drawFarAgents:
         for site in world.siteList:
-            drawEstimatedSite(site)
+            if site.wasFound:
+                drawSite(site, site.estimatedPosition, site.estimatedRadius + site.blurRadiusDiff,
+                         site.estimatedQuality, site.blurAmount)
         drawDangerZones(world)
     else:
         for site in world.siteList:
-            drawSite(site)
+            drawSite(site, site.pos, site.radius, site.quality)
     drawFog()
     drawMarkers(world)
     Display.drawLast()

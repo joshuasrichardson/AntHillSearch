@@ -15,7 +15,7 @@ from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker, getAssignmentMarker
 from model.builder import AgentBuilder, SiteSettings
 from model.phases.ExplorePhase import ExplorePhase
-from model.states import State
+from model.states.NumToStateConverter import numToState
 from model.states.SearchState import SearchState
 
 
@@ -394,14 +394,14 @@ class Controls:
             return
         for agent in self.selectedAgents:
             if agent.getStateNumber() != Constants.DEAD and agent.checkLeadAgent(agent, stateNum):
-                agent.setState(State.numToState(stateNum, agent))
+                agent.setState(numToState(stateNum, agent))
         self.setSelectedSitesCommand(self.setStateCommand, stateNum, stateNum, SET_STATE_NAME)
 
     @staticmethod
     def setStateCommand(agent, state):
         if agent.checkLeadAgent(agent, state):
             if agent.getStateNumber() != Constants.DEAD:
-                agent.setState(State.numToState(state, agent))
+                agent.setState(numToState(state, agent))
 
     def drawSelectRect(self, mousePos):
         if self.selectRectCorner[0] < mousePos[0]:

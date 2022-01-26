@@ -66,7 +66,8 @@ class Settings:
         reading = True
         while reading:  # While the user is reading the settings (or hasn't tried to exit)
             Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-            Display.writeCenterPlus(Display.screen, "Settings", self.data["largeFontSize"], -6 * self.data["largeFontSize"])
+            Display.writeCenterPlus(Display.screen, "Settings", self.data["largeFontSize"],
+                                    -Display.origHeight / 2 + 2.5 * self.data['largeFontSize'])
             self.showSettings()  # Draw the setting the user can select and change
             self.drawBackButton()  # Draw the button used to return to the main menu
             pygame.display.flip()  # Display drawn things on the screen

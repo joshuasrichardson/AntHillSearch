@@ -5,7 +5,7 @@ from datetime import datetime
 
 from Constants import RESULTS_DIR
 from model.phases import Phase
-from model.states import State
+from model.states.NumToStateConverter import numToState
 
 
 def getMostRecentRecording():
@@ -225,7 +225,7 @@ class Recorder:
 
     def getNextState(self, agent):
         self.currentStateIndex += 1
-        return State.numToState(self.agentStates[self.currentStateIndex], agent)
+        return numToState(self.agentStates[self.currentStateIndex], agent)
 
     def getNextPhase(self):
         self.currentPhaseIndex += 1

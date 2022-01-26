@@ -24,6 +24,8 @@ def drawAgent(agent, surface):
             drawAssignedSite(agent)
             setAgentMarker(agent)
             drawPlacesToAvoid(agent)
+        else:
+            agent.marker = None
         if agent.isSelected:  # Only draw state and phase circles for the selected agents
             Display.drawCircle(surface, agent.getStateColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
             Display.drawCircle(surface, agent.getPhaseColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)

@@ -163,6 +163,7 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 """ Predator default values """
 
 PREDATOR_IMAGE = "resources/spider.png"  # The path of the predator image
+PREDATOR_ANGLE = np.pi / 2  # The initial angle the predator in the image is facing
 NUM_PREDATORS = 5  # The number of predators that go around attacking agents
 PRED_POSITIONS = []  # Where the predators will start. No position = random
 

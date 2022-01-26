@@ -142,12 +142,12 @@ class RecordingPlayer(Simulation):
             self.world.removeAgent(self.world.agentList[agentIndex])
 
     def updateAgent(self, agent, agentRectList):
+        agent.setState(self.recorder.getNextState(agent))
+        agent.setPhase(self.recorder.getNextPhase())
         pos = self.recorder.getNextAgentPosition()
         agent.setPosition(pos[0], pos[1])
         angle = self.recorder.getNextAgentAngle()
         agent.setAngle(angle)
-        agent.setState(self.recorder.getNextState(agent))
-        agent.setPhase(self.recorder.getNextPhase())
         try:
             siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
             agent.assignSite(siteToAssign)

@@ -17,10 +17,6 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-# TODO: Add an option to show all current settings in the settings tab.
-# TODO: Be able to change things in settings without typing (dragging sites around, etc.).
-# TODO: Think about how to display predictions.
-
 
 def main():
 
@@ -64,7 +60,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
             chosenHomesPositions.append(results[HOME_POSITIONS_NAME])
             deaths.append(results[NUM_DEAD_NAME])
             totals.append(results[TOTAL_NAME])
-            arrivals.append(NUM_ARRIVALS_NAME)
+            arrivals.append(results[NUM_ARRIVALS_NAME])
             del colony
             gc.collect()
 

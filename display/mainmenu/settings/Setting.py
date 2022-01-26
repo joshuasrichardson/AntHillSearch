@@ -25,7 +25,7 @@ class Setting:
         while 1:
             Display.screen.fill(SCREEN_COLOR)
             Display.writeCenterPlus(Display.screen, "Settings", self.settingMenu.data['largeFontSize'],
-                                    -6 * self.settingMenu.data['largeFontSize'])
+                                    -Display.origHeight / 2 + 2.5 * self.settingMenu.data['largeFontSize'])
             self.settingMenu.showSettings()
             self.showUserInput()
             self.showUserInputVisuals(self)

@@ -11,24 +11,22 @@ class SearchState(State):
         self.stateNumber = SEARCH
         self.collides = False
         self.itersSinceLastCollide = 8
+        self.agent.setAngle(np.random.uniform(0, np.pi * 2))
 
-    def updateAngle(self, stateNumber) -> None:
-        if stateNumber != SEARCH:
-            super().updateAngle(stateNumber)
-        else:
-            self.itersSinceLastCollide += 1
-            if self.collides and self.itersSinceLastCollide > 8:  # Go straight unless they bump into an obstacle
-                if np.random.randint(0, 2) == 1:
-                    self.agent.setAngle(self.agent.angle - np.pi / 2)  # Ants are more likely to turn left for some reason.
-                    # See https://www.nature.com/articles/s41598-018-23652-4
-                else:
-                    self.agent.setAngle(np.random.uniform(0, 2 * np.pi, 1))
-                self.itersSinceLastCollide = 0
+    def updateAngle(self) -> None:
+        self.itersSinceLastCollide += 1
+        if self.collides and self.itersSinceLastCollide > 8:  # Go straight unless they bump into an obstacle
+            if np.random.randint(0, 2) == 1:
+                self.agent.setAngle(self.agent.getAngle() - np.pi / 2)  # Ants are more likely to turn left.
+                # See https://www.nature.com/articles/s41598-018-23652-4
+            else:
+                self.agent.setAngle(np.random.uniform(0, 2 * np.pi))
+            self.itersSinceLastCollide = 0
 
     def changeState(self, neighborList) -> None:
+        self.setState(self, self.agent.target)
         # Set whether they collided with another agent or not. If they are by a nest, they don't collide because they can go down into the nest, etc.
         self.collides = len(neighborList) > 1 and not self.agent.isCloseToASite()
-        self.setState(self, self.agent.target)
         self.agent.marker = None
 
         # If agent finds a site within range then assess it
