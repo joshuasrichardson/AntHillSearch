@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 import Utils
-from Constants import MIN_AVOID_DIST
+from config.Config import MIN_AVOID_DIST
 from model.states.EscapeState import EscapeState
 from model.states.SearchState import SearchState
 

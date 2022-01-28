@@ -1,7 +1,7 @@
 import numpy as np
 
+from config import Config
 from model.Site import Site
-from model.builder import SiteSettings
 
 hIndex = 0
 
@@ -27,7 +27,7 @@ def initializePosition(hubLocation, x, y):
     """ Sets the site in its starting position at a random distance from the hub that is within the range
     specified with the initialization of the class or to the (x, y) coordinates if they are specified """
     angle = np.random.uniform(0, np.pi * 2)
-    radius = np.random.uniform(SiteSettings.siteNoCloserThan, SiteSettings.siteNoFartherThan)
+    radius = np.random.uniform(Config.SITE_NO_CLOSER_THAN, Config.SITE_NO_FARTHER_THAN)
     if x is None:
         x = int(hubLocation[0] + np.round(radius * np.cos(angle)))
     if y is None:

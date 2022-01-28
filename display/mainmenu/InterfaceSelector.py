@@ -1,8 +1,9 @@
 import pygame
 from pygame import MOUSEBUTTONUP, MOUSEMOTION, KEYDOWN, K_ESCAPE, QUIT
 
+from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, WORDS_COLOR, LARGE_FONT_SIZE, SEARCH_COLOR
+from Constants import SCREEN_COLOR, WORDS_COLOR, SEARCH_COLOR
 from display import Display
 from interface.EngineerInferface import EngineerInterface
 from interface.UserInterface import UserInterface
@@ -11,7 +12,7 @@ from interface.UserInterface import UserInterface
 class InterfaceSelector:
 
     def __init__(self):
-        self.font = pygame.font.SysFont('Comic Sans MS', LARGE_FONT_SIZE)
+        self.font = pygame.font.SysFont('Comic Sans MS', Config.LARGE_FONT_SIZE)
         self.uiImage = self.font.render("User Interface: Practice like you will play", True, WORDS_COLOR).convert_alpha()
         self.uiButton = pygame.Rect((Display.origWidth / 2) - (self.uiImage.get_width() / 2), Display.origHeight / 2 - 2 * self.uiImage.get_height(),
                                     self.uiImage.get_width(), self.uiImage.get_height())  # The button to select the User Interface

@@ -2,28 +2,27 @@
 import numpy as np
 import pygame
 
-from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, SITE_RADIUS, AGENT_IMAGE, \
-    HUB_OBSERVE_DIST, DEAD, MIN_AVOID_DIST, AVOID_MARKER_XY
+from config import Config
+from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, DEAD
 from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
 
 
-agentImage = AGENT_IMAGE
-
-
 def drawAgent(agent, surface):
-    if not Display.drawFarAgents:
-        if agent.isClose(agent.getHub().getPosition(), HUB_OBSERVE_DIST):
+    if not Config.DRAW_FAR_AGENTS:
+        if agent.isClose(agent.getHub().getPosition(), Config.HUB_OBSERVE_DIST):
             drawPath(agent, surface)  # If we are only drawing close agents, then only show their path when they are close to the hub and can report it. Else this part is taken care of in the world display class.
-        else:
-            drawLastKnownPos(agent)
-    if Display.drawFarAgents or agent.isClose(agent.getHub().getPosition(), HUB_OBSERVE_DIST):
+        # else:
+        #     drawLastKnownPos(agent)
+    if Config.DRAW_FAR_AGENTS or agent.isClose(agent.getHub().getPosition(), Config.HUB_OBSERVE_DIST):
         if agent.isTheSelected:  # Only draw the following for one of the selected agents
             drawKnownSiteMarkers(agent, surface)
             drawAssignedSite(agent)
             setAgentMarker(agent)
             drawPlacesToAvoid(agent)
+        else:
+            agent.marker = None
         if agent.isSelected:  # Only draw state and phase circles for the selected agents
             Display.drawCircle(surface, agent.getStateColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
             Display.drawCircle(surface, agent.getPhaseColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
@@ -37,8 +36,8 @@ def drawLastKnownPos(agent):
 
 def getAgentImage(pos):
     """ Loads, adjusts the size, and returns the image representing an agent """
-    agent = pygame.image.load(agentImage)
-    if Display.shouldDraw:
+    agent = pygame.image.load(Config.AGENT_IMAGE)
+    if Config.SHOULD_DRAW:
         agent = agent.convert_alpha()
     if agent.get_size()[0] > 30 or agent.get_size()[1] > 30:
         agent = pygame.transform.scale(agent, (30, 30))
@@ -57,18 +56,18 @@ def setAgentMarker(agent):
 
 def drawMarker(agent, surface):
     """ Draws the agent's specified marker on the screen (i.e. the go marker) """
-    if (Display.drawFarAgents or agent.isCloseToHub()) and agent.marker is not None:
+    if (Config.DRAW_FAR_AGENTS or agent.isCloseToHub()) and agent.marker is not None:
         drawDashedLine(surface, BORDER_COLOR, agent.pos, agent.marker[1].center)
         Display.blitImage(Display.screen, agent.marker[0], agent.marker[1])
 
 
 def drawPlacesToAvoid(agent):
     """ Draws the places the agent should avoid on the screen """
-    if Display.drawFarAgents or agent.isCloseToHub():
+    if Config.DRAW_FAR_AGENTS or agent.isCloseToHub():
         for pos in agent.placesToAvoid:
-            Display.drawLine(Display.screen, (155, 0, 0, 120), [pos[0] - AVOID_MARKER_XY, pos[1] + AVOID_MARKER_XY],
-                             [pos[0] + AVOID_MARKER_XY, pos[1] - AVOID_MARKER_XY], 4)
-            Display.drawCircle(Display.screen, (155, 0, 0, 120), pos, MIN_AVOID_DIST, 4)
+            Display.drawLine(Display.screen, (155, 0, 0, 120), [pos[0] - Config.AVOID_MARKER_XY, pos[1] +
+                                                                Config.AVOID_MARKER_XY], [pos[0] + Config.AVOID_MARKER_XY, pos[1] - Config.AVOID_MARKER_XY], 4)
+            Display.drawCircle(Display.screen, (155, 0, 0, 120), pos, Config.MIN_AVOID_DIST, 4)
 
 
 def drawPath(agent, surface):
@@ -82,7 +81,7 @@ def drawPath(agent, surface):
 def drawKnownSiteMarkers(agent, surface):
     """ Draws a circle around each site the agent knows about """
     for pos in agent.knownSitesPositions:
-        Display.drawCircle(surface, FOLLOW_COLOR, pos, SITE_RADIUS + 8, 2)
+        Display.drawCircle(surface, FOLLOW_COLOR, pos, Config.SITE_RADIUS + 8, 2)
 
 
 def drawAssignedSite(agent):

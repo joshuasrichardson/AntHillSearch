@@ -17,10 +17,6 @@ from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 
-# TODO: Add an option to show all current settings in the settings tab.
-# TODO: Be able to change things in settings without typing (dragging sites around, etc.).
-# TODO: Think about how to display predictions.
-
 
 def main():
 
@@ -47,6 +43,7 @@ def runSimWithInterface(colony):
 
 def runEmpiricalTestingInterface(numSimulations=1):
     try:
+        iterations = []  # A list of the number of iterations taken to complete each simulation.
         convergenceTimes = []  # A list of how long it took each colony to converge in seconds.
         chosenHomesPositions = []  # A list of the positions of the homes the agents converged to.
         chosenHomesQualities = []  # A list of the qualities of the homes the agents converged to.
@@ -55,19 +52,21 @@ def runEmpiricalTestingInterface(numSimulations=1):
         arrivals = []  # The number of agents that got assigned to the new sites.
         for i in range(numSimulations):  # Run the simulation as many times as you want
             print(f"Simulation {i + 1}:")
-            colony = EmpiricalTestingInterface(useRestAPI=False, useJson=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+            colony = EmpiricalTestingInterface()  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
             # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
             results = colony.runSimulation()  # Starts the interface
             # Store results from each simulation so we can see a summary of all the simulations below.
+            iterations.append(results[NUM_ROUNDS_NAME])
             convergenceTimes.append(results[SIM_TIMES_NAME])
             chosenHomesQualities.append(results[HOME_QUALITIES_NAME])
             chosenHomesPositions.append(results[HOME_POSITIONS_NAME])
             deaths.append(results[NUM_DEAD_NAME])
             totals.append(results[TOTAL_NAME])
-            arrivals.append(NUM_ARRIVALS_NAME)
+            arrivals.append(results[NUM_ARRIVALS_NAME])
             del colony
             gc.collect()
 
+        print(f"Iterations: {iterations}")
         print(f"Durations: {convergenceTimes}")
         print(f"Qualities: {chosenHomesQualities}")
         print(f"Positions: {chosenHomesPositions}")

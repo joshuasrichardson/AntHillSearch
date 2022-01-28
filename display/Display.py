@@ -2,15 +2,11 @@
 import numpy as np
 import pygame
 
-from Constants import SHOULD_DRAW, DRAW_FAR_AGENTS, WORDS_COLOR, SHOULD_DRAW_PATHS, LARGE_FONT_SIZE, \
-    SITE_RADIUS, FONT_SIZE, MAX_SEARCH_DIST, COMMIT_COLOR, BORDER_COLOR, INITIAL_ZOOM, HOME_QUALITIES_NAME, \
-    SIM_TIMES_NAME, NUM_ARRIVALS_NAME, TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME
+from config import Config
+from Constants import WORDS_COLOR, COMMIT_COLOR, BORDER_COLOR, HOME_QUALITIES_NAME, SIM_TIMES_NAME, NUM_ARRIVALS_NAME, \
+    TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME, NUM_ROUNDS_NAME
 
 screen = None
-shouldDraw = SHOULD_DRAW
-shouldDrawPaths = SHOULD_DRAW_PATHS
-canSelectAnywhere = DRAW_FAR_AGENTS
-drawFarAgents = DRAW_FAR_AGENTS
 displacementX = 0
 displacementY = 0
 drawLastCommands = []
@@ -49,13 +45,13 @@ def resetScreen():
     newHeight = origHeight
     displacementX = 0
     displacementY = 0
-    while zoom < INITIAL_ZOOM:
+    while zoom < Config.INITIAL_ZOOM:
         zoomIn()
-    while zoom > INITIAL_ZOOM:
+    while zoom > Config.INITIAL_ZOOM:
         zoomOut()
 
 
-def writeCenter(surface, words, fontSize=LARGE_FONT_SIZE, color=WORDS_COLOR):
+def writeCenter(surface, words, fontSize=Config.LARGE_FONT_SIZE, color=WORDS_COLOR):
     """ Writes words in middle of the surface with the given font size and color """
     font = pygame.font.SysFont('Comic Sans MS', fontSize)
     img = font.render(f"{words}", True, color).convert_alpha()
@@ -91,16 +87,17 @@ def drawFinish(surface, results):
     pygame.draw.rect(surf, (225, 220, 190, 200), (0, 0, origWidth, origHeight))
     surface.blit(surf, (0, 0))
 
-    writeCenterPlus(surface, "Complete", LARGE_FONT_SIZE, -(origHeight / 2 - 3 * LARGE_FONT_SIZE))
+    writeCenterPlus(surface, "Complete", Config.LARGE_FONT_SIZE, -(origHeight / 2 - 3 * Config.LARGE_FONT_SIZE))
     x = origWidth * 4 / 9
     y = origHeight / 6
-    write(surface, "Click anywhere or press", FONT_SIZE, x, y)
-    y += FONT_SIZE
-    write(surface, "any key to continue.", FONT_SIZE, x, y)
+    write(surface, "Click anywhere or press", Config.FONT_SIZE, x, y)
+    y += Config.FONT_SIZE
+    write(surface, "any key to continue.", Config.FONT_SIZE, x, y)
 
-    words = ["Colony", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
+    words = ["Colony", "Rounds", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
     for i in range(len(results[HOME_QUALITIES_NAME])):
         words.append(f"{i + 1}")
+        words.append(f"{results[NUM_ROUNDS_NAME]}")
         words.append(f"{round(results[SIM_TIMES_NAME][i], 2)}")
         words.append(f"{results[HOME_QUALITIES_NAME][i]}")
         words.append(f"{results[HOME_POSITIONS_NAME][i]}")
@@ -117,7 +114,7 @@ def drawResultsGrid(numRows, numColumns, words):
     for row in range(numRows):
         for column in range(numColumns):
             drawRect(screen, BORDER_COLOR, pygame.Rect(x, y, w, h), 1, False)
-            font = pygame.font.SysFont('Comic Sans MS', FONT_SIZE)
+            font = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE)
             img = font.render(f"{words[row * numColumns + column]}", True, WORDS_COLOR).convert_alpha()
             screen.blit(img, (x + ((w - img.get_width()) / 2), y + ((h - img.get_height()) / 2)))
             x += w
@@ -138,8 +135,8 @@ def getDestinationMarker(pos):
 def getAssignmentMarker(pos):
     """ Loads, adjusts the size, and returns the image representing an assignment """
     target = pygame.image.load("resources/target.png").convert_alpha()
-    if target.get_size()[0] > 2 * SITE_RADIUS or target.get_size()[1] > 2 * SITE_RADIUS:
-        target = pygame.transform.scale(target, (2 * SITE_RADIUS, 2 * SITE_RADIUS))
+    if target.get_size()[0] > 2 * Config.SITE_RADIUS or target.get_size()[1] > 2 * Config.SITE_RADIUS:
+        target = pygame.transform.scale(target, (2 * Config.SITE_RADIUS, 2 * Config.SITE_RADIUS))
     rect = target.get_rect().move(pos)
     rect.center = pos
     return target, rect
@@ -449,7 +446,7 @@ def getUnzoomedSize(origW, origH):
 def initWorldSize():
     global origWidth, origHeight, worldSize, worldLeft, worldTop, worldRight, worldBottom
     w, h = origWidth, origHeight
-    m = MAX_SEARCH_DIST * 2 + h
+    m = Config.MAX_SEARCH_DIST * 2 + h
     while h < m:
         w += (origWidth / 16)
         h += (origHeight / 16)

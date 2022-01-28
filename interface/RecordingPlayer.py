@@ -1,5 +1,6 @@
 import time
 
+from config import Config
 from model.Timer import SimulationTimer
 from Constants import *
 from display import Display, WorldDisplay
@@ -17,22 +18,24 @@ class RecordingPlayer(Simulation):
         self.hubAgentCounts = []
         self.delay = 0
         WorldDisplay.fog = None
-        super().__init__(shouldRecord=False)
-        self.realTimer = SimulationTimer(self.simulationDuration, self.timeOut)
+        super().__init__()
+        Config.SHOULD_RECORD = False
+        self.realTimer = SimulationTimer(self.timeOut)
 
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
         super().initializeAgentList()
 
-    def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS):
+    def initializeWorld(self):
         self.recorder.read()
         addAfter = self.initHubsAgentCounts()
-        self.world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), hubLocations, hubRadii, self.hubAgentCounts, sitePositions,
-                           siteQualities, siteRadii, siteRadius, numPredators=self.recorder.getNumPredators())
+        self.world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), Config.HUB_LOCATIONS,
+                           Config.HUB_RADII, Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS,
+                           Config.SITE_QUALITIES, Config.SITE_RADII, Config.SITE_RADIUS,
+                           numPredators=self.recorder.getNumPredators())
         self.addAddedAgents(self.world, addAfter)
         self.initializeAgentList()
-        self.timer.simulationDuration = self.recorder.getNextTime()
+        Config.SIM_DURATION = self.recorder.getNextTime()
 
         return self.world
 
@@ -48,7 +51,7 @@ class RecordingPlayer(Simulation):
                 addAfter.append(i)
         return addAfter
 
-    def initChosenHomes(self, numHubs):
+    def initChosenHomes(self):
         chosenHomes = []
         for i in range(self.recorder.getNumHubs()):
             chosenHomes.append(self.world.siteList[0])
@@ -71,11 +74,14 @@ class RecordingPlayer(Simulation):
         results = super().runSimulation()
         return results
 
+    def getNumRounds(self):
+        return self.recorder.getNumRounds()
+
     def stopTimer(self):
         super().stopTimer()
         realTime = self.realTimer.getRemainingTime()
         self.realTimer.cancel()
-        print(f"Real simulation time: {self.simulationDuration - realTime}")
+        print(f"Real simulation time: {Config.SIM_DURATION - realTime}")
 
     def update(self, agentRectList):
         self.slowDownOrSpeedUp()
@@ -142,12 +148,12 @@ class RecordingPlayer(Simulation):
             self.world.removeAgent(self.world.agentList[agentIndex])
 
     def updateAgent(self, agent, agentRectList):
+        agent.setState(self.recorder.getNextState(agent))
+        agent.setPhase(self.recorder.getNextPhase())
         pos = self.recorder.getNextAgentPosition()
         agent.setPosition(pos[0], pos[1])
         angle = self.recorder.getNextAgentAngle()
         agent.setAngle(angle)
-        agent.setState(self.recorder.getNextState(agent))
-        agent.setPhase(self.recorder.getNextPhase())
         try:
             siteToAssign = agent.world.siteList[self.recorder.getNextAssignment()]
             agent.assignSite(siteToAssign)
@@ -171,23 +177,17 @@ class RecordingPlayer(Simulation):
     def getNumDeadAgents(self):
         return self.recorder.readResults()[NUM_DEAD_NAME]
 
-    def getShouldDraw(self):
-        return True
+    def getGraphs(self, numAgents):
+        return SimulationGraphs(numAgents, RECORDING_CONTROL_OPTIONS)
 
-    def getDrawFarAgents(self):
-        return True
-
-    def getKnowSitePosAtStart(self):
-        return True
-
-    def getShouldDrawPaths(self):
-        return True
-
-    def getGraphs(self, numAgents, fontSize, largeFontSize):
-        return SimulationGraphs(numAgents, fontSize, largeFontSize, RECORDING_CONTROL_OPTIONS)
-
-    def calcNumAgents(self, hubAgentCounts):
+    def calcNumAgents(self):
         return self.recorder.getNumAgents()
 
     def getControls(self):
         return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs, self.changeDelay)
+
+    def applyConfiguration(self):
+        super().applyConfiguration()
+        Config.DRAW_ESTIMATES = False
+        Config.SHOULD_RECORD = False
+        Config.DRAW_FAR_AGENTS = True

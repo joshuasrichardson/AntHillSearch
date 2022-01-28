@@ -3,9 +3,10 @@ import datetime
 import threading
 from abc import ABC
 
+from config import Config
 from ColonyExceptions import *
 from Constants import *
-from display import Display, WorldDisplay
+from display import WorldDisplay
 from interface.Simulation import Simulation
 from model.World import World
 from model.builder import AgentBuilder
@@ -15,38 +16,21 @@ from net.HubInfoRequest import HubInfoRequest
 class LiveSimulation(Simulation, ABC):
     """ A class to run the interface for ants finding their new home after the old one broke """
 
-    def __init__(self, simulationDuration=SIM_DURATION, numHubs=NUM_HUBS, numSites=NUM_SITES, useRestAPI=USE_REST_API,
-                 shouldRecord=SHOULD_RECORD, convergenceFraction=CONVERGENCE_FRACTION,
-                 hubLocations=HUB_LOCATIONS, hubRadii=HUB_RADII, hubAgentCounts=HUB_AGENT_COUNTS,
-                 sitePositions=SITE_POSITIONS, siteQualities=SITE_QUALITIES, siteRadii=SITE_RADII,
-                 siteNoCloserThan=SITE_NO_CLOSER_THAN, siteNoFartherThan=SITE_NO_FARTHER_THAN,
-                 hubCanMove=HUB_CAN_MOVE, homogenousAgents=HOMOGENOUS_AGENTS, minSpeed=MIN_AGENT_SPEED,
-                 maxSpeed=MAX_AGENT_SPEED, minDecisiveness=MIN_DECISIVENESS, maxDecisiveness=MAX_DECISIVENESS,
-                 minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
-                 maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
-                 findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR, numPredators=NUM_PREDATORS,
-                 useJson=True):
-        super().__init__(simulationDuration, numHubs, numSites, shouldRecord, convergenceFraction,
-                         hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
-                         siteNoCloserThan, siteNoFartherThan, hubCanMove, homogenousAgents, minSpeed,
-                         maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
-                         maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor, numPredators=numPredators,
-                         useJson=useJson)
+    def __init__(self):
+        super().__init__()
         self.previousSendTime = datetime.datetime.now()
-        self.useRestAPI = useRestAPI
 
-        if simulationDuration < 0 or simulationDuration > MAX_TIME:
-            raise InputError("Simulation too short or too long", simulationDuration)
-        if numSites < 0 or numSites > MAX_NUM_SITES:
-            raise InputError("Can't be more sites than maximum value", numSites)
+        if Config.SIM_DURATION < 0 or Config.SIM_DURATION > MAX_TIME:
+            raise InputError("Simulation too short or too long", Config.SIM_DURATION)
+        if Config.NUM_SITES < 0 or Config.NUM_SITES > MAX_NUM_SITES:
+            raise InputError("Can't be more sites than maximum value", Config.NUM_SITES)
 
-    def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                        siteQualities, siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS,
-                        predPositions=PRED_POSITIONS):
-        self.world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                           siteQualities, siteRadii, siteRadius, numPredators, predPositions)
+    def initializeWorld(self):
+        self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_LOCATIONS, Config.HUB_RADII,
+                           Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS, Config.SITE_QUALITIES, Config.SITE_RADII,
+                           Config.SITE_RADIUS, Config.NUM_PREDATORS, Config.PRED_POSITIONS)
         self.initializeAgentList()
-        if Display.shouldDraw and SHOULD_DRAW_FOG:
+        if Config.SHOULD_DRAW and Config.SHOULD_DRAW_FOG:
             WorldDisplay.initFog(self.world.hubs)
 
         return self.world
@@ -72,11 +56,11 @@ class LiveSimulation(Simulation, ABC):
     def update(self, agentRectList):
         super().update(agentRectList)
         self.setSitesEstimates(agentRectList)
-        if self.useRestAPI:
+        if Config.USE_REST_API:
             self.updateRestAPI()
 
     def updateSites(self):
-        if self.shouldRecord and self.recordAll:
+        if Config.SHOULD_RECORD and Config.RECORD_ALL:
             for site in self.world.siteList:
                 self.recorder.recordSiteInfo(site)
 
@@ -90,14 +74,13 @@ class LiveSimulation(Simulation, ABC):
     def updateAgent(self, agent, agentRectList):
         if agent.getStateNumber() != DEAD:
             agent.moveForward()
-            if Display.shouldDraw:
+            if Config.SHOULD_DRAW:
                 agent.clearFog()
 
             agentNeighbors = self.getNeighbors(agent.getRect(), agentRectList)
             agent.doStateActions(agentNeighbors)
-            del agentNeighbors[:]
 
-        if self.shouldRecord and self.recordAll:
+        if Config.SHOULD_RECORD and Config.RECORD_ALL:
             self.recorder.recordAgentInfo(agent)
 
     def updatePredator(self, predator, agentRectList):
@@ -105,7 +88,7 @@ class LiveSimulation(Simulation, ABC):
         agentNeighbors = self.getNeighbors(predator.getRect(), agentRectList)
         predator.attack(agentNeighbors)
 
-        if self.shouldRecord and self.recordAll:
+        if Config.SHOULD_RECORD and Config.RECORD_ALL:
             self.recorder.recordPredatorPosition(predator.pos)
             self.recorder.recordPredatorAngle(predator.angle)
 
@@ -141,23 +124,22 @@ class LiveSimulation(Simulation, ABC):
 
     def updateRestAPI(self):
         now = datetime.datetime.now()
-        if now > self.previousSendTime + datetime.timedelta(seconds=SECONDS_BETWEEN_SENDING_REQUESTS):
+        if now > self.previousSendTime + datetime.timedelta(seconds=Config.SECONDS_BETWEEN_SENDING_REQUESTS):
             self.previousSendTime = now
             thread = threading.Thread(target=self.world.request.sendHubInfo)
             thread.start()
 
     def save(self):
-        if self.shouldRecord:
+        if Config.SHOULD_RECORD:
             self.recorder.save()
 
-    def write(self, recordAll):
-        self.recorder.write(recordAll)
+    def write(self):
+        self.recorder.write()
 
     def sendResults(self, results):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there,
          and records result information in a .json file"""
-        if self.useRestAPI or self.shouldRecord:
-            if self.useRestAPI:
-                self.world.request.sendResultsToAPI(results)
-            if self.shouldRecord:
-                self.recorder.writeResults(results)
+        if Config.USE_REST_API:
+            self.world.request.sendResultsToAPI(results)
+        if Config.SHOULD_RECORD:
+            self.recorder.writeResults(results)

@@ -3,9 +3,10 @@ import numbers
 
 from datetime import datetime
 
-from Constants import RESULTS_DIR
-from model.phases import Phase
-from model.states import State
+from config import Config
+from Constants import RESULTS_DIR, NUM_ROUNDS_NAME
+from model.phases.NumToPhaseConverter import numToPhase
+from model.states.NumToStateConverter import numToState
 
 
 def getMostRecentRecording():
@@ -160,8 +161,8 @@ class Recorder:
         self.siteMarkerArgs = []
         self.siteMarkerNums = []
 
-    def write(self, recordAll):
-        if recordAll:
+    def write(self):
+        if Config.RECORD_ALL:
             with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
                 json.dump(self.data, file)
 
@@ -225,11 +226,11 @@ class Recorder:
 
     def getNextState(self, agent):
         self.currentStateIndex += 1
-        return State.numToState(self.agentStates[self.currentStateIndex], agent)
+        return numToState(self.agentStates[self.currentStateIndex], agent)
 
     def getNextPhase(self):
         self.currentPhaseIndex += 1
-        return Phase.numToPhase(self.agentPhases[self.currentPhaseIndex])
+        return numToPhase(self.agentPhases[self.currentPhaseIndex])
 
     def getOriginalAssignments(self):
         return self.data[0]['agentAssignments']
@@ -284,6 +285,9 @@ class Recorder:
 
     def getNextScreenBorder(self):
         return self.screenBorder
+
+    def getNumRounds(self):
+        return self.readResults()[NUM_ROUNDS_NAME]
 
     def getNumAgents(self):
         if self.dataIndex >= 0:

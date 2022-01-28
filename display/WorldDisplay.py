@@ -1,28 +1,31 @@
 """ Methods related to the world's display """
 import pygame
 
-from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO_MARKER_NAME
+from config import Config
+from Constants import SCREEN_COLOR, TRANSPARENT, FOG_COLOR, NO_MARKER_NAME
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
-from display.SiteDisplay import drawEstimatedSite, drawSite
+from display.SiteDisplay import drawSite
 
 fog = None
 
 
 def drawWorldObjects(world):
     """ Draws the paths, agents, sites, markers, and fog in the world"""
-    if Display.shouldDrawPaths:
+    if Config.SHOULD_DRAW_PATHS:
         drawPaths(world)
     drawAgents(world)
     drawPredators(world)
-    if not Display.drawFarAgents:
+    if not Config.DRAW_FAR_AGENTS:
         for site in world.siteList:
-            drawEstimatedSite(site)
+            if site.wasFound:
+                drawSite(site, site.estimatedPosition, site.estimatedRadius + site.blurRadiusDiff,
+                         site.estimatedQuality, site.blurAmount)
         drawDangerZones(world)
     else:
         for site in world.siteList:
-            drawSite(site)
+            drawSite(site, site.pos, site.radius, site.quality)
     drawFog()
     drawMarkers(world)
     Display.drawLast()
@@ -77,7 +80,7 @@ def initFog(hubs):
         pos = hub.getPosition()
         x = pos[0] - Display.worldLeft
         y = pos[1] - Display.worldTop
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], HUB_OBSERVE_DIST, 0)
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], Config.HUB_OBSERVE_DIST, 0)
 
 
 def drawFog():

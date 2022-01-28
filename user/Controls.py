@@ -6,16 +6,16 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k, K_r, K_w
 
-import Constants
-from Constants import SITE_RADIUS, SCREEN_COLOR, BORDER_COLOR, AT_NEST, \
-    TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, SET_STATE_NAME, GO_NAME
+from config import Config
+from Constants import SCREEN_COLOR, BORDER_COLOR, AT_NEST, TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, \
+    SET_STATE_NAME, GO_NAME, SEARCH_COLOR, DEAD, STOP_AVOID_NAME
 from display import Display
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker, getAssignmentMarker
-from model.builder import AgentBuilder, SiteSettings
+from model.builder import AgentBuilder
 from model.phases.ExplorePhase import ExplorePhase
-from model.states import State
+from model.states.NumToStateConverter import numToState
 from model.states.SearchState import SearchState
 
 
@@ -67,11 +67,11 @@ class Controls:
     def drawChanges(self):
         if len(self.selectedAgents) > 0:  # Display the number of agents that are selected by the mouse
             pos = pygame.mouse.get_pos()
-            Display.write(Display.screen, str(len(self.selectedAgents)), Constants.FONT_SIZE,
-                          pos[0] + Constants.FONT_SIZE, pos[1] + Constants.FONT_SIZE, Constants.SEARCH_COLOR)
+            Display.write(Display.screen, str(len(self.selectedAgents)), Config.FONT_SIZE,
+                          pos[0] + Config.FONT_SIZE, pos[1] + Config.FONT_SIZE, SEARCH_COLOR)
             if len(self.selectedAgents) > 1 and self.graphs.shouldDrawGraphs:
                 Display.write(Display.screen, "Cut the number of selected ants in half by pressing 'H'",
-                              Constants.FONT_SIZE, Display.origWidth - 420, 4 * Constants.FONT_SIZE, Constants.SEARCH_COLOR)
+                              Config.FONT_SIZE, Display.origWidth - 420, 4 * Config.FONT_SIZE, SEARCH_COLOR)
         if self.selectedSite is not None and self.shouldDrawQuality:
             drawPotentialQuality(self.world, self.potentialQuality, self.graphs.font)
         if self.selectRectCorner is not None:
@@ -213,7 +213,7 @@ class Controls:
     def getNumLivingSelectedAgents(self):
         numLiving = 0
         for agent in self.selectedAgents:
-            if agent.getStateNumber() != Constants.DEAD:
+            if agent.getStateNumber() != DEAD:
                 numLiving += 1
         return numLiving
 
@@ -279,7 +279,7 @@ class Controls:
             self.graphs.scrollDown()
 
     def drag(self):
-        if SiteSettings.hubCanMove or not self.world.getHubs().__contains__(self.selectedSite):
+        if Config.HUB_CAN_MOVE or not self.world.getHubs().__contains__(self.selectedSite):
             self.oldRect = self.selectedSite.getSiteRect().copy()
             self.dragSite = self.selectedSite
 
@@ -308,13 +308,13 @@ class Controls:
 
     def select(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        if Display.canSelectAnywhere or self.byAHub(mousePos):
+        if Config.DRAW_FAR_AGENTS or self.byAHub(mousePos):
             self.selectAgent(mousePos)
             self.selectSite(mousePos)
 
     def byAHub(self, pos):
         for hub in self.world.getHubs():
-            if self.world.isClose(pos, hub.getPosition(), Constants.HUB_OBSERVE_DIST):
+            if self.world.isClose(pos, hub.getPosition(), Config.HUB_OBSERVE_DIST):
                 return True
         return False
 
@@ -393,15 +393,15 @@ class Controls:
         if not AT_NEST <= stateNum <= TRANSPORT:
             return
         for agent in self.selectedAgents:
-            if agent.getStateNumber() != Constants.DEAD and agent.checkLeadAgent(agent, stateNum):
-                agent.setState(State.numToState(stateNum, agent))
+            if agent.getStateNumber() != DEAD and agent.checkLeadAgent(agent, stateNum):
+                agent.setState(numToState(stateNum, agent))
         self.setSelectedSitesCommand(self.setStateCommand, stateNum, stateNum, SET_STATE_NAME)
 
     @staticmethod
     def setStateCommand(agent, state):
         if agent.checkLeadAgent(agent, state):
-            if agent.getStateNumber() != Constants.DEAD:
-                agent.setState(State.numToState(state, agent))
+            if agent.getStateNumber() != DEAD:
+                agent.setState(numToState(state, agent))
 
     def drawSelectRect(self, mousePos):
         if self.selectRectCorner[0] < mousePos[0]:
@@ -417,7 +417,7 @@ class Controls:
         return pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(left, top, width, height), 1)
 
     def selectAgents(self, rect):
-        selectedAgents = [a for a in self.agentList if a.getRect().colliderect(rect) and (Display.canSelectAnywhere or
+        selectedAgents = [a for a in self.agentList if a.getRect().colliderect(rect) and (Config.DRAW_FAR_AGENTS or
                                                                                           a.isCloseToHub())]
         if self.shouldSelectAgents:
             self.selectedAgents = selectedAgents
@@ -545,7 +545,7 @@ class Controls:
 
     @staticmethod
     def goCommand(agent, mousePos):
-        if agent.getStateNumber() != Constants.DEAD:
+        if agent.getStateNumber() != DEAD:
             agent.target = list(mousePos)
             from model.states.GoState import GoState
             agent.setState(GoState(agent))
@@ -562,19 +562,19 @@ class Controls:
                 self.addToExecutedEvents(f"{len(self.selectedSites)} sites started avoiding {pos}")
             for site in self.selectedSites:
                 site.areasToAvoid.append(pos)
-                if len(site.areasToAvoid) > Constants.MAX_NUM_AVOIDS:
+                if len(site.areasToAvoid) > Config.MAX_NUM_AVOIDS:
                     self.addToExecutedEvents(f"Removed command to avoid {site.areasToAvoid.pop(0)}")
 
     @staticmethod
     def avoidCommand(agent, mousePos):
-        if agent.getStateNumber() != Constants.DEAD:
+        if agent.getStateNumber() != DEAD:
             agent.avoid(mousePos)
 
     def removeAvoids(self, pos):
         if len(self.selectedAgents) > 0:
             pos = [int(pos[0]), int(pos[1])]
             self.addToExecutedEvents(f"{self.getNumLivingSelectedAgents()} agents stopped avoiding {pos}")
-        self.setSelectedSitesCommand(self.removeAvoidCommand, list(pos), None, Constants.STOP_AVOID_NAME)
+        self.setSelectedSitesCommand(self.removeAvoidCommand, list(pos), None, STOP_AVOID_NAME)
         for a in self.selectedAgents:
             self.removeAvoidCommand(a, pos)
 
@@ -586,7 +586,7 @@ class Controls:
 
     @staticmethod
     def assignCommand(agent, mousePos):
-        if agent.getStateNumber() != Constants.DEAD:
+        if agent.getStateNumber() != DEAD:
             sitesUnderMouse = [s for s in agent.world.siteList if s.siteRect.collidepoint(mousePos)]
             if len(sitesUnderMouse) > 0:
                 agent.addToKnownSites(sitesUnderMouse[0])
@@ -629,7 +629,7 @@ class Controls:
             if len(self.selectedAgents) > 0:
                 self.addToExecutedEvents(f"Assigned {self.getNumLivingSelectedAgents()} agents to site at {sitesUnderMouse[0].getPosition()}")
             for a in self.selectedAgents:
-                if a.getStateNumber() != Constants.DEAD:
+                if a.getStateNumber() != DEAD:
                     a.marker = marker
                     a.addToKnownSites(sitesUnderMouse[0])
                     a.assignSite(sitesUnderMouse[0])
@@ -671,7 +671,7 @@ class Controls:
             self.addToExecutedEvents(f"Shrunk site at {site.getPosition()}'s radius to {site.radius}")
 
     def createSite(self, position):
-        self.world.createSite(position[0], position[1], SITE_RADIUS, 128, len(self.world.getHubs()))
+        self.world.createSite(position[0], position[1], Config.SITE_RADIUS, 128, len(self.world.getHubs()))
         pos = [int(position[0]), int(position[1])]
         self.addToExecutedEvents(f"Created site at {pos}")
 
