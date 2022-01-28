@@ -1,8 +1,9 @@
 import pygame
 from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_ESCAPE, K_RIGHT, K_LEFT
 
+from config import Config
 from ColonyExceptions import GameOver
-from Constants import FONT_SIZE, LARGE_FONT_SIZE, WORDS_COLOR, BORDER_COLOR, SCREEN_COLOR, SEARCH_COLOR
+from Constants import WORDS_COLOR, BORDER_COLOR, SCREEN_COLOR, SEARCH_COLOR
 from display import Display
 
 
@@ -11,7 +12,8 @@ class Tutorial:
     def __init__(self, play):
         self.play = play
 
-        self.playButton = pygame.Rect(Display.origWidth / 2 - FONT_SIZE, Display.origHeight * 3 / 4 + FONT_SIZE + (FONT_SIZE / 2), FONT_SIZE * 2, FONT_SIZE * 2)
+        self.playButton = pygame.Rect(Display.origWidth / 2 - Config.FONT_SIZE, Display.origHeight * 3 / 4 +
+                                      Config.FONT_SIZE + (Config.FONT_SIZE / 2), Config.FONT_SIZE * 2, Config.FONT_SIZE * 2)
         self.prevButton = pygame.Rect(0, 0, 0, 0)
         self.nextButton = pygame.Rect(0, 0, 0, 0)
         self.backButton = pygame.Rect(0, 0, 0, 0)
@@ -44,14 +46,14 @@ class Tutorial:
             self.drawPage()
 
     def drawIntroPage(self):
-        Display.writeCenterPlus(Display.screen, "Anthill Search", LARGE_FONT_SIZE, -4 * LARGE_FONT_SIZE)
+        Display.writeCenterPlus(Display.screen, "Anthill Search", Config.LARGE_FONT_SIZE, -4 * Config.LARGE_FONT_SIZE)
         instructions = ["The ants old home has been broken!",
                         "Your mission is to help them ",
                         "find the best new home in the area ",
                         "in the shortest time possible ",
                         "with as many survivors as possible."]
         for i, instruction in enumerate(instructions):
-            Display.writeCenterPlus(Display.screen, instruction, FONT_SIZE * 2, FONT_SIZE * 2 * i)
+            Display.writeCenterPlus(Display.screen, instruction, Config.FONT_SIZE * 2, Config.FONT_SIZE * 2 * i)
         self.drawBackButton()
         self.drawNextButton()
 
@@ -64,7 +66,7 @@ class Tutorial:
         self.drawNextButton()
 
     def drawLastPage(self):
-        Display.writeCenterPlus(Display.screen, "Anthill Search", LARGE_FONT_SIZE, -4 * LARGE_FONT_SIZE)
+        Display.writeCenterPlus(Display.screen, "Anthill Search", Config.LARGE_FONT_SIZE, -4 * Config.LARGE_FONT_SIZE)
         instructions = ["Remember:",
                         "",
                         " Good quality home ",
@@ -75,36 +77,46 @@ class Tutorial:
                         "",
                         "Press play to do a practice round."]
         for i, instruction in enumerate(instructions):
-            Display.writeCenterPlus(Display.screen, instruction, FONT_SIZE * 2, FONT_SIZE * 2 * i)
+            Display.writeCenterPlus(Display.screen, instruction, Config.FONT_SIZE * 2, Config.FONT_SIZE * 2 * i)
         self.drawBackButton()
         self.drawPreviousButton()
         self.drawPlayButton()
 
     def drawNextButton(self):
-        nextImg = pygame.font.SysFont('Comic Sans MS', FONT_SIZE * 2).render("NEXT >", True, WORDS_COLOR).convert_alpha()
-        self.nextButton = pygame.Rect(Display.origWidth * 3 / 4 - 2 * nextImg.get_width(), Display.origHeight * 3 / 4 + FONT_SIZE,
+        nextImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
+                                      "NEXT >", True, WORDS_COLOR).convert_alpha()
+        self.nextButton = pygame.Rect(Display.origWidth * 3 / 4 - 2 * nextImg.get_width(),
+                                      Display.origHeight * 3 / 4 + Config.FONT_SIZE,
                                       nextImg.get_width(), nextImg.get_height())
         if self.nextButton.collidepoint(pygame.mouse.get_pos()):
-            nextImg = pygame.font.SysFont('Comic Sans MS', FONT_SIZE * 2).render("NEXT >", True, SEARCH_COLOR).convert_alpha()
-            self.nextButton = pygame.Rect(Display.origWidth * 3 / 4 - 2 * nextImg.get_width(), Display.origHeight * 3 / 4 + FONT_SIZE,
+            nextImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
+                                          "NEXT >", True, SEARCH_COLOR).convert_alpha()
+            self.nextButton = pygame.Rect(Display.origWidth * 3 / 4 - 2 * nextImg.get_width(),
+                                          Display.origHeight * 3 / 4 + Config.FONT_SIZE,
                                           nextImg.get_width(), nextImg.get_height())
         Display.screen.blit(nextImg, self.nextButton.topleft)
 
     def drawPreviousButton(self):
-        prevImg = pygame.font.SysFont('Comic Sans MS', FONT_SIZE * 2).render("< PREV", True, WORDS_COLOR).convert_alpha()
-        self.prevButton = pygame.Rect(Display.origWidth / 4 + prevImg.get_width(), Display.origHeight * 3 / 4 + FONT_SIZE,
+        prevImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
+                                      "< PREV", True, WORDS_COLOR).convert_alpha()
+        self.prevButton = pygame.Rect(Display.origWidth / 4 + prevImg.get_width(),
+                                      Display.origHeight * 3 / 4 + Config.FONT_SIZE,
                                       prevImg.get_width(), prevImg.get_height())
         if self.prevButton.collidepoint(pygame.mouse.get_pos()):
-            prevImg = pygame.font.SysFont('Comic Sans MS', FONT_SIZE * 2).render("< PREV", True, SEARCH_COLOR).convert_alpha()
-            self.prevButton = pygame.Rect(Display.origWidth / 4 + prevImg.get_width(), Display.origHeight * 3 / 4 + FONT_SIZE,
+            prevImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
+                                          "< PREV", True, SEARCH_COLOR).convert_alpha()
+            self.prevButton = pygame.Rect(Display.origWidth / 4 + prevImg.get_width(),
+                                          Display.origHeight * 3 / 4 + Config.FONT_SIZE,
                                           prevImg.get_width(), prevImg.get_height())
         Display.screen.blit(prevImg, self.prevButton.topleft)
 
     def drawBackButton(self):
-        backImg = pygame.font.SysFont('Comic Sans MS', FONT_SIZE * 2).render("<- BACK", True, WORDS_COLOR).convert_alpha()
+        backImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
+                                      "<- BACK", True, WORDS_COLOR).convert_alpha()
         self.backButton = pygame.Rect(100, 100, backImg.get_width(), backImg.get_height())
         if self.backButton.collidepoint(pygame.mouse.get_pos()):
-            backImg = pygame.font.SysFont('Comic Sans MS', FONT_SIZE * 2).render("<- BACK", True, SEARCH_COLOR).convert_alpha()
+            backImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
+                                          "<- BACK", True, SEARCH_COLOR).convert_alpha()
             self.backButton = pygame.Rect(100, 100, backImg.get_width(), backImg.get_height())
         Display.screen.blit(backImg, self.backButton.topleft)
 

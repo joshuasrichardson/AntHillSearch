@@ -3,8 +3,9 @@ import numbers
 
 from datetime import datetime
 
+from config import Config
 from Constants import RESULTS_DIR, NUM_ROUNDS_NAME
-from model.phases import Phase
+from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 
 
@@ -160,8 +161,8 @@ class Recorder:
         self.siteMarkerArgs = []
         self.siteMarkerNums = []
 
-    def write(self, recordAll):
-        if recordAll:
+    def write(self):
+        if Config.RECORD_ALL:
             with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
                 json.dump(self.data, file)
 
@@ -229,7 +230,7 @@ class Recorder:
 
     def getNextPhase(self):
         self.currentPhaseIndex += 1
-        return Phase.numToPhase(self.agentPhases[self.currentPhaseIndex])
+        return numToPhase(self.agentPhases[self.currentPhaseIndex])
 
     def getOriginalAssignments(self):
         return self.data[0]['agentAssignments']

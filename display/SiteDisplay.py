@@ -2,16 +2,14 @@
 import numpy
 import pygame
 
-from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, DRAW_ESTIMATES, STATE_COLORS, FONT_SIZE, \
-    CONVERGED_COLOR, AVOID_MARKER_XY, MIN_AVOID_DIST
+from config import Config
+from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, STATE_COLORS, CONVERGED_COLOR
 from display import Display
 from display.Display import drawDashedLine, getBlurredImage, drawCircle, drawLine
 
-knowSitePosAtStart = DRAW_ESTIMATES  # Whether the user knows where the sites are at the start of the interface
-
 
 def drawSite(site, pos, radius, quality, blurAmount=0):
-    if site.wasFound or knowSitePosAtStart:
+    if site.wasFound or not Config.DRAW_ESTIMATES:
         if blurAmount > 0:
             drawBlurredCircle(pos, BORDER_COLOR, site.radius * 4, radius + 2, blurAmount + 0.7)
         else:
@@ -28,7 +26,7 @@ def drawSite(site, pos, radius, quality, blurAmount=0):
         else:
             Display.drawCircle(Display.screen, site.color, pos, radius, 0)
 
-        fontSize = FONT_SIZE if Display.zoom >= 0 else FONT_SIZE + 3 * -Display.zoom
+        fontSize = Config.FONT_SIZE if Display.zoom >= 0 else Config.FONT_SIZE + 3 * -Display.zoom
 
         if site.wasFound:
             words = f"Agents: {int(site.agentCount)}" if site.isSelected else f"{int(site.agentCount)}"
@@ -88,9 +86,9 @@ def drawQuality(site):
 def drawMarker(site):
     """ Draw a marker on the screen representing the command that will be applied to agents that come to the site """
     for pos in site.areasToAvoid:
-        Display.drawLine(Display.screen, (155, 0, 0, 120), [pos[0] - AVOID_MARKER_XY, pos[1] + AVOID_MARKER_XY],
-                         [pos[0] + AVOID_MARKER_XY, pos[1] - AVOID_MARKER_XY], 4)
-        Display.drawCircle(Display.screen, (155, 0, 0, 120), pos, MIN_AVOID_DIST, 4)
+        Display.drawLine(Display.screen, (155, 0, 0, 120), [pos[0] - Config.AVOID_MARKER_XY, pos[1] + Config.AVOID_MARKER_XY],
+                         [pos[0] + Config.AVOID_MARKER_XY, pos[1] - Config.AVOID_MARKER_XY], 4)
+        Display.drawCircle(Display.screen, (155, 0, 0, 120), pos, Config.MIN_AVOID_DIST, 4)
     lastPoint = site.pos
     for point in site.checkPoints:
         drawDashedLine(Display.screen, BORDER_COLOR, lastPoint, point)
@@ -107,7 +105,7 @@ def drawMarker(site):
 
 def drawAssignmentMarker(site, fromPos, color):
     drawDashedLine(Display.screen, color, fromPos, site.pos)
-    if knowSitePosAtStart:  # If the agents know where the site is
+    if not Config.DRAW_ESTIMATES:  # If the agents know where the site is
         drawAssignmentMarker2(site.siteRect, color)  # Draw the marker around the site's actual location
     else:
         try:

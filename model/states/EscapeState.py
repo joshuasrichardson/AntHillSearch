@@ -1,7 +1,8 @@
 import numpy as np
 
 import Utils
-from Constants import ESCAPE_COLOR, ESCAPE, MIN_AVOID_DIST, SEARCH
+from config import Config
+from Constants import ESCAPE_COLOR, ESCAPE, SEARCH
 from model.states.State import State
 from model.states.NumToStateConverter import numToState
 
@@ -21,7 +22,7 @@ class EscapeState(State):
         """ If they are trying to go inside the avoid area, just send them out searching instead."""
         if self.agent.target is not None:
             for pos in self.enemyPositions:
-                if Utils.isClose(pos, self.agent.target, MIN_AVOID_DIST):
+                if Utils.isClose(pos, self.agent.target, Config.MIN_AVOID_DIST):
                     self.agent.target = None
                     self.prevStateNum = SEARCH
                     break
@@ -32,7 +33,7 @@ class EscapeState(State):
 
         self.isTangent = np.abs(angleDiff - (np.pi / 2)) < np.pi / 4
 
-        if enemyDist < (MIN_AVOID_DIST - self.agent.speed):  # If the agent is inside the avoid circle:
+        if enemyDist < (Config.MIN_AVOID_DIST - self.agent.speed):  # If the agent is inside the avoid circle:
             self.agent.setAngle(enemyAngle - np.pi)  # Turn away from the center of the circle
         else:  # If the agent is on the border of the circle:
             if angleDiff <= 0:  # If the center of the avoid area is to the right of where the agent is headed,

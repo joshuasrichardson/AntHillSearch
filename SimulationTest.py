@@ -2,6 +2,7 @@ import json
 import time
 import unittest
 
+from config import Config
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
 from interface.EngineerInferface import EngineerInterface
 from interface.RecordingPlayer import RecordingPlayer
@@ -15,15 +16,16 @@ class SimulationTest(unittest.TestCase):
     @staticmethod
     def run_sim_with_interface(colony):
         """ Run a simulation with the given interface """
+        Config.SHOULD_RECORD = False
         colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
         colony.randomizeInitialState()  # You can optionally randomize which site each agent starts from in some of the interfaces
         colony.runSimulation()  # Starts the interface
 
-    def run_simulation_test(self, test_name, simulation, j=False):
+    def run_simulation_test(self, test_name, simulation):
         """ Run a test on a live simulation to make sure it can compile and run for a few seconds """
         try:
             print(f"Running {test_name} Test")
-            self.run_sim_with_interface(simulation(simulationDuration=3, useJson=j, useRestAPI=False, shouldRecord=False))
+            self.run_sim_with_interface(simulation())
         except Exception as err:
             self.fail(f"{test_name} failed with exception: {err}, {type(err)}")
 

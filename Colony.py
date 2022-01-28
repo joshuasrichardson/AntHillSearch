@@ -52,7 +52,7 @@ def runEmpiricalTestingInterface(numSimulations=1):
         arrivals = []  # The number of agents that got assigned to the new sites.
         for i in range(numSimulations):  # Run the simulation as many times as you want
             print(f"Simulation {i + 1}:")
-            colony = EmpiricalTestingInterface(useRestAPI=False, useJson=True)  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
+            colony = EmpiricalTestingInterface()  # The interface that does not draw on the screen but instead reports to a Rest API  # TODO: Make it so you don't have to start RestAPI separately from this program
             # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
             results = colony.runSimulation()  # Starts the interface
             # Store results from each simulation so we can see a summary of all the simulations below.

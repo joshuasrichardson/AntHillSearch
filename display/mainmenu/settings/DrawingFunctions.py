@@ -2,13 +2,17 @@ import math
 
 import pygame
 
-from Constants import COMMIT_COLOR, ASSESS_COLOR, SEARCH_COLOR, BORDER_COLOR, AGENT_IMAGES
+from config import Config
+from config.Config import AGENT_IMAGES
+from Constants import COMMIT_COLOR, ASSESS_COLOR, SEARCH_COLOR, BORDER_COLOR, FONT_SIZE_NAME, SITE_RADIUS_NAME, \
+    HUB_LOCATIONS_NAME, SHOULD_RECORD_NAME, AGENT_IMAGE_NAME, LARGE_FONT_SIZE_NAME, SITE_NO_FARTHER_THAN_NAME, \
+    SITE_NO_CLOSER_THAN_NAME
 from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay
 from model.builder.SiteBuilder import getNewSite
 
 
 def showSimDuration(self):
-    Display.write(Display.screen, self.value, int(self.settingMenu.data["fontSize"] * 1.5), Display.origWidth - 100, 50)
+    Display.write(Display.screen, self.value, int(self.settingMenu.data[FONT_SIZE_NAME] * 1.5), Display.origWidth - 100, 50)
 
 
 def showFontSize(self):
@@ -33,9 +37,9 @@ def drawNestPositions(self, quality):
     if self.arrayStates.isComplete2:
         # TODO: If the hubs are too close together, force them to be farther apart
         for pos in self.value:
-            drawSite(pos, self.settingMenu.data["siteRadius"], quality)
+            drawSite(pos, self.settingMenu.data[SITE_RADIUS_NAME], quality)
     else:
-        drawSites(self, self.settingMenu.data["hubLocations"], quality)
+        drawSites(self, self.settingMenu.data[HUB_LOCATIONS_NAME], quality)
 
 
 def drawPredPositions(self):
@@ -45,7 +49,7 @@ def drawPredPositions(self):
 
 
 def drawShouldRecord(self):
-    if self.settingMenu.data["shouldRecord"]:
+    if self.settingMenu.data[SHOULD_RECORD_NAME]:
         Display.drawCircle(Display.screen, (220, 0, 0), [15, 15], 10, width=1, adjust=False)
         Display.drawLine(Display.screen, (220, 0, 0), [4, 24], [25, 5], adjust=False)
     else:
@@ -58,11 +62,11 @@ def drawSiteRadius(self):
 
 def drawNoFartherThan(self):
     drawArea(self, COMMIT_COLOR, self.value)
-    drawArea(self, ASSESS_COLOR, self.settingMenu.data["siteNoCloserThan"])
+    drawArea(self, ASSESS_COLOR, self.settingMenu.data[SITE_NO_CLOSER_THAN_NAME])
 
 
 def drawNoCloserThan(self):
-    drawArea(self, COMMIT_COLOR, self.settingMenu.data["siteNoFartherThan"])
+    drawArea(self, COMMIT_COLOR, self.settingMenu.data[SITE_NO_FARTHER_THAN_NAME])
     drawArea(self, ASSESS_COLOR, self.value)
 
 
@@ -72,13 +76,13 @@ def drawSearchArea(self):
 
 def drawConvergenceFraction(self):
     fraction = self.value
-    AgentDisplay.agentImage = self.settingMenu.data["agentImage"]
+    Config.AGENT_IMAGE = self.settingMenu.data[AGENT_IMAGE_NAME]
     image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
     w = image.get_width() * 5
     h = image.get_height() * 20
     x = Display.origWidth / 2 - w / 2
     y = Display.origHeight / 2 - h / 2
-    rect = (x, y, w, h)
+    rect = pygame.Rect(x, y, w, h)
     Display.drawRect(Display.screen, BORDER_COLOR, rect, 2, False)
 
     fraction = int(math.ceil(fraction * 100))
@@ -101,13 +105,13 @@ def drawSite(pos, radius, quality, numAgents=0):
     potentialSite = getNewSite(1, pos[0], pos[1], radius, quality)
     potentialSite.wasFound = True
     potentialSite.agentCount = numAgents
-    SiteDisplay.drawSite(potentialSite)
+    SiteDisplay.drawSite(potentialSite, pos, radius, quality)
     del potentialSite
 
 
 def drawSites(self, positions, quality):
     for pos in positions:
-        drawSite(pos, self.settingMenu.data["siteRadius"], quality)
+        drawSite(pos, self.settingMenu.data[SITE_RADIUS_NAME], quality)
 
 
 def drawNumHubs(self):
@@ -120,13 +124,13 @@ def drawNumSites(self):
 
 def drawNumNests(self, quality):
     x = Display.origWidth / 2
-    h = int((Display.origHeight - self.settingMenu.data["largeFontSize"] * 3) / (
-            2 * (self.settingMenu.data["siteRadius"] + 10)))  # The number of sites that can fit in a column
+    h = int((Display.origHeight - self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3) / (
+            2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)))  # The number of sites that can fit in a column
     for i in range(self.value):
-        y = 2 * (i % h) * (self.settingMenu.data["siteRadius"] + 10) + (self.settingMenu.data["largeFontSize"] * 3)
+        y = 2 * (i % h) * (self.settingMenu.data[SITE_RADIUS_NAME] + 10) + (self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (self.settingMenu.data["siteRadius"] + 10)
-        drawSite([x, y], self.settingMenu.data["siteRadius"], quality)
+            x += 2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)
+        drawSite([x, y], self.settingMenu.data[SITE_RADIUS_NAME], quality)
 
 
 def drawHubsRadii(self):
@@ -139,14 +143,14 @@ def drawSitesRadii(self):
 
 def drawRadii(self, quality):
     x = Display.origWidth / 2
-    h = int((Display.origHeight - self.settingMenu.data["largeFontSize"] * 3) / (
-            2 * (self.settingMenu.data["siteRadius"] + 10)))  # The number of sites that can fit in a column
+    h = int((Display.origHeight - self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3) / (
+            2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)))  # The number of sites that can fit in a column
     if not isinstance(self.value, list):
         self.value = []
     for i in range(len(self.value)):
-        y = 2 * (i % h) * (self.settingMenu.data["siteRadius"] + 10) + (self.settingMenu.data["largeFontSize"] * 3)
+        y = 2 * (i % h) * (self.settingMenu.data[SITE_RADIUS_NAME] + 10) + (self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (self.settingMenu.data["siteRadius"] + 10)
+            x += 2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)
         drawSite([x, y], self.value[i], quality)
 
 
@@ -160,36 +164,36 @@ def drawSitesCounts(self):
 
 def drawCounts(self, quality):
     x = Display.origWidth / 2
-    h = int((Display.origHeight - self.settingMenu.data["largeFontSize"] * 3) / (
-            2 * (self.settingMenu.data["siteRadius"] + 10)))  # The number of sites that can fit in a column
+    h = int((Display.origHeight - self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3) / (
+            2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)))  # The number of sites that can fit in a column
     if not isinstance(self.value, list):
         self.value = []
     for i in range(len(self.value)):
-        y = 2 * (i % h) * (self.settingMenu.data["siteRadius"] + 10) + (self.settingMenu.data["largeFontSize"] * 3)
+        y = 2 * (i % h) * (self.settingMenu.data[SITE_RADIUS_NAME] + 10) + (self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (self.settingMenu.data["siteRadius"] + 10)
-        drawSite([x, y], self.settingMenu.data["siteRadius"], quality, self.value[i])
+            x += 2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)
+        drawSite([x, y], self.settingMenu.data[SITE_RADIUS_NAME], quality, self.value[i])
 
 
 def drawSitesQualities(self):
     x = Display.origWidth / 2
-    h = int((Display.origHeight - self.settingMenu.data["largeFontSize"] * 3) / (
-            2 * (self.settingMenu.data["siteRadius"] + 10)))  # The number of sites that can fit in a column
+    h = int((Display.origHeight - self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3) / (
+            2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)))  # The number of sites that can fit in a column
     if not isinstance(self.value, list):
         self.value = []
     for i in range(len(self.value)):
-        y = 2 * (i % h) * (self.settingMenu.data["siteRadius"] + 10) + (self.settingMenu.data["largeFontSize"] * 3)
+        y = 2 * (i % h) * (self.settingMenu.data[SITE_RADIUS_NAME] + 10) + (self.settingMenu.data[LARGE_FONT_SIZE_NAME] * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (self.settingMenu.data["siteRadius"] + 10)
-        drawSite([x, y], self.settingMenu.data["siteRadius"], self.value[i])
+            x += 2 * (self.settingMenu.data[SITE_RADIUS_NAME] + 10)
+        drawSite([x, y], self.settingMenu.data[SITE_RADIUS_NAME], self.value[i])
 
 
 def drawAgents(self):
     for i, imgFile in enumerate(AGENT_IMAGES):
         pos = [Display.origWidth / 2 + i * 30, Display.origHeight / 2]
-        AgentDisplay.agentImage = imgFile
+        Config.AGENT_IMAGE = imgFile
         image = AgentDisplay.getAgentImage([Display.origWidth / 2, Display.origHeight / 2])
-        if imgFile != self.settingMenu.data["agentImage"]:
+        if imgFile != self.settingMenu.data[AGENT_IMAGE_NAME]:
             Display.drawDownArrow([pos[0] + image.get_width() / 2, pos[1]], BORDER_COLOR, False)
         Display.blitImage(Display.screen, image, pos, False)
 
@@ -197,7 +201,7 @@ def drawAgents(self):
 def getOtherFile(self):
     numImages = len(AGENT_IMAGES)
     for i in range(numImages - 1):
-        if self.settingMenu.data["agentImage"] == AGENT_IMAGES[i % numImages]:
+        if self.settingMenu.data[AGENT_IMAGE_NAME] == AGENT_IMAGES[i % numImages]:
             return AGENT_IMAGES[i + 1 % numImages]
     return AGENT_IMAGES[0]
 
@@ -207,7 +211,7 @@ def drawArea(self, color, radius):
     surf = pygame.Surface((Display.origWidth, Display.origHeight), pygame.SRCALPHA)
     Display.drawCircle(surf, fadedColor, [Display.origWidth / 2, Display.origHeight / 2], radius)
     Display.blitImage(Display.screen, surf, (0, 0), False)
-    drawSite([Display.origWidth / 2, Display.origHeight / 2], self.settingMenu.data["siteRadius"], -1)
+    drawSite([Display.origWidth / 2, Display.origHeight / 2], self.settingMenu.data[SITE_RADIUS_NAME], -1)
 
 
 def drawPredators(self):

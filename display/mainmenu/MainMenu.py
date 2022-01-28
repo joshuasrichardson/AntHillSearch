@@ -3,8 +3,9 @@ import time
 import pygame.display
 from pygame import MOUSEBUTTONUP, QUIT
 
+from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, FONT_SIZE, LARGE_FONT_SIZE, TRIAL_SETTINGS, SEARCH_COLOR, SETTINGS_FILE_NAME
+from Constants import SCREEN_COLOR, TRIAL_SETTINGS, SEARCH_COLOR, CONFIG_FILE_NAME
 from display import Display
 from display.mainmenu.InterfaceSelector import InterfaceSelector
 from display.mainmenu.settings.Settings import Settings
@@ -12,7 +13,7 @@ from display.mainmenu.tutorial.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 from recording.Recorder import getMostRecentRecording
 
-DO_USER_EXPERIMENTS = "Play"
+DO_USER_EXPERIMENTS = "Test"
 PRACTICE = "Practice"
 REPLAY = "Replay"
 TUTORIAL = "Tutorial"
@@ -43,7 +44,7 @@ class StartUpDisplay:
 
     def drawStartPage(self):
         # Write the simulation title
-        Display.writeCenterPlus(Display.screen, "Anthill Search", LARGE_FONT_SIZE, -4 * LARGE_FONT_SIZE)
+        Display.writeCenterPlus(Display.screen, "Anthill Search", Config.LARGE_FONT_SIZE, -4 * Config.LARGE_FONT_SIZE)
         # The options the user can select
         options = [DO_USER_EXPERIMENTS,
                    PRACTICE,
@@ -55,14 +56,14 @@ class StartUpDisplay:
         mouseIsOverAnOption = False
         # Check each option to see if the mouse is over it
         for i, option in enumerate(options):
-            rect = Display.writeCenterPlus(Display.screen, option, FONT_SIZE * 2, FONT_SIZE * 3 * i)
+            rect = Display.writeCenterPlus(Display.screen, option, Config.FONT_SIZE * 2, Config.FONT_SIZE * 3 * i)
             if rect.collidepoint(self.mousePos):
                 self.start(option)
                 break
             mouseIsOverCurrentOption = rect.collidepoint(pygame.mouse.get_pos())
             mouseIsOverAnOption = mouseIsOverAnOption or mouseIsOverCurrentOption
             if mouseIsOverCurrentOption:
-                Display.writeCenterPlus(Display.screen, option, FONT_SIZE * 2, FONT_SIZE * 3 * i, SEARCH_COLOR)
+                Display.writeCenterPlus(Display.screen, option, Config.FONT_SIZE * 2, Config.FONT_SIZE * 3 * i, SEARCH_COLOR)
         if mouseIsOverAnOption:
             # Change the cursor to be a hand
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
@@ -103,7 +104,7 @@ class StartUpDisplay:
     @staticmethod
     def setSettings(trialSetting):
         """ Copy the current trial's settings to the settings file that will be used in the simulation """
-        with open(trialSetting, 'r') as trialFile, open(SETTINGS_FILE_NAME, 'w') as currentSettings:
+        with open(trialSetting, 'r') as trialFile, open(CONFIG_FILE_NAME, 'w') as currentSettings:
             currentSettings.write(trialFile.read())
 
     def practice(self):
@@ -142,9 +143,11 @@ class StartUpDisplay:
     @staticmethod
     def complainAboutMissingRecording():
         """ Tell the user there is no recording so they can't play the recording """
-        Display.writeCenterPlus(Display.screen, "No Recording Available", LARGE_FONT_SIZE, 130)
-        Display.writeCenterPlus(Display.screen, "Please play the simulation with the recording", FONT_SIZE, 130 + LARGE_FONT_SIZE)
-        Display.writeCenterPlus(Display.screen, "option on before trying to watch a recording.", FONT_SIZE, 130 + LARGE_FONT_SIZE + FONT_SIZE)
+        Display.writeCenterPlus(Display.screen, "No Recording Available", Config.LARGE_FONT_SIZE, 130)
+        Display.writeCenterPlus(Display.screen, "Please play the simulation with the recording",
+                                Config.FONT_SIZE, 130 + Config.LARGE_FONT_SIZE)
+        Display.writeCenterPlus(Display.screen, "option on before trying to watch a recording.",
+                                Config.FONT_SIZE, 130 + Config.LARGE_FONT_SIZE + Config.FONT_SIZE)
         pygame.display.flip()
         time.sleep(2.5)
         print(f"'{getMostRecentRecording()}_RECORDING.json' is empty.")

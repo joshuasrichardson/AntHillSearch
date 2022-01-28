@@ -1,6 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from display import Display
+
+from config import Config
 
 
 class State(ABC):
@@ -37,7 +38,7 @@ class State(ABC):
 
     def executeCommands(self):
         self.agent.siteInRangeIndex = self.agent.getRect().collidelist(self.agent.world.siteRectList)
-        if Display.drawFarAgents:  # If we are using an interface that lets us access things that are far from the hub
+        if Config.DRAW_FAR_AGENTS:  # If we are using an interface that lets us access things that are far from the hub
             if self.agent.siteInRangeIndex != -1:  # And the agent comes in contact with a site that has a command
                 return self.agent.world.siteList[self.agent.siteInRangeIndex].executeCommands(self.agent)  # Just do the command and be done with this round.
         else:

@@ -5,6 +5,7 @@
 - Introduction
 - Running the Program
 - Parameters
+- Optional Methods
 - Interfaces
 - Controls
 
@@ -111,140 +112,35 @@ it is running.
 ## Parameters
 
 The parameters can have a big
-impact on the set up and behavior of the simulation. The default 
+impact on the set up and behavior of the simulation. A list of the default 
 parameters and more information about them can be found in 
-<code>Constants.py</code>. 
+<code>config/Config.py</code>. 
 
-There are 3 main ways to change the parameters:
+There are 2 main ways to change the parameters:
 
 1. While the program is running, select the Settings tab from 
    the main menu, select the option to be changed, type the 
    desired values, and press enter.
    Note that this method can only change certain parameters, 
-   but it will override the methods below unless 
-   <code>useJson</code> is set to <code>False</code>.
+   but it will override the method below.
    
-2. Before running the program, set parameters in 
-   the Simulation constructor in <code>Colony.py</code>'s 
-   <code>main()</code> method. If <code>useJson</code> is 
-   set to True, values in <code>display/mainmenu/settings/settings.json</code> 
-   will override the values set here.
-   
-3. Change the values in <code>Constants.py</code>. If <code>useJson</code> is 
-   set to True, values in <code>display/mainmenu/settings/settings.json</code> 
-   will override the values set here. Values set by method 2 will always override
-   values set by method 3.
+2. Change the values in <code>config/config.json</code>. 
+   For a complete list of parameters that can be changed here,
+   refer to <code>Constants.py</code>'s <code>CONFIG_KEYS</code>
 
 Important methods and their parameters to know about are listed 
 below.
 
 Using the interfaces mentioned in the "Interfaces" Section below 
-is an easy way to change many of these parameters at the same time
-to fit the purposes of the interfaces.
+is an easy way to change the way the simulation runs without changing
+a bunch of parameters.
 
-### <code>LiveSimulation()</code>               
 
-The constructor for the <code>LiveSimulation</code> class (the class that runs the simulation).
-This is an abstract class and cannot be run without implementing a few methods, but the parameters
-shown here can be changed in the inheriting classes.
+## Optional Methods to Add to Colony.py
 
-- <code>simulationDuration</code>: Integer that sets the max time of the simulation in seconds. 
-  The simulation can end before this time runs out if all the agents converge to the same site.
-  
-- <code>numHubs</code>: Integer that sets the number of hubs.
 
-- <code>numSites</code>: Integer that sets the initial number of sites, not including the hubs. More sites
-  can optionally be added or removed during the simulation (see "Site Controls" below).
-  
-- <code>useRestAPI</code>: Boolean that decides whether to send information from the hubs to the Rest API.
-  Note that when running the simulation with this value set to True, the RestAPI needs to be started before 
-  the simulation starts.
-
-- <code>shouldRecord</code>: Boolean that decides whether the simulation is recorded to the recording.json file.
- 
-- <code>convergenceFraction</code>: Float that sets the percentage of agents that need to be assigned to 
-  one site before the simulation will end.
-  
-- <code>hubLocations</code>: List of ordered pairs that sets the initial positions of the agents' original homes.
-  
-- <code>hubRadii</code>: List of Integers that sets the sizes of the agents' original homes.
-  
-- <code>hubAgentCounts</code>: List of Integers that sets the numbers of agents to start at the hubs.
-  
-- <code>sitePositions</code>: List of ordered pairs that set positions for the sites. Each site that
-  is not given a position here will be assigned a random position.
-  
-- <code>siteQualities</code>: List of integers that set the qualities of the sites. Each site that
-  is not given a quality here will be assigned a random quality.
-  
-- <code>siteRadii</code>: List of integers that set the sizes of the sites. Each site that
-  is not given a size here will be assigned a random size.
-                 
-- <code>siteNoCloserThan</code>: Integer that sets the closest distance a randomly assigned 
-  site can be to the hub at the start of the simulation. This is overridden by
-  positions that users set with <code>sitePositions</code> as well as the "Move
-  Site" command (see "Site Controls" below).
-  
-- <code>siteNoFartherThan</code>: Integer that sets the farthest distance a randomly assigned 
-  site can be from the hub at the start of the simulation. This is overridden by
-  positions that users set with <code>sitePositions</code> as well as the "Move
-  Site" command (see "Site Controls" below).
-  
-- <code>hubCanMove</code>: Boolean that determines whether the user can move the hub from its
-  starting position.
-  
-- <code>homogenousAgents</code>: Boolean that when True sets all the agents attributes
-  to be the same (these values are the max values of each parameter below) 
-  and when False sets values somewhere in the ranges specified by the parameters below.
-  
-- <code>minSpeed</code>: Integer that sets the slowest an agent can move on the screen.
-                            
-- <code>maxSpeed</code>: Integer that sets the fastest an agent can move on the screen.
-  
-- <code>minDecisiveness</code>: Integer that influences how long the least decisive agent 
-  takes to assess a site. Lower numbers take longer.
-  
-- <code>maxDecisiveness</code>: Integer that influences how long the most decisive agent 
-  takes to assess a site. Lower numbers take longer.
-                            
-- <code>minNavSkills</code>: Integer that influences how likely the least oriented agent 
-  is to get lost. Higher numbers make the agents get lost easier.
-  
-- <code>maxNavSkills</code>: Integer that influences how likely the most oriented agent 
-  is to get lost. Higher numbers make the agents get lost easier.
-  
-- <code>minEstAccuracy</code>: Integer that influences how close the least accurate agent's 
-  site assessments will be. Higher numbers make the agents' estimations farther away from
-  the sites' actual qualities.
-  
-- <code>maxEstAccuracy</code>: Integer that influences how close the most accurate agent's 
-  site assessments will be. Higher numbers make the agents' estimations farther away from
-  the sites' actual qualities.
-  
-- <code>maxSearchDist</code>: Integer representing the farthest distance agents can go away 
-  from their assigned site or the hub before they are forced to come a little closer to their 
-  assigned site or the hub.
-  
-- <code>findSitesEasily</code>: Boolean that determines whether agents know where their sites
-  are even after they have been moved.
-  
-- <code>commitSpeedFactor</code>: Number that determines how much faster agents get when they 
-  commit.
-  
-- <code>numPredators</code>: Number that determines how many predators are generated.
-
-- <code>useJson</code>: Boolean that determines whether the values in 
-  <code>display/mainmenu/settings/settings.json</code> will override the 
-  default values and values set in the constructor.
-  
-### <code>RecordingPlayer()</code>
-
-Constructor for the <code>RecordingPlayer</code> class. This class can be used instead of the 
-<code>LiveSimulation</code> to replay a previously recorded simulation from the recording.json
-file.
-
-This method has no parameters because everything is determined by the 
-<code>recording/*date-time*_RECORDING.json</code> file.
+The following methods can be added to a live colony simulation in
+the main function to change the initial state.
   
   
 ### <code>LiveSimulation.randomizeInitialState()</code>
@@ -281,8 +177,9 @@ Note that this method can not be used with the RecordingPlayer.
 There are currently 4 different interfaces available as listed below.
 
 For a more game-like simulation, you can make a <code>StartUpDisplay</code>
-object and pass an interface into the constructor. To play this one,
-call <code>run()</code> on the <code>StartUpDisplay</code> object.
+object and pass an interface into the constructor (either <code>UserInterface</code> 
+or <code>EngineerInterface</code>). To play this one, call <code>run()</code> 
+on the <code>StartUpDisplay</code> object.
 
 ### EngineerInterface
 

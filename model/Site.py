@@ -1,9 +1,10 @@
 from copy import copy
 
-import numpy as np
+from numpy import random
 from pygame.rect import Rect
 
-from Constants import INITIAL_BLUR, AVOID_NAME, STOP_AVOID_NAME, GO_NAME, NO_MARKER_NAME
+from config import Config
+from Constants import AVOID_NAME, STOP_AVOID_NAME, GO_NAME, NO_MARKER_NAME
 
 
 class Site:
@@ -37,8 +38,8 @@ class Site:
         self.estimatedRadius = None  # The average radius of how big agents think it is
         self.estimatedSiteRect = None  # The rect based on estimated values
 
-        self.blurAmount = INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
-        self.blurRadiusDiff = INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
+        self.blurAmount = Config.INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
+        self.blurRadiusDiff = Config.INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
         self.time = 0
 
     @staticmethod
@@ -56,7 +57,7 @@ class Site:
         except AttributeError:
             pass
         if quality is None:
-            self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality
+            self.quality = random.uniform(0, 255)  # 255 is maximum color, so maximum quality
         elif quality > 255:  # If the quality is greater than the max,
             self.quality = 255  # Set the quality to the max
         elif quality < -1:  # If the quality is less than the min, (less than -1 because the hub is arbitrarily set to -1. Every other site has to be at least 0)

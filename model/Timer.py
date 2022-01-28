@@ -2,13 +2,14 @@ import threading
 import time
 import pygame
 
+from config import Config
+
 
 class SimulationTimer:
     """ A class to keep track of the time remaining in the colony interface """
 
-    def __init__(self, simulationDuration, timeOut):
-        self.simulationDuration = simulationDuration  # The duration of the interface in seconds
-        self.timer = threading.Timer(simulationDuration, timeOut)  # A timer to help keep track of how much time is left in the interface
+    def __init__(self, timeOut):
+        self.timer = threading.Timer(Config.SIM_DURATION, timeOut)  # A timer to help keep track of how much time is left in the interface
         self.pauseTime = 0  # The time left when the interface was paused
         self.startTime = None  # The time when the interface was started
         self.timeOut = timeOut  # A method to call when the time runs out
@@ -42,5 +43,5 @@ class SimulationTimer:
         if now is None:
             now = time.time()
         runTime = now - self.pauseTime - self.startTime
-        remainingTime = self.simulationDuration - runTime
+        remainingTime = Config.SIM_DURATION - runTime
         return remainingTime
