@@ -34,7 +34,7 @@ class Site:
 
         self.estimatedPosition = None  # The average position of where agents think the site is located
         self.estimatedQuality = None  # The average quality of what agents think it is
-        self.estimatedAgentCount = None  # The average number of agents of how many agents think there are
+        self.estimatedAgentCount = 0  # The average number of agents of how many agents think there are
         self.estimatedRadius = None  # The average radius of how big agents think it is
         self.estimatedSiteRect = None  # The rect based on estimated values
 

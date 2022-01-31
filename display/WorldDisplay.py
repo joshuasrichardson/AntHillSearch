@@ -64,9 +64,9 @@ def drawDangerZone(pos):
 
     # Draw triangle and exclamation mark warning sign
     Display.drawPolygon(Display.screen, RED,
-                        [[pos[0], pos[1]], [pos[0] - 40, pos[1] + 80], [pos[0] + 40, pos[1] + 80]], width=3)
-    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 20], [pos[0], pos[1] + 60], 4)
-    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 65], [pos[0], pos[1] + 70], 4)
+                        [[pos[0], pos[1] - 40], [pos[0] - 40, pos[1] + 40], [pos[0] + 40, pos[1] + 40]], width=3)
+    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] - 20], [pos[0], pos[1] + 20], 4)
+    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 25], [pos[0], pos[1] + 30], 4)
 
 
 def drawMarkers(world):
