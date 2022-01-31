@@ -8,7 +8,7 @@ from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTT
 
 from config import Config
 from Constants import SCREEN_COLOR, BORDER_COLOR, AT_NEST, TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, \
-    SET_STATE_NAME, GO_NAME, SEARCH_COLOR, DEAD, STOP_AVOID_NAME
+    SET_STATE_NAME, GO_NAME, BLUE, DEAD, STOP_AVOID_NAME
 from display import Display
 from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
@@ -68,10 +68,10 @@ class Controls:
         if len(self.selectedAgents) > 0:  # Display the number of agents that are selected by the mouse
             pos = pygame.mouse.get_pos()
             Display.write(Display.screen, str(len(self.selectedAgents)), Config.FONT_SIZE,
-                          pos[0] + Config.FONT_SIZE, pos[1] + Config.FONT_SIZE, SEARCH_COLOR)
+                          pos[0] + Config.FONT_SIZE, pos[1] + Config.FONT_SIZE, BLUE)
             if len(self.selectedAgents) > 1 and self.graphs.shouldDrawGraphs:
                 Display.write(Display.screen, "Cut the number of selected ants in half by pressing 'H'",
-                              Config.FONT_SIZE, Display.origWidth - 420, 4 * Config.FONT_SIZE, SEARCH_COLOR)
+                              Config.FONT_SIZE, Display.origWidth - 420, 4 * Config.FONT_SIZE, BLUE)
         if self.selectedSite is not None and self.shouldDrawQuality:
             drawPotentialQuality(self.world, self.potentialQuality, self.graphs.font)
         if self.selectRectCorner is not None:
@@ -187,13 +187,15 @@ class Controls:
             self.timer.cancel()
             raise GameOver("Exited Successfully")
 
-    @staticmethod
-    def waitForUser():
-        done = False
-        while not done:
-            for event in pygame.event.get():
-                if event.type == MOUSEBUTTONUP or event.type == KEYDOWN and not pygame.key.get_mods() & KMOD_CTRL:
-                    done = True
+    def handleFinishEvents(self):
+        self.moveScreen()
+        for event in pygame.event.get():
+            if event.type == MOUSEBUTTONUP and pygame.key.get_mods() & KMOD_CTRL:
+                self.zoom(event)
+            elif event.type == MOUSEBUTTONUP and (event.button == 1 or event.button == 3) \
+                    or event.type == KEYDOWN and not pygame.key.get_mods() & KMOD_CTRL:
+                return True
+        return False
 
     def mouseMotion(self, mousePos, adjustedMousePos):
         # Set the cursor image

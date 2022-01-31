@@ -1,5 +1,5 @@
 """ World class. Stores 2D positions of hub and sites """
-from numpy import random, zeros, pi, cos, sin, inf, square, sqrt
+from numpy import random, zeros, pi, cos, sin, inf
 import time
 
 import Utils
@@ -165,7 +165,7 @@ class World:
 
     def addAgent(self, agent):
         self.agentList.append(agent)
-        self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] + 1
+        self.initialHubAgentCounts[agent.getHubIndex()] += 1
         if self.request is not None:
             self.request.addAgent(agent)
 
@@ -307,10 +307,10 @@ class World:
         return self.agentGroups[index]
 
     def getClosestHub(self, pos):
-        minDist = 100000
+        minDist = inf
         closestHub = None
         for hub in self.hubs:
-            hubDist = sqrt(square(pos[0] - hub.getPosition()[0]) + square(pos[1] - hub.getPosition()[1]))
+            hubDist = Utils.getDistance(pos, hub.getPosition())
             if hubDist < minDist:
                 minDist = hubDist
                 closestHub = hub
@@ -321,7 +321,7 @@ class World:
         closestAgent = None
         for agent in self.agentList:
             if stateNums.__contains__(agent.getStateNumber()):
-                dist = sqrt(square(pos[0] - agent.getPosition()[0]) + square(pos[1] - agent.getPosition()[1]))
+                dist = Utils.getDistance(pos, agent.getPosition())
                 if dist < minDist:
                     minDist = dist
                     closestAgent = agent

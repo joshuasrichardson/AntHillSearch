@@ -5,7 +5,7 @@ from pygame import MOUSEBUTTONUP, QUIT
 
 from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, TRIAL_SETTINGS, SEARCH_COLOR, CONFIG_FILE_NAME
+from Constants import SCREEN_COLOR, TRIAL_SETTINGS, BLUE, CONFIG_FILE_NAME
 from display import Display
 from display.mainmenu.InterfaceSelector import InterfaceSelector
 from display.mainmenu.settings.Settings import Settings
@@ -63,7 +63,7 @@ class StartUpDisplay:
             mouseIsOverCurrentOption = rect.collidepoint(pygame.mouse.get_pos())
             mouseIsOverAnOption = mouseIsOverAnOption or mouseIsOverCurrentOption
             if mouseIsOverCurrentOption:
-                Display.writeCenterPlus(Display.screen, option, Config.FONT_SIZE * 2, Config.FONT_SIZE * 3 * i, SEARCH_COLOR)
+                Display.writeCenterPlus(Display.screen, option, Config.FONT_SIZE * 2, Config.FONT_SIZE * 3 * i, BLUE)
         if mouseIsOverAnOption:
             # Change the cursor to be a hand
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
@@ -135,6 +135,7 @@ class StartUpDisplay:
                 del self.simInterface
                 self.simInterface = RecordingPlayer()
                 self.simInterface.runSimulation()
+                Display.resetScreen()
             else:
                 self.complainAboutMissingRecording()
         except FileNotFoundError:

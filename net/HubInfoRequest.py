@@ -41,7 +41,6 @@ class HubInfoRequest:
         self.sitesQualities = []
         self.sitesPreviousNQualities = []
         self.numAgentsAtSites = []
-        self.previousNumAgentsAtSites = []
         self.sitesRadii = []
         self.sitesPreviousNRadii = []
 
@@ -57,7 +56,7 @@ class HubInfoRequest:
         self.agentPhases.pop(agentIndex)
         self.agentStates.pop(agentIndex)
 
-    def addAgentToSendRequest(self, agent, agentIndex):
+    def addAgentToHubInfo(self, agent, agentIndex):
         self.decrementPhaseCount(agentIndex)
         self.agentPhases[agentIndex] = agent.getPhaseNumber()
 
@@ -139,8 +138,7 @@ class HubInfoRequest:
             self.sitesPreviousNPositions.append([agent.estimatedSitePosition])
             self.sitesQualities.append(agent.estimatedQuality)
             self.sitesPreviousNQualities.append([agent.estimatedQuality])
-            self.numAgentsAtSites.append(agent.assignedSite.agentCount)
-            self.previousNumAgentsAtSites.append([agent.assignedSite.agentCount])
+            self.numAgentsAtSites.append(agent.assignedSite.estimatedAgentCount)
             self.sitesRadii.append(agent.estimatedRadius)
             self.sitesPreviousNRadii.append([agent.estimatedRadius])
 
@@ -157,7 +155,7 @@ class HubInfoRequest:
                     break
             self.updateSitePosition(siteIndex, agent.estimatedSitePosition)
             self.updateSiteQuality(siteIndex, agent.estimatedQuality)
-            self.updateSiteNumAgents(siteIndex, agent.assignedSite.agentCount)
+            self.numAgentsAtSites[siteIndex] = agent.assignedSite.estimatedAgentCount
             self.updateSiteRadius(siteIndex, agent.estimatedRadius)
 
             return self.sitesEstimatedPositions[siteIndex], \
@@ -191,14 +189,6 @@ class HubInfoRequest:
 
     def getAverageOfLastNRadii(self, n, siteIndex):
         return self.getAverageOfLastN(n, siteIndex, self.sitesPreviousNRadii)
-
-    def updateSiteNumAgents(self, siteIndex, agentCount):
-        self.previousNumAgentsAtSites[siteIndex].append(agentCount)
-        n = 1
-        self.numAgentsAtSites[siteIndex] = self.getAverageOfLastNNumAgents(n, siteIndex)
-
-    def getAverageOfLastNNumAgents(self, n, siteIndex):
-        return self.getAverageOfLastN(n, siteIndex, self.previousNumAgentsAtSites)
 
     @staticmethod
     def getAverageOfLastN(n, arrayIndex, array2D):

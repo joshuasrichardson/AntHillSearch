@@ -78,11 +78,11 @@ class Settings:
         for setting in self.settings:
             collides = setting.rect.collidepoint(pygame.mouse.get_pos())
             Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data["FONT_SIZE"] * 1.5),
-                          setting.rect.left, setting.rect.top, SEARCH_COLOR if collides else WORDS_COLOR)
+                          setting.rect.left, setting.rect.top, BLUE if collides else WORDS_COLOR)
 
     def drawBackButton(self):
         """ Draw the button that allows the user to return to the main menu """
-        color = SEARCH_COLOR if self.backButton.collidepoint(pygame.mouse.get_pos()) else WORDS_COLOR
+        color = BLUE if self.backButton.collidepoint(pygame.mouse.get_pos()) else WORDS_COLOR
         backImg = pygame.font.SysFont('Comic Sans MS', self.data["FONT_SIZE"] * 2).render("<- BACK", True, color).convert_alpha()
         self.backButton = pygame.Rect(50, 50, backImg.get_width(), backImg.get_height())
         Display.screen.blit(backImg, self.backButton.topleft)

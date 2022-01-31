@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 from config import Config
-from Constants import BORDER_COLOR, SCREEN_COLOR, FOLLOW_COLOR, DEAD
+from Constants import BORDER_COLOR, SCREEN_COLOR, ORANGE, DEAD
 from display import Display
 from display.Display import rotateImage, drawDashedLine, getDestinationMarker
 from display.SiteDisplay import drawAssignmentMarker
@@ -81,7 +81,7 @@ def drawPath(agent, surface):
 def drawKnownSiteMarkers(agent, surface):
     """ Draws a circle around each site the agent knows about """
     for pos in agent.knownSitesPositions:
-        Display.drawCircle(surface, FOLLOW_COLOR, pos, Config.SITE_RADIUS + 8, 2)
+        Display.drawCircle(surface, ORANGE, pos, Config.SITE_RADIUS + 8, 2)
 
 
 def drawAssignedSite(agent):

@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 from config import Config
-from Constants import WORDS_COLOR, COMMIT_COLOR, BORDER_COLOR, HOME_QUALITIES_NAME, SIM_TIMES_NAME, NUM_ARRIVALS_NAME, \
+from Constants import WORDS_COLOR, GREEN, BORDER_COLOR, HOME_QUALITIES_NAME, SIM_TIMES_NAME, NUM_ARRIVALS_NAME, \
     TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME, NUM_ROUNDS_NAME
 
 screen = None
@@ -97,7 +97,7 @@ def drawFinish(surface, results):
     words = ["Colony", "Rounds", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
     for i in range(len(results[HOME_QUALITIES_NAME])):
         words.append(f"{i + 1}")
-        words.append(f"{results[NUM_ROUNDS_NAME]}")
+        words.append(f"{results[NUM_ROUNDS_NAME][i]}")
         words.append(f"{round(results[SIM_TIMES_NAME][i], 2)}")
         words.append(f"{results[HOME_QUALITIES_NAME][i]}")
         words.append(f"{results[HOME_POSITIONS_NAME][i]}")
@@ -232,7 +232,7 @@ def drawCircle(surface, color, pos, radius, width=0, adjust=True):
         return pygame.Rect(x - radius, y - radius, radius * 2, radius * 2)
 
 
-def drawPolygon(surface, color, positions, adjust=True):
+def drawPolygon(surface, color, positions, adjust=True, width=0):
     newPositions = []
     if adjust:
         for pos in positions:
@@ -240,7 +240,7 @@ def drawPolygon(surface, color, positions, adjust=True):
     else:
         for pos in positions:
             newPositions.append([pos[0], pos[1]])
-    return pygame.draw.polygon(surface, color, newPositions)
+    return pygame.draw.polygon(surface, color, newPositions, width)
 
 
 def drawLine(surface, color, startPos, endPos, width=1, adjust=True):
@@ -403,16 +403,16 @@ def moveScreen(mousePos):
     adjW, adjH = getUnzoomedSize(origWidth, origHeight)
     if mousePos[0] >= origWidth - 3 and adjW - displacementX < worldRight:
         displacementX -= 25
-        addToDrawLast(drawRightArrow, mousePos, COMMIT_COLOR, False)
+        addToDrawLast(drawRightArrow, mousePos, GREEN, False)
     if mousePos[1] <= 3 and -displacementY > worldTop:
         displacementY += 25
-        addToDrawLast(drawUpArrow, mousePos, COMMIT_COLOR, False)
+        addToDrawLast(drawUpArrow, mousePos, GREEN, False)
     if mousePos[0] <= 3 and -displacementX > worldLeft:
         displacementX += 25
-        addToDrawLast(drawLeftArrow, mousePos, COMMIT_COLOR, False)
+        addToDrawLast(drawLeftArrow, mousePos, GREEN, False)
     if mousePos[1] >= origHeight - 30 and adjH - displacementY < worldBottom:
         displacementY -= 25
-        addToDrawLast(drawDownArrow, mousePos, COMMIT_COLOR, False)
+        addToDrawLast(drawDownArrow, mousePos, GREEN, False)
 
 
 def getAdjustedPos(origX, origY):

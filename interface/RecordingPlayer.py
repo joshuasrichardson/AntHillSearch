@@ -74,8 +74,11 @@ class RecordingPlayer(Simulation):
         results = super().runSimulation()
         return results
 
-    def getNumRounds(self):
-        return self.recorder.getNumRounds()
+    def printNumRounds(self):
+        roundCounts = self.recorder.getNumRounds()
+        for i, roundCount in enumerate(roundCounts):
+            print(f"Colony {i + 1} took {roundCount} rounds to finish.")
+        return roundCounts
 
     def stopTimer(self):
         super().stopTimer()

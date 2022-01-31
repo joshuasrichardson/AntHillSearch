@@ -52,6 +52,7 @@ class Agent:
         self.estimatedAgentCount = self.getHub().agentCount  # The number of agents the agent thinks are assigned to their assigned site.
         self.estimatedRadius = self.getHub().radius  # The agent's estimate of the radius of their assigned site
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
+        self.prevReportedSite = startingAssignment  # The site the agent was assigned to last time they were at the hub
 
         self.siteInRangeIndex = self.getHubIndex()
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
@@ -200,10 +201,6 @@ class Agent:
             return -1
         return site.getQuality() + (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
 
-    def estimateAgentCount(self, site):
-        self.estimatedAgentCount = site.agentCount  # TODO: Actually estimate the count
-        return self.estimatedAgentCount
-
     def estimateRadius(self, site):
         """ Returns an estimate of a site radius that is within estimationAccuracy/4 pixels from the actual radius """
         if site.quality == -1:
@@ -241,7 +238,6 @@ class Agent:
         if site is not self.assignedSite:  # If the site they are assigned to is not the one they came from
             self.setPhase(AssessPhase())  # Start assessing it, and estimate its values
             self.estimatedQuality = self.estimateQuality(site)
-            self.estimatedAgentCount = self.estimateAgentCount(site)
             self.estimatedRadius = self.estimateRadius(site)
             self.estimatedSitePosition = self.estimateSitePosition(site)
         else:

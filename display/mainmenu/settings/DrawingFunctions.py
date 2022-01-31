@@ -4,7 +4,7 @@ import pygame
 
 from config import Config
 from config.Config import AGENT_IMAGES
-from Constants import COMMIT_COLOR, ASSESS_COLOR, SEARCH_COLOR, BORDER_COLOR, FONT_SIZE_NAME, SITE_RADIUS_NAME, \
+from Constants import GREEN, RED, BLUE, BORDER_COLOR, FONT_SIZE_NAME, SITE_RADIUS_NAME, \
     HUB_LOCATIONS_NAME, SHOULD_RECORD_NAME, AGENT_IMAGE_NAME, LARGE_FONT_SIZE_NAME, SITE_NO_FARTHER_THAN_NAME, \
     SITE_NO_CLOSER_THAN_NAME
 from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay
@@ -61,17 +61,17 @@ def drawSiteRadius(self):
 
 
 def drawNoFartherThan(self):
-    drawArea(self, COMMIT_COLOR, self.value)
-    drawArea(self, ASSESS_COLOR, self.settingMenu.data[SITE_NO_CLOSER_THAN_NAME])
+    drawArea(self, GREEN, self.value)
+    drawArea(self, RED, self.settingMenu.data[SITE_NO_CLOSER_THAN_NAME])
 
 
 def drawNoCloserThan(self):
-    drawArea(self, COMMIT_COLOR, self.settingMenu.data[SITE_NO_FARTHER_THAN_NAME])
-    drawArea(self, ASSESS_COLOR, self.value)
+    drawArea(self, GREEN, self.settingMenu.data[SITE_NO_FARTHER_THAN_NAME])
+    drawArea(self, RED, self.value)
 
 
 def drawSearchArea(self):
-    drawArea(self, SEARCH_COLOR, self.value)
+    drawArea(self, BLUE, self.value)
 
 
 def drawConvergenceFraction(self):

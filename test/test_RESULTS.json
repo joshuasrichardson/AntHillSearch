@@ -1,1 +1,1 @@
-{"simulationTimes": [103.32161569595337, 32.46545195579529], "chosenHomesQualities": [90, 190], "chosenHomesPositions": [[249, -186], [1432, 595]], "numArrivals": [1, 20], "numDeadAgents": [38, 0], "totalNumAgents": [40, 20], "numRounds": 11111}
+{"numRounds": [277, 668], "simulationTimes": [9.901344299316406, 20], "chosenHomesQualities": [250, 80], "chosenHomesPositions": [[1300, 700], [450, 150]], "numArrivals": [93, 15], "numDeadAgents": [0, 0], "totalNumAgents": [100, 36]}

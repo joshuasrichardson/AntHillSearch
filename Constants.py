@@ -51,6 +51,12 @@ CONFIG_KEYS = SETTING_KEYS + ["SECONDS_BETWEEN_SENDING_REQUESTS", "INITIAL_ZOOM"
 MAX_TIME = 5000  # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 
+BLACK = 0, 0, 0
+BLUE = 0, 0, 255
+RED = 255, 0, 0
+ORANGE = 255, 165, 0
+GREEN = 0, 255, 0
+
 SCREEN_COLOR = 225, 220, 190  # Light brown
 
 WORDS_COLOR = 0, 41, 0  # Dark green
@@ -75,16 +81,16 @@ NO_MARKER_NAME = "None"
 
 """ States and their colors """
 AT_NEST = 0  # Rest agent state
-AT_NEST_COLOR = 0, 0, 0  # Black
+AT_NEST_COLOR = BLACK  # Black
 
 SEARCH = 1  # Explore agent state
-SEARCH_COLOR = 0, 0, 255  # Blue
+SEARCH_COLOR = BLUE  # Blue
 
 CARRIED = 2
 CARRIED_COLOR = 128, 0, 128  # Purple
 
 FOLLOW = 3  # Following another ant to a nest
-FOLLOW_COLOR = 255, 165, 0  # Orange
+FOLLOW_COLOR = ORANGE  # Orange
 
 LEAD_FORWARD = 4  # After accepting a site, start to recruit other agents there
 LEAD_FORWARD_COLOR = 204, 204, 0  # Yellow
@@ -116,16 +122,16 @@ EXPLORE = 0  # Still at the hub or just leaving for the first time to search
 EXPLORE_COLOR = 0, 0, 255  # Blue
 
 ASSESS = 1  # Found a potential site and considering whether it is good enough
-ASSESS_COLOR = 255, 0, 0  # Red
+ASSESS_COLOR = RED  # Red
 
 CANVAS = 2  # Partially committed to a site, and starting to lead others there
 CANVAS_COLOR = 204, 204, 0  # Yellow
 
 COMMIT = 3  # Met quorum at a site and now fully committed to the site
-COMMIT_COLOR = 0, 255, 0  # Green
+COMMIT_COLOR = GREEN  # Green
 
 CONVERGED = 4  # Enough agents are at the site, so they can be done moving
-CONVERGED_COLOR = 255, 105, 180
+CONVERGED_COLOR = 255, 105, 180  # Pink
 
 NUM_POSSIBLE_PHASES = 5
 # Colors that show up on the screen representing each phase

@@ -47,7 +47,9 @@ class LiveSimulation(Simulation, ABC):
             startingPosition = self.world.siteList[assignedSiteIndex].getPosition()
         for i in range(0, numAgents):
             agent = AgentBuilder.getNewAgent(self.world, self.world.siteList[assignedSiteIndex], startingPosition)
+            agent.prevReportedSite = agent.assignedSite
             agent.assignedSite.agentCount += 1
+            agent.assignedSite.estimatedAgentCount += 1
             agent.assignedSite.agentCounts[agent.getHubIndex()] += 1
             agent.setState(state(agent))
             agent.setPhase(phase)
@@ -95,32 +97,48 @@ class LiveSimulation(Simulation, ABC):
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()
         self.world.request.numAtHub = 0
-        for hubRect in hubRects:
+        for hubRect in hubRects:  # For each hub
             hubAgentsIndices = hubRect.collidelistall(agentRectList)
             try:
-                for agentIndex in hubAgentsIndices:
-                    agent = self.world.agentList[agentIndex]
-                    sites = agent.knownSites
-                    for siteIndex in range(len(sites)):
-                        if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
-                            sites[siteIndex].wasFound = True
-                            # If the site's estimates were not reported before the agent got assigned to another site, report them here.
-                            if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
-                                sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
-                                                               agent.estimateQuality(sites[siteIndex]),
-                                                               agent.estimateAgentCount(sites[siteIndex]),
-                                                               agent.estimateRadius(sites[siteIndex])])
-                    try:
-                        agent.assignedSite.setEstimates(self.world.request.addAgentToSendRequest(agent, agentIndex))
-                        agent.assignedSite.updateBlur()
-                    except AttributeError:
-                        pass  # If the agent is killed by a hub, this exception will be thrown here.
-                    if len(agent.recentlySeenPredatorPositions) > 0:
-                        for pos in agent.recentlySeenPredatorPositions:
-                            agent.world.addDangerZone(pos)
-                        agent.recentlySeenPredatorPositions.clear()
+                for agentIndex in hubAgentsIndices:  # For each agent currently at that hub
+                    self.estimateAgentsSites(agentIndex)
             except IndexError:
                 print("IndexError in LiveSimulation.setSitesEstimates. ")
+
+    def estimateAgentsSites(self, agentIndex):
+        agent = self.world.agentList[agentIndex]
+        self.updateSiteAgentCountEst(agent)
+        sites = agent.knownSites
+        for siteIndex in range(len(sites)):  # For each site that the agent knows about
+            if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
+                sites[siteIndex].wasFound = True
+                # If the site's estimates were not reported before the agent got assigned to another site, report them here.
+                if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
+                    sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
+                                                   agent.estimateQuality(sites[siteIndex]),
+                                                   sites[siteIndex].estimatedAgentCount,
+                                                   agent.estimateRadius(sites[siteIndex])])
+        try:
+            estimates = self.world.request.addAgentToHubInfo(agent, agentIndex)
+            agent.assignedSite.setEstimates(estimates)
+            agent.assignedSite.updateBlur()
+        except AttributeError:
+            pass  # If the agent is killed by a hub, this exception will be thrown here.
+        self.updatePredatorWarnings(agent)
+
+    @staticmethod
+    def updateSiteAgentCountEst(agent):
+        if agent.prevReportedSite is not agent.assignedSite:
+            agent.prevReportedSite.estimatedAgentCount -= 1
+            agent.assignedSite.estimatedAgentCount += 1
+            agent.prevReportedSite = agent.assignedSite
+
+    @staticmethod
+    def updatePredatorWarnings(agent):
+        if len(agent.recentlySeenPredatorPositions) > 0:
+            for pos in agent.recentlySeenPredatorPositions:
+                agent.world.addDangerZone(pos)
+            agent.recentlySeenPredatorPositions.clear()
 
     def updateRestAPI(self):
         now = datetime.datetime.now()

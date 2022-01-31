@@ -10,6 +10,16 @@ from display.Display import drawDashedLine, getBlurredImage, drawCircle, drawLin
 
 def drawSite(site, pos, radius, quality, blurAmount=0):
     if site.wasFound or not Config.DRAW_ESTIMATES:
+        if site.getQuality() != -1:
+            color = site.getColor() if blurAmount == 0 else site.getEstimatedColor()
+            Display.drawRect(Display.screen, color,
+                             pygame.Rect(pos[0] + radius + Config.FONT_SIZE / 2, pos[1] - radius +
+                                         ((255 - quality) / 255) * 2 * radius,
+                                         Config.FONT_SIZE, (quality / 255) * 2 * radius))
+            Display.drawRect(Display.screen, BORDER_COLOR,
+                             pygame.Rect(pos[0] + radius + Config.FONT_SIZE / 2, pos[1] - radius,
+                                         Config.FONT_SIZE, radius * 2), 1)
+
         if blurAmount > 0:
             drawBlurredCircle(pos, BORDER_COLOR, site.radius * 4, radius + 2, blurAmount + 0.7)
         else:
@@ -29,7 +39,8 @@ def drawSite(site, pos, radius, quality, blurAmount=0):
         fontSize = Config.FONT_SIZE if Display.zoom >= 0 else Config.FONT_SIZE + 3 * -Display.zoom
 
         if site.wasFound:
-            words = f"Agents: {int(site.agentCount)}" if site.isSelected else f"{int(site.agentCount)}"
+            count = site.agentCount if blurAmount == 0 else site.estimatedAgentCount
+            words = f"Agents: {int(count)}" if site.isSelected else f"{int(count)}"
             img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, WORDS_COLOR).convert_alpha()
             Display.addToDrawLast(Display.blitImage, Display.screen, img, (pos[0] - (img.get_width() / 2),
                                                                            pos[1] - (radius + 2 * fontSize)))

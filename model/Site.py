@@ -34,13 +34,16 @@ class Site:
 
         self.estimatedPosition = None  # The average position of where agents think the site is located
         self.estimatedQuality = None  # The average quality of what agents think it is
-        self.estimatedAgentCount = None  # The average number of agents of how many agents think there are
+        self.estimatedAgentCount = 0  # The average number of agents of how many agents think there are
         self.estimatedRadius = None  # The average radius of how big agents think it is
         self.estimatedSiteRect = None  # The rect based on estimated values
 
         self.blurAmount = Config.INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
         self.blurRadiusDiff = Config.INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
-        self.time = 0
+
+        # For hub use only:
+        self.time = 0  # The time it took the agents from this hub to converge to a new site.
+        self.roundCount = 0  # The number of rounds it took the agents from this hub to converge to a new site.
 
     @staticmethod
     def initAgentCounts(numHubs):
