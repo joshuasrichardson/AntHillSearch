@@ -3,7 +3,7 @@ from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_ESCAPE, K_RIGHT,
 
 from config import Config
 from ColonyExceptions import GameOver
-from Constants import WORDS_COLOR, BORDER_COLOR, SCREEN_COLOR, SEARCH_COLOR
+from Constants import WORDS_COLOR, BORDER_COLOR, SCREEN_COLOR, BLUE
 from display import Display
 
 
@@ -90,7 +90,7 @@ class Tutorial:
                                       nextImg.get_width(), nextImg.get_height())
         if self.nextButton.collidepoint(pygame.mouse.get_pos()):
             nextImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
-                                          "NEXT >", True, SEARCH_COLOR).convert_alpha()
+                                          "NEXT >", True, BLUE).convert_alpha()
             self.nextButton = pygame.Rect(Display.origWidth * 3 / 4 - 2 * nextImg.get_width(),
                                           Display.origHeight * 3 / 4 + Config.FONT_SIZE,
                                           nextImg.get_width(), nextImg.get_height())
@@ -104,7 +104,7 @@ class Tutorial:
                                       prevImg.get_width(), prevImg.get_height())
         if self.prevButton.collidepoint(pygame.mouse.get_pos()):
             prevImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
-                                          "< PREV", True, SEARCH_COLOR).convert_alpha()
+                                          "< PREV", True, BLUE).convert_alpha()
             self.prevButton = pygame.Rect(Display.origWidth / 4 + prevImg.get_width(),
                                           Display.origHeight * 3 / 4 + Config.FONT_SIZE,
                                           prevImg.get_width(), prevImg.get_height())
@@ -116,7 +116,7 @@ class Tutorial:
         self.backButton = pygame.Rect(100, 100, backImg.get_width(), backImg.get_height())
         if self.backButton.collidepoint(pygame.mouse.get_pos()):
             backImg = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2).render(
-                                          "<- BACK", True, SEARCH_COLOR).convert_alpha()
+                                          "<- BACK", True, BLUE).convert_alpha()
             self.backButton = pygame.Rect(100, 100, backImg.get_width(), backImg.get_height())
         Display.screen.blit(backImg, self.backButton.topleft)
 
@@ -124,7 +124,7 @@ class Tutorial:
         playRect = Display.drawRect(Display.screen, BORDER_COLOR, self.playButton, 1, False)
         color = WORDS_COLOR
         if playRect.collidepoint(pygame.mouse.get_pos()):
-            color = SEARCH_COLOR
+            color = BLUE
         pygame.draw.polygon(Display.screen, color, [[self.playButton.left + 4, self.playButton.top + 4],
                                                     [self.playButton.right - 4, self.playButton.centery],
                                                     [self.playButton.left + 4, self.playButton.bottom - 4]])

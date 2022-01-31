@@ -2,7 +2,7 @@
 import pygame
 
 from config import Config
-from Constants import SCREEN_COLOR, TRANSPARENT, FOG_COLOR, NO_MARKER_NAME
+from Constants import SCREEN_COLOR, TRANSPARENT, FOG_COLOR, NO_MARKER_NAME, RED, BLACK
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
@@ -58,7 +58,15 @@ def drawDangerZones(world):
 
 
 def drawDangerZone(pos):
-    SiteDisplay.drawBlurredCircle(pos, (0, 0, 0), 80, 30, 8)
+    # Draw red 'X'
+    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] - 30], [pos[0] + 30, pos[1] + 30], 4)
+    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] + 30], [pos[0] + 30, pos[1] - 30], 4)
+
+    # Draw triangle and exclamation mark warning sign
+    Display.drawPolygon(Display.screen, RED,
+                        [[pos[0], pos[1]], [pos[0] - 40, pos[1] + 80], [pos[0] + 40, pos[1] + 80]], width=3)
+    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 20], [pos[0], pos[1] + 60], 4)
+    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 65], [pos[0], pos[1] + 70], 4)
 
 
 def drawMarkers(world):

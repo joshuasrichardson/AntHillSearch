@@ -10,6 +10,16 @@ from display.Display import drawDashedLine, getBlurredImage, drawCircle, drawLin
 
 def drawSite(site, pos, radius, quality, blurAmount=0):
     if site.wasFound or not Config.DRAW_ESTIMATES:
+        if site.getQuality() != -1:
+            color = site.getColor() if blurAmount == 0 else site.getEstimatedColor()
+            Display.drawRect(Display.screen, color,
+                             pygame.Rect(pos[0] + radius + Config.FONT_SIZE / 2, pos[1] - radius +
+                                         ((255 - quality) / 255) * 2 * radius,
+                                         Config.FONT_SIZE, (quality / 255) * 2 * radius))
+            Display.drawRect(Display.screen, BORDER_COLOR,
+                             pygame.Rect(pos[0] + radius + Config.FONT_SIZE / 2, pos[1] - radius,
+                                         Config.FONT_SIZE, radius * 2), 1)
+
         if blurAmount > 0:
             drawBlurredCircle(pos, BORDER_COLOR, site.radius * 4, radius + 2, blurAmount + 0.7)
         else:

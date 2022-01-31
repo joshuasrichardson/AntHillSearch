@@ -3,7 +3,7 @@ from pygame import MOUSEBUTTONUP, MOUSEMOTION, KEYDOWN, K_ESCAPE, QUIT
 
 from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, WORDS_COLOR, SEARCH_COLOR
+from Constants import SCREEN_COLOR, WORDS_COLOR, BLUE
 from display import Display
 from interface.EngineerInferface import EngineerInterface
 from interface.UserInterface import UserInterface
@@ -60,11 +60,11 @@ class InterfaceSelector:
 
     def updateWords(self, pos):
         if self.uiButton.collidepoint(pos):
-            self.uiImage = self.font.render("User Interface: Practice like you will play", True, SEARCH_COLOR).convert_alpha()
+            self.uiImage = self.font.render("User Interface: Practice like you will play", True, BLUE).convert_alpha()
         else:
             self.uiImage = self.font.render("User Interface: Practice like you will play", True, WORDS_COLOR).convert_alpha()
         if self.eiButton.collidepoint(pos):
-            self.eiImage = self.font.render("Engineer Interface: See everything that is happening", True, SEARCH_COLOR).convert_alpha()
+            self.eiImage = self.font.render("Engineer Interface: See everything that is happening", True, BLUE).convert_alpha()
         else:
             self.eiImage = self.font.render("Engineer Interface: See everything that is happening", True, WORDS_COLOR).convert_alpha()
 

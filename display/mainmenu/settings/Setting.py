@@ -2,7 +2,7 @@ import pygame
 from pygame import KEYDOWN, K_RETURN, MOUSEBUTTONDOWN, MOUSEMOTION, K_ESCAPE, QUIT, K_BACKSPACE
 
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, ASSESS_COLOR, FONT_SIZE_NAME, LARGE_FONT_SIZE_NAME
+from Constants import SCREEN_COLOR, RED, FONT_SIZE_NAME, LARGE_FONT_SIZE_NAME
 from display import Display
 
 
@@ -52,7 +52,7 @@ class Setting:
     def showUserInput(self):
         pos = self.rect.topright
         Display.write(Display.screen, self.userInputString, int(self.settingMenu.data[FONT_SIZE_NAME] * 1.5),
-                      pos[0], pos[1], ASSESS_COLOR)
+                      pos[0], pos[1], RED)
 
     def updateRect(self):
         self.rect = Display.write(Display.screen, f"{self.name}: {self.value}",
