@@ -135,6 +135,7 @@ class StartUpDisplay:
                 del self.simInterface
                 self.simInterface = RecordingPlayer()
                 self.simInterface.runSimulation()
+                Display.resetScreen()
             else:
                 self.complainAboutMissingRecording()
         except FileNotFoundError:

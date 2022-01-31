@@ -181,10 +181,16 @@ class Simulation(ABC):
         self.determineChosenHomes()
         results = self.printResults()
         if Config.SHOULD_DRAW:
+            self.drawFinish(results)
+        return results
+
+    def drawFinish(self, results):
+        done = False
+        while not done:
+            drawWorldObjects(self.world)
             Display.drawFinish(Display.screen, results)
             pygame.display.flip()
-            self.userControls.waitForUser()
-        return results
+            done = self.userControls.handleFinishEvents()
 
     def save(self):
         pass

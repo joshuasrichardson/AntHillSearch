@@ -187,13 +187,15 @@ class Controls:
             self.timer.cancel()
             raise GameOver("Exited Successfully")
 
-    @staticmethod
-    def waitForUser():
-        done = False
-        while not done:
-            for event in pygame.event.get():
-                if event.type == MOUSEBUTTONUP or event.type == KEYDOWN and not pygame.key.get_mods() & KMOD_CTRL:
-                    done = True
+    def handleFinishEvents(self):
+        self.moveScreen()
+        for event in pygame.event.get():
+            if event.type == MOUSEBUTTONUP and pygame.key.get_mods() & KMOD_CTRL:
+                self.zoom(event)
+            elif event.type == MOUSEBUTTONUP and (event.button == 1 or event.button == 3) \
+                    or event.type == KEYDOWN and not pygame.key.get_mods() & KMOD_CTRL:
+                return True
+        return False
 
     def mouseMotion(self, mousePos, adjustedMousePos):
         # Set the cursor image
