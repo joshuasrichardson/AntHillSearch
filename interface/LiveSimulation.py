@@ -47,7 +47,9 @@ class LiveSimulation(Simulation, ABC):
             startingPosition = self.world.siteList[assignedSiteIndex].getPosition()
         for i in range(0, numAgents):
             agent = AgentBuilder.getNewAgent(self.world, self.world.siteList[assignedSiteIndex], startingPosition)
+            agent.prevReportedSite = agent.assignedSite
             agent.assignedSite.agentCount += 1
+            agent.assignedSite.estimatedAgentCount += 1
             agent.assignedSite.agentCounts[agent.getHubIndex()] += 1
             agent.setState(state(agent))
             agent.setPhase(phase)
@@ -124,13 +126,15 @@ class LiveSimulation(Simulation, ABC):
             pass  # If the agent is killed by a hub, this exception will be thrown here.
         self.updatePredatorWarnings(agent)
 
-    def updateSiteAgentCountEst(self, agent):
+    @staticmethod
+    def updateSiteAgentCountEst(agent):
         if agent.prevReportedSite is not agent.assignedSite:
             agent.prevReportedSite.estimatedAgentCount -= 1
             agent.assignedSite.estimatedAgentCount += 1
             agent.prevReportedSite = agent.assignedSite
 
-    def updatePredatorWarnings(self, agent):
+    @staticmethod
+    def updatePredatorWarnings(agent):
         if len(agent.recentlySeenPredatorPositions) > 0:
             for pos in agent.recentlySeenPredatorPositions:
                 agent.world.addDangerZone(pos)

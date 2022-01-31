@@ -97,7 +97,7 @@ def drawFinish(surface, results):
     words = ["Colony", "Rounds", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
     for i in range(len(results[HOME_QUALITIES_NAME])):
         words.append(f"{i + 1}")
-        words.append(f"{results[NUM_ROUNDS_NAME]}")
+        words.append(f"{results[NUM_ROUNDS_NAME][i]}")
         words.append(f"{round(results[SIM_TIMES_NAME][i], 2)}")
         words.append(f"{results[HOME_QUALITIES_NAME][i]}")
         words.append(f"{results[HOME_POSITIONS_NAME][i]}")

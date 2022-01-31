@@ -73,8 +73,16 @@ class Simulation(ABC):
 
         return self.finish()
 
-    def getNumRounds(self):
-        return self.numRounds
+    def printNumRounds(self):
+        roundCounts = []
+        for i, hub in enumerate(self.world.getHubs()):
+            if hub.roundCount == 0:
+                rounds = self.numRounds
+            else:
+                rounds = hub.roundCount
+            roundCounts.append(rounds)
+            print(f"Colony {i + 1} took {rounds} rounds to finish.")
+        return roundCounts
 
     def stopTimer(self):
         self.timer.cancel()
@@ -154,21 +162,23 @@ class Simulation(ABC):
             site = self.world.siteList[siteIndex]
             for hubIndex in range(len(self.world.getHubs())):
                 if site.agentCounts[hubIndex] >= int((self.world.initialHubAgentCounts[hubIndex] -
-                                                      self.world.numDeadAgents[
-                                                          hubIndex]) * Config.CONVERGENCE_FRACTION) > 0:
+                                                      self.world.numDeadAgents[hubIndex]) *
+                                                     Config.CONVERGENCE_FRACTION) > 0:
                     self.chosenHomes[hubIndex] = site
                     numConverged += 1
-                    hub = self.world.getHubs()[hubIndex]
-                    if hub.time == 0:
-                        hub.time = self.timer.getRemainingTime()
+                    self.convergeHub(hubIndex)
         for hubIndex in range(len(self.world.getHubs())):
             if self.world.initialHubAgentCounts[hubIndex] == 0:
                 self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]
                 numConverged += 1
-                hub = self.world.getHubs()[hubIndex]
-                if hub.time == 0:
-                    hub.time = self.timer.getRemainingTime()
+                self.convergeHub(hubIndex)
         return numConverged >= len(self.world.getHubs())
+
+    def convergeHub(self, hubIndex):
+        hub = self.world.getHubs()[hubIndex]
+        if hub.time == 0:
+            hub.time = self.timer.getRemainingTime()
+            hub.roundCount = self.numRounds
 
     def timeOut(self):
         """ Method to be called when the simulation timer runs out. sets timeRanOut to True to break the main loop. """
@@ -206,11 +216,10 @@ class Simulation(ABC):
 
     def printResults(self):
         numArrivals, numDeaths = self.printNumAgentsResults()
-        self.printNumRounds()
         positions = []
         for site in self.chosenHomes:
             positions.append(site.getPosition())
-        results = {NUM_ROUNDS_NAME: self.getNumRounds(),
+        results = {NUM_ROUNDS_NAME: self.printNumRounds(),
                    SIM_TIMES_NAME: self.printTimeResults(),
                    HOME_QUALITIES_NAME: self.printHomeQualities(),
                    HOME_POSITIONS_NAME: positions,
@@ -253,9 +262,6 @@ class Simulation(ABC):
             qualities.append(home.getQuality())
             print(f"Colony {i + 1}: {home.getQuality()}/255.")
         return qualities
-
-    def printNumRounds(self):
-        print(f"Number of Rounds: {self.getNumRounds()}")
 
     def sendResults(self, results):
         pass

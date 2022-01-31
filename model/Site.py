@@ -40,7 +40,10 @@ class Site:
 
         self.blurAmount = Config.INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
         self.blurRadiusDiff = Config.INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
-        self.time = 0
+
+        # For hub use only:
+        self.time = 0  # The time it took the agents from this hub to converge to a new site.
+        self.roundCount = 0  # The number of rounds it took the agents from this hub to converge to a new site.
 
     @staticmethod
     def initAgentCounts(numHubs):
