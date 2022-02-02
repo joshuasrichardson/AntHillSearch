@@ -1,1 +1,1 @@
-{"positions": [[290, 898], [548, 766]], "qualities": [-1, 80], "simulationTimes": [150, 145.8972487449646], "deadAgents": [100, 6]}
+{"numRounds": [277, 668], "simulationTimes": [9.901344299316406, 20], "chosenHomesQualities": [250, 80], "chosenHomesPositions": [[1300, 700], [450, 150]], "numArrivals": [93, 15], "numDeadAgents": [0, 0], "totalNumAgents": [100, 36]}

@@ -1,13 +1,15 @@
 import random
 
+import Utils
+from config import Config
 from Constants import *
-from display import SiteDisplay, WorldDisplay, Display
+from display import WorldDisplay
 from display.AgentDisplay import getAgentImage
-from model.builder import AgentSettings
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ConvergedPhase import ConvergedPhase
 from model.phases.ExplorePhase import ExplorePhase
 from model.states.AtNestState import AtNestState
+from numpy import random, pi, cos, sin, sqrt, square
 
 
 class Agent:
@@ -19,7 +21,7 @@ class Agent:
         self.hub = self.world.getClosestHub(startingPosition)
 
         self.prevPos = list(startingPosition)  # Where the agent was during the last iteration
-        self.pos = [startingPosition[0] + np.random.choice([-1, 1]), startingPosition[1] + np.random.choice([-1, 1])]   # Initial position
+        self.pos = [startingPosition[0] + random.choice([-1, 1]), startingPosition[1] + random.choice([-1, 1])]   # Initial position
         self.lastSeenPos = self.pos  # Where the agent was last seen
         self.path = []  # A list of the positions the agent has recently come from
         self.agentHandle = getAgentImage(self.pos)  # Image on screen representing the agent
@@ -29,7 +31,7 @@ class Agent:
 
         self.speed = speed  # Speed the agent moves on the screen
         self.uncommittedSpeed = self.speed  # The speed of the agents outside the committed phase
-        self.committedSpeed = self.speed * AgentSettings.commitSpeedFactor  # The speed of the agents in the committed phase
+        self.committedSpeed = self.speed * Config.COMMIT_SPEED_FACTOR  # The speed of the agents in the committed phase
         self.decisiveness = decisiveness  # Influences how quickly an agent can assess
         self.navigationSkills = navSkills  # Influences how likely an agent is to get lost
         self.estimationAccuracy = estAccuracy  # How far off an agent's estimate of the quality of a site will be on average.
@@ -37,7 +39,7 @@ class Agent:
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.target = list(startingPosition)  # The position the agent is going to
-        self.angle = np.random.uniform(0, np.pi, 1)  # Angle the agent is moving
+        self.angle = random.uniform(0, pi, 1)  # Angle the agent is moving
         self.placesToAvoid = []  # A list of points that the agent should stay away from
         self.recentlySeenPredatorPositions = []
 
@@ -50,6 +52,7 @@ class Agent:
         self.estimatedAgentCount = self.getHub().agentCount  # The number of agents the agent thinks are assigned to their assigned site.
         self.estimatedRadius = self.getHub().radius  # The agent's estimate of the radius of their assigned site
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
+        self.prevReportedSite = startingAssignment  # The site the agent was assigned to last time they were at the hub
 
         self.siteInRangeIndex = self.getHubIndex()
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
@@ -71,10 +74,10 @@ class Agent:
     def setState(self, state):
         self.state = state
 
-    def changeState(self, neighborList):
+    def doStateActions(self, neighborList):
         if self.state.executeCommands():
             return
-        self.state.changeState(neighborList)
+        self.state.doStateActions(neighborList)
 
     def getStateNumber(self):
         return self.state.stateNumber
@@ -110,7 +113,7 @@ class Agent:
         self.agentRect.centerx = x
         self.agentRect.centery = y
         self.pos = list([x, y])
-        if not Display.drawFarAgents and self.isClose(self.hub.getPosition(), HUB_OBSERVE_DIST):
+        if not Config.DRAW_FAR_AGENTS and self.isClose(self.hub.getPosition(), Config.HUB_OBSERVE_DIST):
             self.lastSeenPos = self.pos
             self.lastKnownPhaseColor = self.getPhaseColor()
 
@@ -118,23 +121,23 @@ class Agent:
         if self.getPhaseNumber() == CONVERGED:
             self.setPosition(self.assignedSite.getPosition()[0], self.assignedSite.getPosition()[1])
         else:
-            self.setPosition(int(np.round(float(self.pos[0]) + self.speed * np.cos(self.angle))),
-                             int(np.round(float(self.pos[1]) + self.speed * np.sin(self.angle))))
+            x, y = Utils.getNextPosition(self.pos, self.speed, self.angle)
+            self.setPosition(x, y)
 
     def updateFollowPosition(self):
         """ Updates the agent's position to be just behind their lead agent """
-        self.agentRect.centerx = int(np.round(float(self.leadAgent.pos[0]) - self.leadAgent.speed * np.cos(self.leadAgent.angle)))
-        self.agentRect.centery = int(np.round(float(self.leadAgent.pos[1]) - self.leadAgent.speed * np.sin(self.leadAgent.angle)))
+        self.agentRect.centerx = int(round(float(self.leadAgent.pos[0]) - self.leadAgent.speed * cos(self.leadAgent.angle)))
+        self.agentRect.centery = int(round(float(self.leadAgent.pos[1]) - self.leadAgent.speed * sin(self.leadAgent.angle)))
         self.pos = list([self.agentRect.centerx, self.agentRect.centery])
 
     def getAssignedSitePosition(self):
-        if AgentSettings.findAssignedSiteEasily:
+        if Config.FIND_SITES_EASILY:
             return self.assignedSite.getPosition()  # Return the actual position of the site
         else:
             return self.estimatedSitePosition  # Return where they last saw the site (it could have moved from there)
 
     def getRecruitSitePosition(self):
-        if AgentSettings.findAssignedSiteEasily:
+        if Config.FIND_SITES_EASILY:
             return self.recruitSite.getPosition()  # Return the actual position of the site
         else:
             return self.recruitSiteLastKnownPos  # Return where they last saw the site (it could have moved from there)
@@ -147,14 +150,13 @@ class Agent:
 
     def clearFog(self):
         """ Erases fog rectangles from the screen where the agent has been """
-        if SiteDisplay.knowSitePosAtStart:
+        if Config.DRAW_FAR_AGENTS:
             WorldDisplay.eraseFog(self.pos)
-        elif self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST) and \
-                not SiteDisplay.knowSitePosAtStart:
+        elif self.isClose(self.getHub().getPosition(), Config.HUB_OBSERVE_DIST) and not Config.DRAW_FAR_AGENTS:
             for command in self.eraseFogCommands:
                 command[0](command[1])  # Execute each of the eraseFogCommands that have been appended since the last visit to the hub
             self.eraseFogCommands = []
-        elif not SiteDisplay.knowSitePosAtStart:  # If they are not by the hub
+        elif not Config.DRAW_FAR_AGENTS:  # If they are not by the hub
             self.eraseFogCommands.append([WorldDisplay.eraseFog, self.pos.copy()])  # Add their current position and erase fog command to a list to be executed when they get back to the hub.
 
     def getHub(self):
@@ -167,7 +169,7 @@ class Agent:
         self.numFollowers += 1
 
     def isCloseToHub(self):
-        return self.isClose(self.getHub().getPosition(), HUB_OBSERVE_DIST)
+        return self.isClose(self.getHub().getPosition(), Config.HUB_OBSERVE_DIST)
 
     def isCloseToASite(self):
         """ Returns whether the agent is next to a site or not """
@@ -177,31 +179,27 @@ class Agent:
         return False
 
     def getNearbyPlaceToAvoid(self):
+        closePositions = []
         for pos in self.placesToAvoid:
-            if self.isClose(pos, MIN_AVOID_DIST):
-                return pos
-        return None
+            if self.isClose(pos, Config.MIN_AVOID_DIST):
+                closePositions.append(pos)
+        return closePositions
 
     def isClose(self, position, distance):
         """ Returns a boolean representing whether the agent is within the specified distance of the specified position """
-        dist = np.sqrt(np.square(abs(self.pos[0] - position[0])) + np.square(abs(self.pos[1] - position[1])))
-        return dist <= distance
+        return Utils.isClose(self.pos, position, distance)
 
     def isTooFarAway(self, site):
         """ Returns a boolean representing whether the agent is outside their searching area """
         # a ^ 2 + b ^ 2 = c ^ 2
-        dist = np.sqrt(np.square(abs(self.pos[0] - site.getPosition()[0])) + np.square(abs(self.pos[1] - site.getPosition()[1])))
-        return dist > AgentSettings.maxSearchDistance
+        dist = sqrt(square(abs(self.pos[0] - site.getPosition()[0])) + square(abs(self.pos[1] - site.getPosition()[1])))
+        return dist > Config.MAX_SEARCH_DIST
 
     def estimateQuality(self, site):
         """ Returns an estimate of a site quality that is within estimationAccuracy units from the actual quality """
         if site.quality == -1:
             return -1
         return site.getQuality() + (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
-
-    def estimateAgentCount(self, site):
-        self.estimatedAgentCount = site.agentCount  # TODO: Actually estimate the count
-        return self.estimatedAgentCount
 
     def estimateRadius(self, site):
         """ Returns an estimate of a site radius that is within estimationAccuracy/4 pixels from the actual radius """
@@ -240,7 +238,6 @@ class Agent:
         if site is not self.assignedSite:  # If the site they are assigned to is not the one they came from
             self.setPhase(AssessPhase())  # Start assessing it, and estimate its values
             self.estimatedQuality = self.estimateQuality(site)
-            self.estimatedAgentCount = self.estimateAgentCount(site)
             self.estimatedRadius = self.estimateRadius(site)
             self.estimatedSitePosition = self.estimateSitePosition(site)
         else:
@@ -248,7 +245,7 @@ class Agent:
         self.assignedSite = site
         self.assignedSite.incrementCount(self.getHubIndex())
         # Take longer to assess lower-quality sites
-        self.assessmentThreshold = MAX_ASSESS_THRESHOLD - (self.estimatedQuality / ASSESS_DIVIDEND)
+        self.assessmentThreshold = Config.MAX_ASSESS_THRESHOLD - (self.estimatedQuality / Config.ASSESS_DIVIDEND)
 
     def estimateSitePosition(self, site):
         """ Returns an estimate of a site position that is within estimationAccuracy * 2 pixels from the actual position """
@@ -269,18 +266,27 @@ class Agent:
             self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
 
     def avoid(self, pos):
-        if pos is not None and self.getNearbyPlaceToAvoid() is None:
+        if pos is not None and len(self.getNearbyPlaceToAvoid()) == 0:
             self.placesToAvoid.append(pos)
             self.recentlySeenPredatorPositions.append(pos)
-            if len(self.placesToAvoid) > MAX_NUM_AVOIDS:
+            if len(self.placesToAvoid) > Config.MAX_NUM_AVOIDS:
                 self.placesToAvoid.pop(0)
+            if self.isClose(pos, Config.MIN_AVOID_DIST):
+                self.escape([pos])
+            self.forgetDangerousSites(pos)
+
+    def escape(self, positions):
+        from model.states.EscapeState import EscapeState
+        stateNumber = self.state.prevStateNum if self.getStateNumber() == ESCAPE else self.getStateNumber()
+        self.setState(EscapeState(self, stateNumber, positions))
 
     def stopAvoiding(self, index):
-        self.placesToAvoid.pop(index)
+        if len(self.placesToAvoid) > index:
+            self.placesToAvoid.pop(index)
 
     def forgetDangerousSites(self, pos):
         for site in self.knownSites:
-            if self.world.isClose(pos, site.getPosition(), MIN_AVOID_DIST):
+            if self.world.isClose(pos, site.getPosition(), Config.MIN_AVOID_DIST):
                 self.removeKnownSite(site)
 
     def getAssignedSiteIndex(self):
@@ -289,7 +295,7 @@ class Agent:
 
     def isDoneAssessing(self):
         """ Returns whether the agent is ready to make a decision to accept or reject their assigned site """
-        return np.random.exponential() * self.decisiveness > self.assessmentThreshold
+        return random.exponential() * self.decisiveness > self.assessmentThreshold
 
     def getHubIndex(self):
         return self.world.getHubs().index(self.getHub())
@@ -310,12 +316,20 @@ class Agent:
                 agent.leadAgent = leadAgent
         return True
 
-    def quorumMet(self, numNeighbors):
+    def quorumMet(self, neighborList):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
-        return numNeighbors > self.world.initialHubAgentCounts[self.getHubIndex()] / QUORUM_DIVIDEND
+        return len(neighborList) > self.world.initialHubAgentCounts[self.getHubIndex()] / Config.QUORUM_DIVIDEND or \
+               self.neighborIsCommitted(neighborList)
+
+    @staticmethod
+    def neighborIsCommitted(neighborList):
+        for neighbor in neighborList:
+            if neighbor.getStateNumber() == COMMIT:
+                return True
+        return False
 
     def tryConverging(self):
-        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * CONVERGENCE_FRACTION:
+        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * Config.CONVERGENCE_FRACTION:
             self.setPhase(ConvergedPhase())
             self.setState(AtNestState(self))
             self.assignedSite.chosen = True
@@ -335,36 +349,36 @@ class Agent:
             # They should get back to their site before they go out searching again.
             return False
         if self.assignedSite == self.getHub():
-            return np.random.exponential() > SEARCH_FROM_HUB_THRESHOLD
-        return np.random.exponential() > SEARCH_THRESHOLD  # Make it more likely to search if they aren't at the hub.
+            return random.exponential() > Config.SEARCH_FROM_HUB_THRESHOLD
+        return random.exponential() > Config.SEARCH_THRESHOLD  # Make it more likely to search if they aren't at the hub.
 
     @staticmethod
     def shouldReturnToNest():
         """ Returns whether the agent is ready to go back to their assigned site """
-        return np.random.exponential() > AT_NEST_THRESHOLD
+        return random.exponential() > Config.AT_NEST_THRESHOLD
 
     @staticmethod
     def shouldRecruit():
         """ Returns whether the agent is ready to go recruit to their assigned site """
-        return np.random.exponential() > LEAD_THRESHOLD
+        return random.exponential() > Config.LEAD_THRESHOLD
 
     @staticmethod
     def shouldKeepTransporting():
         """ Returns whether the agent should continue recruiting to their assigned site """
-        return np.random.randint(0, 3) != 0
+        return random.randint(0, 3) != 0
 
     @staticmethod
     def shouldFollow():
         """ Returns whether the agent should follow a canvasing or committed agent """
-        return np.random.exponential() > FOLLOW_THRESHOLD
+        return random.exponential() > Config.FOLLOW_THRESHOLD
 
     def shouldGetLost(self):
         """ Returns whether the agent will lose their way """
-        return np.random.exponential() > self.navigationSkills * GET_LOST_THRESHOLD
+        return random.exponential() > self.navigationSkills * Config.GET_LOST_THRESHOLD
 
     def transportOrReverseTandem(self, state):
         """ Randomly chooses between switching to reverse tandem and transport states with a higher chance of going to transport """
-        if np.random.randint(0, 3) == 0:
+        if random.randint(0, 3) == 0:
             from model.states.ReverseTandemState import ReverseTandemState
             state.setState(ReverseTandemState(self), self.getAssignedSitePosition())
         else:

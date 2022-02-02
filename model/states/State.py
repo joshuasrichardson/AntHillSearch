@@ -1,38 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-from Constants import SEARCH, AT_NEST, LEAD_FORWARD, FOLLOW, REVERSE_TANDEM, TRANSPORT, GO, CARRIED, DEAD
-from display import Display
-
-
-def numToState(num, agent):
-    if num == AT_NEST:
-        from model.states.AtNestState import AtNestState
-        return AtNestState(agent)
-    if num == SEARCH:
-        from model.states.SearchState import SearchState
-        return SearchState(agent)
-    if num == CARRIED:
-        from model.states.CarriedState import CarriedState
-        return CarriedState(agent)
-    if num == FOLLOW:
-        from model.states.FollowState import FollowState
-        return FollowState(agent)
-    if num == LEAD_FORWARD:
-        from model.states.LeadForwardState import LeadForwardState
-        return LeadForwardState(agent)
-    if num == REVERSE_TANDEM:
-        from model.states.ReverseTandemState import ReverseTandemState
-        return ReverseTandemState(agent)
-    if num == TRANSPORT:
-        from model.states.TransportState import TransportState
-        return TransportState(agent)
-    if num == GO:
-        from model.states.GoState import GoState
-        return GoState(agent)
-    if num == DEAD:
-        from model.states.DeadState import DeadState
-        return DeadState(agent)
+from config import Config
 
 
 class State(ABC):
@@ -43,15 +12,14 @@ class State(ABC):
 
     def setState(self, state, target):
         self.agent.target = target
-        self.updateAngle(state.stateNumber)
+        self.updateAngle()
         self.agent.state = state
-
-    def updateAngle(self, stateNum) -> None:
-        if stateNum == SEARCH:  # If changing state to search from something else, set angle randomly
-            self.agent.setAngle(np.random.uniform(0, np.pi * 2, 1))
-        else:  # Move toward target
-            self.agent.setAngle(np.arctan2(self.agent.target[1] - self.agent.pos[1], self.agent.target[0] - self.agent.pos[0]))
         self.forgetMovedSites()
+
+    def updateAngle(self) -> None:
+        # Move toward target
+        if self.agent.target is not None:
+            self.agent.setAngle(np.arctan2(self.agent.target[1] - self.agent.pos[1], self.agent.target[0] - self.agent.pos[0]))
 
     def forgetMovedSites(self):
         knownSiteRects = []
@@ -70,7 +38,7 @@ class State(ABC):
 
     def executeCommands(self):
         self.agent.siteInRangeIndex = self.agent.getRect().collidelist(self.agent.world.siteRectList)
-        if Display.drawFarAgents:  # If we are using an interface that lets us access things that are far from the hub
+        if Config.DRAW_FAR_AGENTS:  # If we are using an interface that lets us access things that are far from the hub
             if self.agent.siteInRangeIndex != -1:  # And the agent comes in contact with a site that has a command
                 return self.agent.world.siteList[self.agent.siteInRangeIndex].executeCommands(self.agent)  # Just do the command and be done with this round.
         else:
@@ -78,8 +46,15 @@ class State(ABC):
                 return self.agent.assignedSite.executeCommands(self.agent)
             return False
 
+    def doStateActions(self, neighborList) -> None:
+        avoidPlaces = self.agent.getNearbyPlaceToAvoid()
+        if len(avoidPlaces) == 0:
+            self.changeState(neighborList)
+        else:  # If the agent is too close to a place they are supposed to avoid
+            self.agent.escape(avoidPlaces)  # Turn away from it.
+
     @abstractmethod
-    def changeState(self, neighborList) -> None:
+    def changeState(self, neighborList):
         pass
 
     @abstractmethod

@@ -1,30 +1,33 @@
 """ Methods related to the world's display """
 import pygame
 
-from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO_MARKER_NAME
+from config import Config
+from Constants import SCREEN_COLOR, TRANSPARENT, FOG_COLOR, NO_MARKER_NAME, RED, BLACK
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
 from display.LadybugDisplay import drawLadybug
-from display.SiteDisplay import drawEstimatedSite, drawSite, knowSitePosAtStart
+from display.SiteDisplay import drawSite
 
 fog = None
 
 
 def drawWorldObjects(world):
     """ Draws the paths, agents, sites, markers, and fog in the world"""
-    if Display.shouldDrawPaths:
+    if Config.SHOULD_DRAW_PATHS:
         drawPaths(world)
     drawAgents(world)
     drawPredators(world)
     drawLadybugs(world)
-    if not Display.drawFarAgents:
+    if not Config.DRAW_FAR_AGENTS:
         for site in world.siteList:
-            drawEstimatedSite(site)
+            if site.wasFound:
+                drawSite(site, site.estimatedPosition, site.estimatedRadius + site.blurRadiusDiff,
+                         site.estimatedQuality, site.blurAmount)
         drawDangerZones(world)
     else:
         for site in world.siteList:
-            drawSite(site)
+            drawSite(site, site.pos, site.radius, site.quality)
     drawFog()
     drawMarkers(world)
     Display.drawLast()
@@ -61,7 +64,15 @@ def drawDangerZones(world):
 
 
 def drawDangerZone(pos):
-    SiteDisplay.drawBlurredCircle(pos, (0, 0, 0), 80, 30, 8)
+    # Draw red 'X'
+    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] - 30], [pos[0] + 30, pos[1] + 30], 4)
+    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] + 30], [pos[0] + 30, pos[1] - 30], 4)
+
+    # Draw triangle and exclamation mark warning sign
+    Display.drawPolygon(Display.screen, RED,
+                        [[pos[0], pos[1] - 40], [pos[0] - 40, pos[1] + 40], [pos[0] + 40, pos[1] + 40]], width=3)
+    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] - 20], [pos[0], pos[1] + 20], 4)
+    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 25], [pos[0], pos[1] + 30], 4)
 
 
 def drawMarkers(world):
@@ -83,7 +94,7 @@ def initFog(hubs):
         pos = hub.getPosition()
         x = pos[0] - Display.worldLeft
         y = pos[1] - Display.worldTop
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], HUB_OBSERVE_DIST, 0)
+        pygame.draw.circle(fog, TRANSPARENT, [x, y], Config.HUB_OBSERVE_DIST, 0)
 
 
 def drawFog():
@@ -111,6 +122,17 @@ def collidesWithSite(world, mousePos):
     for site in world.siteList:
         if site.wasFound and site.getSiteRect().collidepoint(mousePos):
             return True
+    return False
+
+
+def collidesWithEstimatedSite(world, mousePos):
+    """ Returns whether the mouse cursor is over any site in the world """
+    for site in world.siteList:
+        try:
+            if site.wasFound and site.getEstSiteRect().collidepoint(mousePos):
+                return True
+        except AttributeError:
+            pass
     return False
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 
-from Constants import HELP_THRESHOLD, DEAD
+from config import Config
 from display.LadybugDisplay import getLadybugImage
 
 
@@ -44,7 +44,7 @@ class Ladybug:
         self.angle = angle
 
     def help(self, helpeeList):
-        if np.random.exponential() > HELP_THRESHOLD:
+        if np.random.exponential() > Config.HELP_THRESHOLD:
             for agent in helpeeList:
                 agent.assignSite(self.site)
         else:

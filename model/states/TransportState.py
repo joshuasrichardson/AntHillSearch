@@ -1,4 +1,4 @@
-from Constants import *
+from Constants import TRANSPORT, TRANSPORT_COLOR
 from model.states.RecruitState import RecruitState
 
 

@@ -1,5 +1,6 @@
 from display.mainmenu.settings.Setting import Setting
 
+
 def DEFAULT_AUTOFILL(self):
     return ""
 

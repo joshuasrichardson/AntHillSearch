@@ -1,9 +1,10 @@
 from copy import copy
 
-import numpy as np
+from numpy import random
 from pygame.rect import Rect
 
-from Constants import INITIAL_BLUR, AVOID_NAME, STOP_AVOID_NAME, GO_NAME, NO_MARKER_NAME
+from config import Config
+from Constants import AVOID_NAME, STOP_AVOID_NAME, GO_NAME, NO_MARKER_NAME
 
 
 class Site:
@@ -33,13 +34,16 @@ class Site:
 
         self.estimatedPosition = None  # The average position of where agents think the site is located
         self.estimatedQuality = None  # The average quality of what agents think it is
-        self.estimatedAgentCount = None  # The average number of agents of how many agents think there are
+        self.estimatedAgentCount = 0  # The average number of agents of how many agents think there are
         self.estimatedRadius = None  # The average radius of how big agents think it is
         self.estimatedSiteRect = None  # The rect based on estimated values
 
-        self.blurAmount = INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
-        self.blurRadiusDiff = INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
-        self.time = 0
+        self.blurAmount = Config.INITIAL_BLUR  # How blurry the site appears on the screen. Higher is blurrier.
+        self.blurRadiusDiff = Config.INITIAL_BLUR  # How much bigger the estimated site appear than its actual size (helps it look blurrier)
+
+        # For hub use only:
+        self.time = 0  # The time it took the agents from this hub to converge to a new site.
+        self.roundCount = 0  # The number of rounds it took the agents from this hub to converge to a new site.
 
     @staticmethod
     def initAgentCounts(numHubs):
@@ -56,7 +60,7 @@ class Site:
         except AttributeError:
             pass
         if quality is None:
-            self.quality = np.random.uniform(0, 255)  # 255 is maximum color, so maximum quality
+            self.quality = random.uniform(0, 255)  # 255 is maximum color, so maximum quality
         elif quality > 255:  # If the quality is greater than the max,
             self.quality = 255  # Set the quality to the max
         elif quality < -1:  # If the quality is less than the min, (less than -1 because the hub is arbitrarily set to -1. Every other site has to be at least 0)
@@ -138,6 +142,9 @@ class Site:
 
     def getSiteRect(self):
         return self.siteRect
+
+    def getEstSiteRect(self):
+        return self.estimatedSiteRect
 
     def incrementCount(self, hubIndex):
         self.agentCount += 1

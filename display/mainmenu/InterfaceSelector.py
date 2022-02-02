@@ -1,8 +1,9 @@
 import pygame
 from pygame import MOUSEBUTTONUP, MOUSEMOTION, KEYDOWN, K_ESCAPE, QUIT
 
+from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, WORDS_COLOR, LARGE_FONT_SIZE, SEARCH_COLOR
+from Constants import SCREEN_COLOR, WORDS_COLOR, BLUE
 from display import Display
 from interface.EngineerInferface import EngineerInterface
 from interface.UserInterface import UserInterface
@@ -11,7 +12,7 @@ from interface.UserInterface import UserInterface
 class InterfaceSelector:
 
     def __init__(self):
-        self.font = pygame.font.SysFont('Comic Sans MS', LARGE_FONT_SIZE)
+        self.font = pygame.font.SysFont('Comic Sans MS', Config.LARGE_FONT_SIZE)
         self.uiImage = self.font.render("User Interface: Practice like you will play", True, WORDS_COLOR).convert_alpha()
         self.uiButton = pygame.Rect((Display.origWidth / 2) - (self.uiImage.get_width() / 2), Display.origHeight / 2 - 2 * self.uiImage.get_height(),
                                     self.uiImage.get_width(), self.uiImage.get_height())  # The button to select the User Interface
@@ -25,8 +26,8 @@ class InterfaceSelector:
         reading = True
         while reading:  # Keep going till the game is over
             Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-            Display.blitImage(Display.screen, self.uiImage, self.uiButton.topleft)
-            Display.blitImage(Display.screen, self.eiImage, self.eiButton.topleft)
+            Display.blitImage(Display.screen, self.uiImage, self.uiButton.topleft, False)
+            Display.blitImage(Display.screen, self.eiImage, self.eiButton.topleft, False)
             pygame.display.flip()  # Have the things that have been drawn show up
             reading = self.handleEvents()  # Handle any user input
         return self.interface
@@ -59,11 +60,11 @@ class InterfaceSelector:
 
     def updateWords(self, pos):
         if self.uiButton.collidepoint(pos):
-            self.uiImage = self.font.render("User Interface: Practice like you will play", True, SEARCH_COLOR).convert_alpha()
+            self.uiImage = self.font.render("User Interface: Practice like you will play", True, BLUE).convert_alpha()
         else:
             self.uiImage = self.font.render("User Interface: Practice like you will play", True, WORDS_COLOR).convert_alpha()
         if self.eiButton.collidepoint(pos):
-            self.eiImage = self.font.render("Engineer Interface: See everything that is happening", True, SEARCH_COLOR).convert_alpha()
+            self.eiImage = self.font.render("Engineer Interface: See everything that is happening", True, BLUE).convert_alpha()
         else:
             self.eiImage = self.font.render("Engineer Interface: See everything that is happening", True, WORDS_COLOR).convert_alpha()
 

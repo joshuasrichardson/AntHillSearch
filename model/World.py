@@ -1,10 +1,9 @@
 """ World class. Stores 2D positions of hub and sites """
-import random
+from numpy import random, zeros, pi, cos, sin, inf
 import time
 
-import numpy as np
-
-import Constants
+import Utils
+from config import Config
 from Constants import *
 from display import Display
 from model.Predator import Predator
@@ -16,8 +15,8 @@ class World:
     """ Represents the world around the ants old home """
 
     def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                 siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS,
-                 numLadybugs=NUM_LADYBUGS, ladybugPositions=LADYBUG_POSITIONS):
+                 siteRadii, siteRadius=Config.SITE_RADIUS, numPredators=Config.NUM_PREDATORS, predPositions=Config.PRED_POSITIONS,
+                 numLadybugs=Config.NUM_LADYBUGS, ladybugPositions=Config.LADYBUG_POSITIONS):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -42,8 +41,8 @@ class World:
         self.agentsToDeleteIndexes = []
         self.dangerZones = []
 
-        self.states = np.zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
-        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
+        self.states = zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
+        self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
     def checkHubs(self, numHubs, siteRadius):
         """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """
@@ -54,11 +53,12 @@ class World:
         t1 = time.time()
         while len(self.hubLocations) < numHubs:
             nextPos = self.generateNextPos()
-            while self.tooCloseToOtherHubs(nextPos):
+            while self.tooCloseToEdge(nextPos) or self.tooCloseToOtherHubs(nextPos):
                 # Make sure the hubs are not too close together
                 nextPos = self.generateNextPos()
                 if time.time() - t1 > 0.7:
-                    nextPos = [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
+                    nextPos = [random.randint(Config.HUB_MIN_X, Config.HUB_MAX_X),
+                               random.randint(Config.HUB_MIN_Y, Config.HUB_MAX_Y)]
                     break
             self.hubLocations.append(nextPos)
         while len(self.initialHubAgentCounts) < numHubs:
@@ -66,21 +66,23 @@ class World:
 
     def generateNextPos(self):
         if len(self.hubLocations) == 0:
-            return [random.randint(HUB_MIN_X, HUB_MAX_X), random.randint(HUB_MIN_Y, HUB_MAX_Y)]
-        neighborHubLocation = self.hubLocations[random.randint(0, len(self.hubLocations) - 1)]
-        dist = Constants.MAX_SEARCH_DIST * random.uniform(1.25, 1.75)
-        angle = random.uniform(0, 2 * np.pi)
-        x = int(np.cos(angle) * dist + neighborHubLocation[0])
-        y = int(np.sin(angle) * dist + neighborHubLocation[1])
+            return [random.randint(Config.HUB_MIN_X, Config.HUB_MAX_X), random.randint(Config.HUB_MIN_Y, Config.HUB_MAX_Y)]
+        neighborHubLocation = self.hubLocations[random.randint(0, len(self.hubLocations))]
+        dist = Config.MAX_SEARCH_DIST * random.uniform(1.25, 1.75)
+        angle = random.uniform(0, 2 * pi)
+        x = int(cos(angle) * dist + neighborHubLocation[0])
+        y = int(sin(angle) * dist + neighborHubLocation[1])
         return [x, y]
 
+    @staticmethod
+    def tooCloseToEdge(nextPos):
+        return nextPos[0] < Config.HUB_MIN_X or nextPos[0] > Config.HUB_MAX_X or nextPos[1] < Config.HUB_MIN_Y or \
+               nextPos[1] > Config.HUB_MAX_Y
+
     def tooCloseToOtherHubs(self, nextPos):
-        """ If another hub is too close, return that hub's position. """
+        """ If another hub is too close, return True. """
         for i, pos in enumerate(self.hubLocations):
-            if abs(pos[0] - nextPos[0]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i] and \
-                    abs(pos[1] - nextPos[1]) < Constants.MAX_SEARCH_DIST + 2 * self.hubRadii[i] or \
-                    nextPos[0] < HUB_MIN_X or nextPos[0] > HUB_MAX_X or \
-                    nextPos[1] < HUB_MIN_Y or nextPos[1] > HUB_MAX_Y:
+            if Utils.isClose(pos, nextPos, Config.MAX_SEARCH_DIST + 2 * self.hubRadii[i]):
                 return True
         return False
 
@@ -98,11 +100,18 @@ class World:
 
         for i in range(numPredators):
             try:
-                predators.append(Predator(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
-                                          self, predPositions[i]))
+                if len(self.siteList) < len(self.hubs) + 2:
+                    predators.append(Predator(self.siteList[len(self.hubs)], self, predPositions[i]))
+                else:
+                    predators.append(Predator(self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                                              self, predPositions[i]))
             except IndexError:
-                predators.append(Predator(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
-                                          self))
+                if len(self.siteList) < 2:
+                    predators.append(Predator(self.siteList[len(self.hubs)], self))
+                else:
+                    predators.append(Predator(self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                                              self))
+
         return predators
 
     def generateLadybugs(self, numLadybugs, ladybugPositions):
@@ -110,11 +119,20 @@ class World:
 
         for i in range(numLadybugs):
             try:
-                ladybugs.append(Ladybug(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
-                                        self, ladybugPositions[i]))
+                if len(self.siteList) < len(self.hubs) + 2:
+                    ladybugs.append(Ladybug(self.siteList[len(self.hubs)], self, ladybugPositions[i]))
+                else:
+                    ladybugs.append(Ladybug(
+                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                        self, ladybugPositions[i]))
             except IndexError:
-                ladybugs.append(Ladybug(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
-                                        self))
+                if len(self.siteList) < 2:
+                    ladybugs.append(Predator(self.siteList[len(self.hubs)], self))
+                else:
+                    ladybugs.append(Predator(
+                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                        self))
+
             return ladybugs
 
     def getSiteList(self):
@@ -170,7 +188,7 @@ class World:
 
     def addAgent(self, agent):
         self.agentList.append(agent)
-        self.initialHubAgentCounts[agent.getHubIndex()] = self.initialHubAgentCounts[agent.getHubIndex()] + 1
+        self.initialHubAgentCounts[agent.getHubIndex()] += 1
         if self.request is not None:
             self.request.addAgent(agent)
 
@@ -207,8 +225,8 @@ class World:
     def normalizeQuality(self):
         """ Set the site qualities so that the best is bright green and the worst bright red """
         # Normalize quality to be between lower bound and upper bound
-        minValue = np.inf
-        maxValue = -np.inf
+        minValue = inf
+        maxValue = -inf
         for siteIndex in range(0, len(self.siteList)):
             quality = self.siteList[siteIndex].getQuality()
             if quality < minValue:
@@ -221,11 +239,11 @@ class World:
             self.siteList[siteIndex].normalizeQuality(span, zero, self.siteQualities)
 
     def centerHubs(self, hubs):
-        if len(hubs) > 1 and Display.shouldDraw:
-            leftMostPos = np.inf
-            rightMostPos = -np.inf
-            upMostPos = np.inf
-            downMostPos = -np.inf
+        if len(hubs) > 1 and Config.SHOULD_DRAW:
+            leftMostPos = inf
+            rightMostPos = -inf
+            upMostPos = inf
+            downMostPos = -inf
             for site in self.siteList:
                 leftMostPos = site.pos[0] if site.pos[0] < leftMostPos else leftMostPos
                 rightMostPos = site.pos[0] if site.pos[0] > rightMostPos else rightMostPos
@@ -269,9 +287,9 @@ class World:
 
     def updateStateAndPhaseCounts(self):
         """ Counts the phase and state of each agent so they can be displayed to the user """
-        self.states = np.zeros((NUM_POSSIBLE_STATES,))
-        self.phases = np.zeros((NUM_POSSIBLE_PHASES,))
-        if Display.drawFarAgents:
+        self.states = zeros((NUM_POSSIBLE_STATES,))
+        self.phases = zeros((NUM_POSSIBLE_PHASES,))
+        if Config.DRAW_FAR_AGENTS:
             for agent in self.agentList:
                 st = agent.getStateNumber()
                 self.states[st] += 1
@@ -295,12 +313,12 @@ class World:
             self.phases[COMMIT] = self.request.numCommit
 
     def updatePaths(self, agent):
-        if Display.shouldDrawPaths and Display.drawFarAgents:  # If the paths should be drawn anywhere, the world can keep track of all of them
+        if Config.SHOULD_DRAW_PATHS and Config.DRAW_FAR_AGENTS:  # If the paths should be drawn anywhere, the world can keep track of all of them
             self.paths.append(agent.getPosition())
             if len(self.paths) > 50 * len(self.agentList):
                 for i in range(len(self.agentList)):
                     self.paths.pop(0)
-        else:  # The agents will need to keep track of their paths so they can report it when they get to the hub an no other time.
+        elif Config.SHOULD_DRAW_PATHS:  # The agents will need to keep track of their paths so they can report it when they get to the hub an no other time.
             agent.updatePath()
 
     def updateGroup(self, index, agents):
@@ -312,21 +330,21 @@ class World:
         return self.agentGroups[index]
 
     def getClosestHub(self, pos):
-        minDist = 100000
+        minDist = inf
         closestHub = None
         for hub in self.hubs:
-            hubDist = np.sqrt(np.square(pos[0] - hub.getPosition()[0]) + np.square(pos[1] - hub.getPosition()[1]))
+            hubDist = Utils.getDistance(pos, hub.getPosition())
             if hubDist < minDist:
                 minDist = hubDist
                 closestHub = hub
         return closestHub
 
     def getClosestAgentWithState(self, pos, stateNums):
-        minDist = np.inf
+        minDist = inf
         closestAgent = None
         for agent in self.agentList:
             if stateNums.__contains__(agent.getStateNumber()):
-                dist = np.sqrt(np.square(pos[0] - agent.getPosition()[0]) + np.square(pos[1] - agent.getPosition()[1]))
+                dist = Utils.getDistance(pos, agent.getPosition())
                 if dist < minDist:
                     minDist = dist
                     closestAgent = agent
@@ -341,12 +359,11 @@ class World:
 
     def getNearbyDangerZone(self, newZonePos):
         for pos in self.dangerZones:
-            if self.isClose(newZonePos, pos, MIN_AVOID_DIST):
+            if self.isClose(newZonePos, pos, Config.MIN_AVOID_DIST):
                 return pos
         return None
 
     @staticmethod
     def isClose(newZonePos, position, distance):
         """ Returns a boolean representing whether the new position is within the specified distance of the specified position """
-        dist = np.sqrt(np.square(abs(newZonePos[0] - position[0])) + np.square(abs(newZonePos[1] - position[1])))
-        return dist <= distance
+        return Utils.isClose(newZonePos, position, distance)

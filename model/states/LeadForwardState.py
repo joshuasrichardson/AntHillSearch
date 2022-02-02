@@ -10,8 +10,8 @@ class LeadForwardState(RecruitState):
         super().__init__(agent)
         self.stateNumber = LEAD_FORWARD
 
-    def arriveAtSite(self, numNeighbors):
-        if self.agent.quorumMet(numNeighbors):  # If enough agents are at that site
+    def arriveAtSite(self, neighborList):
+        if self.agent.quorumMet(neighborList):  # If enough agents are at that site
             self.agent.setPhase(CommitPhase())  # Commit to the site
             self.agent.transportOrReverseTandem(self)
         else:

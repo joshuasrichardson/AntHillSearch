@@ -1,8 +1,7 @@
 import numpy as np
 import pygame
 
-from Constants import LADYBUG_IMAGE
-from display import Display
+from config import Config
 from display.Display import rotateImage
 
 def getLadybugImage(pos):

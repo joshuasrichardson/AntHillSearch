@@ -21,7 +21,7 @@ class Settings:
         # The rectangles that make values selectable
         self.backButton = pygame.Rect(0, 0, 0, 0)  # Button to go back to the main menu
         self.data = {}  # The data about the settings to be recorded to settings.json
-        self.setValuesWithJson()  # Set the values on the screen to match the values in settings.json
+        self.setDataUsingConfig()  # Set the values on the screen to match the values in settings.json
 
         x = 200
         self.y = 100
@@ -54,21 +54,22 @@ class Settings:
         self.y += 25
         return y
 
-    def setValuesWithJson(self):
+    def setDataUsingConfig(self):
         """ Set the values on the screen to match the values in settings.json """
         try:
-            with open(SETTINGS_FILE_NAME, 'r') as file:
+            with open(CONFIG_FILE_NAME, 'r') as file:
                 self.data = json.load(file)
         except FileNotFoundError:
-            print(f"File '{SETTINGS_FILE_NAME}' was not found")
+            print(f"File '{CONFIG_FILE_NAME}' was not found")
         except json.decoder.JSONDecodeError:
-            print(f"File '{SETTINGS_FILE_NAME}' is empty")
+            print(f"File '{CONFIG_FILE_NAME}' is empty")
 
     def run(self):
         reading = True
         while reading:  # While the user is reading the settings (or hasn't tried to exit)
             Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-            Display.writeCenterPlus(Display.screen, "Settings", self.data["largeFontSize"], -6 * self.data["largeFontSize"])
+            Display.writeCenterPlus(Display.screen, "Settings", self.data["LARGE_FONT_SIZE"],
+                                    -Display.origHeight / 2 + 2.5 * self.data["LARGE_FONT_SIZE"])
             self.showSettings()  # Draw the setting the user can select and change
             self.drawBackButton()  # Draw the button used to return to the main menu
             pygame.display.flip()  # Display drawn things on the screen
@@ -78,13 +79,13 @@ class Settings:
         """ Write each value on the screen """
         for setting in self.settings:
             collides = setting.rect.collidepoint(pygame.mouse.get_pos())
-            Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data['fontSize'] * 1.5),
-                          setting.rect.left, setting.rect.top, SEARCH_COLOR if collides else WORDS_COLOR)
+            Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data["FONT_SIZE"] * 1.5),
+                          setting.rect.left, setting.rect.top, BLUE if collides else WORDS_COLOR)
 
     def drawBackButton(self):
         """ Draw the button that allows the user to return to the main menu """
-        color = SEARCH_COLOR if self.backButton.collidepoint(pygame.mouse.get_pos()) else WORDS_COLOR
-        backImg = pygame.font.SysFont('Comic Sans MS', self.data["fontSize"] * 2).render("<- BACK", True, color).convert_alpha()
+        color = BLUE if self.backButton.collidepoint(pygame.mouse.get_pos()) else WORDS_COLOR
+        backImg = pygame.font.SysFont('Comic Sans MS', self.data["FONT_SIZE"] * 2).render("<- BACK", True, color).convert_alpha()
         self.backButton = pygame.Rect(50, 50, backImg.get_width(), backImg.get_height())
         Display.screen.blit(backImg, self.backButton.topleft)
 
@@ -110,7 +111,7 @@ class Settings:
             if setting.rect.collidepoint(pos):
                 value = setting.getUserInput()
                 self.write(setting.key, value)
-                self.setValuesWithJson()
+                self.setDataUsingConfig()
                 setting.updateRect()
                 break
         return True
@@ -132,5 +133,5 @@ class Settings:
 
     def write(self, key, value):
         self.data[key] = value
-        with open(SETTINGS_FILE_NAME, 'w') as file:
+        with open(CONFIG_FILE_NAME, 'w') as file:
             json.dump(self.data, file)

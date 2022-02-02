@@ -15,3 +15,8 @@ __pycache__/
 /Colony.prof
 *.prof
 recording/results/*.json
+*.spec
+dist/
+build/
+setup.py
+/Colony.bat
