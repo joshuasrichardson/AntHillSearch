@@ -8,6 +8,7 @@ import Constants
 from Constants import *
 from display import Display
 from model.Predator import Predator
+from model.Ladybug import Ladybug
 from model.builder import SiteBuilder
 
 
@@ -15,7 +16,8 @@ class World:
     """ Represents the world around the ants old home """
 
     def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
-                 siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS):
+                 siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS,
+                 numLadybugs=NUM_LADYBUGS, ladybugPositions=LADYBUG_POSITIONS):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -33,6 +35,7 @@ class World:
         self.agentList = []  # List of all the agents in the world
         self.numDeadAgents = [0 for _ in range(numHubs)]  # The number of agents that have died during the simulation
         self.predatorList = self.generatePredators(numPredators, predPositions)  # List of all the predators in the world
+        self.ladybugList = self.generateLadybugs(numLadybugs, ladybugPositions)
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
@@ -101,6 +104,18 @@ class World:
                 predators.append(Predator(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
                                           self))
         return predators
+
+    def generateLadybugs(self, numLadybugs, ladybugPositions):
+        ladybugs = []
+
+        for i in range(numLadybugs):
+            try:
+                ladybugs.append(Ladybug(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
+                                        self, ladybugPositions[i]))
+            except IndexError:
+                ladybugs.append(Ladybug(self.siteList[np.random.randint(len(self.hubs), len(self.siteList) - 1)],
+                                        self))
+            return ladybugs
 
     def getSiteList(self):
         return self.siteList

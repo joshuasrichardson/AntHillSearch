@@ -27,16 +27,17 @@ class Simulation(ABC):
                  minEstAccuracy=MIN_QUALITY_MISJUDGMENT, maxEstAccuracy=MAX_QUALITY_MISJUDGMENT,
                  maxSearchDist=MAX_SEARCH_DIST, findSitesEasily=FIND_SITES_EASILY,
                  commitSpeedFactor=COMMIT_SPEED_FACTOR, agentImage=AGENT_IMAGE, siteRadius=SITE_RADIUS,
-                 numPredators=NUM_PREDATORS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=False):
+                 numPredators=NUM_PREDATORS, numLadybugs=NUM_LADYBUGS, fontSize=FONT_SIZE, largeFontSize=LARGE_FONT_SIZE, useJson=False):
         # If the the settings in the display/mainmenu/settings.json file should override the values passed in,
         # update all the settings.
         convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations, \
             hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord, recordAll, \
-            siteRadius, siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators, predPositions = \
+            siteRadius, siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numLadybugs, ladybugPositions, numPredators, predPositions = \
             self.applyUserSettings(
                 [convergenceFraction, simulationDuration, fontSize, largeFontSize, numHubs, hubLocations,
                  hubRadii, hubAgentCounts, numSites, sitePositions, siteQualities, siteRadii, shouldRecord,
-                 RECORD_ALL, siteRadius, siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist, numPredators,
+                 RECORD_ALL, siteRadius, siteNoCloserThan, siteNoFartherThan, agentImage, maxSearchDist,
+                 numLadybugs, LADYBUG_POSITIONS, numPredators,
                  PRED_POSITIONS], useJson)
         self.recordAll = recordAll
         # Set up the screen, agent image, and important boolean variables
@@ -51,7 +52,8 @@ class Simulation(ABC):
                                   maxNavSkills, minEstAccuracy, maxEstAccuracy, maxSearchDist, findSitesEasily,
                                   commitSpeedFactor)
         self.world = self.initializeWorld(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                                          siteQualities, siteRadii, siteRadius, numPredators, predPositions)  # The world that has all the sites and agents
+                                          siteQualities, siteRadii, siteRadius, numPredators, predPositions, numLadybugs,
+                                          ladybugPositions)  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents(hubAgentCounts), fontSize, largeFontSize)
         self.chosenHomes = self.initChosenHomes(numHubs)  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
@@ -60,7 +62,8 @@ class Simulation(ABC):
 
     @abstractmethod
     def initializeWorld(self, numHubs, numSites, hubLocation, hubRadius, hubAgentCount, sitePositions, siteQualities,
-                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS):
+                        siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS, predPositions=PRED_POSITIONS,
+                        numLadybugs=NUM_LADYBUGS, ladybugPositions=LADYBUG_POSITIONS):
         pass
 
     @staticmethod
@@ -100,7 +103,7 @@ class Simulation(ABC):
                 numRounds += 1
                 foundNewHome = self.checkIfSimulationEnded()
         except GameOver:
-            pass
+            return self.finish()
 
         print(f"Number of Rounds: {numRounds}")
 
@@ -130,6 +133,7 @@ class Simulation(ABC):
         self.updateSites()
         self.updateAgents(agentRectList)
         self.updatePredators(agentRectList)
+        self.updateLadybugs(agentRectList)
         self.recordDisplays()
         self.save()
 
@@ -174,6 +178,14 @@ class Simulation(ABC):
 
     @abstractmethod
     def updatePredator(self, predator, agentRectList):
+        pass
+
+    def updateLadybugs(self, agentRectList):
+        for ladybug in self.world.ladybugList:
+            self.updateLadybug(ladybug, agentRectList)
+
+    @abstractmethod
+    def updateLadybug(self, ladybug, agentRectList):
         pass
 
     def recordDisplays(self):

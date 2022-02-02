@@ -3,7 +3,7 @@ import math
 import pygame
 
 from Constants import COMMIT_COLOR, ASSESS_COLOR, SEARCH_COLOR, BORDER_COLOR, AGENT_IMAGES
-from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay
+from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay
 from model.builder.SiteBuilder import getNewSite
 
 
@@ -42,6 +42,11 @@ def drawPredPositions(self):
     if self.arrayStates.isComplete2:
         for pos in self.value:
             drawPredator(pos)
+
+def drawLadybugPositions(self):
+    if self.arrayStates.isComplete2:
+        for pos in self.value:
+            drawLadybug(pos)
 
 
 def drawShouldRecord(self):
@@ -209,13 +214,22 @@ def drawArea(self, color, radius):
     Display.blitImage(Display.screen, surf, (0, 0), False)
     drawSite([Display.origWidth / 2, Display.origHeight / 2], self.settingMenu.data["siteRadius"], -1)
 
+def drawPredator(pos):
+    image = PredatorDisplay.getPredatorImage([0, 0])
+    Display.blitImage(Display.screen, image, pos, False)
 
 def drawPredators(self):
     for i in range(self.value):
         pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
         drawPredator(pos)
 
-
-def drawPredator(pos):
-    image = PredatorDisplay.getPredatorImage([0, 0])
+def drawLadybug(pos):
+    image = LadybugDisplay.getLadybugImage([0, 0])
     Display.blitImage(Display.screen, image, pos, False)
+
+def drawLadybugs(self):
+    for i in range(self.value):
+        pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
+        drawLadybug(pos)
+
+

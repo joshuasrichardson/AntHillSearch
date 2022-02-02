@@ -78,13 +78,13 @@ DRAW_FAR_AGENTS = True  # Whether agents that aren't right by the hub are drawn
 MAX_TIME = 5000  # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 
-SCREEN_COLOR = 225, 220, 190  # Light brown
+SCREEN_COLOR = 255, 255, 255  # White
 
-WORDS_COLOR = 0, 41, 0  # Dark green
+WORDS_COLOR = 0, 0, 0  # Black
 
 BORDER_COLOR = 105, 100, 70, 255  # Dark Brown
 
-FOG_COLOR = 145, 140, 112  # Grey
+FOG_COLOR = 176, 176, 176  # Grey
 
 TRANSPARENT = 60, 60, 60  # This value is set to represent a see-through color in the program
 
@@ -162,8 +162,12 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 """ Predator default values """
 
 PREDATOR_IMAGE = "resources/spider.png"  # The path of the predator image
-NUM_PREDATORS = 5  # The number of predators that go around attacking agents
+NUM_PREDATORS = 1  # The number of predators that go around attacking agents
 PRED_POSITIONS = []  # Where the predators will start. No position = random
+
+LADYBUG_IMAGE = "resources/ladybug.png" # The path of the ladybug image
+NUM_LADYBUGS = 3
+LADYBUG_POSITIONS = []
 
 """ Agent Transition Parameters """
 # Threshold probability,
@@ -201,6 +205,7 @@ MIN_ACCEPT_VALUE = 255 / 2  # The minimum quality of a nest required for agents 
 QUORUM_DIVIDEND = 6  # numAgents/QUORUM_DIVIDEND agents need to be at a site before agents will commit to it
 
 KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an agent
+HELP_THRESHOLD = 2 # Influences the likelihood that a ladybug will help an agent
 
 """ States and their colors """
 AT_NEST = 0  # Rest agent state

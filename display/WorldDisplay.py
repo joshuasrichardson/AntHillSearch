@@ -5,6 +5,7 @@ from Constants import SCREEN_COLOR, TRANSPARENT, HUB_OBSERVE_DIST, FOG_COLOR, NO
 from display import Display, AgentDisplay, SiteDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
+from display.LadybugDisplay import drawLadybug
 from display.SiteDisplay import drawEstimatedSite, drawSite, knowSitePosAtStart
 
 fog = None
@@ -16,6 +17,7 @@ def drawWorldObjects(world):
         drawPaths(world)
     drawAgents(world)
     drawPredators(world)
+    drawLadybugs(world)
     if not Display.drawFarAgents:
         for site in world.siteList:
             drawEstimatedSite(site)
@@ -47,6 +49,10 @@ def drawAgents(world):
 def drawPredators(world):
     for predator in world.predatorList:
         drawPredator(predator, Display.screen)
+
+def drawLadybugs(world):
+    for ladybug in world.ladybugList:
+        drawLadybug(ladybug, Display.screen)
 
 
 def drawDangerZones(world):

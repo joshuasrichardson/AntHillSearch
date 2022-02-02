@@ -25,13 +25,13 @@ class LiveSimulation(Simulation, ABC):
                  minNavSkills=MIN_NAV_SKILLS, maxNavSkills=MAX_NAV_SKILLS, minEstAccuracy=MIN_QUALITY_MISJUDGMENT,
                  maxEstAccuracy=MAX_QUALITY_MISJUDGMENT, maxSearchDist=MAX_SEARCH_DIST,
                  findSitesEasily=FIND_SITES_EASILY, commitSpeedFactor=COMMIT_SPEED_FACTOR, numPredators=NUM_PREDATORS,
-                 useJson=True):
+                 numLadybugs = NUM_LADYBUGS, useJson=True):
         super().__init__(simulationDuration, numHubs, numSites, shouldRecord, convergenceFraction,
                          hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities, siteRadii,
                          siteNoCloserThan, siteNoFartherThan, hubCanMove, homogenousAgents, minSpeed,
                          maxSpeed, minDecisiveness, maxDecisiveness, minNavSkills, maxNavSkills, minEstAccuracy,
-                         maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor, numPredators=numPredators,
-                         useJson=useJson)
+                         maxEstAccuracy, maxSearchDist, findSitesEasily, commitSpeedFactor, numLadybugs=numLadybugs, numPredators=numPredators,
+                          useJson=useJson)
         self.previousSendTime = datetime.datetime.now()
         self.useRestAPI = useRestAPI
 
@@ -42,9 +42,11 @@ class LiveSimulation(Simulation, ABC):
 
     def initializeWorld(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
                         siteQualities, siteRadii, siteRadius=SITE_RADIUS, numPredators=NUM_PREDATORS,
-                        predPositions=PRED_POSITIONS):
+                        predPositions=PRED_POSITIONS, numLadybugs=NUM_LADYBUGS,
+                        ladybugPositions=LADYBUG_POSITIONS):
         self.world = World(numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions,
-                           siteQualities, siteRadii, siteRadius, numPredators, predPositions)
+                           siteQualities, siteRadii, siteRadius, numPredators, predPositions,
+                           numLadybugs, ladybugPositions)
         self.initializeAgentList()
         if Display.shouldDraw:
             Display.initWorldSize()
@@ -110,6 +112,15 @@ class LiveSimulation(Simulation, ABC):
         if self.shouldRecord and self.recordAll:
             self.recorder.recordPredatorPosition(predator.pos)
             self.recorder.recordPredatorAngle(predator.angle)
+
+    def updateLadybug(self, ladybug, agentRectList):
+        ladybug.moveForward()
+        agentNeighbors = self.getNeighbors(ladybug.getRect(), agentRectList)
+        ladybug.help(agentNeighbors)
+
+        if self.shouldRecord and self.recordAll:
+            self.recorder.recordLadybugPosition(ladybug.pos)
+            self.recorder.recordLadybugAngle(ladybug.angle)
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()
