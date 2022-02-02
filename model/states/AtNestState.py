@@ -36,7 +36,7 @@ class AtNestState(State):
 
         elif phaseNumber == CANVAS:
             if self.agent.shouldRecruit():
-                self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
+                self.recruit(neighborList)
                 return
 
         elif phaseNumber == COMMIT:
@@ -81,15 +81,7 @@ class AtNestState(State):
     def acceptOrReject(self, neighborList):
         # If they determine the site is good enough after they've been there long enough,
         if self.agent.estimatedQuality > Config.MIN_ACCEPT_VALUE:
-            if self.agent.quorumMet(neighborList):
-                # enough agents are already at the site, so they skip canvasing and go straight to the committed phase
-                self.agent.setPhase(CommitPhase())
-                self.agent.transportOrReverseTandem(self)
-            else:
-                # they enter the canvasing phase and start recruiting others.
-                self.agent.setPhase(CanvasPhase())
-                from model.states.LeadForwardState import LeadForwardState
-                self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
+            self.recruit(neighborList)
         else:
             self.agent.setPhase(ExplorePhase())
             from model.states.SearchState import SearchState
@@ -101,6 +93,16 @@ class AtNestState(State):
             self.agent.leadAgent.incrementFollowers()
             from model.states.CarriedState import CarriedState
             self.setState(CarriedState(self.agent), self.agent.leadAgent.getPosition())
+
+    def recruit(self, neighborList):
+        if self.agent.quorumMet(neighborList):
+            # enough agents are already at the site, so they skip canvasing and go straight to the committed phase
+            self.agent.setPhase(CommitPhase())
+            self.agent.transportOrReverseTandem(self)
+        else:
+            # they enter the canvasing phase and start recruiting others.
+            self.agent.setPhase(CanvasPhase())
+            self.setState(LeadForwardState(self.agent), self.agent.getAssignedSitePosition())
 
     def toString(self):
         return "AT_NEST"

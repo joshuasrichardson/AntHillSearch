@@ -22,11 +22,12 @@ def drawWorldObjects(world):
             if site.wasFound:
                 drawSite(site, site.estimatedPosition, site.estimatedRadius + site.blurRadiusDiff,
                          site.estimatedQuality, site.blurAmount)
-        drawDangerZones(world)
     else:
         for site in world.siteList:
             drawSite(site, site.pos, site.radius, site.quality)
     drawFog()
+    if not Config.DRAW_FAR_AGENTS:
+        drawDangerZones(world)
     drawMarkers(world)
     Display.drawLast()
 
