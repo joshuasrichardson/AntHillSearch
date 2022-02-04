@@ -331,22 +331,13 @@ def drawDownArrow(pos, color, adjust=True):
                 adjust)
 
 
-def addToDrawLast(command, arg1=None, arg2=None, adjust=None):
-    global drawLastCommands
-    drawLastCommands.append([command, arg1, arg2, adjust])
+def addToDrawLast(command, args):
+    drawLastCommands.append((command, args))
 
 
 def drawLast():
-    global drawLastCommands
     for command in drawLastCommands:
-        if command[1] is None:
-            command[0]()
-        elif command[2] is None:
-            command[0](command[1])
-        elif command[3] is None:
-            command[0](command[1], command[2])
-        else:
-            command[0](command[1], command[2], command[3])
+        command[0](*command[1])
     del drawLastCommands[:]
 
 
@@ -403,16 +394,16 @@ def moveScreen(mousePos):
     adjW, adjH = getUnzoomedSize(origWidth, origHeight)
     if mousePos[0] >= origWidth - 3 and adjW - displacementX < worldRight:
         displacementX -= 25
-        addToDrawLast(drawRightArrow, mousePos, GREEN, False)
+        addToDrawLast(drawRightArrow, [mousePos, GREEN, False])
     if mousePos[1] <= 3 and -displacementY > worldTop:
         displacementY += 25
-        addToDrawLast(drawUpArrow, mousePos, GREEN, False)
+        addToDrawLast(drawUpArrow, [mousePos, GREEN, False])
     if mousePos[0] <= 3 and -displacementX > worldLeft:
         displacementX += 25
-        addToDrawLast(drawLeftArrow, mousePos, GREEN, False)
+        addToDrawLast(drawLeftArrow, [mousePos, GREEN, False])
     if mousePos[1] >= origHeight - 30 and adjH - displacementY < worldBottom:
         displacementY -= 25
-        addToDrawLast(drawDownArrow, mousePos, GREEN, False)
+        addToDrawLast(drawDownArrow, [mousePos, GREEN, False])
 
 
 def getAdjustedPos(origX, origY):

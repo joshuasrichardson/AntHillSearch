@@ -82,12 +82,13 @@ class Site:
             self.color = 255 - quality, quality, 0
         return self.color
 
-    def setEstimates(self, est):
+    def setEstimates(self, pos, quality, count, radius):
         """ Takes an array with each values' estimate and updates the site's estimated values """
-        self.estimatedPosition = est[0]
-        self.estimatedQuality = est[1]
-        self.estimatedAgentCount = est[2]
-        self.estimatedRadius = est[3]
+        self.estimatedPosition = pos
+        self.estimatedQuality = quality
+        self.estimatedAgentCount = count
+        self.estimatedRadius = radius
+        self.estimatedSiteRect = Rect(pos[0] - radius, pos[1] - radius, radius * 2, radius * 2)
 
     def updateBlur(self):
         """ Make the blur gradually get clearer """

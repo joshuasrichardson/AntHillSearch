@@ -245,7 +245,7 @@ class World:
             hubSite = SiteBuilder.getNewSite(numHubs, pos[0], pos[1], rad, -1)
             count = self.initialHubAgentCounts[i]
             hubSite.agentCount = count
-            hubSite.setEstimates([pos, -1, count, rad])
+            hubSite.setEstimates(pos, -1, count, rad)
             hubSite.blurAmount = 1
             hubSite.blurRadiusDiff = 0
             self.siteList.append(hubSite)

@@ -93,7 +93,7 @@ class RecordingPlayer(Simulation):
         self.graphs.executedCommands = self.recorder.getNextExecutedCommands()
         self.graphs.scrollIndex = len(self.recorder.executedCommands) - 1
         self.graphs.screenBorder = self.recorder.getNextScreenBorder()
-        Display.addToDrawLast(self.graphs.drawScreenBorder)
+        Display.addToDrawLast(self.graphs.drawScreenBorder, [])
 
         super().update(agentRectList)
         self.userControls.moveScreen()
