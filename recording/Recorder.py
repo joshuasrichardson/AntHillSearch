@@ -92,7 +92,7 @@ class Recorder:
     def recordSiteInfo(self, site):
         self.recordSitePosition(site.getPosition())
         self.recordSiteQuality(site.getQuality())
-        self.recordSiteRadius(site.radius)
+        self.recordSiteRadius(site.getRadius())
         self.recordSiteMarker(site.markerName, site.commandArg, site.marker)
 
     def recordSitePosition(self, pos):

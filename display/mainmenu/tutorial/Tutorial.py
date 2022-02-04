@@ -27,15 +27,12 @@ class Tutorial:
         self.pages.append(None)
 
     def run(self):
-        try:
-            reading = True
-            while reading:
-                Display.screen.fill(SCREEN_COLOR)
-                self.showInstructions()
-                pygame.display.flip()
-                reading = self.handleEvents()
-        except GameOver:
-            pass
+        reading = True
+        while reading:
+            Display.screen.fill(SCREEN_COLOR)
+            self.showInstructions()
+            pygame.display.flip()
+            reading = self.handleEvents()
 
     def showInstructions(self):
         if self.pageNumber == -1:
@@ -144,7 +141,7 @@ class Tutorial:
                     return False
             elif event.type == QUIT:
                 pygame.quit()
-                raise GameOver("Game Over")
+                raise GameOver("Exiting")
         return True
 
     def mouseButtonPressed(self, pos):

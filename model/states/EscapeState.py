@@ -23,7 +23,7 @@ class EscapeState(State):
         if self.agent.target is not None:
             for pos in self.enemyPositions:
                 if Utils.isClose(pos, self.agent.target, Config.MIN_AVOID_DIST):
-                    self.agent.target = None
+                    self.agent.setTarget(None)
                     self.prevStateNum = SEARCH
                     break
 

@@ -5,7 +5,7 @@ import pygame
 from config import Config
 from Constants import BORDER_COLOR, SCREEN_COLOR, ORANGE, DEAD
 from display import Display
-from display.Display import rotateImage, drawDashedLine, getDestinationMarker
+from display.Display import rotateImage, drawDashedLine
 from display.SiteDisplay import drawAssignmentMarker
 
 
@@ -16,13 +16,10 @@ def drawAgent(agent, surface):
         # else:
         #     drawLastKnownPos(agent)
     if Config.DRAW_FAR_AGENTS or agent.isClose(agent.getHub().getPosition(), Config.HUB_OBSERVE_DIST):
-        if agent.isTheSelected:  # Only draw the following for one of the selected agents
+        if agent.isMainSelected:  # Only draw the following for one of the selected agents
             drawKnownSiteMarkers(agent, surface)
             drawAssignedSite(agent)
-            setAgentMarker(agent)
             drawPlacesToAvoid(agent)
-        else:
-            agent.marker = None
         if agent.isSelected:  # Only draw state and phase circles for the selected agents
             Display.drawCircle(surface, agent.getStateColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 5, 2)
             Display.drawCircle(surface, agent.getPhaseColor(), agent.agentRect.center, agent.agentHandle.get_width() * 3 / 4, 2)
@@ -44,14 +41,6 @@ def getAgentImage(pos):
         rect = agent.get_rect().move(pos)
         rect.center = pos
     return agent
-
-
-def setAgentMarker(agent):
-    """ Draws the position on the screen that the agent is heading toward """
-    if agent.target is not None:
-        agent.marker = getDestinationMarker(agent.target)  # TODO: Might be able to reduce calls to this
-    else:
-        agent.marker = None
 
 
 def drawMarker(agent, surface):

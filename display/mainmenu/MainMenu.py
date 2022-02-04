@@ -76,8 +76,7 @@ class StartUpDisplay:
             if event.type == MOUSEBUTTONUP:  # If the user clicked, update the mouse position
                 self.mousePos = pygame.mouse.get_pos()
             elif event.type == QUIT:  # If the user pressed the x to close the game, stop the game
-                pygame.quit()
-                raise GameOver("Game Over")
+                self.exit()
 
     def start(self, option):
         """ Start another page from the main menu """
@@ -161,4 +160,4 @@ class StartUpDisplay:
     def exit():
         """ Close the pygame window and exit the program """
         pygame.quit()
-        raise GameOver("Game Over")
+        raise GameOver("Exiting")

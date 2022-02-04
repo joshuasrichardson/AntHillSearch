@@ -155,8 +155,9 @@ class World:
 
     def removeSite(self, site):
         """ Deletes the site unless it is the hub """
-        if site.getQuality() == -1:
+        if site.isHub():
             print("Cannot delete the hub")
+            site.unselect()
         else:
             index = self.siteList.index(site, 0, len(self.siteList))
             self.siteList.pop(index)

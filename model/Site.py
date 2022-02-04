@@ -101,10 +101,8 @@ class Site:
         elif self.blurRadiusDiff > 0:
             self.blurRadiusDiff = 0
 
-    @staticmethod
-    def getDensity(quality):
-        """ Get the space between lines """
-        return int(quality / 20) + 2
+    def isHub(self):
+        return self.quality == -1
 
     def getQuality(self):
         return self.quality
@@ -124,6 +122,13 @@ class Site:
         self.pos = list(pos)
         self.siteRect.centerx = self.pos[0]
         self.siteRect.centery = self.pos[1]
+
+    def getRadius(self):
+        return self.radius
+
+    def setRadius(self, radius):
+        self.radius = radius
+        self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
 
     def getColor(self):
         return self.color

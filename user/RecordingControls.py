@@ -7,7 +7,7 @@ class RecordingControls(Controls):
         super().__init__(timer, agentList, world, graphs)
         self.changeDelay = changeDelay
 
-    def drag(self):
+    def startDrag(self):
         pass
 
     def putDownDragSite(self):

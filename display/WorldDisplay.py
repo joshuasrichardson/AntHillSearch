@@ -24,7 +24,7 @@ def drawWorldObjects(world):
                          site.estimatedQuality, site.blurAmount)
     else:
         for site in world.siteList:
-            drawSite(site, site.pos, site.radius, site.quality)
+            drawSite(site, site.pos, site.getRadius(), site.quality)
     drawFog()
     if not Config.DRAW_FAR_AGENTS:
         drawDangerZones(world)
@@ -104,12 +104,14 @@ def eraseFog(pos):
         pygame.draw.circle(fog, TRANSPARENT, [x, y], 20, 0)
 
 
-def drawPotentialQuality(world, potentialQuality, font):
+def drawPotentialQuality(world, potentialQuality):
     """ Draws the value the selected sites will be set to if the user pushes Enter """
-    img = font.render(f"Set quality: {potentialQuality}", True, (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
+    img = SiteDisplay.siteFontSize.render(f"Set quality: {potentialQuality}", True,
+                                          (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
     for site in world.siteList:
-        if site.isSelected and site.getQuality() != -1:
-            Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 45), 15, 10))
+        if site.isSelected and not site.isHub():
+            Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2),
+                                                    site.getPosition()[1] - (site.getRadius() + 45), 15, 10))
 
 
 def collidesWithSite(world, mousePos):

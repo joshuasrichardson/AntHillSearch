@@ -50,6 +50,7 @@ CONFIG_KEYS = SETTING_KEYS + ["SECONDS_BETWEEN_SENDING_REQUESTS", "INITIAL_ZOOM"
 
 MAX_TIME = 5000  # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
+MEDIUM_QUALITY = 128  # Middle of the possible site qualities
 
 BLACK = 0, 0, 0
 BLUE = 0, 0, 255
@@ -150,11 +151,11 @@ AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- CTRL + 0-9', '- 
                         '- LEFT ARROW', '- F', '- S', '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6',
                         '- K', '- X', '- DEL or /', '- ESC']
 
-SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Move', 'Set Quality', 'Raise Quality', 'Lower Quality',
+SITE_OPTIONS = ['Select', 'Wide Select', 'Move', 'Set Quality', 'Raise Quality', 'Lower Quality',
                 'Expand', 'Shrink', 'Create', 'Delete', 'Set Check Point', 'Set Go Point', 'Set Assign Site',
                 'Set Avoid Area', 'Set Agents States', 'Remove Command', 'Unselect']
 
-SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW', '- DRAG LEFT CLICK',
+SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- DRAG LEFT CLICK',
                        '- 0-9/BACKSPACE + RETURN', '- UP ARROW', '- DOWN ARROW', '- = (+)', '- -', '- C',
                        '- DEL or /', '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
 
@@ -169,10 +170,10 @@ UI_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 'Set Ch
 UI_AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- H', '- RIGHT ARROW', '- LEFT ARROW',
                            '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- ESC']
 
-UI_SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Set Check Point', 'Set Go Point', 'Set Assign Site',
+UI_SITE_OPTIONS = ['Select', 'Wide Select', 'Set Check Point', 'Set Go Point', 'Set Assign Site',
                    'Set Avoid Area', 'Set Agents States', 'Remove Command', 'Unselect']
 
-UI_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW',
+UI_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK',
                           '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
 
 UI_CONTROL_OPTIONS = {"agentOptions": UI_AGENT_OPTIONS,
@@ -184,9 +185,9 @@ RECORDING_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 
 
 RECORDING_AGENT_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- H', '- RIGHT ARROW', '- LEFT ARROW', '- ESC']
 
-RECORDING_SITE_OPTIONS = ['Select', 'Wide Select', 'Next', 'Previous', 'Unselect']
+RECORDING_SITE_OPTIONS = ['Select', 'Wide Select', 'Unselect']
 
-RECORDING_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- RIGHT ARROW', '- LEFT ARROW', '- ESC']
+RECORDING_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- ESC']
 
 RECORDING_CONTROL_OPTIONS = {"agentOptions": RECORDING_AGENT_OPTIONS,
                              "agentOptionButtons": RECORDING_AGENT_OPTION_BUTTONS,

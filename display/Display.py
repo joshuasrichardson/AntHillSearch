@@ -5,6 +5,7 @@ import pygame
 from config import Config
 from Constants import WORDS_COLOR, GREEN, BORDER_COLOR, HOME_QUALITIES_NAME, SIM_TIMES_NAME, NUM_ARRIVALS_NAME, \
     TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME, NUM_ROUNDS_NAME
+from display import SiteDisplay
 
 screen = None
 displacementX = 0
@@ -353,6 +354,7 @@ def zoomIn():
         diffY = newCenterY - oldCenterY
         displacementX += diffX
         displacementY += diffY
+    SiteDisplay.siteFontSize = Config.FONT_SIZE if zoom >= 0 else Config.FONT_SIZE + 3 * -zoom
 
 
 def zoomOut():
@@ -374,6 +376,7 @@ def zoomOut():
         newWidth = int((origWidth ** 2) / w)
         newHeight = int((origHeight ** 2) / h)
     adjustScreen()
+    SiteDisplay.siteFontSize = Config.FONT_SIZE if zoom >= 0 else Config.FONT_SIZE + 3 * -zoom
 
 
 def adjustScreen():

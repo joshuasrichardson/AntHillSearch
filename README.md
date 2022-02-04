@@ -387,16 +387,6 @@ be more to come).
   "Lower Quqlity," or "Set Quality" command is used,
   the command applies to all the selected sites.</p>
 
-- <strong>Next Site</strong> - <code>RIGHT</code>:
-  <p>When users have selected a group of sites with "Wide Select,"
-  they can see information about the next site in the list of sites
-  by pushing the right arrow key.</p>
-
-- <strong>Previous Site</strong> - <code>LEFT</code>:
-  <p>When users have selected a group of sites with "Wide Select,"
-  they can see information about the previous site in the list of sites
-  by pushing the left arrow key.</p>
-
 - <strong>Raise Quality</strong> - <code>UP</code>:
   <p>When users have selected a site (sites) they can raise the quality
   (qualities) by one point by pushing the up arrow key. If the quality 

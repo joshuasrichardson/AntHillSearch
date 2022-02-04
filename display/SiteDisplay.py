@@ -2,56 +2,43 @@
 import pygame
 
 from config import Config
-from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, SCREEN_COLOR, STATE_COLORS, CONVERGED_COLOR
+from Constants import BORDER_COLOR, SELECTED_COLOR, WORDS_COLOR, STATE_COLORS, CONVERGED_COLOR
 from display import Display
-from display.Display import drawDashedLine, getBlurredImage, drawCircle
+
+siteFontSize = Config.FONT_SIZE
 
 
 def drawSite(site, pos, radius, quality, blurAmount=0):
     if site.wasFound or not Config.DRAW_ESTIMATES:
-        if site.getQuality() != -1:
-            color = site.getColor() if blurAmount == 0 else site.getEstimatedColor()
-            Display.addToDrawLast(drawQualityBar, [pos, radius, quality, color])
-
         color = SELECTED_COLOR if site.isSelected else BORDER_COLOR
         if blurAmount > 0:
-            drawBlurredCircle(pos, color, site.radius * 4, radius + 2, blurAmount + 0.7)
+            drawBlurredCircle(pos, color, site.getRadius() * 4, radius + 2, blurAmount + 0.7)
+            drawBlurredCircle(pos, site.getEstimatedColor(), site.getRadius() * 4, radius, blurAmount)
         else:
             Display.drawCircle(Display.screen, color, pos, radius + 2)
-
-        if blurAmount > 0:
-            drawBlurredCircle(pos, site.getEstimatedColor(), site.radius * 4, radius, blurAmount)
-        else:
             Display.drawCircle(Display.screen, site.color, pos, radius)
-
-        fontSize = Config.FONT_SIZE if Display.zoom >= 0 else Config.FONT_SIZE + 3 * -Display.zoom
 
         if site.wasFound:
             count = site.agentCount if blurAmount == 0 else site.estimatedAgentCount
             words = f"Agents: {int(count)}" if site.isSelected else f"{int(count)}"
-            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(words, True, WORDS_COLOR).convert_alpha()
+            img = pygame.font.SysFont('Comic Sans MS', siteFontSize).render(words, True, WORDS_COLOR).convert_alpha()
             Display.addToDrawLast(Display.blitImage, [Display.screen, img, (pos[0] - (img.get_width() / 2),
-                                                                            pos[1] - (radius + 2 * fontSize))])
+                                                                            pos[1] - (radius + 2 * siteFontSize))])
+            if not site.isHub():
+                color = site.getColor() if blurAmount == 0 else site.getEstimatedColor()
+                Display.addToDrawLast(drawQualityBar, [pos, radius, quality, color])
 
-        if site.isSelected and site.getQuality() != -1:
-            img = pygame.font.SysFont('Comic Sans MS', fontSize).render(f"Quality: {int(quality)}", True, WORDS_COLOR).convert_alpha()
-            Display.addToDrawLast(Display.blitImage, [Display.screen, img,
-                                  (pos[0] - (img.get_width() / 2), pos[1] - (radius + 3 * fontSize))])  # Show the site quality above the site
+        if site.isSelected and not site.isHub():
+            drawQuality(quality, pos, radius)
 
         if site.chosen:
             drawConvergedMark(site.getSiteRect())
 
 
-def drawQuality(site):
-    """ Draw the quality of the site directly on top of the site """
-    img = pygame.font.SysFont('Comic Sans MS', 15).render("        ", True, WORDS_COLOR).convert_alpha()  # Make this image for all the sites to get a consistently sized rectangle
-    rect = img.get_rect()
-    newRect = pygame.Rect(rect.left - Display.displacementX, rect.top - Display.displacementY, rect.width, rect.height)
-    Display.drawRect(img, SCREEN_COLOR, newRect)  # Draw a rectangle on top of the site so the quality will be easier to read
-    Display.drawRect(img, BORDER_COLOR, newRect, 1)  # Draw a nice little border around that rectangle
-    words = pygame.font.SysFont('Comic Sans MS', 12).render(str(int(site.quality)), True, WORDS_COLOR).convert_alpha()  # Draw the quality
-    Display.blitImage(img, words, [((img.get_width() / 2) - (words.get_width() / 2)) - Display.displacementX, ((img.get_height() / 2) - (words.get_height() / 2)) - Display.displacementY])  # on the rectangle
-    Display.blitImage(Display.screen, img, (site.pos[0] - (img.get_width() / 2), site.pos[1] - (img.get_height() / 2)))  # Draw the rectangle with the quality on it on the screen
+def drawQuality(quality, pos, radius):
+    img = pygame.font.SysFont('Comic Sans MS', siteFontSize).render(f"Quality: {int(quality)}", True, WORDS_COLOR).convert_alpha()
+    Display.addToDrawLast(Display.blitImage, [Display.screen, img,
+                          (pos[0] - (img.get_width() / 2), pos[1] - (radius + 3 * siteFontSize))])  # Show the site quality above the site
 
 
 def drawQualityBar(pos, radius, quality, color):
@@ -69,20 +56,20 @@ def drawMarker(site):
         Display.drawCircle(Display.screen, (155, 0, 0, 120), pos, Config.MIN_AVOID_DIST, 4)
     lastPoint = site.pos
     for point in site.checkPoints:
-        drawDashedLine(Display.screen, BORDER_COLOR, lastPoint, point)
+        Display.drawDashedLine(Display.screen, BORDER_COLOR, lastPoint, point)
         lastPoint = point
     if site.marker is not None:
         try:
             # Draw a dashed line from the site to the marker
-            drawDashedLine(Display.screen, BORDER_COLOR, lastPoint, site.marker[1].center)
+            Display.drawDashedLine(Display.screen, BORDER_COLOR, lastPoint, site.marker[1].center)
             # Draw the marker
             Display.blitImage(Display.screen, site.marker[0], site.marker[1])
         except TypeError:
-            drawCircle(Display.screen, STATE_COLORS[site.marker], site.getPosition(), site.radius + 5, width=2)
+            Display.drawCircle(Display.screen, STATE_COLORS[site.marker], site.getPosition(), site.getRadius() + 5, width=2)
 
 
 def drawAssignmentMarker(site, fromPos, color):
-    drawDashedLine(Display.screen, color, fromPos, site.pos)
+    Display.drawDashedLine(Display.screen, color, fromPos, site.pos)
     if not Config.DRAW_ESTIMATES:  # If the agents know where the site is
         drawAssignmentTriangles(site.getSiteRect(), color)  # Draw the marker around the site's actual location
     else:
@@ -105,7 +92,7 @@ def drawBlurredCircle(pos, color, size, radius, blurAmount):
     image = pygame.Surface([size, size], pygame.SRCALPHA, 32)
     image = image.convert_alpha()
     pygame.draw.circle(image, color, (image.get_width() / 2, image.get_height() / 2), radius + 2, 0)
-    blur = getBlurredImage(image, blurAmount)
+    blur = Display.getBlurredImage(image, blurAmount)
     Display.blitImage(Display.screen, blur, (pos[0] - (blur.get_width() / 2), pos[1] - (blur.get_height() / 2)))
 
 

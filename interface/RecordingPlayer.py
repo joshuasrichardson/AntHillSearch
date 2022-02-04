@@ -1,5 +1,7 @@
 import time
 
+import pygame
+
 from config import Config
 from model.Timer import SimulationTimer
 from Constants import *
@@ -127,7 +129,7 @@ class RecordingPlayer(Simulation):
                 self.world.siteList[i].wasFound = True
                 self.world.siteList[i].setPosition(pos)
                 self.world.siteList[i].setQuality(quality)
-                self.world.siteList[i].radius = rad
+                self.world.siteList[i].setRadius(rad)
                 self.world.siteList[i].setColor(quality)
                 self.world.siteRectList[i] = self.world.siteList[i].getSiteRect()
                 self.userControls.setSiteCommand(self.world.siteList[i], marker)

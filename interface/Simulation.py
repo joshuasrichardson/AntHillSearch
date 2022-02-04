@@ -66,12 +66,16 @@ class Simulation(ABC):
                 self.runNextRound()
                 self.numRounds += 1
                 foundNewHome = self.checkIfSimulationEnded()
-        except GameOver:
-            pass
 
+            self.stopTimer()
+            return self.finish()
+        except GameOver as e:
+            self.gameOver(e.message)
+
+    def gameOver(self, errMessage):
         self.stopTimer()
-
-        return self.finish()
+        if errMessage == "Exiting":
+            raise GameOver("Exited Successfully")
 
     def printNumRounds(self):
         roundCounts = []

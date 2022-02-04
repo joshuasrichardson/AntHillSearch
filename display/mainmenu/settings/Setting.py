@@ -47,7 +47,7 @@ class Setting:
                     self.appendUserInput(event.unicode)
                 elif event.type == QUIT:
                     pygame.quit()
-                    raise GameOver("Game Over")
+                    raise GameOver("Exiting")
 
     def showUserInput(self):
         pos = self.rect.topright
