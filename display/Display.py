@@ -223,7 +223,7 @@ def drawCircle(surface, color, pos, radius, width=0, adjust=True):
     if not adjust:
         position = pos
     else:
-        position = getAdjustedPos(pos[0], pos[1])
+        position = getAdjustedPos(*pos)
         radius = getZoomedSize(radius, radius)[0]
     x, y = position
     if onScreenX(x - radius) or onScreenX(x + radius) or \
@@ -237,18 +237,17 @@ def drawPolygon(surface, color, positions, adjust=True, width=0):
     newPositions = []
     if adjust:
         for pos in positions:
-            newPositions.append(getAdjustedPos(pos[0], pos[1]))
+            newPositions.append(getAdjustedPos(*pos))
     else:
-        for pos in positions:
-            newPositions.append([pos[0], pos[1]])
+        return pygame.draw.polygon(surface, color, positions, width)
     return pygame.draw.polygon(surface, color, newPositions, width)
 
 
 def drawLine(surface, color, startPos, endPos, width=1, adjust=True):
     if not adjust:
         return pygame.draw.line(surface, color, startPos, endPos, width)
-    pos0 = getAdjustedPos(startPos[0], startPos[1])
-    pos1 = getAdjustedPos(endPos[0], endPos[1])
+    pos0 = getAdjustedPos(*startPos)
+    pos1 = getAdjustedPos(*endPos)
     return pygame.draw.line(surface, color, pos0, pos1, width)
 
 

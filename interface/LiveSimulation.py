@@ -130,7 +130,8 @@ class LiveSimulation(Simulation, ABC):
     def updateSiteAgentCountEst(agent):
         if agent.prevReportedSite is not agent.assignedSite:
             agent.prevReportedSite.estimatedAgentCount -= 1
-            agent.assignedSite.estimatedAgentCount += 1
+            if agent.assignedSite is not None:
+                agent.assignedSite.estimatedAgentCount += 1
             agent.prevReportedSite = agent.assignedSite
 
     @staticmethod

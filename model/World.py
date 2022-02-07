@@ -38,6 +38,7 @@ class World:
         self.request = None  # The request, used to sent information to a rest API
         self.agentsToDeleteIndexes = []
         self.dangerZones = []
+        self.dangerZonesVisibilities = []
 
         self.states = zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
@@ -332,14 +333,26 @@ class World:
         self.numDeadAgents[hubIndex] += 1
 
     def addDangerZone(self, pos):
-        if self.getNearbyDangerZone(pos) is None:
+        dzPos = self.getNearbyDangerZone(pos)
+        if dzPos is None:
             self.dangerZones.append(pos)
+            self.dangerZonesVisibilities.append(255)
+        else:
+            i = self.dangerZones.index(dzPos)
+            self.dangerZonesVisibilities[i] = 255
 
     def getNearbyDangerZone(self, newZonePos):
         for pos in self.dangerZones:
             if self.isClose(newZonePos, pos, Config.MIN_AVOID_DIST):
                 return pos
         return None
+
+    def updateDangerZones(self):
+        for i in reversed(range(len(self.dangerZones))):
+            self.dangerZonesVisibilities[i] -= 0.5
+            if self.dangerZonesVisibilities[i] == 0:
+                self.dangerZonesVisibilities.pop(i)
+                self.dangerZones.pop(i)
 
     @staticmethod
     def isClose(newZonePos, position, distance):

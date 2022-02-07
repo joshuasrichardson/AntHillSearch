@@ -1,7 +1,5 @@
 import time
 
-import pygame
-
 from config import Config
 from model.Timer import SimulationTimer
 from Constants import *
@@ -26,6 +24,8 @@ class RecordingPlayer(Simulation):
 
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
+        for i in range(len(self.world.hubs)):
+            self.world.hubs[i].agentCount = self.hubAgentCounts[i]
         super().initializeAgentList()
 
     def initializeWorld(self):

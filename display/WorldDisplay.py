@@ -54,20 +54,21 @@ def drawPredators(world):
 
 
 def drawDangerZones(world):
-    for pos in world.dangerZones:
-        drawDangerZone(pos)
+    for i, pos in enumerate(world.dangerZones):
+        drawDangerZone(pos, world.dangerZonesVisibilities[i])
 
 
-def drawDangerZone(pos):
-    # Draw red 'X'
-    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] - 30], [pos[0] + 30, pos[1] + 30], 4)
-    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] + 30], [pos[0] + 30, pos[1] - 30], 4)
+def drawDangerZone(pos, visibility):
+    size = Display.getZoomedSize(80, 80)
+    surf = pygame.Surface((size[0] + 1, size[1] + 1), pygame.SRCALPHA)
 
     # Draw triangle and exclamation mark warning sign
-    Display.drawPolygon(Display.screen, RED,
-                        [[pos[0], pos[1] - 40], [pos[0] - 40, pos[1] + 40], [pos[0] + 40, pos[1] + 40]], width=3)
-    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] - 20], [pos[0], pos[1] + 20], 4)
-    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 25], [pos[0], pos[1] + 30], 4)
+    pygame.draw.polygon(surf, [*RED, visibility], [[size[0] / 2, 0], [0, size[1]], size], 3)
+    pygame.draw.line(surf, [*BLACK, visibility], [size[0] / 2, size[0] / 4], [size[0] / 2, 3 * size[0] / 4], 4)
+    pygame.draw.line(surf, [*BLACK, visibility], [size[0] / 2, 13 * size[0] / 16], [size[0] / 2, 7 * size[0] / 8], 4)
+
+    # Draw a partially transparent surface over the screen
+    Display.screen.blit(surf, Display.getAdjustedPos(*pos))
 
 
 def drawMarkers(world):
