@@ -193,6 +193,7 @@ class RecordingPlayer(Simulation):
 
     def applyConfiguration(self):
         super().applyConfiguration()
+        Config.INTERFACE_NAME = "recording"
         Config.DRAW_ESTIMATES = False
         Config.SHOULD_RECORD = False
         Config.DRAW_FAR_AGENTS = True

@@ -30,4 +30,5 @@ class EmpiricalTestingInterface(LiveSimulation):
 
     def applyConfiguration(self):
         super().applyConfiguration()
+        Config.INTERFACE_NAME = "emp_testing"
         Config.SHOULD_DRAW = False

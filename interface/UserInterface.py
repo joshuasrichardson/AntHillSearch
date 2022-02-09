@@ -24,6 +24,7 @@ class UserInterface(LiveSimulation):
 
     def applyConfiguration(self):
         super().applyConfiguration()
+        Config.INTERFACE_NAME = "user"
         Config.DRAW_ESTIMATES = True
         Config.DRAW_FAR_AGENTS = False
         Config.SHOULD_DRAW_PATHS = False

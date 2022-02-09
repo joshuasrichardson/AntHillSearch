@@ -1,12 +1,14 @@
 import json
 import numbers
+import os
 
 from datetime import datetime
 
 from config import Config
-from Constants import RESULTS_DIR, NUM_ROUNDS_NAME
+from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
+from recording import CsvWriter
 
 
 def getMostRecentRecording():
@@ -163,6 +165,10 @@ class Recorder:
 
     def write(self):
         if Config.RECORD_ALL:
+            # Create the folder with the results if it does not exist
+            if not os.path.exists(RESULTS_DIR):
+                os.makedirs(RESULTS_DIR)
+
             with open(f'{self.outputFileBase}_RECORDING.json', 'w') as file:
                 json.dump(self.data, file)
 
@@ -184,16 +190,22 @@ class Recorder:
             self.data.clear()
 
         with open(f'{self.outputFileBase}_COMMANDS.json', 'w') as file:
-            json.dump(self.executedCommands, file)
+            json.dump({'commands': self.executedCommands}, file)
 
         self.executedCommands.clear()
 
     def writeResults(self, results):
+        # Create the folder with the results if it does not exist
+        if not os.path.exists(RESULTS_DIR):
+            os.makedirs(RESULTS_DIR)
         with open(f'{self.outputFileBase}_RESULTS.json', 'w') as file:
             json.dump(results, file)
         with open(f'{RESULTS_DIR}/most_recent.json', 'w') as file:
             data = {'file_base': f'{self.outputFileBase}'}
             json.dump(data, file)
+        CsvWriter.jsonToCsv(f'{getMostRecentRecording()}_RESULTS.json', 'all-results')
+        CsvWriter.jsonToCsv(f'{getMostRecentRecording()}_COMMANDS.json', 'all-commands')
+        CsvWriter.jsonToCsv(CONFIG_FILE_NAME, 'all-configs', should_separate=False)
         del results
 
     def read(self):
@@ -203,16 +215,18 @@ class Recorder:
 
     @staticmethod
     def readResults():
+        mostRecent = getMostRecentRecording()
         try:
-            with open(f'{getMostRecentRecording()}_RESULTS.json', 'r') as file:
+            with open(f'{mostRecent}_RESULTS.json', 'r') as file:
                 return json.load(file)
         except FileNotFoundError:
-            print(f"File '{getMostRecentRecording()}_RESULTS.json' not found.")
-            open(f'{getMostRecentRecording()}_RESULTS.json', 'w')
-            print(f"Created Empty File: '{getMostRecentRecording()}_RESULTS.json'.")
+            print(f"File '{mostRecent}_RESULTS.json' not found.")
+            file = open(f'{mostRecent}_RESULTS.json', 'w')
+            file.close()
+            print(f"Created Empty File: '{mostRecent}_RESULTS.json'.")
             return [[-1, -1]], [-1], -1
         except json.decoder.JSONDecodeError:
-            print(f"File '{getMostRecentRecording()}_RESULTS.json' is empty.")
+            print(f"File '{mostRecent}_RESULTS.json' is empty.")
             print("Returning arbitrary results")
             return [[-1, -1]], [-1], -1
 
