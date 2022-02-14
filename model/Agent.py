@@ -324,8 +324,8 @@ class Agent:
 
     def quorumMet(self, neighborList):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
-        return len(neighborList) > self.world.initialHubAgentCounts[self.getHubIndex()] / Config.QUORUM_DIVIDEND or \
-            self.neighborIsCommitted(neighborList)
+        return (len(neighborList) > self.world.initialHubAgentCounts[self.getHubIndex()] / Config.QUORUM_DIVIDEND or
+                self.neighborIsCommitted(neighborList)) and not self.assignedSite.isHub()
 
     @staticmethod
     def neighborIsCommitted(neighborList):
@@ -335,7 +335,8 @@ class Agent:
         return False
 
     def tryConverging(self):
-        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * Config.CONVERGENCE_FRACTION:
+        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * Config.CONVERGENCE_FRACTION \
+                and not self.assignedSite.isHub():
             self.setPhase(ConvergedPhase())
             self.setState(AtNestState(self))
             self.assignedSite.chosen = True
