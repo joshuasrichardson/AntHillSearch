@@ -20,3 +20,6 @@ dist/
 build/
 setup.py
 /Colony.bat
+/recording/results/emp_testing/
+/recording/results/engineering/
+/recording/results/user/

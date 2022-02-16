@@ -82,12 +82,13 @@ class Site:
             self.color = 255 - quality, quality, 0
         return self.color
 
-    def setEstimates(self, est):
+    def setEstimates(self, pos, quality, count, radius):
         """ Takes an array with each values' estimate and updates the site's estimated values """
-        self.estimatedPosition = est[0]
-        self.estimatedQuality = est[1]
-        self.estimatedAgentCount = est[2]
-        self.estimatedRadius = est[3]
+        self.estimatedPosition = pos
+        self.estimatedQuality = quality
+        self.estimatedAgentCount = count
+        self.estimatedRadius = radius
+        self.estimatedSiteRect = Rect(pos[0] - radius, pos[1] - radius, radius * 2, radius * 2)
 
     def updateBlur(self):
         """ Make the blur gradually get clearer """
@@ -100,10 +101,8 @@ class Site:
         elif self.blurRadiusDiff > 0:
             self.blurRadiusDiff = 0
 
-    @staticmethod
-    def getDensity(quality):
-        """ Get the space between lines """
-        return int(quality / 20) + 2
+    def isHub(self):
+        return self.quality == -1
 
     def getQuality(self):
         return self.quality
@@ -123,6 +122,13 @@ class Site:
         self.pos = list(pos)
         self.siteRect.centerx = self.pos[0]
         self.siteRect.centery = self.pos[1]
+
+    def getRadius(self):
+        return self.radius
+
+    def setRadius(self, radius):
+        self.radius = radius
+        self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
 
     def getColor(self):
         return self.color

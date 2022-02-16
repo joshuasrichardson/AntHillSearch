@@ -11,7 +11,7 @@ class GoState(State):
         super().__init__(agent)
         self.stateNumber = GO
         self.destination = agent.target
-        self.agent.target = self.getNextCheckPoint()
+        self.agent.setTarget(self.getNextCheckPoint())
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.target)
@@ -25,7 +25,7 @@ class GoState(State):
                 from model.states.SearchState import SearchState
                 self.setState(SearchState(self.agent), None)
             else:
-                self.agent.target = self.getNextCheckPoint()
+                self.agent.setTarget(self.getNextCheckPoint())
         if self.agent.siteInRangeIndex != -1:
             self.agent.addToKnownSites(self.agent.world.siteList[self.agent.siteInRangeIndex])
             # If the site is better than the one they were assessing, they assess it instead.

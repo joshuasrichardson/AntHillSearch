@@ -1,6 +1,7 @@
 import random
 
 import Utils
+from display.Display import getDestinationMarker
 from config import Config
 from Constants import *
 from display import WorldDisplay
@@ -50,7 +51,7 @@ class Agent:
         self.assignedSite = startingAssignment  # Site that the agent has discovered and is trying to get others to go see
         self.estimatedQuality = -1  # The agent's evaluation of the assigned site. Initially -1 so they can like any site better than the broken home they are coming from.
         self.estimatedAgentCount = self.getHub().agentCount  # The number of agents the agent thinks are assigned to their assigned site.
-        self.estimatedRadius = self.getHub().radius  # The agent's estimate of the radius of their assigned site
+        self.estimatedRadius = self.getHub().getRadius()  # The agent's estimate of the radius of their assigned site
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
         self.prevReportedSite = startingAssignment  # The site the agent was assigned to last time they were at the hub
 
@@ -66,7 +67,7 @@ class Agent:
         self.comingWithFollowers = False  # Whether the agent is coming back toward a new site with followers or not
 
         self.isSelected = False  # Whether the user clicked on the agent or its site most recently
-        self.isTheSelected = False  # Whether the agent is the one with its information shown
+        self.isMainSelected = False  # Whether the agent is the one with its information shown
         self.marker = None  # A marker to be drawn on the screen representing an action the agent will perform
         self.checkPoints = []  # A list of places the agent has to go to on the way to their GO destination
         self.eraseFogCommands = []  # A list of eraseFog methods and agentRects used to clear fog after an agent has returned to the hub
@@ -84,6 +85,11 @@ class Agent:
 
     def setAngle(self, angle):
         self.angle = angle
+
+    def setTarget(self, target):
+        self.target = target
+        if self.isMainSelected and self.target is not None:
+            self.marker = getDestinationMarker(self.target)
 
     def getStateColor(self):
         return self.state.getColor()
@@ -174,7 +180,7 @@ class Agent:
     def isCloseToASite(self):
         """ Returns whether the agent is next to a site or not """
         for site in self.world.siteList:
-            if self.isClose(site.getPosition(), site.radius * 2):
+            if self.isClose(site.getPosition(), site.getRadius() * 2):
                 return True
         return False
 
@@ -204,9 +210,9 @@ class Agent:
     def estimateRadius(self, site):
         """ Returns an estimate of a site radius that is within estimationAccuracy/4 pixels from the actual radius """
         if site.quality == -1:
-            return site.radius
-        estimate = site.radius + ((self.estimationAccuracy / 4) if random.randint(0, 2) == 1 else (-(self.estimationAccuracy / 4)))
-        if estimate <= 0:  # The radius cannot be negative or zero.
+            return site.getRadius()
+        estimate = site.getRadius() + ((self.estimationAccuracy / 4) if random.randint(0, 2) == 1 else (-(self.estimationAccuracy / 4)))
+        if estimate <= 0:  # Main radius cannot be negative or zero.
             estimate = 1
         return estimate
 
@@ -318,8 +324,8 @@ class Agent:
 
     def quorumMet(self, neighborList):
         """ Returns whether the agent met enough other agents at their assigned site to go into the commit phase """
-        return len(neighborList) > self.world.initialHubAgentCounts[self.getHubIndex()] / Config.QUORUM_DIVIDEND or \
-               self.neighborIsCommitted(neighborList)
+        return (len(neighborList) > self.world.initialHubAgentCounts[self.getHubIndex()] / Config.QUORUM_DIVIDEND or
+                self.neighborIsCommitted(neighborList)) and not self.assignedSite.isHub()
 
     @staticmethod
     def neighborIsCommitted(neighborList):
@@ -329,7 +335,8 @@ class Agent:
         return False
 
     def tryConverging(self):
-        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * Config.CONVERGENCE_FRACTION:
+        if self.assignedSite.agentCount > self.world.initialHubAgentCounts[self.getHubIndex()] * Config.CONVERGENCE_FRACTION \
+                and not self.assignedSite.isHub():
             self.setPhase(ConvergedPhase())
             self.setState(AtNestState(self))
             self.assignedSite.chosen = True
@@ -342,11 +349,11 @@ class Agent:
             # When self.findAssignedSiteEasily is False, this will be False everytime.
             # When self.findAssignedSiteEasily is True, this will only be True if the agent is
             # close to where their site was before it moved.
-            if self.isClose(self.getAssignedSitePosition(), self.assignedSite.radius):
+            if self.isClose(self.getAssignedSitePosition(), self.assignedSite.getRadius()):
                 self.removeKnownSite(self.assignedSite)
                 return True
         if not self.world.siteList[siteWithinRange] is self.assignedSite:
-            # They should get back to their site before they go out searching again.
+            # Mainy should get back to their site before they go out searching again.
             return False
         if self.assignedSite == self.getHub():
             return random.exponential() > Config.SEARCH_FROM_HUB_THRESHOLD
@@ -389,10 +396,21 @@ class Agent:
         """ Selects the agent to allow various user interactions """
         self.isSelected = True
 
+    def mainSelect(self):
+        """ Selects the agent as the main agent selected so that more of their information is shown """
+        self.isMainSelected = True
+        if self.target is not None:
+            self.marker = getDestinationMarker(self.target)
+
     def unselect(self):
         """ Unselects the agent to prevent various user interactions """
         self.isSelected = False
-        self.isTheSelected = False
+        self.isMainSelected = False
+        self.marker = None
+
+    def unMainSelect(self):
+        """ Stops displaying extra information about the agent """
+        self.isMainSelected = False
         self.marker = None
 
     def die(self):
@@ -404,4 +422,4 @@ class Agent:
             self.world.incrementDeadAgents(self.getHubIndex())  # Need to keep track of how many died so the number needed to converge goes down.
             self.checkPoints = []
             self.placesToAvoid = []
-            self.target = None
+            self.setTarget(None)

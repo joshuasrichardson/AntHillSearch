@@ -113,14 +113,14 @@ class LiveSimulation(Simulation, ABC):
             if agent.knownSitesPositions[siteIndex] == sites[siteIndex].getPosition():
                 sites[siteIndex].wasFound = True
                 # If the site's estimates were not reported before the agent got assigned to another site, report them here.
-                if sites[siteIndex].estimatedPosition is None and sites[siteIndex].getQuality() != -1:
-                    sites[siteIndex].setEstimates([agent.estimateSitePosition(sites[siteIndex]),
-                                                   agent.estimateQuality(sites[siteIndex]),
-                                                   sites[siteIndex].estimatedAgentCount,
-                                                   agent.estimateRadius(sites[siteIndex])])
+                if sites[siteIndex].estimatedPosition is None and not sites[siteIndex].isHub():
+                    sites[siteIndex].setEstimates(agent.estimateSitePosition(sites[siteIndex]),
+                                                  agent.estimateQuality(sites[siteIndex]),
+                                                  sites[siteIndex].estimatedAgentCount,
+                                                  agent.estimateRadius(sites[siteIndex]))
         try:
             estimates = self.world.request.addAgentToHubInfo(agent, agentIndex)
-            agent.assignedSite.setEstimates(estimates)
+            agent.assignedSite.setEstimates(*estimates)
             agent.assignedSite.updateBlur()
         except AttributeError:
             pass  # If the agent is killed by a hub, this exception will be thrown here.
@@ -130,7 +130,8 @@ class LiveSimulation(Simulation, ABC):
     def updateSiteAgentCountEst(agent):
         if agent.prevReportedSite is not agent.assignedSite:
             agent.prevReportedSite.estimatedAgentCount -= 1
-            agent.assignedSite.estimatedAgentCount += 1
+            if agent.assignedSite is not None:
+                agent.assignedSite.estimatedAgentCount += 1
             agent.prevReportedSite = agent.assignedSite
 
     @staticmethod

@@ -21,7 +21,7 @@ class UIControls(Controls):
                collidesWithAgent(self.world, adjustedMousePos) and self.byAHub(adjustedMousePos) or \
                self.graphs.collidesWithAnyButton(mousePos, self.paused)
 
-    def drag(self):
+    def startDrag(self):
         pass
 
     def putDownDragSite(self):

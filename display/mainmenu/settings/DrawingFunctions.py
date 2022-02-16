@@ -6,7 +6,7 @@ from config import Config
 from config.Config import AGENT_IMAGES
 from Constants import GREEN, RED, BLUE, BORDER_COLOR, FONT_SIZE_NAME, SITE_RADIUS_NAME, \
     HUB_LOCATIONS_NAME, SHOULD_RECORD_NAME, AGENT_IMAGE_NAME, LARGE_FONT_SIZE_NAME, SITE_NO_FARTHER_THAN_NAME, \
-    SITE_NO_CLOSER_THAN_NAME
+    SITE_NO_CLOSER_THAN_NAME, MEDIUM_QUALITY
 from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay
 from model.builder.SiteBuilder import getNewSite
 
@@ -30,7 +30,7 @@ def drawHubsPositions(self):
 
 
 def drawSitesPositions(self):
-    drawNestPositions(self, 128)
+    drawNestPositions(self, MEDIUM_QUALITY)
 
 
 def drawNestPositions(self, quality):
@@ -119,7 +119,7 @@ def drawNumHubs(self):
 
 
 def drawNumSites(self):
-    drawNumNests(self, 128)
+    drawNumNests(self, MEDIUM_QUALITY)
 
 
 def drawNumNests(self, quality):
@@ -138,7 +138,7 @@ def drawHubsRadii(self):
 
 
 def drawSitesRadii(self):
-    drawRadii(self, 128)
+    drawRadii(self, MEDIUM_QUALITY)
 
 
 def drawRadii(self, quality):
@@ -159,7 +159,7 @@ def drawHubsCounts(self):
 
 
 def drawSitesCounts(self):
-    drawCounts(self, 128)
+    drawCounts(self, MEDIUM_QUALITY)
 
 
 def drawCounts(self, quality):

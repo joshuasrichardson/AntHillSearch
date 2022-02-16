@@ -45,7 +45,7 @@ class InterfaceSelector:
                 return False
             if event.type == QUIT:
                 pygame.quit()
-                raise GameOver("Game Over")
+                raise GameOver("Exiting")
         return True
 
     def mouseButtonPressed(self, pos):

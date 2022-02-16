@@ -66,12 +66,17 @@ class Simulation(ABC):
                 self.runNextRound()
                 self.numRounds += 1
                 foundNewHome = self.checkIfSimulationEnded()
-        except GameOver:
-            pass
+        except GameOver as e:
+            self.stopTimer()
+            self.gameOver(e.message)
 
         self.stopTimer()
-
         return self.finish()
+
+    def gameOver(self, errMessage):
+        self.stopTimer()
+        if errMessage == "Exiting":
+            raise GameOver("Exited Successfully")
 
     def printNumRounds(self):
         roundCounts = []
@@ -103,6 +108,7 @@ class Simulation(ABC):
     def update(self, agentRectList):
         self.setNextRound()
         self.world.updateStateAndPhaseCounts()
+        self.world.updateDangerZones()
         self.updateSites()
         self.updateAgents(agentRectList)
         self.updatePredators(agentRectList)
@@ -158,21 +164,21 @@ class Simulation(ABC):
         """ Compare the number of agents at each site from each hub to the number of agents initially at each hub
         times the convergence fraction to see if the the agents from all hubs have converged to a new site. """
         numConverged = 0
-        for siteIndex in range(len(self.world.getHubs()), len(self.world.siteList)):
+        for siteIndex in range(len(self.world.getHubs()), len(self.world.siteList)):  # For each site that is not a hub,
             site = self.world.siteList[siteIndex]
-            for hubIndex in range(len(self.world.getHubs())):
-                if site.agentCounts[hubIndex] >= int((self.world.initialHubAgentCounts[hubIndex] -
-                                                      self.world.numDeadAgents[hubIndex]) *
-                                                     Config.CONVERGENCE_FRACTION) > 0:
-                    self.chosenHomes[hubIndex] = site
-                    numConverged += 1
-                    self.convergeHub(hubIndex)
-        for hubIndex in range(len(self.world.getHubs())):
-            if self.world.initialHubAgentCounts[hubIndex] == 0:
-                self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]
-                numConverged += 1
-                self.convergeHub(hubIndex)
-        return numConverged >= len(self.world.getHubs())
+            for hubIndex in range(len(self.world.getHubs())):  # For each hub,
+                # If the number of agents assigned to the site is greater than or equal to the number needed to converge,
+                if site.agentCounts[hubIndex] >= (self.world.initialHubAgentCounts[hubIndex] -
+                                                  self.world.numDeadAgents[hubIndex]) * Config.CONVERGENCE_FRACTION > 0:
+                    self.chosenHomes[hubIndex] = site  # Choose the site as a new home for the colony
+                    numConverged += 1  # Increment the number of colonies converged
+                    self.convergeHub(hubIndex)  # Save data about the converged colony
+        for hubIndex in range(len(self.world.getHubs())):  # For each hub,
+            if self.world.initialHubAgentCounts[hubIndex] == 0:  # If it didn't start with any agents,
+                self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]  # the chosen home for that colony is just its hub
+                numConverged += 1  # Increment the number of colonies converged
+                self.convergeHub(hubIndex)  # Save data about the converged colony
+        return numConverged >= len(self.world.getHubs())  # If all of the colonies have converged, the simulation is over
 
     def convergeHub(self, hubIndex):
         hub = self.world.getHubs()[hubIndex]
