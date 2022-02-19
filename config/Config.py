@@ -123,8 +123,9 @@ PRED_POSITIONS = []  # Where the predators will start. No position = random
 
 LADYBUG_IMAGE = "/resources/ladybug.png"  # The path of the ladybug image
 LADYBUG_ANGLE = pi / 2  # The initial angle the ladybug in the image is facing
-NUM_LADYBUGS = 5  # The number of ladybugs that go around attacking agents
-LADYBUG_POSITIONS = []  # Where the ladybugs will start. No position = random
+NUM_LADYBUGS = 2  # The number of ladybugs that go around helping agents
+LADYBUG_POSITIONS = [[100, 50], [100, 200], [-50, 300], [250, 250]]  # Where the ladybugs will start. No position =
+# random
 
 """ Agent Transition Parameters """
 # Threshold probability,
@@ -164,3 +165,5 @@ QUORUM_DIVIDEND = 7  # numAgents/QUORUM_DIVIDEND agents need to be at a site bef
 KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an agent
 
 HELP_THRESHOLD = 1  # Influences the likelihood that a ladybug will help an agent
+
+NUM_REPLAYS = 5

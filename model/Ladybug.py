@@ -6,7 +6,6 @@ from display.LadybugDisplay import getLadybugImage
 
 class Ladybug:
     def __init__(self, site, world, pos=None):
-        self.site = site #The site the ladybug will be located at
         self.world = world
         if pos is None:
             pos = site.getPosition()
@@ -20,6 +19,7 @@ class Ladybug:
         self.angle = np.random.uniform(0, 2 *np.pi) # The direction the ladybug is facing in radians
         self.speed = np.random.randint(3, 5) # The speed the ladybug is moving
         self.numSteps = np.random.randint(0, 20) # The number of steps the ladybug has taken since turning
+        self.bestSite = self.determineBestSite()
 
     def getRect(self):
         return self.ladybugRect
@@ -46,7 +46,14 @@ class Ladybug:
     def help(self, helpeeList):
         if np.random.exponential() > Config.HELP_THRESHOLD:
             for agent in helpeeList:
-                agent.assignSite(self.site)
+                agent.assignSite(self.bestSite)
         else:
             for agent in helpeeList:
-                agent.addToKnownSites(self.site)
+                agent.addToKnownSites(self.bestSite)
+
+    def determineBestSite(self):
+        bestSite = self.world.siteList[0]
+        for i in range(len(self.world.siteList)):
+            if self.world.siteList[i].getQuality() > bestSite.getQuality():
+                bestSite = self.world.siteList[i]
+        return bestSite

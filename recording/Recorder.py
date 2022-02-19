@@ -1,5 +1,7 @@
 import json
 import numbers
+import os
+import shelve
 
 from datetime import datetime
 
@@ -15,7 +17,7 @@ def getMostRecentRecording():
         return data['file_base']
 
 
-class Recorder:
+class Recorder():
     """ Records essential site information, agent positions, agent states, and agent phases
     in recording.txt so that the same interface can be played over again """
 

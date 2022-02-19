@@ -12,6 +12,7 @@ from display.mainmenu.settings.Settings import Settings
 from display.mainmenu.tutorial.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 from recording.Recorder import getMostRecentRecording
+from display.mainmenu.ReplaySelector import ReplaySelector
 
 DO_USER_EXPERIMENTS = "Test"
 PRACTICE = "Practice"
@@ -27,6 +28,7 @@ class StartUpDisplay:
         self.defaultInterface = interface  # The interface to be played when the "Play" option is selected
         self.freshInterface = interface  # The interface to run when "Play" or "Practice" is selected
         self.interfaceSelector = InterfaceSelector()  # An object used to change the interface
+        self.replaySelector = ReplaySelector()  # An object used to select a recent replay
         self.simInterface = None  # A constructed version of the interface that we will run
         self.mousePos = [-1, -1]  # Where the mouse is (for when something is selected)
         self.tutorial = Tutorial(self.practice)  # The tutorial about how to play the game
@@ -126,10 +128,11 @@ class StartUpDisplay:
         self.tutorial.run()
 
     def replay(self):
-        """ Watch the most recent simulation's replay """
+        """ Watch one of the most recent simulation's replays """
+        replay = self.replaySelector.chooseReplay()
         try:
             from os.path import getsize
-            file_path = f'{getMostRecentRecording()}_RECORDING.json'
+            file_path = replay  # f'{getMostRecentRecording()}_RECORDING.json'
             # If the recording exists, play it, else tell the user there is no recording
             if getsize(file_path) > 0:
                 del self.simInterface
