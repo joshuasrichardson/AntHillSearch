@@ -6,7 +6,7 @@ from config import Config
 from config.Config import AGENT_IMAGES
 from Constants import GREEN, RED, BLUE, BORDER_COLOR, FONT_SIZE_NAME, SITE_RADIUS_NAME, \
     HUB_LOCATIONS_NAME, SHOULD_RECORD_NAME, AGENT_IMAGE_NAME, LARGE_FONT_SIZE_NAME, SITE_NO_FARTHER_THAN_NAME, \
-    SITE_NO_CLOSER_THAN_NAME, MEDIUM_QUALITY
+    SITE_NO_CLOSER_THAN_NAME, MEDIUM_QUALITY, FULL_CONTROL_NAME, DISTRACTED_NAME
 from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay
 from model.builder.SiteBuilder import getNewSite
 
@@ -218,18 +218,22 @@ def drawArea(self, color, radius):
     Display.blitImage(Display.screen, surf, (0, 0), False)
     drawSite([Display.origWidth / 2, Display.origHeight / 2], self.settingMenu.data[SITE_RADIUS_NAME], -1)
 
+
 def drawPredator(pos):
     image = PredatorDisplay.getPredatorImage([0, 0])
     Display.blitImage(Display.screen, image, pos, False)
+
 
 def drawPredators(self):
     for i in range(self.value):
         pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
         drawPredator(pos)
 
+
 def drawLadybug(pos):
     image = LadybugDisplay.getLadybugImage([0, 0])
     Display.blitImage(Display.screen, image, pos, False)
+
 
 def drawLadybugs(self):
     for i in range(self.value):
@@ -237,3 +241,17 @@ def drawLadybugs(self):
         drawLadybug(pos)
 
 
+def drawControls(self):
+    if self.settingMenu.data[FULL_CONTROL_NAME]:
+        controls = ["Go"]
+    else:
+        controls = ["Go", "Assign", "Set Checkpoint", "Avoid"]
+    for i, control in enumerate(controls):
+        Display.writeCenterPlus(Display.screen, control, int(Config.FONT_SIZE * 1.5), i * Config.FONT_SIZE * 1.5)
+
+
+def drawDistraction(self):
+    if self.settingMenu.data[DISTRACTED_NAME]:
+        pass
+    else:
+        pass

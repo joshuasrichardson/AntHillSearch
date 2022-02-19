@@ -11,6 +11,7 @@ from display.mainmenu.settings.ListSetting import ListSetting
 from display.mainmenu.settings.PercentageSetting import PercentageSetting
 from display.mainmenu.settings.PositionSetting import PositionSetting
 from display.mainmenu.settings.StringSetting import StringSetting
+from display.mainmenu.settings.WorldSettings import WorldSettings
 
 
 class Settings:
@@ -47,7 +48,10 @@ class Settings:
                          IntegerSetting(NUM_PREDATORS_NAME, "Number of Predators", x, self.nextY(), drawPredators, self),
                          PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self),
                          IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self),
-                         PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self)]
+                         PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self),
+                         BooleanSetting(FULL_CONTROL_NAME, "Full Control", x, self.nextY(), drawControls, self),
+                         BooleanSetting(DISTRACTED_NAME, "Distracted", x, self.nextY(), drawDistraction, self)]  # TODO: Make sure this is copied over from settings onto each trial
+        self.worldSettings = WorldSettings(self)
 
     def nextY(self):
         y = self.y
@@ -68,8 +72,7 @@ class Settings:
         reading = True
         while reading:  # While the user is reading the settings (or hasn't tried to exit)
             Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-            Display.writeCenterPlus(Display.screen, "Settings", self.data["LARGE_FONT_SIZE"],
-                                    -Display.origHeight / 2 + 2.5 * self.data["LARGE_FONT_SIZE"])
+            self.worldSettings.showWorld()  # Draw the world with the current settings or a button to enable this
             self.showSettings()  # Draw the setting the user can select and change
             self.drawBackButton()  # Draw the button used to return to the main menu
             pygame.display.flip()  # Display drawn things on the screen
@@ -77,10 +80,13 @@ class Settings:
 
     def showSettings(self):
         """ Write each value on the screen """
-        for setting in self.settings:
-            collides = setting.rect.collidepoint(pygame.mouse.get_pos())
-            Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data["FONT_SIZE"] * 1.5),
-                          setting.rect.left, setting.rect.top, BLUE if collides else WORDS_COLOR)
+        if not self.worldSettings.shouldDrawWorld:
+            Display.writeCenterPlus(Display.screen, "Settings", self.data["LARGE_FONT_SIZE"],
+                                    -Display.origHeight / 2 + 2.5 * self.data["LARGE_FONT_SIZE"])
+            for setting in self.settings:
+                collides = setting.rect.collidepoint(pygame.mouse.get_pos())
+                Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data["FONT_SIZE"] * 1.5),
+                              setting.rect.left, setting.rect.top, BLUE if collides else WORDS_COLOR)
 
     def drawBackButton(self):
         """ Draw the button that allows the user to return to the main menu """
@@ -106,14 +112,22 @@ class Settings:
     def mouseButtonPressed(self, pos):
         """ What to do when the mouse button has been clicked """
         if self.backButton.collidepoint(pos):
-            return False
-        for setting in self.settings:
-            if setting.rect.collidepoint(pos):
-                value = setting.getUserInput()
-                self.write(setting.key, value)
-                self.setDataUsingConfig()
-                setting.updateRect()
-                break
+            if self.worldSettings.shouldDrawWorld:
+                self.worldSettings.shouldDrawWorld = False
+                return True
+            else:
+                return False
+        if not self.worldSettings.shouldDrawWorld:
+            if self.worldSettings.showWorldButton.collidepoint(pos):
+                self.worldSettings.shouldDrawWorld = not self.worldSettings.shouldDrawWorld
+                return True
+            for setting in self.settings:
+                if setting.rect.collidepoint(pos):
+                    value = setting.getUserInput()
+                    self.write(setting.key, value)
+                    self.setDataUsingConfig()
+                    setting.updateRect()
+                    break
         return True
 
     def updateCursor(self):
@@ -126,9 +140,12 @@ class Settings:
         """ Returns whether the position is overlapping with something that can be selected """
         if self.backButton.collidepoint(pos):
             return True
-        for setting in self.settings:
-            if setting.rect.collidepoint(pos):
+        if not self.worldSettings.shouldDrawWorld:
+            if self.worldSettings.showWorldButton.collidepoint(pos):
                 return True
+            for setting in self.settings:
+                if setting.rect.collidepoint(pos):
+                    return True
         return False
 
     def write(self, key, value):

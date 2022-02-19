@@ -1,15 +1,15 @@
 import json
 import numbers
 import os
-import shelve
 
 from datetime import datetime
 
 from config import Config
-from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME
+from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME, FULL_CONTROL_NAME, DISTRACTED_NAME, \
+    NUM_SITES_NAME, NUM_PREDATORS_NAME
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
-from recording import CsvWriter
+from recording import XlsxWriter
 
 
 def getMostRecentRecording():
@@ -211,7 +211,7 @@ class Recorder():
 
         self.executedCommands.clear()
 
-    def writeResults(self, results):
+    def writeResults(self, results, world):
         # Create the folder with the results if it does not exist
         if not os.path.exists(RESULTS_DIR):
             os.makedirs(RESULTS_DIR)
@@ -220,21 +220,78 @@ class Recorder():
         with open(f'{RESULTS_DIR}/most_recent.json', 'w') as file:
             data = {'file_base': f'{self.outputFileBase}'}
             json.dump(data, file)
-        CsvWriter.jsonToCsv(f'{getMostRecentRecording()}_RESULTS.json', 'all-results')
-        CsvWriter.jsonToCsv(f'{getMostRecentRecording()}_COMMANDS.json', 'all-commands')
-        CsvWriter.jsonToCsv(CONFIG_FILE_NAME, 'all-configs', should_separate=False)
+        configAbrv = self.recordConfig(world)
+        XlsxWriter.jsonFileToXlsx(f'{getMostRecentRecording()}_RESULTS.json', Config.INTERFACE_NAME,
+                                  f"{configAbrv}Results")
+        XlsxWriter.jsonFileToXlsx(f'{getMostRecentRecording()}_COMMANDS.json', Config.INTERFACE_NAME,
+                                  f"{configAbrv}Commands", "8FD3FE", "DAF0FF", "B5E2FF")
+
+        # TODO: Maybe find a way around opening the file again here
+        with open(f'{getMostRecentRecording()}_RESULTS.json', 'r') as jsonFile:
+            jsonData = json.load(jsonFile)
+
+        ignore = ["SIM_END_TIME", "CHOSEN_HOME_POSITIONS"]
+        self.createCharts(configAbrv, jsonData.keys(), ignore)
+        XlsxWriter.writeSummary(jsonData, Config.INTERFACE_NAME, "Summary", f"{configAbrv}Results", ignore)
+
         del results
 
-    def read(self, selectedReplay=None):
-        if selectedReplay == None:
+    def read(self, selectedReplay=""):
+        if selectedReplay == "":
             with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:
                 self.data = json.load(file)
                 self.time = self.data[0]['time']
         else:
-            print(f"selected replay baby: {selectedReplay}")
             with open(RESULTS_DIR + selectedReplay, 'r') as file:
                 self.data = json.load(file)
                 self.time = self.data[0]['time']
+
+    @staticmethod
+    def createCharts(configAbrv, keys, ignore):
+        headers = [header.title().replace('_', ' ') for header in keys if header not in ignore]
+        i = 0
+        # TODO: Think about which charts are actually needed
+        # TODO: Write a method that creates all the charts before it closes the file instead of repeatedly opening, writing, and closing
+        for column1 in headers:
+            for column2 in headers:
+                if column1 != column2:
+                    XlsxWriter.createScatterPlot(Config.INTERFACE_NAME, f"{configAbrv}Results", column1, column2, 2, i)
+                    i += 1
+                    break  # TODO: Get rid of these break statements when we figure out which charts to make
+            break  # TODO: Get rid of these break statements when we figure out which charts to make
+
+    def recordConfig(self, world):
+        """ Record the actual configuration for the simulation (instead of just showing that certain variables
+        were randomized) """
+        with open(CONFIG_FILE_NAME, 'r') as configFile:
+            configData = json.load(configFile)
+
+        control = "Ful" if configData[FULL_CONTROL_NAME] else "Lim"  # Full control or limited control
+        distractions = "Dis" if configData[DISTRACTED_NAME] else "Foc"  # Distracted or focused
+        sites = f"S{configData[NUM_SITES_NAME]}"  # S (sites) + the number of sites
+        preds = f"P{configData[NUM_PREDATORS_NAME]}"  # P (predators) + the number of predators
+        positions = "Ran" if self.posAreRandom(configData) else "Con"  # Random or Constant
+
+        # Get the actual values in simulations where these values were generated randomly
+        configData['SITE_RADII'] = f"{list(map(lambda site: site.radius, world.siteList))}"
+        configData['SITE_POSITIONS'] = f"{list(map(lambda site: site.pos, world.siteList))}"
+        configData['SITE_QUALITIES'] = f"{list(map(lambda site: site.quality, world.siteList))}"
+        configData['PRED_POSITIONS'] = f"{list(map(lambda pred: pred.pos, world.predatorList))}"
+
+        # The first part of the name of the sheets with these settings
+        configAbrv = f"{control}{distractions}{sites}{preds}{positions}"
+
+        XlsxWriter.jsonToXlsx(configData, Config.INTERFACE_NAME, f"{configAbrv}Config",
+                              "FFBE8C", "FFEAD9", "FFDBBF", sep=False)
+
+        return configAbrv
+
+    @staticmethod
+    def posAreRandom(configData):
+        return configData['SITE_RADII'] == [] and \
+               configData['SITE_POSITIONS'] == [] and \
+               configData['SITE_QUALITIES'] == [] and \
+               configData['PRED_POSITIONS'] == []
 
     @staticmethod
     def readResults():

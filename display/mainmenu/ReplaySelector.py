@@ -20,7 +20,7 @@ class ReplaySelector:
 		self.font = pygame.font.SysFont('Comic Sans MS', Config.LARGE_FONT_SIZE)
 		self.latestReplayImages = self.getLatestReplayImages()
 		self.latestReplayButtons = self.getLatestReplayButtons()
-		self.replay = None
+		self.replay = ""
 
 	def nextY(self):
 		y = self.y
@@ -40,25 +40,26 @@ class ReplaySelector:
 
 	def getLatestReplayImages(self):
 		replayImages = []
-		for i in range(self.numReplays):
-			image = self.font.render(self.latestReplays[i], True, WORDS_COLOR).convert_alpha()
-			replayImages.append(image)
+		try:
+			for i in range(self.numReplays):
+				image = self.font.render(self.latestReplays[i], True, WORDS_COLOR).convert_alpha()
+				replayImages.append(image)
+		except IndexError:
+			pass
 		return replayImages
 
 	def getLatestReplayButtons(self):
 		replayButtons = []
-		for i in range(self.numReplays):
-			image = self.latestReplayImages[i]
-			button = pygame.Rect(image.get_width() / 2, self.nextY(), image.get_width(), image.get_height())
-			print(f"i: {i}")
-			print(f"button: {button}")
-			replayButtons.append(button)
+		try:
+			for i in range(self.numReplays):
+				image = self.latestReplayImages[i]
+				button = pygame.Rect(image.get_width() / 2, self.nextY(), image.get_width(), image.get_height())
+				replayButtons.append(button)
+		except IndexError:  # Not enough recordings made
+			pass
 		return replayButtons
 
 	def chooseReplay(self):
-		print(f"latestReplays: {self.latestReplays}")
-		print(f"latestReplayImages: {self.latestReplayImages}")
-		print(f"latestReplayButtons: {self.latestReplayButtons}")
 		reading = True
 		while reading:
 			Display.screen.fill(SCREEN_COLOR)
@@ -77,7 +78,7 @@ class ReplaySelector:
 				self.updateCursor()
 				self.updateWords(pygame.mouse.get_pos())
 			elif event.type == KEYDOWN and event.key == K_ESCAPE:
-				self.replay = None
+				self.replay = ""
 				return False
 			if event.type == QUIT:
 				pygame.quit()

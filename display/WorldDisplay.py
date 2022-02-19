@@ -12,14 +12,14 @@ from display.SiteDisplay import drawSite
 fog = None
 
 
-def drawWorldObjects(world):
+def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
     """ Draws the paths, agents, sites, markers, and fog in the world"""
     if Config.SHOULD_DRAW_PATHS:
         drawPaths(world)
     drawAgents(world)
     drawPredators(world)
     drawLadybugs(world)
-    if not Config.DRAW_FAR_AGENTS:
+    if not drawFarAgents:
         for site in world.siteList:
             if site.wasFound:
                 drawSite(site, site.estimatedPosition, site.estimatedRadius + site.blurRadiusDiff,
@@ -27,6 +27,7 @@ def drawWorldObjects(world):
     else:
         for site in world.siteList:
             drawSite(site, site.pos, site.getRadius(), site.quality)
+    drawPredators(world)
     drawFog()
     if not Config.DRAW_FAR_AGENTS:
         drawDangerZones(world)

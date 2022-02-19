@@ -13,6 +13,7 @@ from model.builder import AgentBuilder
 from recording.Recorder import Recorder
 from model.states.AtNestState import AtNestState
 from user.Controls import Controls
+from user.LimitedControls import LimitedControls
 
 
 class Simulation(ABC):
@@ -292,7 +293,9 @@ class Simulation(ABC):
 
     def getControls(self):
         """ Initializes and returns an object to handle user input """
-        return Controls(self.timer, self.world.agentList, self.world, self.graphs)
+        if Config.FULL_CONTROL:
+            return Controls(self.timer, self.world.agentList, self.world, self.graphs)
+        return LimitedControls(self.timer, self.world.agentList, self.world, self.graphs)
 
     def applyConfiguration(self):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """

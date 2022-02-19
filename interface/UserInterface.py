@@ -2,6 +2,7 @@ from config import Config
 from Constants import UI_CONTROL_OPTIONS
 from display.Graphs import SimulationGraphs
 from interface.LiveSimulation import LiveSimulation
+from user.LimitedControls import LimitedControls
 from user.UIControls import UIControls
 
 
@@ -20,11 +21,13 @@ class UserInterface(LiveSimulation):
         return SimulationGraphs(numAgents, UI_CONTROL_OPTIONS)
 
     def getControls(self):
-        return UIControls(self.timer, self.world.agentList, self.world, self.graphs)
+        if Config.FULL_CONTROL:
+            return UIControls(self.timer, self.world.agentList, self.world, self.graphs)
+        return LimitedControls(self.timer, self.world.agentList, self.world, self.graphs)
 
     def applyConfiguration(self):
         super().applyConfiguration()
-        Config.INTERFACE_NAME = "user"
+        Config.INTERFACE_NAME = "User"
         Config.DRAW_ESTIMATES = True
         Config.DRAW_FAR_AGENTS = False
         Config.SHOULD_DRAW_PATHS = False

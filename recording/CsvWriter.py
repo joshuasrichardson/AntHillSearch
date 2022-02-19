@@ -11,6 +11,10 @@ def jsonToCsv(json_file_name, out_file_name, should_separate=True):
     with open(json_file_name, 'r') as json_file:
         json_data = json.load(json_file)
 
+    jsonObjectToCsv(json_data, out_file_name, should_separate)
+
+
+def jsonObjectToCsv(json_data, out_file_name, should_separate=True):
     json_data['time_stamp'] = datetime.now()
 
     # Create the folder with the results if it does not exist
