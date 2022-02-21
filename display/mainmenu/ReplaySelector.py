@@ -15,7 +15,7 @@ class ReplaySelector:
 
 	def __init__(self):
 		self.numReplays = Config.NUM_REPLAYS
-		self.y = 100
+		self.y = 50
 		self.latestReplays = self.getLatestReplays(self.numReplays)
 		self.font = pygame.font.SysFont('Comic Sans MS', Config.LARGE_FONT_SIZE)
 		self.latestReplayImages = self.getLatestReplayImages()
@@ -24,7 +24,7 @@ class ReplaySelector:
 
 	def nextY(self):
 		y = self.y
-		self.y -= 50
+		self.y += 50
 		return y
 
 	def getLatestReplays(self, numReplays):
@@ -49,7 +49,7 @@ class ReplaySelector:
 		replayButtons = []
 		for i in range(self.numReplays):
 			image = self.latestReplayImages[i]
-			button = pygame.Rect((Display.origWidth / 2) - (image.get_width() / 2), (Display.origHeight / 2) - self.nextY(), image.get_width(), image.get_height())
+			button = pygame.Rect(200, self.nextY(), image.get_width(), image.get_height())
 			print(f"i: {i}")
 			print(f"button: {button}")
 			replayButtons.append(button)
