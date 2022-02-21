@@ -166,4 +166,4 @@ KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an a
 
 HELP_THRESHOLD = 1  # Influences the likelihood that a ladybug will help an agent
 
-NUM_REPLAYS = 5
+NUM_REPLAYS = 10

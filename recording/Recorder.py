@@ -214,10 +214,16 @@ class Recorder():
             json.dump(data, file)
         del results
 
-    def read(self):
-        with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:
-            self.data = json.load(file)
-            self.time = self.data[0]['time']
+    def read(self, selectedReplay=None):
+        if selectedReplay == None:
+            with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:
+                self.data = json.load(file)
+                self.time = self.data[0]['time']
+        else:
+            print(f"selected replay baby: {selectedReplay}")
+            with open(RESULTS_DIR + selectedReplay, 'r') as file:
+                self.data = json.load(file)
+                self.time = self.data[0]['time']
 
     @staticmethod
     def readResults():

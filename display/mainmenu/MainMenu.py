@@ -5,7 +5,7 @@ from pygame import MOUSEBUTTONUP, QUIT
 
 from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, TRIAL_SETTINGS, BLUE, CONFIG_FILE_NAME
+from Constants import SCREEN_COLOR, TRIAL_SETTINGS, BLUE, CONFIG_FILE_NAME, RESULTS_DIR
 from display import Display
 from display.mainmenu.InterfaceSelector import InterfaceSelector
 from display.mainmenu.settings.Settings import Settings
@@ -130,13 +130,14 @@ class StartUpDisplay:
     def replay(self):
         """ Watch one of the most recent simulation's replays """
         replay = self.replaySelector.chooseReplay()
+        print(f"rreeepplaayy: {replay}")
         try:
             from os.path import getsize
-            file_path = replay  # f'{getMostRecentRecording()}_RECORDING.json'
+            file_path = RESULTS_DIR + replay  # f'{getMostRecentRecording()}_RECORDING.json'
             # If the recording exists, play it, else tell the user there is no recording
             if getsize(file_path) > 0:
                 del self.simInterface
-                self.simInterface = RecordingPlayer()
+                self.simInterface = RecordingPlayer(replay)
                 self.simInterface.runSimulation()
                 Display.resetScreen()
             else:

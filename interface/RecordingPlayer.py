@@ -14,20 +14,22 @@ from user.RecordingControls import RecordingControls
 class RecordingPlayer(Simulation):
     """ Runs the colony interface for a previously recorded interface using the data stored in recording.txt """
 
-    def __init__(self):
+    def __init__(self, selectedReplay):
         self.hubAgentCounts = []
         self.delay = 0
+        self.selectedReplay = selectedReplay
         WorldDisplay.fog = None
         super().__init__()
         Config.SHOULD_RECORD = False
         self.realTimer = SimulationTimer(self.timeOut)
+
 
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
         super().initializeAgentList()
 
     def initializeWorld(self):
-        self.recorder.read()
+        self.recorder.read(self.selectedReplay)
         addAfter = self.initHubsAgentCounts()
         self.world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), Config.HUB_LOCATIONS,
                            Config.HUB_RADII, Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS,

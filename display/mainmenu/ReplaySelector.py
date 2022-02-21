@@ -10,24 +10,25 @@ from display import Display
 from interface.EngineerInferface import EngineerInterface
 from interface.UserInterface import UserInterface
 
+
 class ReplaySelector:
 
 	def __init__(self):
 		self.numReplays = Config.NUM_REPLAYS
+		self.y = 100
 		self.latestReplays = self.getLatestReplays(self.numReplays)
 		self.font = pygame.font.SysFont('Comic Sans MS', Config.LARGE_FONT_SIZE)
 		self.latestReplayImages = self.getLatestReplayImages()
 		self.latestReplayButtons = self.getLatestReplayButtons()
 		self.replay = None
-		self.y = 100
 
 	def nextY(self):
 		y = self.y
-		self.y += 25
+		self.y -= 50
 		return y
 
 	def getLatestReplays(self, numReplays):
-		replays = [file for file in os.listdir('./recording/results/') if file.endswith('.json')]
+		replays = [file for file in os.listdir('./recording/results/') if file.endswith('RECORDING.json')]
 		os.chdir('./recording/results')
 		replays.sort(key=os.path.getmtime, reverse=True)
 		os.chdir('../..')
@@ -48,9 +49,7 @@ class ReplaySelector:
 		replayButtons = []
 		for i in range(self.numReplays):
 			image = self.latestReplayImages[i]
-			button = pygame.Rect((Display.origWidth / 2) - (image.get_width() / 2),
-								 Display.origHeight / 2 - 2 * image.get_height(),
-								 image.get_width(), image.get_height())
+			button = pygame.Rect((Display.origWidth / 2) - (image.get_width() / 2), (Display.origHeight / 2) - self.nextY(), image.get_width(), image.get_height())
 			print(f"i: {i}")
 			print(f"button: {button}")
 			replayButtons.append(button)
@@ -64,8 +63,7 @@ class ReplaySelector:
 		while reading:
 			Display.screen.fill(SCREEN_COLOR)
 			for i in range(len(self.latestReplayImages)):
-				Display.blitImage(Display.screen, self.latestReplayImages[i],
-								  self.latestReplayButtons[i].topleft, False)
+				Display.blitImage(Display.screen, self.latestReplayImages[i], self.latestReplayButtons[i].topleft, False)
 			pygame.display.flip()
 			reading = self.handleEvents()
 		return self.replay
