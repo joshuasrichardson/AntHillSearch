@@ -19,6 +19,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="main" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -100,7 +103,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/display/mainmenu/settings/DrawingFunctions.py</url>
-          <line>228</line>
+          <line>220</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
