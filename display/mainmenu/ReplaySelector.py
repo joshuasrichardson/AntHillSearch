@@ -49,7 +49,7 @@ class ReplaySelector:
 		replayButtons = []
 		for i in range(self.numReplays):
 			image = self.latestReplayImages[i]
-			button = pygame.Rect(200, self.nextY(), image.get_width(), image.get_height())
+			button = pygame.Rect(image.get_width() / 2, self.nextY(), image.get_width(), image.get_height())
 			print(f"i: {i}")
 			print(f"button: {button}")
 			replayButtons.append(button)

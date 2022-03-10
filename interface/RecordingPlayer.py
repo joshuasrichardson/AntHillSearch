@@ -26,6 +26,8 @@ class RecordingPlayer(Simulation):
 
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
+        for i in range(len(self.world.hubs)):
+            self.world.hubs[i].agentCount = self.hubAgentCounts[i]
         super().initializeAgentList()
 
     def initializeWorld(self):
@@ -95,7 +97,7 @@ class RecordingPlayer(Simulation):
         self.graphs.executedCommands = self.recorder.getNextExecutedCommands()
         self.graphs.scrollIndex = len(self.recorder.executedCommands) - 1
         self.graphs.screenBorder = self.recorder.getNextScreenBorder()
-        Display.addToDrawLast(self.graphs.drawScreenBorder)
+        Display.addToDrawLast(self.graphs.drawScreenBorder, [])
 
         super().update(agentRectList)
         self.userControls.moveScreen()
@@ -129,7 +131,7 @@ class RecordingPlayer(Simulation):
                 self.world.siteList[i].wasFound = True
                 self.world.siteList[i].setPosition(pos)
                 self.world.siteList[i].setQuality(quality)
-                self.world.siteList[i].radius = rad
+                self.world.siteList[i].setRadius(rad)
                 self.world.siteList[i].setColor(quality)
                 self.world.siteRectList[i] = self.world.siteList[i].getSiteRect()
                 self.userControls.setSiteCommand(self.world.siteList[i], marker)
@@ -198,6 +200,7 @@ class RecordingPlayer(Simulation):
 
     def applyConfiguration(self):
         super().applyConfiguration()
+        Config.INTERFACE_NAME = "recording"
         Config.DRAW_ESTIMATES = False
         Config.SHOULD_RECORD = False
         Config.DRAW_FAR_AGENTS = True

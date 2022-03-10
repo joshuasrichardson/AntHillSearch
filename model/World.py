@@ -44,6 +44,7 @@ class World:
         self.request = None  # The request, used to sent information to a rest API
         self.agentsToDeleteIndexes = []
         self.dangerZones = []
+        self.dangerZonesVisibilities = []
 
         self.states = zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
@@ -189,8 +190,9 @@ class World:
 
     def removeSite(self, site):
         """ Deletes the site unless it is the hub """
-        if site.getQuality() == -1:
+        if site.isHub():
             print("Cannot delete the hub")
+            site.unselect()
         else:
             index = self.siteList.index(site, 0, len(self.siteList))
             self.siteList.pop(index)
@@ -279,7 +281,7 @@ class World:
             hubSite = SiteBuilder.getNewSite(numHubs, pos[0], pos[1], rad, -1)
             count = self.initialHubAgentCounts[i]
             hubSite.agentCount = count
-            hubSite.setEstimates([pos, -1, count, rad])
+            hubSite.setEstimates(pos, -1, count, rad)
             hubSite.blurAmount = 1
             hubSite.blurRadiusDiff = 0
             self.siteList.append(hubSite)
@@ -365,14 +367,26 @@ class World:
         self.numDeadAgents[hubIndex] += 1
 
     def addDangerZone(self, pos):
-        if self.getNearbyDangerZone(pos) is None:
+        dzPos = self.getNearbyDangerZone(pos)
+        if dzPos is None:
             self.dangerZones.append(pos)
+            self.dangerZonesVisibilities.append(255)
+        else:
+            i = self.dangerZones.index(dzPos)
+            self.dangerZonesVisibilities[i] = 255
 
     def getNearbyDangerZone(self, newZonePos):
         for pos in self.dangerZones:
             if self.isClose(newZonePos, pos, Config.MIN_AVOID_DIST):
                 return pos
         return None
+
+    def updateDangerZones(self):
+        for i in reversed(range(len(self.dangerZones))):
+            self.dangerZonesVisibilities[i] -= 0.5
+            if self.dangerZonesVisibilities[i] == 0:
+                self.dangerZonesVisibilities.pop(i)
+                self.dangerZones.pop(i)
 
     @staticmethod
     def isClose(newZonePos, position, distance):

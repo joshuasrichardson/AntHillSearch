@@ -11,7 +11,7 @@ class State(ABC):
         self.agent = agent
 
     def setState(self, state, target):
-        self.agent.target = target
+        self.agent.setTarget(target)
         self.updateAngle()
         self.agent.state = state
         self.forgetMovedSites()

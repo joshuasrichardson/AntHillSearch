@@ -1,6 +1,6 @@
 from numpy import sin, pi
 
-
+INTERFACE_NAME = "engineering"
 # The lower the convergence fraction is, the faster the interface goes because lower fractions require less agents to go to a site
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.

@@ -24,11 +24,12 @@ def drawWorldObjects(world):
             if site.wasFound:
                 drawSite(site, site.estimatedPosition, site.estimatedRadius + site.blurRadiusDiff,
                          site.estimatedQuality, site.blurAmount)
-        drawDangerZones(world)
     else:
         for site in world.siteList:
-            drawSite(site, site.pos, site.radius, site.quality)
+            drawSite(site, site.pos, site.getRadius(), site.quality)
     drawFog()
+    if not Config.DRAW_FAR_AGENTS:
+        drawDangerZones(world)
     drawMarkers(world)
     Display.drawLast()
 
@@ -59,20 +60,21 @@ def drawLadybugs(world):
 
 
 def drawDangerZones(world):
-    for pos in world.dangerZones:
-        drawDangerZone(pos)
+    for i, pos in enumerate(world.dangerZones):
+        drawDangerZone(pos, world.dangerZonesVisibilities[i])
 
 
-def drawDangerZone(pos):
-    # Draw red 'X'
-    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] - 30], [pos[0] + 30, pos[1] + 30], 4)
-    # Display.drawLine(Display.screen, RED, [pos[0] - 30, pos[1] + 30], [pos[0] + 30, pos[1] - 30], 4)
+def drawDangerZone(pos, visibility):
+    size = Display.getZoomedSize(80, 80)
+    surf = pygame.Surface((size[0] + 1, size[1] + 1), pygame.SRCALPHA)
 
     # Draw triangle and exclamation mark warning sign
-    Display.drawPolygon(Display.screen, RED,
-                        [[pos[0], pos[1] - 40], [pos[0] - 40, pos[1] + 40], [pos[0] + 40, pos[1] + 40]], width=3)
-    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] - 20], [pos[0], pos[1] + 20], 4)
-    Display.drawLine(Display.screen, BLACK, [pos[0], pos[1] + 25], [pos[0], pos[1] + 30], 4)
+    pygame.draw.polygon(surf, [*RED, visibility], [[size[0] / 2, 0], [0, size[1]], size], 3)
+    pygame.draw.line(surf, [*BLACK, visibility], [size[0] / 2, size[0] / 4], [size[0] / 2, 3 * size[0] / 4], 4)
+    pygame.draw.line(surf, [*BLACK, visibility], [size[0] / 2, 13 * size[0] / 16], [size[0] / 2, 7 * size[0] / 8], 4)
+
+    # Draw a partially transparent surface over the screen
+    Display.screen.blit(surf, Display.getAdjustedPos(*pos))
 
 
 def drawMarkers(world):
@@ -109,12 +111,14 @@ def eraseFog(pos):
         pygame.draw.circle(fog, TRANSPARENT, [x, y], 20, 0)
 
 
-def drawPotentialQuality(world, potentialQuality, font):
+def drawPotentialQuality(world, potentialQuality):
     """ Draws the value the selected sites will be set to if the user pushes Enter """
-    img = font.render(f"Set quality: {potentialQuality}", True, (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
+    img = SiteDisplay.siteFontSize.render(f"Set quality: {potentialQuality}", True,
+                                          (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
     for site in world.siteList:
-        if site.isSelected and site.getQuality() != -1:
-            Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2), site.getPosition()[1] - (site.radius + 45), 15, 10))
+        if site.isSelected and not site.isHub():
+            Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2),
+                                                    site.getPosition()[1] - (site.getRadius() + 45), 15, 10))
 
 
 def collidesWithSite(world, mousePos):

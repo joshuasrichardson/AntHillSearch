@@ -16,7 +16,7 @@ class InputError(Error):
 
 
 class GameOver(Error):
-    """Exception raised for errors in the input.
+    """Exception raised to end the simulation.
 
     Attributes:
         message -- explanation of the error
@@ -24,4 +24,5 @@ class GameOver(Error):
     """
 
     def __init__(self, message):
+        self.message = message
         print(f"{message}")
