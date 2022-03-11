@@ -7,7 +7,6 @@ from display.PredatorDisplay import getPredatorImage
 
 
 class Predator:
-
     def __init__(self, site, world, pos=None):
         self.site = site  # The site the predator will be terrorizing.
         self.world = world

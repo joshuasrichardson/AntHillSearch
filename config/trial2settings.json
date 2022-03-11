@@ -12,6 +12,7 @@
   "SITE_POSITIONS": [[1200, 350], [650, 200], [650, 500], [450, 350], [0, 650]],
   "SITE_RADIUS": 30,
   "AGENT_IMAGE": "resources/ant.png",
+  "LADYBUG_IMAGE": "resources/ladybug.png",
   "SITE_NO_CLOSER_THAN": 140,
   "HUB_AGENT_COUNTS": [100],
   "SHOULD_RECORD": true,
@@ -19,7 +20,9 @@
   "MAX_SEARCH_DIST": 700,
   "SITE_NO_FARTHER_THAN": 600,
   "NUM_PREDATORS": 3,
+  "NUM_LADYBUGS": 2,
   "PRED_POSITIONS": [[850, 350], [875, 350], [900, 350]],
+  "LADYBUG_POSITIONS": [],
 
 
   "SECONDS_BETWEEN_SENDING_REQUESTS": 5,

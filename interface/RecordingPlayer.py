@@ -14,13 +14,15 @@ from user.RecordingControls import RecordingControls
 class RecordingPlayer(Simulation):
     """ Runs the colony interface for a previously recorded interface using the data stored in recording.txt """
 
-    def __init__(self):
+    def __init__(self, selectedReplay):
         self.hubAgentCounts = []
         self.delay = 0
+        self.selectedReplay = selectedReplay
         WorldDisplay.fog = None
         super().__init__()
         Config.SHOULD_RECORD = False
         self.realTimer = SimulationTimer(self.timeOut)
+
 
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
@@ -29,12 +31,12 @@ class RecordingPlayer(Simulation):
         super().initializeAgentList()
 
     def initializeWorld(self):
-        self.recorder.read()
+        self.recorder.read(self.selectedReplay)
         addAfter = self.initHubsAgentCounts()
         self.world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), Config.HUB_LOCATIONS,
                            Config.HUB_RADII, Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS,
                            Config.SITE_QUALITIES, Config.SITE_RADII, Config.SITE_RADIUS,
-                           numPredators=self.recorder.getNumPredators())
+                           numPredators=self.recorder.getNumPredators(), numLadybugs=self.recorder.getNumLadybugs())
         self.addAddedAgents(self.world, addAfter)
         self.initializeAgentList()
         Config.SIM_DURATION = self.recorder.getNextTime()
@@ -169,6 +171,11 @@ class RecordingPlayer(Simulation):
         pos = self.recorder.getNextPredatorPosition()
         predator.setPosition(pos[0], pos[1])
         predator.setAngle(self.recorder.getNextPredatorAngle())
+
+    def updateLadybug(self, ladybug, agentRectList):
+        pos = self.recorder.getNextLadybugPosition()
+        ladybug.setPosition(pos[0], pos[1])
+        ladybug.setAngle(self.recorder.getNextLadybugAngle())
 
     def changeDelay(self, seconds):
         self.delay += seconds

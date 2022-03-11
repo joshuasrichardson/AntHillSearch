@@ -45,7 +45,9 @@ class Settings:
                          IntegerSetting(MAX_SEARCH_DIST_NAME, "Max Search Distance", x, self.nextY(), drawSearchArea, self),
                          StringSetting(AGENT_IMAGE_NAME, "Agent Image", x, self.nextY(), drawAgents, self, getOtherFile),
                          IntegerSetting(NUM_PREDATORS_NAME, "Number of Predators", x, self.nextY(), drawPredators, self),
-                         PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self)]
+                         PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self),
+                         IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self),
+                         PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self)]
 
     def nextY(self):
         y = self.y

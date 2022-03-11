@@ -1,6 +1,7 @@
 import json
 import numbers
 import os
+import shelve
 
 from datetime import datetime
 
@@ -17,7 +18,7 @@ def getMostRecentRecording():
         return data['file_base']
 
 
-class Recorder:
+class Recorder():
     """ Records essential site information, agent positions, agent states, and agent phases
     in recording.txt so that the same interface can be played over again """
 
@@ -29,6 +30,8 @@ class Recorder:
         self.agentAssignments = []
         self.predatorPositions = []
         self.predatorAngles = []
+        self.ladybugPositions = []
+        self.ladybugAngles = []
         self.agentsToDelete = []
         self.sitePositions = []
         self.siteQualities = []
@@ -50,6 +53,8 @@ class Recorder:
         self.currentAssignmentIndex = -1
         self.currentPredatorPosIndex = -1
         self.currentPredatorAngleIndex = -1
+        self.currentLadybugPosIndex = -1
+        self.currentLadybugAngleIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -90,6 +95,12 @@ class Recorder:
 
     def recordPredatorAngle(self, angle):
         self.predatorAngles.append(angle)
+
+    def recordLadybugPosition(self, pos):
+        self.ladybugPositions.append(pos)
+
+    def recordLadybugAngle(self, angle):
+        self.ladybugAngles.append(angle)
 
     def recordSiteInfo(self, site):
         self.recordSitePosition(site.getPosition())
@@ -138,6 +149,8 @@ class Recorder:
                           'agentsToDelete': self.agentsToDelete,
                           'predatorPositions': self.predatorPositions,
                           'predatorAngles': self.predatorAngles,
+                          'ladybugPositions': self.ladybugPositions,
+                          'ladybugAngles': self.ladybugAngles,
                           'sitePositions': self.sitePositions,
                           'siteQualities': self.siteQualities,
                           'siteRadii': self.siteRadii,
@@ -156,6 +169,8 @@ class Recorder:
         self.agentsToDelete = []
         self.predatorPositions = []
         self.predatorAngles = []
+        self.ladybugPositions = []
+        self.ladybugAngles = []
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
@@ -180,6 +195,8 @@ class Recorder:
             self.agentsToDelete.clear()
             self.predatorPositions.clear()
             self.predatorAngles.clear()
+            self.ladybugPositions.clear()
+            self.ladybugAngles.clear()
             self.sitePositions.clear()
             self.siteQualities.clear()
             self.siteRadii.clear()
@@ -208,10 +225,16 @@ class Recorder:
         CsvWriter.jsonToCsv(CONFIG_FILE_NAME, 'all-configs', should_separate=False)
         del results
 
-    def read(self):
-        with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:
-            self.data = json.load(file)
-            self.time = self.data[0]['time']
+    def read(self, selectedReplay=None):
+        if selectedReplay == None:
+            with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:
+                self.data = json.load(file)
+                self.time = self.data[0]['time']
+        else:
+            print(f"selected replay baby: {selectedReplay}")
+            with open(RESULTS_DIR + selectedReplay, 'r') as file:
+                self.data = json.load(file)
+                self.time = self.data[0]['time']
 
     @staticmethod
     def readResults():
@@ -264,6 +287,14 @@ class Recorder:
         self.currentPredatorAngleIndex += 1
         return self.predatorAngles[self.currentPredatorAngleIndex]
 
+    def getNextLadybugPosition(self):
+        self.currentLadybugPosIndex += 1
+        return self.ladybugPositions[self.currentLadybugPosIndex]
+
+    def getNextLadybugAngle(self):
+        self.currentLadybugAngleIndex += 1
+        return self.ladybugAngles[self.currentLadybugAngleIndex]
+
     def getNumHubs(self):
         numHubs = 0
         for quality in self.data[0]['siteQualities']:
@@ -315,6 +346,12 @@ class Recorder:
         else:
             return len(self.data[0]['predatorPositions'])
 
+    def getNumLadybugs(self):
+        if self.dataIndex >= 0:
+            return len(self.ladybugPositions)
+        else:
+            return len(self.data[0]['ladybugPositions'])
+
     def getNumSites(self):
         if self.dataIndex >= 0:
             return len(self.sitePositions)
@@ -331,6 +368,8 @@ class Recorder:
         self.currentAssignmentIndex = -1
         self.currentPredatorPosIndex = -1
         self.currentPredatorAngleIndex = -1
+        self.currentLadybugPosIndex = -1
+        self.currentLadybugAngleIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -345,6 +384,8 @@ class Recorder:
             self.agentsToDelete = self.data[self.dataIndex]['agentsToDelete']
             self.predatorPositions = self.data[self.dataIndex]['predatorPositions']
             self.predatorAngles = self.data[self.dataIndex]['predatorAngles']
+            self.ladybugPositions = self.data[self.dataIndex]['ladybugPositions']
+            self.ladybugAngles = self.data[self.dataIndex]['ladybugAngles']
             self.sitePositions = self.data[self.dataIndex]['sitePositions']
             self.siteQualities = self.data[self.dataIndex]['siteQualities']
             self.siteRadii = self.data[self.dataIndex]['siteRadii']

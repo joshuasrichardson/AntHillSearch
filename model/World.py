@@ -7,6 +7,7 @@ from config import Config
 from Constants import *
 from display import Display
 from model.Predator import Predator
+from model.Ladybug import Ladybug
 from model.builder import SiteBuilder
 
 
@@ -15,7 +16,8 @@ class World:
 
     def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
                  siteRadii, siteRadius=Config.SITE_RADIUS, numPredators=Config.NUM_PREDATORS,
-                 predPositions=Config.PRED_POSITIONS):
+                 predPositions=Config.PRED_POSITIONS,
+                 numLadybugs=Config.NUM_LADYBUGS, ladybugPositions=Config.LADYBUG_POSITIONS):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -28,13 +30,17 @@ class World:
 
         self.hubsRects = []
         self.hubs = self.createHubs(numHubs)  # The agents' original homes
-        self.createSites(numSites, numHubs, siteRadius)  # Initializes the site list with sites that match the specified values or random sites by default
+        self.createSites(numSites, numHubs,
+                         siteRadius)  # Initializes the site list with sites that match the specified values or random sites by default
         self.normalizeQuality()  # Set the site qualities so that the best is bright green and the worst bright red
         self.agentList = []  # List of all the agents in the world
         self.numDeadAgents = [0 for _ in range(numHubs)]  # The number of agents that have died during the simulation
-        self.predatorList = self.generatePredators(numPredators, predPositions)  # List of all the predators in the world
+        self.predatorList = self.generatePredators(numPredators,
+                                                   predPositions)  # List of all the predators in the world
+        self.ladybugList = self.generateLadybugs(numLadybugs, ladybugPositions)  # List of all the ladybugs in the world
         self.paths = []  # List of all the positions the agents have been to recently
-        self.agentGroups = [[], [], [], [], [], [], [], [], [], []]  # Groups of agents that are selected together and assigned a number 0 - 9.
+        self.agentGroups = [[], [], [], [], [], [], [], [], [],
+                            []]  # Groups of agents that are selected together and assigned a number 0 - 9.
         self.request = None  # The request, used to sent information to a rest API
         self.agentsToDeleteIndexes = []
         self.dangerZones = []
@@ -65,7 +71,8 @@ class World:
 
     def generateNextPos(self):
         if len(self.hubLocations) == 0:
-            return [random.randint(Config.HUB_MIN_X, Config.HUB_MAX_X), random.randint(Config.HUB_MIN_Y, Config.HUB_MAX_Y)]
+            return [random.randint(Config.HUB_MIN_X, Config.HUB_MAX_X),
+                    random.randint(Config.HUB_MIN_Y, Config.HUB_MAX_Y)]
         neighborHubLocation = self.hubLocations[random.randint(0, len(self.hubLocations))]
         dist = Config.MAX_SEARCH_DIST * random.uniform(1.25, 1.75)
         angle = random.uniform(0, 2 * pi)
@@ -97,21 +104,48 @@ class World:
     def generatePredators(self, numPredators, predPositions):
         predators = []
 
+        print(f"numPredators: {numPredators}")
+
         for i in range(numPredators):
+            print(f"i (pred): {i}")
             try:
                 if len(self.siteList) < len(self.hubs) + 2:
                     predators.append(Predator(self.siteList[len(self.hubs)], self, predPositions[i]))
                 else:
-                    predators.append(Predator(self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
-                                              self, predPositions[i]))
+                    predators.append(Predator(
+                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                        self, predPositions[i]))
             except IndexError:
                 if len(self.siteList) < 2:
                     predators.append(Predator(self.siteList[len(self.hubs)], self))
                 else:
-                    predators.append(Predator(self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
-                                              self))
+                    predators.append(Predator(
+                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                        self))
 
+        print(f"len(predators): {len(predators)}")
         return predators
+
+    def generateLadybugs(self, numLadybugs, ladybugPositions):
+        ladybugs = []
+
+        for i in range(numLadybugs):
+            try:
+                if len(self.siteList) < len(self.hubs) + 2:
+                    ladybugs.append(Ladybug(self.siteList[len(self.hubs)], self, ladybugPositions[i]))
+                else:
+                    ladybugs.append(Ladybug(
+                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                        self, ladybugPositions[i]))
+            except IndexError:
+                if len(self.siteList) < 2:
+                    ladybugs.append(Ladybug(self.siteList[len(self.hubs)], self))
+                else:
+                    ladybugs.append(Ladybug(
+                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
+                        self))
+
+        return ladybugs
 
     def getSiteList(self):
         return self.siteList
