@@ -221,18 +221,23 @@ class Recorder():
             data = {'file_base': f'{self.outputFileBase}'}
             json.dump(data, file)
         configAbrv = self.recordConfig(world)
-        XlsxWriter.jsonFileToXlsx(f'{getMostRecentRecording()}_RESULTS.json', Config.INTERFACE_NAME,
-                                  f"{configAbrv}Results")
         XlsxWriter.jsonFileToXlsx(f'{getMostRecentRecording()}_COMMANDS.json', Config.INTERFACE_NAME,
                                   f"{configAbrv}Commands", "8FD3FE", "DAF0FF", "B5E2FF")
 
-        # TODO: Maybe find a way around opening the file again here
         with open(f'{getMostRecentRecording()}_RESULTS.json', 'r') as jsonFile:
-            jsonData = json.load(jsonFile)
+            jsonResultsData = json.load(jsonFile)
+
+        XlsxWriter.jsonToXlsx(jsonResultsData, Config.INTERFACE_NAME, f"{configAbrv}Results")
 
         ignore = ["SIM_END_TIME", "CHOSEN_HOME_POSITIONS"]
-        self.createCharts(configAbrv, jsonData.keys(), ignore)
-        XlsxWriter.writeSummary(jsonData, Config.INTERFACE_NAME, "Summary", f"{configAbrv}Results", ignore)
+        self.createCharts(configAbrv)
+        XlsxWriter.writeSummary(jsonResultsData, Config.INTERFACE_NAME, "Summary", f"{configAbrv}Results", ignore)
+
+        chartsAxes = [["Settings", "Num Rounds"],
+                      ["Settings", "Chosen Home Qualities"],
+                      ["Settings", "Num Arrivals"],
+                      ["Settings", "Num Dead Agents"]]
+        XlsxWriter.createBarCharts(Config.INTERFACE_NAME, "Summary", chartsAxes, 2)
 
         del results
 
@@ -247,18 +252,17 @@ class Recorder():
                 self.time = self.data[0]['time']
 
     @staticmethod
-    def createCharts(configAbrv, keys, ignore):
-        headers = [header.title().replace('_', ' ') for header in keys if header not in ignore]
-        i = 0
-        # TODO: Think about which charts are actually needed
-        # TODO: Write a method that creates all the charts before it closes the file instead of repeatedly opening, writing, and closing
-        for column1 in headers:
-            for column2 in headers:
-                if column1 != column2:
-                    XlsxWriter.createScatterPlot(Config.INTERFACE_NAME, f"{configAbrv}Results", column1, column2, 2, i)
-                    i += 1
-                    break  # TODO: Get rid of these break statements when we figure out which charts to make
-            break  # TODO: Get rid of these break statements when we figure out which charts to make
+    def createCharts(configAbrv):
+        chartsAxes = [["Num Rounds", "Chosen Home Qualities"],
+                      ["Num Rounds", "Num Arrivals"],
+                      ["Num Rounds", "Num Dead Agents"],
+                      ["Chosen Home Qualities", "Num Arrivals"],
+                      ["Chosen Home Qualities", "Num Dead Agents"]]
+        # headers = [header.title().replace('_', ' ') for header in keys if header not in ignore]
+        # for header1Index in range(len(headers)):
+        #     for header2Index in range(header1Index + 1, len(headers)):
+        #         chartsAxes.append([headers[header1Index], headers[header2Index]])
+        XlsxWriter.createScatterPlots(Config.INTERFACE_NAME, f"{configAbrv}Results", chartsAxes, 2)
 
     def recordConfig(self, world):
         """ Record the actual configuration for the simulation (instead of just showing that certain variables
