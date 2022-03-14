@@ -1,6 +1,8 @@
 from numpy import sin, pi
 
-INTERFACE_NAME = "engineering"
+INTERFACE_NAME = "Engineering"
+FULL_CONTROL = True  # Whether the user can access all the controls in the interface.
+DISTRACTED = False  # Whether the user is distracted
 # The lower the convergence fraction is, the faster the interface goes because lower fractions require less agents to go to a site
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
@@ -121,7 +123,7 @@ PRED_POSITIONS = []  # Where the predators will start. No position = random
 
 """ Ladybug default values """
 
-LADYBUG_IMAGE = "/resources/ladybug.png"  # The path of the ladybug image
+LADYBUG_IMAGE = "resources/ladybug.png"  # The path of the ladybug image
 LADYBUG_ANGLE = pi / 2  # The initial angle the ladybug in the image is facing
 NUM_LADYBUGS = 2  # The number of ladybugs that go around helping agents
 LADYBUG_POSITIONS = [[100, 50], [100, 200], [-50, 300], [250, 250]]  # Where the ladybugs will start. No position =

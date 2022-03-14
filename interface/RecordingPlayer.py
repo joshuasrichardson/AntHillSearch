@@ -23,7 +23,6 @@ class RecordingPlayer(Simulation):
         Config.SHOULD_RECORD = False
         self.realTimer = SimulationTimer(self.timeOut)
 
-
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
         for i in range(len(self.world.hubs)):
@@ -200,7 +199,7 @@ class RecordingPlayer(Simulation):
 
     def applyConfiguration(self):
         super().applyConfiguration()
-        Config.INTERFACE_NAME = "recording"
+        Config.INTERFACE_NAME = "Recording"
         Config.DRAW_ESTIMATES = False
         Config.SHOULD_RECORD = False
         Config.DRAW_FAR_AGENTS = True

@@ -11,7 +11,6 @@ lib64
 settings.json
 __pycache__/
 *.pyc
-/venv/
 /Colony.prof
 *.prof
 recording/results/*.json
@@ -23,3 +22,5 @@ setup.py
 /recording/results/emp_testing/
 /recording/results/engineering/
 /recording/results/user/
+/recording/results/*
+/venv/

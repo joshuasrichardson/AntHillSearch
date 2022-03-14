@@ -104,10 +104,7 @@ class World:
     def generatePredators(self, numPredators, predPositions):
         predators = []
 
-        print(f"numPredators: {numPredators}")
-
         for i in range(numPredators):
-            print(f"i (pred): {i}")
             try:
                 if len(self.siteList) < len(self.hubs) + 2:
                     predators.append(Predator(self.siteList[len(self.hubs)], self, predPositions[i]))
@@ -123,7 +120,6 @@ class World:
                         self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
                         self))
 
-        print(f"len(predators): {len(predators)}")
         return predators
 
     def generateLadybugs(self, numLadybugs, ladybugPositions):

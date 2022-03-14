@@ -1,3 +1,4 @@
+import json
 import time
 
 import pygame.display
@@ -5,7 +6,8 @@ from pygame import MOUSEBUTTONUP, QUIT
 
 from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, TRIAL_SETTINGS, BLUE, CONFIG_FILE_NAME, RESULTS_DIR
+from Constants import SCREEN_COLOR, TRIAL_SETTINGS, BLUE, CONFIG_FILE_NAME, RESULTS_DIR, FULL_CONTROL_NAME, DISTRACTED_NAME
+
 from display import Display
 from display.mainmenu.InterfaceSelector import InterfaceSelector
 from display.mainmenu.settings.Settings import Settings
@@ -105,8 +107,14 @@ class StartUpDisplay:
     @staticmethod
     def setSettings(trialSetting):
         """ Copy the current trial's settings to the settings file that will be used in the simulation """
-        with open(trialSetting, 'r') as trialFile, open(CONFIG_FILE_NAME, 'w') as currentSettings:
-            currentSettings.write(trialFile.read())
+        currentSettings = open(CONFIG_FILE_NAME, 'r')
+        current = json.load(currentSettings)
+        currentSettings.close()
+        with open(trialSetting, 'r') as trialFile, open(CONFIG_FILE_NAME, 'w') as currentSetting:
+            trial = json.load(trialFile)
+            trial[FULL_CONTROL_NAME] = current[FULL_CONTROL_NAME]
+            trial[DISTRACTED_NAME] = current[DISTRACTED_NAME]
+            json.dump(trial, currentSetting)
 
     def practice(self):
         interface = self.interfaceSelector.chooseInterface()
@@ -117,7 +125,10 @@ class StartUpDisplay:
 
     def play(self):
         """ Construct and start the simulation """
-        del self.simInterface
+        try:
+            del self.simInterface
+        except AttributeError:
+            print("Nothing to delete")
         self.simInterface = self.freshInterface()
         self.simInterface.runSimulation()
         Display.resetScreen()
@@ -129,23 +140,17 @@ class StartUpDisplay:
     def replay(self):
         """ Watch one of the most recent simulation's replays """
         replay = self.replaySelector.chooseReplay()
-        print(f"rreeepplaayy: {replay}")
-        try:
-            from os.path import getsize
-            file_path = RESULTS_DIR + replay  # f'{getMostRecentRecording()}_RECORDING.json'
-            # If the recording exists, play it, else tell the user there is no recording
-            if getsize(file_path) > 0:
-                del self.simInterface
-                self.simInterface = RecordingPlayer(replay)
-                self.simInterface.runSimulation()
-                Display.resetScreen()
-            else:
-                self.complainAboutMissingRecording()
+        file_path = RESULTS_DIR + replay
+        try:  # If the recording exists, play it, else tell the user there is no recording
+            del self.simInterface
+            self.simInterface = RecordingPlayer(replay)
+            self.simInterface.runSimulation()
+            Display.resetScreen()
         except FileNotFoundError:
-            self.complainAboutMissingRecording()
+            self.complainAboutMissingRecording(file_path)
 
     @staticmethod
-    def complainAboutMissingRecording():
+    def complainAboutMissingRecording(file_path):
         """ Tell the user there is no recording so they can't play the recording """
         Display.writeCenterPlus(Display.screen, "No Recording Available", Config.LARGE_FONT_SIZE, 130)
         Display.writeCenterPlus(Display.screen, "Please play the simulation with the recording",
@@ -154,7 +159,7 @@ class StartUpDisplay:
                                 Config.FONT_SIZE, 130 + Config.LARGE_FONT_SIZE + Config.FONT_SIZE)
         pygame.display.flip()
         time.sleep(2.5)
-        print(f"'{getMostRecentRecording()}_RECORDING.json' is empty.")
+        print(f"'{file_path} is empty.")
 
     def viewSettings(self):
         """ Enter the settings tab """

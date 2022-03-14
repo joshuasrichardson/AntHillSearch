@@ -171,4 +171,4 @@ class LiveSimulation(Simulation, ABC):
         if Config.USE_REST_API:
             self.world.request.sendResultsToAPI(results)
         if Config.SHOULD_RECORD:
-            self.recorder.writeResults(results)
+            self.recorder.writeResults(results, self.world)

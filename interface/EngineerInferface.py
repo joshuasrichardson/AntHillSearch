@@ -19,7 +19,7 @@ class EngineerInterface(LiveSimulation):
 
     def applyConfiguration(self):
         super().applyConfiguration()
-        Config.INTERFACE_NAME = "engineering"
+        Config.INTERFACE_NAME = "Engineering"
         Config.DRAW_ESTIMATES = False
         Config.DRAW_FAR_AGENTS = True
         Config.SHOULD_DRAW_PATHS = False
