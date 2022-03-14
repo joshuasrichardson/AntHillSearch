@@ -4,7 +4,7 @@ from datetime import datetime
 
 from openpyxl import load_workbook, Workbook
 from openpyxl.cell import Cell
-from openpyxl.chart import Reference, Series, ScatterChart
+from openpyxl.chart import Reference, Series, ScatterChart, BarChart
 from openpyxl.chart.marker import Marker
 from openpyxl.styles import Font, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
@@ -80,8 +80,10 @@ def writeSummary(jsonData, workbookName, summarySheetName, resultsSheetName, ign
         for i, formula in enumerate(formulas, 2):
             summarySheet.cell(row=summaryRow, column=i).value = formula
             summarySheet.cell(row=summaryRow, column=i).fill = PatternFill(fill_type="solid", start_color=color)
-            summarySheet.cell(row=summaryRow, column=i).border = Border(left=Side(style='thin'), right=Side(style='thin'),
-                                                                        top=Side(style='thin'), bottom=Side(style='thin'))
+            summarySheet.cell(row=summaryRow, column=i).border = Border(left=Side(style='thin'),
+                                                                        right=Side(style='thin'),
+                                                                        top=Side(style='thin'),
+                                                                        bottom=Side(style='thin'))
 
     workbook.save(path)
 
@@ -177,7 +179,8 @@ def findSettingRow(worksheet, settingName):
 
 
 def findSettingColumn(worksheet, settingName, columnNameRow):
-    for row in worksheet.iter_rows(min_row=columnNameRow, min_col=1, max_row=columnNameRow, max_col=worksheet.max_column):
+    for row in worksheet.iter_rows(min_row=columnNameRow, min_col=1, max_row=columnNameRow,
+                                   max_col=worksheet.max_column):
         for cell in row:
             if cell.value == settingName:
                 return cell.column
@@ -192,8 +195,9 @@ def createScatterPlot(workbookName, worksheetName, columnNameX, columnNameY, col
     if chartIndex > len(worksheet._charts):
         raise IndexError("The chart index must be an existing index or the next available one.\n"
                          "Current index: " + str(chartIndex) + "\n"
-                         "Last existing index: " + str(len(worksheet._charts) - 1) + "\n"
-                         "Next available index: " + str(len(worksheet._charts)))
+                                                               "Last existing index: " + str(
+            len(worksheet._charts) - 1) + "\n"
+                                          "Next available index: " + str(len(worksheet._charts)))
 
     columnX = findSettingColumn(worksheet, columnNameX, columnNameRow)
     if columnX == -1:
@@ -203,8 +207,10 @@ def createScatterPlot(workbookName, worksheetName, columnNameX, columnNameY, col
         raise ValueError("Column name not found: " + columnNameY)
 
     # The values that will make up the x and y axes.
-    valuesX = Reference(worksheet, min_col=columnX, min_row=columnNameRow+1, max_col=columnX, max_row=worksheet.max_row)
-    valuesY = Reference(worksheet, min_col=columnY, min_row=columnNameRow+1, max_col=columnY, max_row=worksheet.max_row)
+    valuesX = Reference(worksheet, min_col=columnX, min_row=columnNameRow + 1, max_col=columnX,
+                        max_row=worksheet.max_row)
+    valuesY = Reference(worksheet, min_col=columnY, min_row=columnNameRow + 1, max_col=columnY,
+                        max_row=worksheet.max_row)
 
     series = Series(valuesX, valuesY)
     series.marker = Marker('circle')
@@ -224,5 +230,70 @@ def createScatterPlot(workbookName, worksheetName, columnNameX, columnNameY, col
         columnLetter = get_column_letter(worksheet.max_column + 2)
         chart.anchor = f"{columnLetter}{columnNameRow + chartIndex * 15}"
         worksheet._charts[chartIndex] = chart
+
+    workbook.save(path)
+
+
+def createScatterPlots(workbookName, worksheetName, chartAxesList, columnNameRow, chartIndex=0):
+    def setData(ch, valuesX, valuesY):
+        series = Series(valuesY, valuesX)
+        series.marker = Marker('circle')
+        series.graphicalProperties.line.noFill = True
+        ch.series = [series]
+        ch.x_axis.scaling.min = 0
+
+    createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, ScatterChart, setData, chartIndex)
+
+
+def createBarCharts(workbookName, worksheetName, chartAxesList, columnNameRow, chartIndex=0):
+    def setData(ch, valuesX, valuesY):
+        ch.add_data(valuesY)
+        ch.set_categories(valuesX)
+
+    createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, BarChart, setData, chartIndex)
+
+
+def createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, chartType, setData, chartIndex=0):
+    path = createOrGetPath(workbookName)
+    workbook = createOrGetWorkbook(path)
+    worksheet = createOrGetSheet(workbook, worksheetName)
+
+    if chartIndex > len(worksheet._charts):
+        raise IndexError("The chart index must be an existing index or the next available one.\n"
+                         "Current index: " + str(chartIndex) + "\n"
+                                                               "Last existing index: " + str(
+            len(worksheet._charts) - 1) + "\n"
+                                          "Next available index: " + str(len(worksheet._charts)))
+
+    for chartAxes in chartAxesList:
+        columnX = findSettingColumn(worksheet, chartAxes[0], columnNameRow)
+        if columnX == -1:
+            raise ValueError("Column name not found: " + chartAxes[0])
+        columnY = findSettingColumn(worksheet, chartAxes[1], columnNameRow)
+        if columnY == -1:
+            raise ValueError("Column name not found: " + chartAxes[1])
+
+        # The values that will make up the x and y axes.
+        valuesX = Reference(worksheet, min_col=columnX, min_row=columnNameRow + 1, max_col=columnX,
+                            max_row=worksheet.max_row)
+        valuesY = Reference(worksheet, min_col=columnY, min_row=columnNameRow + 1, max_col=columnY,
+                            max_row=worksheet.max_row)
+
+        chart = chartType()
+        setData(chart, valuesX, valuesY)
+        chart.title = f"{chartAxes[0]} vs {chartAxes[1]}"
+        chart.x_axis.title = chartAxes[0]
+        chart.y_axis.title = chartAxes[1]
+        chart.y_axis.scaling.min = 0
+        chart.legend = None
+
+        if chartIndex == len(worksheet._charts):
+            columnLetter = get_column_letter(worksheet.max_column + 2)
+            worksheet.add_chart(chart, f"{columnLetter}{columnNameRow + chartIndex * 15}")
+        else:
+            columnLetter = get_column_letter(worksheet.max_column + 2)
+            chart.anchor = f"{columnLetter}{columnNameRow + chartIndex * 15}"
+            worksheet._charts[chartIndex] = chart
+        chartIndex += 1
 
     workbook.save(path)
