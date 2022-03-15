@@ -10,7 +10,8 @@ class EngineerInterface(LiveSimulation):
         super().__init__()
 
     def update(self, agentRectList):
-        self.graphs.setRemainingTime(self.timer.getRemainingTime())
+        # self.graphs.setRemainingTime(self.timer.getRemainingTime())
+        self.graphs.setRemainingTime(self.getNumRounds())
         super().update(agentRectList)
         self.userControls.moveScreen()
 

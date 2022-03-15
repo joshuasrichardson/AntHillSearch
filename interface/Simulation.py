@@ -30,6 +30,7 @@ class Simulation(ABC):
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
         self.numRounds = 0
+        self.terminalRound = Config.TERMINAL_ROUND
 
     @staticmethod
     def calcNumAgents():
@@ -63,7 +64,7 @@ class Simulation(ABC):
         self.timer.start()
 
         try:
-            while not foundNewHome and not self.timeRanOut:
+            while not foundNewHome and self.getNumRounds() < self.terminalRound:
                 self.runNextRound()
                 self.numRounds += 1
                 foundNewHome = self.checkIfSimulationEnded()
@@ -89,6 +90,9 @@ class Simulation(ABC):
             roundCounts.append(rounds)
             print(f"Colony {i + 1} took {rounds} rounds to finish.")
         return roundCounts
+
+    def getNumRounds(self):
+        return self.numRounds
 
     def stopTimer(self):
         self.timer.cancel()
