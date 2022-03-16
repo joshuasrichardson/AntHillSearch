@@ -18,7 +18,7 @@ def getMostRecentRecording():
         return data['file_base']
 
 
-class Recorder():
+class Recorder:
     """ Records essential site information, agent positions, agent states, and agent phases
     in recording.txt so that the same interface can be played over again """
 
@@ -342,6 +342,8 @@ class Recorder():
 
     def getNextPredatorPosition(self):
         self.currentPredatorPosIndex += 1
+        print(f"Predators {self.currentPredatorPosIndex}")
+        print(f"{self.predatorPositions}")
         return self.predatorPositions[self.currentPredatorPosIndex]
 
     def getNextPredatorAngle(self):
@@ -350,6 +352,8 @@ class Recorder():
 
     def getNextLadybugPosition(self):
         self.currentLadybugPosIndex += 1
+        print(f"Ladybugs {self.currentLadybugPosIndex}")
+        print(f"{self.ladybugPositions}")
         return self.ladybugPositions[self.currentLadybugPosIndex]
 
     def getNextLadybugAngle(self):

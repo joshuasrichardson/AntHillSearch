@@ -13,7 +13,6 @@ from display.mainmenu.InterfaceSelector import InterfaceSelector
 from display.mainmenu.settings.Settings import Settings
 from display.mainmenu.tutorial.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
-from recording.Recorder import getMostRecentRecording
 from display.mainmenu.ReplaySelector import ReplaySelector
 
 DO_USER_EXPERIMENTS = "Test"

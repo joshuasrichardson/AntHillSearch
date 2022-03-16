@@ -4,6 +4,7 @@ import pygame
 from config import Config
 from display.Display import rotateImage
 
+
 def getLadybugImage(pos):
     """Loads, adjusts the size, and returns the image representing a ladybug """
     ladybug = pygame.image.load(Config.LADYBUG_IMAGE)
@@ -14,6 +15,7 @@ def getLadybugImage(pos):
         rect = ladybug.get_rect().move(pos)
         rect.center = pos
     return ladybug
+
 
 def drawLadybug(ladybug, surface):
     if Config.DRAW_FAR_AGENTS:

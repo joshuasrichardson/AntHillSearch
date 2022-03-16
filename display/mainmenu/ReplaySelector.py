@@ -7,8 +7,6 @@ from config import Config
 from ColonyExceptions import GameOver
 from Constants import SCREEN_COLOR, WORDS_COLOR, BLUE
 from display import Display
-from interface.EngineerInferface import EngineerInterface
-from interface.UserInterface import UserInterface
 
 
 class ReplaySelector:
@@ -27,7 +25,8 @@ class ReplaySelector:
 		self.y += 50
 		return y
 
-	def getLatestReplays(self, numReplays):
+	@staticmethod
+	def getLatestReplays(numReplays):
 		replays = [file for file in os.listdir('./recording/results/') if file.endswith('RECORDING.json')]
 		os.chdir('./recording/results')
 		replays.sort(key=os.path.getmtime, reverse=True)

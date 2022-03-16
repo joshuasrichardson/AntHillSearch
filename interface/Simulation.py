@@ -152,6 +152,7 @@ class Simulation(ABC):
         pass
 
     def updateLadybugs(self, agentRectList):
+        print(f"num la {len(self.world.ladybugList)}")
         for ladybug in self.world.ladybugList:
             self.updateLadybug(ladybug, agentRectList)
 

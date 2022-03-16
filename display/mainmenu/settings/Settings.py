@@ -57,7 +57,7 @@ class Settings:
             IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", 4, x, self.nextY(), drawLadybugs, self),
             PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", 4, x, self.nextY(), drawLadybugPositions, self)
         ]
-        self.worldSettings = WorldSettings(self)
+        self.worldSettings = None
 
         self.categories = [
             SettingCategory("General", pygame.Rect(x, self.categoryYs[0], 100, 25), self),
@@ -87,6 +87,7 @@ class Settings:
             print(f"File '{CONFIG_FILE_NAME}' is empty")
 
     def run(self):
+        self.worldSettings = WorldSettings(self)
         reading = True
         while reading:  # While the user is reading the settings (or hasn't tried to exit)
             Display.screen.fill(SCREEN_COLOR)  # Fill in the background
