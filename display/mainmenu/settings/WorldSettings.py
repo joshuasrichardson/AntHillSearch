@@ -27,7 +27,7 @@ class WorldSettings:
             site.wasFound = True
         return world
 
-    def showWorld(self):
+    def showWorld(self, y):
         if self.shouldDrawWorld:
             if self.numDraws > 100:
                 self.world = self.generateWorld()
@@ -36,11 +36,11 @@ class WorldSettings:
             Display.write(Display.screen, self.menu.data[SIM_DURATION_NAME], int(self.menu.data[FONT_SIZE_NAME] * 1.5), Display.origWidth - 100, 50)
             self.numDraws += 1
         else:
-            self.drawShowWorldButton()
+            self.drawShowWorldButton(y)
 
-    def drawShowWorldButton(self):
+    def drawShowWorldButton(self, y):
         """ Draw the button that allows the user to see all settings """
         color = BLUE if self.showWorldButton.collidepoint(pygame.mouse.get_pos()) else WORDS_COLOR
         img = pygame.font.SysFont('Comic Sans MS', self.menu.data["FONT_SIZE"] * 2).render("Draw current world", True, color).convert_alpha()
-        self.showWorldButton = pygame.Rect(200, 50, img.get_width(), img.get_height())
+        self.showWorldButton = pygame.Rect(200, y, img.get_width(), img.get_height())
         Display.screen.blit(img, self.showWorldButton.topleft)

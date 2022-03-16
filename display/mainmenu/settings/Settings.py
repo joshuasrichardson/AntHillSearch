@@ -23,6 +23,7 @@ class Settings:
         self.backButton = pygame.Rect(0, 0, 0, 0)  # Button to go back to the main menu
         self.data = {}  # The data about the settings to be recorded to settings.json
         self.setDataUsingConfig()  # Set the values on the screen to match the values in settings.json
+        self.settingsY = 90  # The y position of the word "Settings" on the screen
 
         x = 200
         self.y = 100
@@ -50,7 +51,7 @@ class Settings:
                          IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self),
                          PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self),
                          BooleanSetting(FULL_CONTROL_NAME, "Full Control", x, self.nextY(), drawControls, self),
-                         BooleanSetting(DISTRACTED_NAME, "Distracted", x, self.nextY(), drawDistraction, self)]  # TODO: Make sure this is copied over from settings onto each trial
+                         BooleanSetting(DISTRACTED_NAME, "Distracted", x, self.nextY(), drawDistraction, self)]
         self.worldSettings = WorldSettings(self)
 
     def nextY(self):
@@ -72,7 +73,7 @@ class Settings:
         reading = True
         while reading:  # While the user is reading the settings (or hasn't tried to exit)
             Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-            self.worldSettings.showWorld()  # Draw the world with the current settings or a button to enable this
+            self.worldSettings.showWorld(self.settingsY - 20)  # Draw the world with the current settings or a button to enable this
             self.showSettings()  # Draw the setting the user can select and change
             self.drawBackButton()  # Draw the button used to return to the main menu
             pygame.display.flip()  # Display drawn things on the screen
@@ -82,16 +83,16 @@ class Settings:
         """ Write each value on the screen """
         if not self.worldSettings.shouldDrawWorld:
             Display.writeCenterPlus(Display.screen, "Settings", self.data["LARGE_FONT_SIZE"],
-                                    -Display.origHeight / 2 + 2.5 * self.data["LARGE_FONT_SIZE"])
+                                    -Display.origHeight / 2 + self.settingsY)
             for setting in self.settings:
                 collides = setting.rect.collidepoint(pygame.mouse.get_pos())
-                Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data["FONT_SIZE"] * 1.5),
+                Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data[FONT_SIZE_NAME] * 1.5),
                               setting.rect.left, setting.rect.top, BLUE if collides else WORDS_COLOR)
 
     def drawBackButton(self):
         """ Draw the button that allows the user to return to the main menu """
         color = BLUE if self.backButton.collidepoint(pygame.mouse.get_pos()) else WORDS_COLOR
-        backImg = pygame.font.SysFont('Comic Sans MS', self.data["FONT_SIZE"] * 2).render("<- BACK", True, color).convert_alpha()
+        backImg = pygame.font.SysFont('Comic Sans MS', self.data[FONT_SIZE_NAME] * 2).render("<- BACK", True, color).convert_alpha()
         self.backButton = pygame.Rect(50, 50, backImg.get_width(), backImg.get_height())
         Display.screen.blit(backImg, self.backButton.topleft)
 
@@ -99,7 +100,16 @@ class Settings:
         """ Handle user input """
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONUP:
-                return self.mouseButtonPressed(pygame.mouse.get_pos())
+                if event.button == 4:
+                    self.scrollUp()
+                elif event.button == 5:
+                    self.scrollDown()
+                elif event.button == 6:
+                    self.scrollUp(3)
+                elif event.button == 7:
+                    self.scrollDown(3)
+                else:
+                    return self.mouseButtonPressed(pygame.mouse.get_pos())
             elif event.type == MOUSEMOTION:
                 self.updateCursor()
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
@@ -147,6 +157,18 @@ class Settings:
                 if setting.rect.collidepoint(pos):
                     return True
         return False
+
+    def scrollUp(self, times=1):
+        self.settingsY += 10 * times
+        for setting in self.settings:
+            setting.rect.centery += 10 * times
+            setting.rect.height = self.data[FONT_SIZE_NAME] * 2
+
+    def scrollDown(self, times=1):
+        self.settingsY -= 10 * times
+        for setting in self.settings:
+            setting.rect.centery -= 10 * times
+            setting.rect.height = self.data[FONT_SIZE_NAME] * 2
 
     def write(self, key, value):
         self.data[key] = value
