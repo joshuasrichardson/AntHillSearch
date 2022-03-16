@@ -9,16 +9,17 @@ class Ladybug:
         self.world = world
         if pos is None:
             pos = site.getPosition()
-            self.pos = [pos[0] + np.random.randint(-100, 100), pos[1] + np.random.randint(-100, 100)] #Where the ladybug is walking
+            self.pos = [pos[0] + np.random.randint(-100, 100),
+                        pos[1] + np.random.randint(-100, 100)]  # Where the ladybug is walking
         else:
             self.pos = pos
-        self.ladybugHandle = getLadybugImage(self.pos) # Image on screen representing ladybug
-        self.ladybugRect = self.ladybugHandle.get_rect() # Rectangle around the ladybug to help track collisions
-        self.ladybugRect.centerx = self.pos[0] # Horizontal center of the ladybug
-        self.ladybugRect.centery = self.pos[1] # Vertical center of the ladybug
-        self.angle = np.random.uniform(0, 2 *np.pi) # The direction the ladybug is facing in radians
-        self.speed = np.random.randint(3, 5) # The speed the ladybug is moving
-        self.numSteps = np.random.randint(0, 20) # The number of steps the ladybug has taken since turning
+        self.ladybugHandle = getLadybugImage(self.pos)  # Image on screen representing ladybug
+        self.ladybugRect = self.ladybugHandle.get_rect()  # Rectangle around the ladybug to help track collisions
+        self.ladybugRect.centerx = self.pos[0]  # Horizontal center of the ladybug
+        self.ladybugRect.centery = self.pos[1]  # Vertical center of the ladybug
+        self.angle = np.random.uniform(0, 2 * np.pi)  # The direction the ladybug is facing in radians
+        self.speed = np.random.randint(3, 5)  # The speed the ladybug is moving
+        self.numSteps = np.random.randint(0, 20)  # The number of steps the ladybug has taken since turning
         self.bestSite = self.determineBestSite()
 
     def getRect(self):

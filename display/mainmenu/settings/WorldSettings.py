@@ -18,7 +18,8 @@ class WorldSettings:
         world = World(self.menu.data[NUM_HUBS_NAME], self.menu.data[NUM_SITES_NAME], self.menu.data[HUB_LOCATIONS_NAME],
                       self.menu.data[HUB_RADII_NAME], self.menu.data[HUB_AGENT_COUNTS_NAME], self.menu.data[SITE_POSITIONS_NAME],
                       self.menu.data[SITE_QUALITIES_NAME], self.menu.data[SITE_RADII_NAME], self.menu.data[SITE_RADIUS_NAME],
-                      self.menu.data[NUM_PREDATORS_NAME], self.menu.data[PRED_POSITIONS_NAME])
+                      self.menu.data[NUM_PREDATORS_NAME], self.menu.data[PRED_POSITIONS_NAME], self.menu.data[NUM_LADYBUGS_NAME],
+                      self.menu.data[LADYBUG_POSITIONS_NAME])
         WorldDisplay.initFog(world.getHubs())
         x = WorldDisplay.fog.get_width() / 2
         y = WorldDisplay.fog.get_height() / 2

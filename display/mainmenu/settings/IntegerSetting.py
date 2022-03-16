@@ -3,8 +3,8 @@ from display.mainmenu.settings.Setting import Setting
 
 class IntegerSetting(Setting):
 
-    def __init__(self, key, name, x, y, showUserInput, settingMenu):
-        super().__init__(key, name, x, y, showUserInput, settingMenu)
+    def __init__(self, key, name, categoryIndex, x, y, showUserInput, settingMenu):
+        super().__init__(key, name, categoryIndex, x, y, showUserInput, settingMenu)
 
     def initUserInput(self):
         self.value = 0

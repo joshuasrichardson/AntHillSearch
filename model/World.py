@@ -102,46 +102,21 @@ class World:
             agent.setPosition(pos[0], pos[1])
 
     def generatePredators(self, numPredators, predPositions):
-        predators = []
-
-        for i in range(numPredators):
-            try:
-                if len(self.siteList) < len(self.hubs) + 2:
-                    predators.append(Predator(self.siteList[len(self.hubs)], self, predPositions[i]))
-                else:
-                    predators.append(Predator(
-                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
-                        self, predPositions[i]))
-            except IndexError:
-                if len(self.siteList) < 2:
-                    predators.append(Predator(self.siteList[len(self.hubs)], self))
-                else:
-                    predators.append(Predator(
-                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
-                        self))
-
-        return predators
+        return self.generateBugs(Predator, numPredators, predPositions)
 
     def generateLadybugs(self, numLadybugs, ladybugPositions):
-        ladybugs = []
+        return self.generateBugs(Ladybug, numLadybugs, ladybugPositions)
 
-        for i in range(numLadybugs):
-            try:
-                if len(self.siteList) < len(self.hubs) + 2:
-                    ladybugs.append(Ladybug(self.siteList[len(self.hubs)], self, ladybugPositions[i]))
-                else:
-                    ladybugs.append(Ladybug(
-                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
-                        self, ladybugPositions[i]))
-            except IndexError:
-                if len(self.siteList) < 2:
-                    ladybugs.append(Ladybug(self.siteList[len(self.hubs)], self))
-                else:
-                    ladybugs.append(Ladybug(
-                        self.siteList[random.default_rng(12345).integers(len(self.hubs), len(self.siteList) - 1)],
-                        self))
+    def generateBugs(self, bug, numBugs, bugPositions):
+        bugs = []
 
-        return ladybugs
+        for i in range(len(bugPositions)):  # Create all the bugs with preset positions
+            bugs .append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self, bugPositions[i]))
+
+        for i in range(len(bugPositions), numBugs):  # Create all the bugs without preset positions
+            bugs.append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self))
+
+        return bugs
 
     def getSiteList(self):
         return self.siteList

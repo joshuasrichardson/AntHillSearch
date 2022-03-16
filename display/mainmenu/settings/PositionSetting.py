@@ -4,8 +4,8 @@ from display.mainmenu.settings.Setting import Setting
 
 class PositionSetting(Setting):
 
-    def __init__(self, key, name, x, y, showUserInput, settingMenu):
-        super().__init__(key, name, x, y, showUserInput, settingMenu)
+    def __init__(self, key, name, categoryIndex, x, y, showUserInput, settingMenu):
+        super().__init__(key, name, categoryIndex, x, y, showUserInput, settingMenu)
         self.arrayStates = None
 
     def initUserInput(self):
