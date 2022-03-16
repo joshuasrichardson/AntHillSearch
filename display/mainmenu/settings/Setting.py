@@ -2,21 +2,26 @@ import pygame
 from pygame import KEYDOWN, K_RETURN, MOUSEBUTTONDOWN, MOUSEMOTION, K_ESCAPE, QUIT, K_BACKSPACE
 
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, RED, FONT_SIZE_NAME
+from Constants import SCREEN_COLOR, RED, FONT_SIZE_NAME, BLUE, WORDS_COLOR
 from display import Display
 
 
 class Setting:
     """ An option that can be changed in the settings tab """
 
-    def __init__(self, key, name, x, y, showUserInputVisuals, settingMenu):
+    def __init__(self, key, name, categoryIndex, x, y, showUserInputVisuals, settingMenu):
         self.settingMenu = settingMenu  # The settings menu that this setting belongs to
         self.key = key  # A key to help read and write the data from json
         self.name = name  # A name for the setting that may include spaces
         self.value = self.settingMenu.data[key]  # The potential value of the setting to be used in the simulation if saved
         self.savedValue = self.value  # The value that will be used in the simulation
+        self.categoryIndex = categoryIndex
         self.rect = Display.write(Display.screen, f"{self.name}: {self.value}",
-                                  int(self.settingMenu.data[FONT_SIZE_NAME] * 1.5), x, y)  # The rect that lets users select the setting
+                                  int(self.settingMenu.data[FONT_SIZE_NAME] * 1.5), 0, 0)  # The rect that lets users select the setting
+        self.rect.left = x
+        self.rect.top = y
+        self.top = y
+        self.yAdjustment = 0
         self.showUserInputVisuals = showUserInputVisuals  # The method to draw the user input on the screen
         self.userInputString = f" -> {self.value}"  # The string representation of the value provided by the user
 
@@ -24,7 +29,7 @@ class Setting:
         self.initUserInput()
         while 1:
             Display.screen.fill(SCREEN_COLOR)
-            self.settingMenu.showSettings()
+            self.write()
             self.showUserInput()
             self.showUserInputVisuals(self)
             self.settingMenu.drawBackButton()
@@ -46,6 +51,15 @@ class Setting:
                 elif event.type == QUIT:
                     pygame.quit()
                     raise GameOver("Exiting")
+
+    def adjustY(self, yAdjustment):
+        self.yAdjustment = yAdjustment
+        self.rect.top = self.top + self.yAdjustment
+
+    def write(self):
+        collides = self.rect.collidepoint(pygame.mouse.get_pos())
+        Display.write(Display.screen, f"{self.name}: {self.savedValue}", int(self.settingMenu.data[FONT_SIZE_NAME] * 1.5),
+                      self.rect.left, self.rect.top, BLUE if collides else WORDS_COLOR)
 
     def showUserInput(self):
         pos = self.rect.topright

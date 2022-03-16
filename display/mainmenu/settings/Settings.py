@@ -1,4 +1,5 @@
 import json
+from functools import reduce
 
 from pygame import MOUSEBUTTONUP, QUIT, MOUSEMOTION, KEYDOWN, K_ESCAPE
 
@@ -10,6 +11,7 @@ from display.mainmenu.settings.IntegerSetting import IntegerSetting
 from display.mainmenu.settings.ListSetting import ListSetting
 from display.mainmenu.settings.PercentageSetting import PercentageSetting
 from display.mainmenu.settings.PositionSetting import PositionSetting
+from display.mainmenu.settings.SettingCategory import SettingCategory
 from display.mainmenu.settings.StringSetting import StringSetting
 from display.mainmenu.settings.WorldSettings import WorldSettings
 
@@ -24,37 +26,52 @@ class Settings:
         self.data = {}  # The data about the settings to be recorded to settings.json
         self.setDataUsingConfig()  # Set the values on the screen to match the values in settings.json
         self.settingsY = 90  # The y position of the word "Settings" on the screen
+        self.categoryYs = []
 
         x = 200
         self.y = 100
-        self.settings = [PercentageSetting(CONVERGENCE_FRACTION_NAME, "Convergence Fraction", x, self.nextY(), drawConvergenceFraction, self),
-                         IntegerSetting(SIM_DURATION_NAME, "Simulation Duration", x, self.nextY(), showSimDuration, self),
-                         IntegerSetting(FONT_SIZE_NAME, "Font Size", x, self.nextY(), showFontSize, self),
-                         IntegerSetting(LARGE_FONT_SIZE_NAME, "Large Font Size", x, self.nextY(), showLargeFontSize, self),
-                         IntegerSetting(NUM_HUBS_NAME, "Number of Hubs", x, self.nextY(), drawNumHubs, self),
-                         PositionSetting(HUB_LOCATIONS_NAME, "Hub Locations", x, self.nextY(), drawHubsPositions, self),
-                         ListSetting(HUB_RADII_NAME, "Hub Radii", x, self.nextY(), drawHubsRadii, self),
-                         ListSetting(HUB_AGENT_COUNTS_NAME, "Hub Agent Counts", x, self.nextY(), drawHubsCounts, self),
-                         IntegerSetting(NUM_SITES_NAME, "Number of Sites", x, self.nextY(), drawNumSites, self),
-                         PositionSetting(SITE_POSITIONS_NAME, "Site Positions", x, self.nextY(), drawSitesPositions, self),
-                         ListSetting(SITE_RADII_NAME, "Site Radii", x, self.nextY(), drawSitesRadii, self),
-                         ListSetting(SITE_QUALITIES_NAME, "Site Qualities", x, self.nextY(), drawSitesQualities, self),
-                         BooleanSetting(SHOULD_RECORD_NAME, "Should Record", x, self.nextY(), drawShouldRecord, self),
-                         BooleanSetting(RECORD_ALL_NAME, "Record All", x, self.nextY(), drawShouldRecord, self),
-                         IntegerSetting(SITE_RADIUS_NAME, "Default Site Radius", x, self.nextY(), drawSiteRadius, self),
-                         IntegerSetting(SITE_NO_CLOSER_THAN_NAME, "Site No Closer Than", x, self.nextY(), drawNoCloserThan, self),
-                         IntegerSetting(SITE_NO_FARTHER_THAN_NAME, "Site No Farther Than", x, self.nextY(), drawNoFartherThan, self),
-                         IntegerSetting(MAX_SEARCH_DIST_NAME, "Max Search Distance", x, self.nextY(), drawSearchArea, self),
-                         StringSetting(AGENT_IMAGE_NAME, "Agent Image", x, self.nextY(), drawAgents, self, getOtherFile),
-                         IntegerSetting(NUM_PREDATORS_NAME, "Number of Predators", x, self.nextY(), drawPredators, self),
-                         PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self),
-                         IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self),
-                         PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self),
-                         BooleanSetting(FULL_CONTROL_NAME, "Full Control", x, self.nextY(), drawControls, self),
-                         BooleanSetting(DISTRACTED_NAME, "Distracted", x, self.nextY(), drawDistraction, self)]
+        self.settings = [
+            PercentageSetting(CONVERGENCE_FRACTION_NAME, "Convergence Fraction", 0, x, self.nextY(True), drawConvergenceFraction, self),
+            IntegerSetting(SIM_DURATION_NAME, "Simulation Duration", 0, x, self.nextY(), showSimDuration, self),
+            IntegerSetting(FONT_SIZE_NAME, "Font Size", 0, x, self.nextY(), showFontSize, self),
+            IntegerSetting(LARGE_FONT_SIZE_NAME, "Large Font Size", 0, x, self.nextY(), showLargeFontSize, self),
+            BooleanSetting(SHOULD_RECORD_NAME, "Should Record", 0, x, self.nextY(), drawShouldRecord, self),
+            BooleanSetting(RECORD_ALL_NAME, "Record All", 0, x, self.nextY(), drawShouldRecord, self),
+            BooleanSetting(FULL_CONTROL_NAME, "Full Control", 0, x, self.nextY(), drawControls, self),
+            BooleanSetting(DISTRACTED_NAME, "Distracted", 0, x, self.nextY(), drawDistraction, self),
+            IntegerSetting(NUM_HUBS_NAME, "Number of Hubs", 1, x, self.nextY(True), drawNumHubs, self),
+            PositionSetting(HUB_LOCATIONS_NAME, "Hub Locations", 1, x, self.nextY(), drawHubsPositions, self),
+            ListSetting(HUB_RADII_NAME, "Hub Radii", 1, x, self.nextY(), drawHubsRadii, self),
+            ListSetting(HUB_AGENT_COUNTS_NAME, "Hub Agent Counts", 1, x, self.nextY(), drawHubsCounts, self),
+            IntegerSetting(NUM_SITES_NAME, "Number of Sites", 2, x, self.nextY(True), drawNumSites, self),
+            PositionSetting(SITE_POSITIONS_NAME, "Site Positions", 2, x, self.nextY(), drawSitesPositions, self),
+            ListSetting(SITE_RADII_NAME, "Site Radii", 2, x, self.nextY(), drawSitesRadii, self),
+            ListSetting(SITE_QUALITIES_NAME, "Site Qualities", 2, x, self.nextY(), drawSitesQualities, self),
+            IntegerSetting(SITE_RADIUS_NAME, "Default Site Radius", 2, x, self.nextY(), drawSiteRadius, self),
+            IntegerSetting(SITE_NO_CLOSER_THAN_NAME, "Site No Closer Than", 2, x, self.nextY(), drawNoCloserThan, self),
+            IntegerSetting(SITE_NO_FARTHER_THAN_NAME, "Site No Farther Than", 2, x, self.nextY(), drawNoFartherThan, self),
+            IntegerSetting(MAX_SEARCH_DIST_NAME, "Max Search Distance", 3, x, self.nextY(True), drawSearchArea, self),
+            StringSetting(AGENT_IMAGE_NAME, "Agent Image", 3, x, self.nextY(), drawAgents, self, getOtherFile),
+            IntegerSetting(NUM_PREDATORS_NAME, "Number of Predators", 4, x, self.nextY(True), drawPredators, self),
+            PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", 4, x, self.nextY(), drawPredPositions, self),
+            IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", 4, x, self.nextY(), drawLadybugs, self),
+            PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", 4, x, self.nextY(), drawLadybugPositions, self)
+        ]
         self.worldSettings = WorldSettings(self)
 
-    def nextY(self):
+        self.categories = [
+            SettingCategory("General", pygame.Rect(x, self.categoryYs[0], 100, 25), self),
+            SettingCategory("Hubs", pygame.Rect(x, self.categoryYs[1], 100, 25), self),
+            SettingCategory("Sites", pygame.Rect(x, self.categoryYs[2], 100, 25), self),
+            SettingCategory("Agents", pygame.Rect(x, self.categoryYs[3], 100, 25), self),
+            SettingCategory("Bugs", pygame.Rect(x, self.categoryYs[4], 100, 25), self)
+        ]
+
+    def nextY(self, newCategory=False):
+        if newCategory:
+            self.y += 35
+            self.categoryYs.append(self.y)
+            self.y += 30
         y = self.y
         self.y += 25
         return y
@@ -84,10 +101,21 @@ class Settings:
         if not self.worldSettings.shouldDrawWorld:
             Display.writeCenterPlus(Display.screen, "Settings", self.data["LARGE_FONT_SIZE"],
                                     -Display.origHeight / 2 + self.settingsY)
+            yAdjustment = 0
+            yAdjustments = []
+            for i, category in enumerate(self.categories):
+                category.adjustY(-yAdjustment)
+                category.write()
+                if not category.isVisible:
+                    yAdjustment += reduce(lambda x, y: x + y, [25 for setting in self.settings if setting.categoryIndex == i])
+                yAdjustments.append(yAdjustment)
             for setting in self.settings:
-                collides = setting.rect.collidepoint(pygame.mouse.get_pos())
-                Display.write(Display.screen, f"{setting.name}: {setting.savedValue}", int(self.data[FONT_SIZE_NAME] * 1.5),
-                              setting.rect.left, setting.rect.top, BLUE if collides else WORDS_COLOR)
+                if self.categories[setting.categoryIndex].isVisible:
+                    setting.adjustY(-yAdjustments[setting.categoryIndex])
+                    setting.write()
+            # TODO: Indicate that they can scroll up or down if they have settings that are off the screen
+            # if self.settings[len(self.settings) - 1].rect.top > Display.origHeight:
+            #     Display.writeCenter(Display.screen, 'v')
 
     def drawBackButton(self):
         """ Draw the button that allows the user to return to the main menu """
@@ -108,7 +136,7 @@ class Settings:
                     self.scrollUp(3)
                 elif event.button == 7:
                     self.scrollDown(3)
-                else:
+                elif event.button == 1:
                     return self.mouseButtonPressed(pygame.mouse.get_pos())
             elif event.type == MOUSEMOTION:
                 self.updateCursor()
@@ -121,6 +149,9 @@ class Settings:
 
     def mouseButtonPressed(self, pos):
         """ What to do when the mouse button has been clicked """
+        for category in self.categories:
+            if category.rect.collidepoint(pos):
+                category.isVisible = not category.isVisible
         if self.backButton.collidepoint(pos):
             if self.worldSettings.shouldDrawWorld:
                 self.worldSettings.shouldDrawWorld = False
@@ -132,7 +163,7 @@ class Settings:
                 self.worldSettings.shouldDrawWorld = not self.worldSettings.shouldDrawWorld
                 return True
             for setting in self.settings:
-                if setting.rect.collidepoint(pos):
+                if setting.rect.collidepoint(pos) and self.categories[setting.categoryIndex].isVisible:
                     value = setting.getUserInput()
                     self.write(setting.key, value)
                     self.setDataUsingConfig()
@@ -160,15 +191,21 @@ class Settings:
 
     def scrollUp(self, times=1):
         self.settingsY += 10 * times
+        for category in self.categories:
+            category.rect.top += 10 * times
+            category.top += 10 * times
         for setting in self.settings:
-            setting.rect.centery += 10 * times
-            setting.rect.height = self.data[FONT_SIZE_NAME] * 2
+            setting.rect.top += 10 * times
+            setting.top += 10 * times
 
     def scrollDown(self, times=1):
         self.settingsY -= 10 * times
+        for category in self.categories:
+            category.rect.top -= 10 * times
+            category.top -= 10 * times
         for setting in self.settings:
-            setting.rect.centery -= 10 * times
-            setting.rect.height = self.data[FONT_SIZE_NAME] * 2
+            setting.rect.top -= 10 * times
+            setting.top -= 10 * times
 
     def write(self, key, value):
         self.data[key] = value
