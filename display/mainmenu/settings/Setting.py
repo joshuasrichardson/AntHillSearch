@@ -2,7 +2,7 @@ import pygame
 from pygame import KEYDOWN, K_RETURN, MOUSEBUTTONDOWN, MOUSEMOTION, K_ESCAPE, QUIT, K_BACKSPACE
 
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, RED, FONT_SIZE_NAME, LARGE_FONT_SIZE_NAME
+from Constants import SCREEN_COLOR, RED, FONT_SIZE_NAME
 from display import Display
 
 
@@ -24,8 +24,6 @@ class Setting:
         self.initUserInput()
         while 1:
             Display.screen.fill(SCREEN_COLOR)
-            Display.writeCenterPlus(Display.screen, "Settings", self.settingMenu.data[LARGE_FONT_SIZE_NAME],
-                                    -Display.origHeight / 2 + 2.5 * self.settingMenu.data[LARGE_FONT_SIZE_NAME])
             self.settingMenu.showSettings()
             self.showUserInput()
             self.showUserInputVisuals(self)
