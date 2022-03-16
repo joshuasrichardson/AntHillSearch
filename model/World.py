@@ -110,11 +110,17 @@ class World:
     def generateBugs(self, bug, numBugs, bugPositions):
         bugs = []
 
-        for i in range(len(bugPositions)):  # Create all the bugs with preset positions
-            bugs .append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self, bugPositions[i]))
+        if numBugs > len(bugPositions):
+            for i in range(len(bugPositions)):  # Create all the bugs with preset positions
+                bugs.append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self, bugPositions[i]))
 
-        for i in range(len(bugPositions), numBugs):  # Create all the bugs without preset positions
-            bugs.append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self))
+            for i in range(len(bugPositions), numBugs):  # Create all the bugs without preset positions
+                bugs.append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self))
+        else:
+            for i in range(numBugs):  # Create all the bugs with preset positions
+                bugs.append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self, bugPositions[i]))
+
+        print(f"Num {bug}: {numBugs}, {len(bugPositions)}")
 
         return bugs
 

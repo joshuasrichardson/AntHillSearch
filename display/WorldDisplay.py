@@ -55,6 +55,7 @@ def drawPredators(world):
     for predator in world.predatorList:
         drawPredator(predator, Display.screen)
 
+
 def drawLadybugs(world):
     for ladybug in world.ladybugList:
         drawLadybug(ladybug, Display.screen)

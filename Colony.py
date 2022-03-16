@@ -6,6 +6,9 @@ Summer 2021 """
 import gc
 import sys
 
+from model.phases.AssessPhase import AssessPhase
+from model.states.AtNestState import AtNestState
+
 sys.path.append("")
 
 import pygame
@@ -33,6 +36,7 @@ def main():
 
 
 def runSimWithInterface(colony):
+    # FIXME: The addAgents method is garbage right now.
     # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
     # colony.randomizeInitialState()  # You can optionally randomize which site each agent starts from in some of the interfaces
     colony.runSimulation()  # Starts the interface
