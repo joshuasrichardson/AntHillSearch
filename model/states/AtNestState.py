@@ -49,7 +49,7 @@ class AtNestState(State):
 
         for i in range(0, len(neighborList)):
             neighborState = neighborList[i].getStateNumber()
-            if neighborList[i].getStateNumber() == DEAD:
+            if neighborState == DEAD:
                 self.agent.avoid(neighborList[i].getPosition())
             if (neighborState == LEAD_FORWARD and neighborList[i].estimatedQuality > self.agent.estimatedQuality)\
                     or (neighborState == REVERSE_TANDEM and neighborList[i].estimatedQuality >= self.agent.estimatedQuality)\

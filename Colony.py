@@ -25,9 +25,9 @@ def main():
 
     try:
         # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        StartUpDisplay(UserInterface).run()
+        # StartUpDisplay(UserInterface).run()
 
-        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
         # runEmpiricalTestingInterface(100)  # The interface that does not draw and is faster than the others.
@@ -36,8 +36,7 @@ def main():
 
 
 def runSimWithInterface(colony):
-    # FIXME: The addAgents method is garbage right now.
-    # colony.addAgents(50, AtNestState, AssessPhase(), 3)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
+    # colony.addAgents(50, AtNestState, AssessPhase(), 1)  # You can optionally add agents with specified starting positions, states, phases, and assignments in some of the interfaces
     # colony.randomizeInitialState()  # You can optionally randomize which site each agent starts from in some of the interfaces
     colony.runSimulation()  # Starts the interface
     pygame.quit()  # Clean up pygame
