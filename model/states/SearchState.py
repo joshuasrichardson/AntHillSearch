@@ -1,8 +1,9 @@
+import Utils
 from config import Config
 from Constants import *
 from model.phases.AssessPhase import AssessPhase
 from model.states.State import State
-from numpy import pi, random
+from numpy import pi, random, abs
 
 
 class SearchState(State):
@@ -33,6 +34,8 @@ class SearchState(State):
 
         # If agent finds a site within range then assess it
         if self.agent.siteInRangeIndex != -1:
+            if self.agent.isSelected:
+                print(f"Agent SITE IN RANGE target: {self.agent.target}")
             self.agent.addToKnownSites(self.agent.world.siteList[self.agent.siteInRangeIndex])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.estimateQuality(self.agent.world.siteList[self.agent.siteInRangeIndex]) > self.agent.estimatedQuality\
@@ -41,8 +44,10 @@ class SearchState(State):
                 if self.agent.world.siteList[self.agent.siteInRangeIndex] is not self.agent.assignedSite\
                         or self.agent.getPhaseNumber() == EXPLORE:
                     self.agent.setPhase(AssessPhase())
-                from model.states.AtNestState import AtNestState
-                self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
+                agentToSiteAngle = Utils.getAngleFromPositions(self.agent.getPosition(), self.agent.getAssignedSitePosition())
+                if abs(Utils.getAngleDiff(self.agent.getAngle(), agentToSiteAngle)) < 90:
+                    from model.states.AtNestState import AtNestState
+                    self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())
         elif self.agent.shouldReturnToNest():
             from model.states.AtNestState import AtNestState
             self.setState(AtNestState(self.agent), self.agent.getAssignedSitePosition())

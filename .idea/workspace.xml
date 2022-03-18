@@ -8,14 +8,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Colony.py" beforeDir="false" afterPath="$PROJECT_DIR$/Colony.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/LadybugDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/LadybugDisplay.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/WorldDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/WorldDisplay.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/MainMenu.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/MainMenu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/ReplaySelector.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/ReplaySelector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface/Simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/Simulation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/World.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/World.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recording/Recorder.py" beforeDir="false" afterPath="$PROJECT_DIR$/recording/Recorder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/states/AtNestState.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/states/AtNestState.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/states/SearchState.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/states/SearchState.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

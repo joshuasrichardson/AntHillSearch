@@ -120,8 +120,6 @@ class World:
             for i in range(numBugs):  # Create all the bugs with preset positions
                 bugs.append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self, bugPositions[i]))
 
-        print(f"Num {bug}: {numBugs}, {len(bugPositions)}")
-
         return bugs
 
     def getSiteList(self):
