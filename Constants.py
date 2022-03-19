@@ -1,6 +1,7 @@
 """ Global constants used in swarm simulation program """
 
 RESULTS_DIR = "recording/results/"  # The directory that stores the results
+MAX_NUM_RECORDINGS = 15
 
 CONVERGENCE_FRACTION_NAME = "CONVERGENCE_FRACTION"
 SIM_DURATION_NAME = "SIM_DURATION"

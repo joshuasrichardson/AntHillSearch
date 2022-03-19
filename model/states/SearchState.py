@@ -34,8 +34,6 @@ class SearchState(State):
 
         # If agent finds a site within range then assess it
         if self.agent.siteInRangeIndex != -1:
-            if self.agent.isSelected:
-                print(f"Agent SITE IN RANGE target: {self.agent.target}")
             self.agent.addToKnownSites(self.agent.world.siteList[self.agent.siteInRangeIndex])
             # If the site is better than the one they were assessing, they assess it instead.
             if self.agent.estimateQuality(self.agent.world.siteList[self.agent.siteInRangeIndex]) > self.agent.estimatedQuality\

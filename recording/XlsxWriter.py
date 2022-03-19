@@ -5,9 +5,12 @@ from datetime import datetime
 from openpyxl import load_workbook, Workbook
 from openpyxl.cell import Cell
 from openpyxl.chart import Reference, Series, ScatterChart, BarChart
+from openpyxl.chart.data_source import NumVal, NumDataSource, NumData
 from openpyxl.chart.marker import Marker
+from openpyxl.chart.series_factory import SeriesFactory
 from openpyxl.styles import Font, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.chart.error_bar import ErrorBars
 
 from Constants import RESULTS_DIR
 
@@ -247,7 +250,12 @@ def createScatterPlots(workbookName, worksheetName, chartAxesList, columnNameRow
 
 def createBarCharts(workbookName, worksheetName, chartAxesList, columnNameRow, chartIndex=0):
     def setData(ch, valuesX, valuesY):
-        ch.add_data(valuesY)
+        series = SeriesFactory(valuesY)
+        plus = [30, 20, 50, 30, 40]  # TODO: Figure out where to get the data for these
+        minus = [20, 50, 80, 30, 40]  # TODO: Figure out where to get the data for these
+        series.errBars = listToErrorBars(plus, minus)
+
+        ch.series.append(series)
         ch.set_categories(valuesX)
 
     createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, BarChart, setData, chartIndex)
@@ -297,3 +305,21 @@ def createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, char
         chartIndex += 1
 
     workbook.save(path)
+
+
+def listToErrorBars(plus, minus, errDir='y', errValType='stdErr'):
+    """ Returns ErrorBar from lists of error values """
+
+    # Convert to list of NumVal
+    numvals_plus = [NumVal(i, None, v=x) for i, x in enumerate(plus)]
+    numvals_minus = [NumVal(i, None, v=x) for i, x in enumerate(minus)]
+
+    # Convert to NumData
+    nd_plus = NumData(pt=numvals_plus)
+    nd_minus = NumData(pt=numvals_minus)
+
+    # Convert to NumDataSource
+    nds_plus = NumDataSource(numLit=nd_plus)
+    nds_minus = NumDataSource(numLit=nd_minus)
+
+    return ErrorBars(errDir=errDir, errValType=errValType)
