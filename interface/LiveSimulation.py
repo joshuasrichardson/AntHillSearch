@@ -164,6 +164,7 @@ class LiveSimulation(Simulation, ABC):
 
     def write(self):
         self.recorder.write()
+        self.recorder.deleteExcessRecordings()
 
     def sendResults(self, results):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there,

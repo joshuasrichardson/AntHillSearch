@@ -6,7 +6,7 @@ from datetime import datetime
 
 from config import Config
 from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME, FULL_CONTROL_NAME, DISTRACTED_NAME, \
-    NUM_SITES_NAME, NUM_PREDATORS_NAME
+    NUM_SITES_NAME, NUM_PREDATORS_NAME, MAX_NUM_RECORDINGS
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter
@@ -210,6 +210,16 @@ class Recorder:
             json.dump({'commands': self.executedCommands}, file)
 
         self.executedCommands.clear()
+
+    @staticmethod
+    def deleteExcessRecordings():
+        # Delete old replays when there are too many, so they don't take up too much space on the computer.
+        replays = [file for file in os.listdir('./recording/results/') if file.endswith('RECORDING.json')
+                   or file.endswith('RESULTS.json') or file.endswith('COMMANDS.json')]
+        if len(replays) > MAX_NUM_RECORDINGS * 3:
+            replays = replays[:len(replays) - (MAX_NUM_RECORDINGS * 3 - 1)]
+            for replay in replays:
+                os.remove('./recording/results/' + replay)
 
     def writeResults(self, results, world):
         # Create the folder with the results if it does not exist
