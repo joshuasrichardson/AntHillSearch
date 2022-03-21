@@ -247,7 +247,10 @@ class Recorder:
                       ["Settings", "Chosen Home Qualities"],
                       ["Settings", "Num Arrivals"],
                       ["Settings", "Num Dead Agents"]]
-        XlsxWriter.createBarCharts(Config.INTERFACE_NAME, "Summary", chartsAxes, 2)
+        colNames = [header.title().replace('_', ' ') for header in jsonResultsData.keys() if header not in ignore]
+        stdErrs = XlsxWriter.getResultsStdErrs(Config.INTERFACE_NAME, colNames, 2)
+        print(f"stdErrs: {stdErrs}")  # Make sure these are the same as the ones in the xlsx file.
+        XlsxWriter.createBarCharts(Config.INTERFACE_NAME, "Summary", chartsAxes, 2, stdErrs)
 
         del results
 

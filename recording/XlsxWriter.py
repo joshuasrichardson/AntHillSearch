@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 
+from numpy import sqrt
 from openpyxl import load_workbook, Workbook
 from openpyxl.cell import Cell
 from openpyxl.chart import Reference, Series, ScatterChart, BarChart
@@ -62,7 +63,8 @@ def writeSummary(jsonData, workbookName, summarySheetName, resultsSheetName, ign
         return
 
     if summarySheet.max_row == 1:
-        headers = ["Settings"] + [header for header in jsonData.keys() if header not in ignore]
+        headers = ["Settings"] + [header for header in jsonData.keys() if header not in ignore] + \
+                  [f"{header} Std Err" for header in jsonData.keys() if header not in ignore]  # Note: These values aren't used to help make the chart because openpyxl is hard to work with.
         summarySheet.append(["" for _ in range(len(headers) + 1)])
         summarySheet.append(formatHeaderCells(summarySheet, headers, headerColor))
 
@@ -74,11 +76,14 @@ def writeSummary(jsonData, workbookName, summarySheetName, resultsSheetName, ign
         # Get the columns from the results sheet that we will be referencing in the summary sheet
         columns = [i for i, header in enumerate(jsonData.keys(), 2) if header not in ignore]
         formulas = [resultsSheetName]
+        stderrors = []  # Note: These values aren't used to help make the chart because openpyxl is hard to work with.
         for columnNum in range(len(columns)):
             # Convert the column from a number to a letter
             col = get_column_letter(columns[columnNum])
             # Append a formula that takes the average of the values in the next column
             formulas.append(f"=AVERAGE('{resultsSheetName}'!{col}3:{col}{lastResultRow})")
+            stderrors.append(f'=IFERROR(STDEV({resultsSheetName}!{col}3:{col}{lastResultRow})/{sqrt(lastResultRow - 2)},0)')
+        formulas += stderrors
         # Add each formula as a cell in the summary sheet
         for i, formula in enumerate(formulas, 2):
             summarySheet.cell(row=summaryRow, column=i).value = formula
@@ -198,9 +203,8 @@ def createScatterPlot(workbookName, worksheetName, columnNameX, columnNameY, col
     if chartIndex > len(worksheet._charts):
         raise IndexError("The chart index must be an existing index or the next available one.\n"
                          "Current index: " + str(chartIndex) + "\n"
-                                                               "Last existing index: " + str(
-            len(worksheet._charts) - 1) + "\n"
-                                          "Next available index: " + str(len(worksheet._charts)))
+                         "Last existing index: " + str(len(worksheet._charts) - 1) + "\n"
+                         "Next available index: " + str(len(worksheet._charts)))
 
     columnX = findSettingColumn(worksheet, columnNameX, columnNameRow)
     if columnX == -1:
@@ -238,7 +242,7 @@ def createScatterPlot(workbookName, worksheetName, columnNameX, columnNameY, col
 
 
 def createScatterPlots(workbookName, worksheetName, chartAxesList, columnNameRow, chartIndex=0):
-    def setData(ch, valuesX, valuesY):
+    def setData(ch, valuesX, valuesY, i):
         series = Series(valuesY, valuesX)
         series.marker = Marker('circle')
         series.graphicalProperties.line.noFill = True
@@ -248,12 +252,10 @@ def createScatterPlots(workbookName, worksheetName, chartAxesList, columnNameRow
     createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, ScatterChart, setData, chartIndex)
 
 
-def createBarCharts(workbookName, worksheetName, chartAxesList, columnNameRow, chartIndex=0):
-    def setData(ch, valuesX, valuesY):
+def createBarCharts(workbookName, worksheetName, chartAxesList, columnNameRow, stdErrs, chartIndex=0):
+    def setData(ch, valuesX, valuesY, i):
         series = SeriesFactory(valuesY)
-        plus = [30, 20, 50, 30, 40]  # TODO: Figure out where to get the data for these
-        minus = [20, 50, 80, 30, 40]  # TODO: Figure out where to get the data for these
-        series.errBars = listToErrorBars(plus, minus)
+        series.errBars = listToErrorBars(stdErrs[i], stdErrs[i], errValType='cust')
 
         ch.series.append(series)
         ch.set_categories(valuesX)
@@ -269,17 +271,16 @@ def createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, char
     if chartIndex > len(worksheet._charts):
         raise IndexError("The chart index must be an existing index or the next available one.\n"
                          "Current index: " + str(chartIndex) + "\n"
-                                                               "Last existing index: " + str(
-            len(worksheet._charts) - 1) + "\n"
-                                          "Next available index: " + str(len(worksheet._charts)))
+                         "Last existing index: " + str(len(worksheet._charts) - 1) + "\n"
+                         "Next available index: " + str(len(worksheet._charts)))
 
-    for chartAxes in chartAxesList:
+    for i, chartAxes in enumerate(chartAxesList):
         columnX = findSettingColumn(worksheet, chartAxes[0], columnNameRow)
         if columnX == -1:
-            raise ValueError("Column name not found: " + chartAxes[0])
+            raise ValueError(f"Column name not found: {chartAxes[0]}")
         columnY = findSettingColumn(worksheet, chartAxes[1], columnNameRow)
         if columnY == -1:
-            raise ValueError("Column name not found: " + chartAxes[1])
+            raise ValueError(f"Column name not found: {chartAxes[1]}")
 
         # The values that will make up the x and y axes.
         valuesX = Reference(worksheet, min_col=columnX, min_row=columnNameRow + 1, max_col=columnX,
@@ -288,7 +289,7 @@ def createCharts(workbookName, worksheetName, chartAxesList, columnNameRow, char
                             max_row=worksheet.max_row)
 
         chart = chartType()
-        setData(chart, valuesX, valuesY)
+        setData(chart, valuesX, valuesY, i)
         chart.title = f"{chartAxes[0]} vs {chartAxes[1]}"
         chart.x_axis.title = chartAxes[0]
         chart.y_axis.title = chartAxes[1]
@@ -322,4 +323,38 @@ def listToErrorBars(plus, minus, errDir='y', errValType='stdErr'):
     nds_plus = NumDataSource(numLit=nd_plus)
     nds_minus = NumDataSource(numLit=nd_minus)
 
-    return ErrorBars(errDir=errDir, errValType=errValType)
+    return ErrorBars(errDir=errDir, errValType=errValType, plus=nds_plus, minus=nds_minus)
+
+
+def getResultsStdErrs(workbookName, colNames, columnNameRow):
+    path = createOrGetPath(workbookName)
+    workbook = createOrGetWorkbook(path)
+
+    resultSheetNames = [wsName for wsName in workbook.sheetnames if "Results" in wsName]
+    stdErrs = [[] for _ in colNames]
+
+    for worksheetName in resultSheetNames:
+        worksheet = createOrGetSheet(workbook, worksheetName)
+        for i, colName in enumerate(colNames):
+            dataCol = findSettingColumn(worksheet, colName, columnNameRow)
+            if dataCol == -1:
+                raise ValueError(f"Column name not found: {colName}")
+
+            numbers = [worksheet.cell(row=row, column=dataCol).internal_value
+                       for row in range(columnNameRow + 1, worksheet.max_row + 1)]
+
+            stdErrs[i].append(calcStdErr(numbers))
+
+    workbook.close()
+
+    return stdErrs
+
+
+def calcStdErr(numbers):
+    try:
+        mean = sum(numbers) / len(numbers)
+        variance = sum([(x - mean) ** 2 for x in numbers]) / (len(numbers) - 1)
+        stdDev = sqrt(variance)
+        return stdDev / sqrt(len(numbers))
+    except ZeroDivisionError:
+        return 0
