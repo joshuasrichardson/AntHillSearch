@@ -7,8 +7,10 @@ DISTRACTED = False  # Whether the user is distracted
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
+
+USE_ROUNDS_AS_DURATION = False
 SIM_DURATION = 120  # Time of the interface in seconds
-TERMINAL_ROUND = 3000
+# TERMINAL_ROUND = SIM_DURATION  # Time of the interface in rounds
 
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such

@@ -2,10 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4e246176-fcb7-4462-be72-da4c85d191fc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/AntHillSearch.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AntHillSearch.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/Constants.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/Config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/Config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/trial1settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/trial1settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/trial2settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/trial2settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/trial3settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/trial3settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/display/Graphs.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/Graphs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/DrawingFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/DrawingFunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface/EngineerInferface.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/EngineerInferface.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface/Simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/Simulation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface/UserInterface.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/UserInterface.py" afterDir="false" />

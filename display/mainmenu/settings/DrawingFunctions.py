@@ -6,7 +6,7 @@ from config import Config
 from config.Config import AGENT_IMAGES
 from Constants import GREEN, RED, BLUE, BORDER_COLOR, FONT_SIZE_NAME, SITE_RADIUS_NAME, \
     HUB_LOCATIONS_NAME, SHOULD_RECORD_NAME, AGENT_IMAGE_NAME, LARGE_FONT_SIZE_NAME, SITE_NO_FARTHER_THAN_NAME, \
-    SITE_NO_CLOSER_THAN_NAME, MEDIUM_QUALITY, FULL_CONTROL_NAME, DISTRACTED_NAME
+    SITE_NO_CLOSER_THAN_NAME, MEDIUM_QUALITY, FULL_CONTROL_NAME, DISTRACTED_NAME, USE_ROUNDS_AS_DURATION_NAME
 from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay
 from model.builder.SiteBuilder import getNewSite
 
@@ -252,6 +252,12 @@ def drawControls(self):
 
 def drawDistraction(self):
     if self.settingMenu.data[DISTRACTED_NAME]:
+        pass
+    else:
+        pass
+
+def drawRoundsAsDuration(self):
+    if self.settingMenu.data[USE_ROUNDS_AS_DURATION_NAME]:
         pass
     else:
         pass
