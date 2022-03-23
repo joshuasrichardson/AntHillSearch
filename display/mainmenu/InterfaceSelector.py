@@ -18,6 +18,16 @@ class InterfaceSelector(MenuScreen):
         super().__init__([title, BackButton(), uiButton, eiButton])
         self.option = None
 
+    def setDataUsingConfig(self):
+        """ Set the values on the screen to match the values in settings.json """
+        try:
+            with open(CONFIG_FILE_NAME, 'r') as file:
+                self.data = json.load(file)
+        except FileNotFoundError:
+            print(f"File '{CONFIG_FILE_NAME}' was not found")
+        except json.decoder.JSONDecodeError:
+            print(f"File '{CONFIG_FILE_NAME}' is empty")
+
     def chooseInterface(self):
         """ Let the user choose between the UserInterface and the EngineerInterface for the practice round """
         super().run()
