@@ -6,6 +6,7 @@ import Utils
 from config import Config
 from Constants import *
 from display import Display
+from model.FloodZone import FloodZone
 from model.Predator import Predator
 from model.Ladybug import Ladybug
 from model.builder import SiteBuilder
@@ -48,6 +49,8 @@ class World:
 
         self.states = zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
+
+        self.floodZone = FloodZone()
 
     def checkHubs(self, numHubs, siteRadius):
         """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """

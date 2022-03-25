@@ -4,7 +4,7 @@ import pygame
 
 from config import Config
 from Constants import WORDS_COLOR, GREEN, BORDER_COLOR, HOME_QUALITIES_NAME, SIM_TIMES_NAME, NUM_ARRIVALS_NAME, \
-    TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME, NUM_ROUNDS_NAME
+    TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME, NUM_ROUNDS_NAME, IN_FLOOD_ZONE_NAME
 from display import SiteDisplay
 
 screen = None
@@ -95,7 +95,7 @@ def drawFinish(surface, results):
     y += Config.FONT_SIZE
     write(surface, "any key to continue.", Config.FONT_SIZE, x, y)
 
-    words = ["Colony", "Rounds", "Time", "Quality", "Positions", "Arrivals", "Deaths"]
+    words = ["Colony", "Rounds", "Time", "Quality", "Positions", "Arrivals", "Deaths", "In Flood Zone"]
     for i in range(len(results[HOME_QUALITIES_NAME])):
         words.append(f"{i + 1}")
         words.append(f"{results[NUM_ROUNDS_NAME][i]}")
@@ -104,6 +104,7 @@ def drawFinish(surface, results):
         words.append(f"{results[HOME_POSITIONS_NAME][i]}")
         words.append(f"{results[NUM_ARRIVALS_NAME][i]}/{results[TOTAL_NAME][i]}")
         words.append(f"{results[NUM_DEAD_NAME][i]}")
+        words.append(f"{results[IN_FLOOD_ZONE_NAME][i]}")
     drawResultsGrid(len(results[HOME_QUALITIES_NAME]) + 1, len(results), words)
 
 

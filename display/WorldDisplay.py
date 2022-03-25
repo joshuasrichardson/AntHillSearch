@@ -3,7 +3,7 @@ import pygame
 
 from config import Config
 from Constants import SCREEN_COLOR, TRANSPARENT, FOG_COLOR, NO_MARKER_NAME, RED, BLACK
-from display import Display, AgentDisplay, SiteDisplay
+from display import Display, AgentDisplay, SiteDisplay, FloodZoneDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
 from display.LadybugDisplay import drawLadybug
@@ -29,6 +29,7 @@ def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
             drawSite(site, site.pos, site.getRadius(), site.quality)
     drawPredators(world)
     drawFog()
+    FloodZoneDisplay.drawFloodZone(world.floodZone)
     if not Config.DRAW_FAR_AGENTS:
         drawDangerZones(world)
     drawMarkers(world)
