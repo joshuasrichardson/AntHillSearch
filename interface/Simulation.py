@@ -63,10 +63,17 @@ class Simulation(ABC):
         self.timer.start()
 
         try:
-            while not foundNewHome and not self.timeRanOut:
-                self.runNextRound()
-                self.numRounds += 1
-                foundNewHome = self.checkIfSimulationEnded()
+            if Config.USE_ROUNDS_AS_DURATION:
+                while not foundNewHome and self.getNumRounds() < Config.SIM_DURATION:
+                    self.runNextRound()
+                    self.numRounds += 1
+                    foundNewHome = self.checkIfSimulationEnded()
+            else:
+                while not foundNewHome and not self.timeRanOut:
+                    self.runNextRound()
+                    self.numRounds += 1
+                    foundNewHome = self.checkIfSimulationEnded()
+
         except GameOver as e:
             self.stopTimer()
             self.gameOver(e.message)
@@ -89,6 +96,9 @@ class Simulation(ABC):
             roundCounts.append(rounds)
             print(f"Colony {i + 1} took {rounds} rounds to finish.")
         return roundCounts
+
+    def getNumRounds(self):
+        return self.numRounds
 
     def stopTimer(self):
         self.timer.cancel()
@@ -263,10 +273,11 @@ class Simulation(ABC):
     def printTimeResults(self):
         times = []
         for i, hub in enumerate(self.world.getHubs()):
-            if hub.time == 0:
-                simulationTime = Config.SIM_DURATION
-            else:
-                simulationTime = Config.SIM_DURATION - hub.time
+            simulationTime = round(Config.SIM_DURATION - self.timer.getRemainingTime())
+            # if hub.time == 0:
+            #     simulationTime = self.timer  # Config.SIM_DURATION
+            # else:
+            #     simulationTime = self.timer  # Config.SIM_DURATION - hub.time
             times.append(simulationTime)
             print(f"Colony {i + 1} took {simulationTime} seconds to finish.")
         return times
