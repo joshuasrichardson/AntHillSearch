@@ -41,7 +41,7 @@ class ReplaySelector:
 		replayImages = []
 		try:
 			for i in range(self.numReplays):
-				image = self.font.render(self.latestReplays[i], True, WORDS_COLOR).convert_alpha()
+				image = self.font.render(self.formatReplayName(self.latestReplays[i]), True, WORDS_COLOR).convert_alpha()
 				replayImages.append(image)
 		except IndexError:
 			pass
@@ -52,7 +52,7 @@ class ReplaySelector:
 		try:
 			for i in range(self.numReplays):
 				image = self.latestReplayImages[i]
-				button = pygame.Rect(image.get_width() / 2, self.nextY(), image.get_width(), image.get_height())
+				button = pygame.Rect(Display.origWidth / 3, self.nextY(), image.get_width(), image.get_height())
 				replayButtons.append(button)
 		except IndexError:  # Not enough recordings made
 			pass
@@ -91,12 +91,21 @@ class ReplaySelector:
 				return False
 		return True
 
+	@staticmethod
+	def formatReplayName(replay):
+		if len(replay) == 35:
+			return f"{replay[0:3]} {replay[4:6]}, {replay[7:11]} at {replay[12:14]}:{replay[15:17]}:{replay[18:20]}"
+		elif len(replay) == 34:
+			return f"{replay[0:3]} {replay[4:5]}, {replay[6:10]} at {replay[11:13]}:{replay[14:16]}:{replay[17:19]}"
+		else:
+			return replay
+
 	def updateWords(self, pos):
 		for i in range(len(self.latestReplayButtons)):
 			if self.latestReplayButtons[i].collidepoint(pos):
-				self.latestReplayImages[i] = self.font.render(self.latestReplays[i], True, BLUE).convert_alpha()
+				self.latestReplayImages[i] = self.font.render(self.formatReplayName(self.latestReplays[i]), True, BLUE).convert_alpha()
 			else:
-				self.latestReplayImages[i] = self.font.render(self.latestReplays[i], True, WORDS_COLOR).convert_alpha()
+				self.latestReplayImages[i] = self.font.render(self.formatReplayName(self.latestReplays[i]), True, WORDS_COLOR).convert_alpha()
 
 	def updateCursor(self):
 		cursorStyle = pygame.SYSTEM_CURSOR_HAND if self.collidesWithSelectable(pygame.mouse.get_pos()) \

@@ -138,15 +138,17 @@ class StartUpDisplay:
 
     def replay(self):
         """ Watch one of the most recent simulation's replays """
+        self.replaySelector = ReplaySelector()  # Reconstruct it to make sure that the most recent recordings show up.
         replay = self.replaySelector.chooseReplay()
         file_path = RESULTS_DIR + replay
-        try:  # If the recording exists, play it, else tell the user there is no recording
-            del self.simInterface
-            self.simInterface = RecordingPlayer(replay)
-            self.simInterface.runSimulation()
-            Display.resetScreen()
-        except FileNotFoundError:
-            self.complainAboutMissingRecording(file_path)
+        if replay != "":
+            try:  # If the recording exists, play it, else tell the user there is no recording
+                del self.simInterface
+                self.simInterface = RecordingPlayer(replay)
+                self.simInterface.runSimulation()
+                Display.resetScreen()
+            except FileNotFoundError:
+                self.complainAboutMissingRecording(file_path)
 
     @staticmethod
     def complainAboutMissingRecording(file_path):
