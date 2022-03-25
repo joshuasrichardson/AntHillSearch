@@ -1,6 +1,7 @@
 from copy import copy
 
 from numpy import random
+from pygame import Surface
 from pygame.rect import Rect
 
 from config import Config
@@ -18,6 +19,7 @@ class Site:
         self.siteRect = Rect(self.pos[0] - self.radius, self.pos[1] - self.radius, self.radius * 2, self.radius * 2)
         self.siteRect.centerx = self.pos[0]  # The x coordinate of the center of the rectangle
         self.siteRect.centery = self.pos[1]  # The y coordinate of the center of the rectangle
+        self.surface = Surface((self.radius * 2, self.radius * 2))
 
         self.agentCount = numAgents  # The number of agents assigned to the site
         self.agentCounts = self.initAgentCounts(numHubs)  # The number of agents assigned to the site from each hub

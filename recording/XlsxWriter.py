@@ -358,3 +358,6 @@ def calcStdErr(numbers):
         return stdDev / sqrt(len(numbers))
     except ZeroDivisionError:
         return 0
+    except TypeError:
+        print(f"Type Error in calcStdErr. Probably because of numbers: {numbers}")
+        return 0

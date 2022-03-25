@@ -34,6 +34,8 @@ class Settings:
             PercentageSetting(CONVERGENCE_FRACTION_NAME, "Convergence Fraction", 0, x, self.nextY(True), drawConvergenceFraction, self),
             BooleanSetting(USE_ROUNDS_AS_DURATION_NAME, "Use Rounds as Duration", 0, x, self.nextY(), drawRoundsAsDuration, self),
             IntegerSetting(SIM_DURATION_NAME, "Simulation Duration", 0, x, self.nextY(), showSimDuration, self),
+            PercentageSetting(FLOOD_ZONE_COVERAGE_NAME, "Flood Zone Coverage", 0, x, self.nextY(), drawConvergenceFraction, self),
+            PositionSetting(FLOOD_ZONE_CORNERS_NAME, "Flood Zone Corners", 0, x, self.nextY(), drawHubsPositions, self),
             IntegerSetting(FONT_SIZE_NAME, "Font Size", 0, x, self.nextY(), showFontSize, self),
             IntegerSetting(LARGE_FONT_SIZE_NAME, "Large Font Size", 0, x, self.nextY(), showLargeFontSize, self),
             BooleanSetting(SHOULD_RECORD_NAME, "Should Record", 0, x, self.nextY(), drawShouldRecord, self),

@@ -94,6 +94,7 @@ class Controls:
         if event.type == MOUSEMOTION:
             self.mouseMotion(mousePos, adjustedMousePos)
         elif event.type == MOUSEBUTTONUP:
+            print(f"mousePos: {mousePos}, adjPos: {adjustedMousePos}")
             if event.button == 1:
                 self.mouseUp(mousePos, adjustedMousePos)
             elif event.button == 3:

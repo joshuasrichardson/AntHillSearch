@@ -251,7 +251,8 @@ class Simulation(ABC):
                    HOME_POSITIONS_NAME: positions,
                    NUM_ARRIVALS_NAME: numArrivals,
                    NUM_DEAD_NAME: numDeaths,
-                   TOTAL_NAME: self.world.initialHubAgentCounts}
+                   TOTAL_NAME: self.world.initialHubAgentCounts,
+                   IN_FLOOD_ZONE_NAME: self.areInFloodZone(self.chosenHomes)}
         self.sendResults(results)
         return results
 
@@ -274,6 +275,7 @@ class Simulation(ABC):
         times = []
         for i, hub in enumerate(self.world.getHubs()):
             simulationTime = round(Config.SIM_DURATION - self.timer.getRemainingTime())
+            # TODO
             # if hub.time == 0:
             #     simulationTime = self.timer  # Config.SIM_DURATION
             # else:
@@ -289,6 +291,12 @@ class Simulation(ABC):
             qualities.append(home.getQuality())
             print(f"Colony {i + 1}: {home.getQuality()}/255.")
         return qualities
+
+    def areInFloodZone(self, sites):
+        inZone = []
+        for site in sites:
+            inZone.append(self.world.floodZone.overlaps(site.surface, site.getSiteRect()))
+        return inZone
 
     def sendResults(self, results):
         pass
