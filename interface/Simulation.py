@@ -295,7 +295,7 @@ class Simulation(ABC):
     def areInFloodZone(self, sites):
         inZone = []
         for site in sites:
-            inZone.append(self.world.floodZone.overlaps(site.surface, site.getSiteRect()))
+            inZone.append(self.world.floodZone.overlaps(site.getSiteRect(), site.radius))
         return inZone
 
     def sendResults(self, results):

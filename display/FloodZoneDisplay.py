@@ -8,4 +8,4 @@ def initFloodZoneDisplay(surface, corners):
 
 
 def drawFloodZone(floodZone):
-    Display.blitImage(Display.screen, floodZone.surface, (0, 0))
+    Display.blitImage(Display.screen, floodZone.surface, (Display.worldLeft, Display.worldTop))

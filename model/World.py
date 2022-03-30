@@ -50,7 +50,7 @@ class World:
         self.states = zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
-        self.floodZone = FloodZone()
+        self.floodZone = FloodZone(self.hubs[0].pos)
 
     def checkHubs(self, numHubs, siteRadius):
         """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """
