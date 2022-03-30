@@ -2,23 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2603ab28-1830-48db-a30d-c2f403c59c4d" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/display/FloodZoneDisplay.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/FloodZone.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/Constants.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/Config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/Config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/trial1settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/trial1settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/trial2settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/trial2settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/trial3settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/trial3settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/Display.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/Display.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/WorldDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/WorldDisplay.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/FloodZoneDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/FloodZoneDisplay.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interface/Simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/Simulation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/FloodZone.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/FloodZone.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/Site.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Site.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/World.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/World.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/recording/XlsxWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/recording/XlsxWriter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/Controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/user/Controls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,8 +26,26 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProjectId" id="26tP4S4sY9M9qa9ePLNGrO2n7DG" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$USER_HOME$" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2603ab28-1830-48db-a30d-c2f403c59c4d" name="Default Changelist" comment="" />
+      <created>1648239723567</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1648239723567</updated>
+    </task>
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
