@@ -7,6 +7,7 @@ from display import Display, AgentDisplay, SiteDisplay, FloodZoneDisplay, FogDis
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
 from display.LadybugDisplay import drawLadybug
+from display.RockDisplay import drawRock
 from display.SiteDisplay import drawSite
 
 
@@ -17,6 +18,7 @@ def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
     drawAgents(world)
     drawPredators(world)
     drawLadybugs(world)
+    drawRocks(world)
     if not drawFarAgents:
         for site in world.siteList:
             if site.wasFound:
@@ -58,6 +60,10 @@ def drawPredators(world):
 def drawLadybugs(world):
     for ladybug in world.ladybugList:
         drawLadybug(ladybug, Display.screen)
+
+def drawRocks(world):
+    for rock in world.rockList:
+        drawRock(rock, Display.screen)
 
 
 def drawDangerZones(world):

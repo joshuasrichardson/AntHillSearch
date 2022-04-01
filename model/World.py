@@ -8,6 +8,7 @@ from display import Display, FogDisplay
 from model.FloodZone import FloodZone
 from model.Predator import Predator
 from model.Ladybug import Ladybug
+from model.Rock import Rock
 from model.builder import SiteBuilder
 
 
@@ -17,7 +18,8 @@ class World:
     def __init__(self, numHubs, numSites, hubLocations, hubRadii, hubAgentCounts, sitePositions, siteQualities,
                  siteRadii, siteRadius=Config.SITE_RADIUS, numPredators=Config.NUM_PREDATORS,
                  predPositions=Config.PRED_POSITIONS,
-                 numLadybugs=Config.NUM_LADYBUGS, ladybugPositions=Config.LADYBUG_POSITIONS):
+                 numLadybugs=Config.NUM_LADYBUGS, ladybugPositions=Config.LADYBUG_POSITIONS,
+                 numRocks=Config.NUM_ROCKS, rockPositions=Config.ROCK_POSITIONS):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -38,6 +40,7 @@ class World:
         self.predatorList = self.generatePredators(numPredators,
                                                    predPositions)  # List of all the predators in the world
         self.ladybugList = self.generateLadybugs(numLadybugs, ladybugPositions)  # List of all the ladybugs in the world
+        self.rockList = self.generateRocks(numRocks, rockPositions)  # List of all the rocks in the world
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [],
                             []]  # Groups of agents that are selected together and assigned a number 0 - 9.
@@ -125,6 +128,19 @@ class World:
                 bugs.append(bug(self.siteList[random.randint(len(self.hubs), len(self.siteList))], self, bugPositions[i]))
 
         return bugs
+
+    def generateRocks(self, numRocks, rockPositions):
+        rocks = []
+
+        if numRocks > len(rockPositions):
+            for i in range(len(rockPositions)):  # Create all the rocks with preset positions
+                rocks.append(Rock(self, rockPositions[i]))
+            for i in range (len(rockPositions), numRocks):  # Create all the rocks without preset positions
+                rocks.append(Rock(self))
+        else:
+            for i in range(numRocks):  # Create all the rocks with preset positions
+                rocks.append(Rock(self, rockPositions[i]))
+        return rocks
 
     def getSiteList(self):
         return self.siteList

@@ -28,7 +28,7 @@ class LiveSimulation(Simulation, ABC):
         self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_POSITIONS, Config.HUB_RADII,
                            Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS, Config.SITE_QUALITIES, Config.SITE_RADII,
                            Config.SITE_RADIUS, Config.NUM_PREDATORS, Config.PRED_POSITIONS, Config.NUM_LADYBUGS,
-                           Config.LADYBUG_POSITIONS)
+                           Config.LADYBUG_POSITIONS, Config.NUM_ROCKS, Config.ROCK_POSITIONS)
         self.initializeAgentList()
 
         return self.world
@@ -100,6 +100,15 @@ class LiveSimulation(Simulation, ABC):
         if Config.SHOULD_RECORD and Config.RECORD_ALL:
             self.recorder.recordLadybugPosition(ladybug.pos)
             self.recorder.recordLadybugAngle(ladybug.angle)
+            
+    # def updateRock(self, rock, agentRectList):
+    #     rock.moveForward()
+    #     agentNeighbors = self.getNeighbors(rock.getRect(), agentRectList)
+    #     rock.help(agentNeighbors)
+    #
+    #     if Config.SHOULD_RECORD and Config.RECORD_ALL:
+    #         self.recorder.recordrockPosition(rock.pos)
+    #         self.recorder.recordRockAngle(rock.angle)
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()

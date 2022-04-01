@@ -52,6 +52,11 @@ def drawLadybugPositions(self):
         for pos in self.value:
             drawLadybug(pos)
 
+def drawObstaclePositions(self):
+    if self.arrayStates.isComplete2:
+        for pos in self.value:
+            drawObstacle(pos)
+
 
 def drawShouldRecord(self):
     if Config.SHOULD_RECORD:
@@ -245,6 +250,14 @@ def drawLadybugs(self):
         pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
         drawLadybug(pos)
 
+def drawRock(pos):
+    image = RockDisplay.getRockImage([0, 0])
+    Display.blitImage(Display.screen, image, pos, False)
+
+def drawRocks(self):
+    for i in range(self.value):
+        pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
+        drawRock(pos)
 
 def drawControls(self):
     if Config.FULL_CONTROL:

@@ -169,6 +169,14 @@ class Simulation(ABC):
     def updateLadybug(self, ladybug, agentRectList):
         pass
 
+    # def updateRocks(self, rock, agentRectList):
+    #     for rock in self.world.rockList:
+    #         self.updateRock(rock, agentRectList)
+
+    # @abstractmethod
+    # def updateRock(self, rock, agentRectList):
+    #     pass
+
     def recordDisplays(self):
         if Config.SHOULD_RECORD:
             self.recorder.recordExecutedCommands(self.graphs.executedCommands)
