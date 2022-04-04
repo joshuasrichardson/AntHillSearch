@@ -4,6 +4,7 @@ import random
 import pygame
 from numpy import pi, square, sin
 from pygame import mask, SRCALPHA
+from shapely.geometry import Polygon
 
 import Utils
 from display import Display, FloodZoneDisplay
@@ -44,12 +45,14 @@ class FloodZone:
         endAngle = startAngle + angle
         positions = [self.center]
         angle = startAngle
+        angleDiff1 = Utils.getAngleDiff(endAngle, startAngle) / 15
+        angleDiff2 = (2 * pi - Utils.getAngleDiff(startAngle, endAngle)) / 15
         for _ in range(16):
             positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
             if self.coverage <= 0.5:
-                angle += Utils.getAngleDiff(endAngle, startAngle) / 15
+                angle += angleDiff1
             else:
-                angle += (2 * pi - Utils.getAngleDiff(startAngle, endAngle)) / 15
+                angle += angleDiff2
 
         return positions
 
@@ -95,12 +98,67 @@ class FloodZone:
         return self.calcAcuteSectorAngle((2 * pi - sectorAngle), explorableArea - desiredArea)
 
     def generateRiver(self):
-        angle = random.uniform(0, 2 * pi)  # Get a random angle
-        # TODO
-        return [[Display.worldLeft, Display.worldTop],
-                [Display.worldLeft, Display.worldBottom],
-                [Display.origWidth / 2 - Config.MAX_SEARCH_DIST, Display.worldBottom],
-                [Display.origWidth / 2, Display.worldTop]]
+        explorableArea = pi * square(Config.MAX_SEARCH_DIST + Config.SITE_RADIUS)  # The area of the circle the ants can move around in
+        desiredArea = explorableArea * self.coverage  # How much area we want to cover with the flood zone in the circle
+        startAngle = random.uniform(0, 2 * pi)  # Get a random angle relative to hub
+        endAngle = random.uniform(0, 2 * pi)  # Get a random angle relative to hub
+        angle = startAngle
+        positions = []
+        angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / 15
+        for _ in range(16):
+            positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
+            angle += angleDiff
+
+        area = self.pointsToPolygonArea(positions)
+        print(f"Too big: {desiredArea < area}")
+        if desiredArea < area:
+            return self.getSmallerRiver(desiredArea, area, startAngle, endAngle, positions)
+        elif self.coverage <= 0.97:
+            return self.getBiggerRiver(desiredArea, area, startAngle, endAngle, positions)
+        else:
+            return self.getFullCoverage()
+
+    def getSmallerRiver(self, desiredArea, area, startAngle, endAngle, positions):
+        print("Get smaller river")
+        angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / 15
+        extraAngle = 0
+        while desiredArea < area:
+            angle = startAngle
+            positions = []
+            angleDiff -= 0.005
+            extraAngle += 0.08
+            for _ in range(8):
+                positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
+                angle += angleDiff
+            angle += extraAngle
+            for _ in range(8):
+                positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
+                angle += angleDiff
+
+            area = self.pointsToPolygonArea(positions)
+        return positions
+
+    def getBiggerRiver(self, desiredArea, area, startAngle, endAngle, positions):
+        print("Get bigger river")
+        while desiredArea > area:
+            startAngle += 0.005
+            endAngle -= 0.005
+            angle = startAngle
+            positions = []
+            angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / 15
+            for _ in range(16):
+                positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
+                angle += angleDiff
+            area = self.pointsToPolygonArea(positions)
+        return positions
+
+    def pointsToPolygonArea(self, points):
+        x = []
+        y = []
+        for point in points:
+            x.append(point[0])
+            y.append(point[1])
+        return Polygon(zip(x, y)).area
 
     def generatePolygon(self):
         # TODO
@@ -108,6 +166,15 @@ class FloodZone:
                 [Display.worldLeft, Display.worldBottom],
                 [Display.origWidth / 2 - Config.MAX_SEARCH_DIST, Display.worldBottom],
                 [Display.origWidth / 2, Display.worldTop]]
+
+    def getFullCoverage(self):
+        positions = []
+        angle = 0
+        angleDiff = 2 * pi / 32
+        for _ in range(32):
+            positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
+            angle += angleDiff
+        return positions
 
     def overlaps(self, rect, radius):
         offset = Display.worldLeft - rect[0], Display.worldTop - rect[1]
