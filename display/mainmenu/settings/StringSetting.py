@@ -1,19 +1,19 @@
 from display.mainmenu.settings.Setting import Setting
 
 
-def DEFAULT_AUTOFILL(self):
+def DEFAULT_AUTOFILL():
     return ""
 
 
 class StringSetting(Setting):
 
-    def __init__(self, key, name, categoryIndex, x, y, showUserInput, settingMenu, autofill=DEFAULT_AUTOFILL):
-        super().__init__(key, name, categoryIndex, x, y, showUserInput, settingMenu)
+    def __init__(self, key, name, x, y, showUserInput, settingMenu, autofill=DEFAULT_AUTOFILL):
+        super().__init__(key, name, x, y, showUserInput, settingMenu)
         self.autofill = autofill
 
     def initUserInput(self):
-        self.value = self.autofill(self)
-        self.userInputString = " -> " + self.autofill(self)
+        self.value = self.autofill()
+        self.userInputString = " -> " + self.autofill()
 
     def backspace(self):
         if len(self.value) > 0:

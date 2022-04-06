@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
+import Utils
 from config import Config
 from Constants import *
 from display import Display
@@ -318,18 +319,4 @@ class Simulation(ABC):
 
     def applyConfiguration(self):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """
-        try:
-            with open(CONFIG_FILE_NAME, 'r') as file:
-                data = json.load(file)
-            for i, key in enumerate(CONFIG_KEYS):
-                if key in data:
-                    try:
-                        exec(f"Config.{CONFIG_KEYS[i]} = {data[key]}")
-                    except NameError:
-                        exec(f"Config.{CONFIG_KEYS[i]} = \"{data[key]}\"")
-        except FileNotFoundError:
-            print(f"File '{CONFIG_FILE_NAME}' Not Found")
-            with open(f'{CONFIG_FILE_NAME}', 'w'):
-                print(f"Created '{CONFIG_FILE_NAME}'")
-        except json.decoder.JSONDecodeError:
-            print(f"File '{CONFIG_FILE_NAME}' is empty")
+        Utils.copyJsonToConfig()

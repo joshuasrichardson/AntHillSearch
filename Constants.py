@@ -58,6 +58,8 @@ CONFIG_KEYS = SETTING_KEYS + ["SECONDS_BETWEEN_SENDING_REQUESTS", "INITIAL_ZOOM"
                               "MAX_ASSESS_THRESHOLD", "ASSESS_DIVIDEND", "GET_LOST_THRESHOLD", "FOLLOW_THRESHOLD",
                               "LEAD_THRESHOLD", "MIN_ACCEPT_VALUE", "QUORUM_DIVIDEND", "KILL_THRESHOLD"]
 
+COPY_FROM_CONFIG = [FULL_CONTROL_NAME, DISTRACTED_NAME]
+
 MAX_TIME = 5000  # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 MEDIUM_QUALITY = 128  # Middle of the possible site qualities

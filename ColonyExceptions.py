@@ -15,6 +15,12 @@ class InputError(Error):
         print(f"{message}:({value})")
 
 
+class BackException(Error):
+    def __init__(self, message=""):
+        self.message = message
+        print(f"{message}")
+
+
 class GameOver(Error):
     """Exception raised to end the simulation.
 

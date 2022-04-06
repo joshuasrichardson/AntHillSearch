@@ -12,12 +12,18 @@ from config import Config
 
 
 class FloodZone:
-    def __init__(self, hubPosition):
+    def __init__(self, hubPosition=None):
+        if hubPosition is None:
+            hubPosition = [650, 325]
         self.coverage = Config.FLOOD_ZONE_COVERAGE
         self.corners = Config.FLOOD_ZONE_CORNERS
         self.center = copy.copy(hubPosition)
 
         if len(self.corners) < 3 and self.coverage > 0.0:
+            self.numCorners = 32
+            self.explorableRadius = Config.MAX_SEARCH_DIST + Config.SITE_RADIUS
+            self.explorableArea = pi * square(self.explorableRadius)  # The area of the circle the ants can move around in
+            self.desiredArea = self.explorableArea * self.coverage  # How much area we want to cover with the flood zone in the circle
             self.corners = self.generateCorners(random.randint(0, 3))
             print(f"Corners: {self.corners}")
 
@@ -31,8 +37,6 @@ class FloodZone:
             self.mask = mask.from_surface(self.surface, threshold=50)
 
     def generateCorners(self, shape):
-        if self.coverage == 0.0:
-            return []
         if shape == 0:
             return self.generateSector()
         if shape == 1:
@@ -43,15 +47,15 @@ class FloodZone:
             return self.generatePolygon()
 
     def getCircularPoints(self, positions, angle, angleDiffSmall, angleDiffBig, extraAngle=0.0):
-        for _ in range(8):
-            positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
+        for _ in range(int(self.numCorners / 2)):
+            positions.append(Utils.getNextPosition(self.center, self.explorableRadius, angle))
             if self.coverage <= 0.5:
                 angle += angleDiffSmall
             else:
                 angle += angleDiffBig
         angle += extraAngle
-        for _ in range(8):
-            positions.append(Utils.getNextPosition(self.center, Config.MAX_SEARCH_DIST + Config.SITE_RADIUS, angle))
+        for _ in range(int(self.numCorners / 2)):
+            positions.append(Utils.getNextPosition(self.center, self.explorableRadius, angle))
             if self.coverage <= 0.5:
                 angle += angleDiffSmall
             else:
@@ -62,25 +66,22 @@ class FloodZone:
         angle = self.coverage * 2 * pi  # Get the angle from the coverage percentage
         startAngle = random.uniform(0, 2 * pi)  # Get a random start angle
         endAngle = startAngle + angle
-        angleDiffSmall = Utils.getAngleDiff(endAngle, startAngle) / 15
-        angleDiffBig = (2 * pi - Utils.getAngleDiff(startAngle, endAngle)) / 15
+        angleDiffSmall = Utils.getAngleDiff(endAngle, startAngle) / (self.numCorners - 1)
+        angleDiffBig = (2 * pi - Utils.getAngleDiff(startAngle, endAngle)) / (self.numCorners - 1)
         return self.getCircularPoints([self.center], startAngle, angleDiffSmall, angleDiffBig)
 
     def generateSegment(self):
-        explorableArea = pi * square(Config.MAX_SEARCH_DIST)  # The area of the circle the ants can move around in
-        desiredArea = explorableArea * self.coverage  # How much area we want to cover with the flood zone in the circle
-        sectorAngle = 2 * (desiredArea / square(
-            Config.MAX_SEARCH_DIST))  # this is an underestimate if coverage is less than 50%, else overestimate
+        sectorAngle = 2 * (self.desiredArea / square(Config.MAX_SEARCH_DIST))
 
         if self.coverage < 0.5:
-            sectorAngle = self.calcAcuteSectorAngle(sectorAngle, desiredArea)
+            sectorAngle = self.calcAcuteSectorAngle(sectorAngle, self.desiredArea)
         elif self.coverage > 0.5:
-            sectorAngle = self.calcObtuseSectorAngle(explorableArea, sectorAngle, desiredArea)
+            sectorAngle = self.calcObtuseSectorAngle(sectorAngle)
 
         startAngle = random.uniform(0, 2 * pi)  # Get a random angle
         endAngle = startAngle + sectorAngle
-        angleDiffSmall = Utils.getAngleDiff(endAngle, startAngle) / 15
-        angleDiffBig = (2 * pi - Utils.getAngleDiff(endAngle, startAngle)) / 15
+        angleDiffSmall = Utils.getAngleDiff(endAngle, startAngle) / (self.numCorners - 1)
+        angleDiffBig = (2 * pi - Utils.getAngleDiff(endAngle, startAngle)) / (self.numCorners - 1)
         return self.getCircularPoints([], startAngle, angleDiffSmall, angleDiffBig)
 
     @staticmethod
@@ -99,29 +100,27 @@ class FloodZone:
 
         return sectorAngle % (2 * pi)
 
-    def calcObtuseSectorAngle(self, explorableArea, sectorAngle, desiredArea):
-        return self.calcAcuteSectorAngle((2 * pi - sectorAngle), explorableArea - desiredArea)
+    def calcObtuseSectorAngle(self, sectorAngle):
+        return self.calcAcuteSectorAngle((2 * pi - sectorAngle), self.explorableArea - self.desiredArea)
 
     def generateRiver(self):
-        explorableArea = pi * square(Config.MAX_SEARCH_DIST + Config.SITE_RADIUS)  # The area of the circle the ants can move around in
-        desiredArea = explorableArea * self.coverage  # How much area we want to cover with the flood zone in the circle
         startAngle = random.uniform(0, 2 * pi)  # Get a random angle relative to hub
         endAngle = random.uniform(0, 2 * pi)  # Get a random angle relative to hub
-        angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / 15
+        angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / (self.numCorners - 1)
         positions = self.getCircularPoints([], startAngle, angleDiff, angleDiff)
 
         area = self.pointsToPolygonArea(positions)
-        if desiredArea < area:
-            return self.getSmallerRiver(desiredArea, area, startAngle, endAngle, positions)
+        if self.desiredArea < area:
+            return self.getSmallerRiver(area, startAngle, endAngle, positions)
         elif self.coverage <= 0.97:
-            return self.getBiggerRiver(desiredArea, area, startAngle, endAngle, positions)
+            return self.getBiggerRiver(area, startAngle, endAngle, positions)
         else:
             return self.getFullCoverage()
 
-    def getSmallerRiver(self, desiredArea, area, startAngle, endAngle, positions):
-        angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / 15
+    def getSmallerRiver(self, area, startAngle, endAngle, positions):
+        angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / (self.numCorners - 1)
         extraAngle = 0
-        while desiredArea < area:
+        while self.desiredArea < area:
             angleDiff -= 0.005
             extraAngle += 0.08
             positions = self.getCircularPoints([], startAngle, angleDiff, angleDiff, extraAngle)
@@ -129,11 +128,11 @@ class FloodZone:
             area = self.pointsToPolygonArea(positions)
         return positions
 
-    def getBiggerRiver(self, desiredArea, area, startAngle, endAngle, positions):
-        while desiredArea > area:
+    def getBiggerRiver(self, area, startAngle, endAngle, positions):
+        while self.desiredArea > area:
             startAngle += 0.005
             endAngle -= 0.005
-            angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / 15
+            angleDiff = (2 * pi - abs(Utils.getAngleDiff(startAngle, endAngle))) / (self.numCorners - 1)
             positions = self.getCircularPoints([], startAngle, angleDiff, angleDiff)
             area = self.pointsToPolygonArea(positions)
         return positions
@@ -148,15 +147,35 @@ class FloodZone:
         return Polygon(zip(x, y)).area
 
     def generatePolygon(self):
-        explorableArea = pi * square(Config.MAX_SEARCH_DIST + Config.SITE_RADIUS)  # The area of the circle the ants can move around in
-        averageRadius = sqrt((explorableArea * self.coverage) / pi)
-        # TODO: mess with the center, irregularity, and spikiness
-        positions = generate_polygon([650, 350], averageRadius, 1 - self.coverage, 1 - self.coverage, 12)
+        averageRadius = sqrt((self.explorableArea * self.coverage) / pi)
+        irregularity = 1 - self.coverage if self.coverage > 0.5 else random.uniform(0, 1)
+        spikiness = 1 - self.coverage if self.coverage > 0.5 else random.uniform(0, 1)
+        numVertices = random.randint(3, 12)
+        positions = generate_polygon(self.getCenter(), averageRadius, irregularity, spikiness, numVertices)
+        self.resizePolygon(positions)
         # TODO: adjust the positions to all be within the search radius while still maintaining the coverage
         return positions
 
+    def getCenter(self):
+        centerX = random.randint(-self.explorableRadius, self.explorableRadius)
+        maxY = int(sqrt(square(self.explorableRadius) - square(centerX)))
+        centerY = random.randint(-maxY, maxY)
+        return [centerX, centerY]
+
+    def resizePolygon(self, positions):
+        # TODO: Do the following till it takes up the right amount of the explorable area:
+        #  Create surface from positions
+        #  Draw that surface on a Mask
+        #  Create surface with the circle that represents the area that can be explored
+        #  Draw that surface on a Mask of the same size as the previous one
+        #  Get the area of the overlap
+        #  If it's too big, move each point in toward the center a little
+        #  If it's too small, move each point out from the center a little
+
+        return positions
+
     def getFullCoverage(self):
-        angleDiff = 2 * pi / 16
+        angleDiff = 2 * pi / self.numCorners
         return self.getCircularPoints([], 0, angleDiff, angleDiff)
 
     def overlaps(self, rect, radius):
@@ -181,8 +200,7 @@ from typing import List, Tuple
 def generate_polygon(center: List[float], avg_radius: float,
                      irregularity: float, spikiness: float,
                      num_vertices: int) -> List[List[float]]:
-    """
-    Start with the center of the polygon at center, then creates the
+    """ Start with the center of the polygon at center, then creates the
     polygon by sampling points on a circle around the center.
     Random noise is added by varying the angular spacing between
     sequential points, and by varying the radial distance of each
@@ -205,8 +223,7 @@ def generate_polygon(center: List[float], avg_radius: float,
         num_vertices (int):
             the number of vertices of the polygon.
     Returns:
-        List[Tuple[float, float]]: list of vertices, in CCW order.
-    """
+        List[Tuple[float, float]]: list of vertices, in CCW order. """
     # Parameter check
     if irregularity < 0 or irregularity > 1:
         raise ValueError("Irregularity must be between 0 and 1.")
@@ -231,16 +248,14 @@ def generate_polygon(center: List[float], avg_radius: float,
 
 
 def random_angle_steps(steps: int, irregularity: float) -> List[float]:
-    """Generates the division of a circumference in random angles.
-
+    """ Generates the division of a circumference in random angles.
     Args:
         steps (int):
             the number of angles to generate.
         irregularity (float):
             variance of the spacing of the angles between consecutive vertices.
     Returns:
-        List[float]: the list of the random angles.
-    """
+        List[float]: the list of the random angles. """
     # generate n angle steps
     angles = []
     lower = (2 * math.pi / steps) - irregularity
@@ -259,8 +274,6 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
 
 
 def clip(value, lower, upper):
-    """
-    Given an interval, values outside the interval are clipped to the interval
-    edges.
-    """
+    """ Given an interval, values outside the interval are clipped to the interval
+    edges. """
     return min(upper, max(value, lower))

@@ -3,8 +3,8 @@ from display.mainmenu.settings.StringSetting import StringSetting
 
 class BooleanSetting(StringSetting):
 
-    def __init__(self, key, name, categoryIndex, x, y, showUserInput, settingMenu):
-        super().__init__(key, name, categoryIndex, x, y, showUserInput, settingMenu)
+    def __init__(self, key, name, x, y, showUserInput, settingMenu):
+        super().__init__(key, name, x, y, showUserInput, settingMenu)
 
     def initUserInput(self):
         self.value = f"{not self.settingMenu.data[self.key]}"
@@ -12,8 +12,7 @@ class BooleanSetting(StringSetting):
         return self.autofill == "True" or self.autofill == "T" or self.autofill == "true" or self.autofill == "t" \
             or self.autofill == "1"
 
-    def getUserInput(self):
-        boolString = super().getUserInput()
-        self.value = boolString == "True" or boolString == "T" or boolString == "true" or boolString == "t" \
-            or boolString == "1"
-        return self.value
+    def saveValue(self):
+        self.value = self.value == "True" or self.value == "T" or self.value == "true" or \
+            self.value == "t" or self.value == "1"
+        super().saveValue()
