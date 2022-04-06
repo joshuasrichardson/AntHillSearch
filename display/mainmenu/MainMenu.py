@@ -2,29 +2,25 @@ import json
 import time
 
 import pygame.display
-from pygame import MOUSEBUTTONUP, QUIT
 
 from config import Config
 from ColonyExceptions import GameOver
-from Constants import SCREEN_COLOR, TRIAL_SETTINGS, BLUE, CONFIG_FILE_NAME, RESULTS_DIR, FULL_CONTROL_NAME, DISTRACTED_NAME
+from Constants import TRIAL_SETTINGS, CONFIG_FILE_NAME, RESULTS_DIR, COPY_FROM_CONFIG
 
 from display import Display
 from display.mainmenu.InterfaceSelector import InterfaceSelector
+from display.mainmenu.buttons.MenuButton import MenuButton
+from display.mainmenu.MenuScreen import MenuScreen
+from display.mainmenu.buttons.Title import Title
 from display.mainmenu.settings.Settings import Settings
 from display.mainmenu.tutorial.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 from display.mainmenu.ReplaySelector import ReplaySelector
 
-DO_USER_EXPERIMENTS = "Test"
-PRACTICE = "Practice"
-REPLAY = "Replay"
-TUTORIAL = "Tutorial"
-SETTINGS = "Settings"
-EXIT = "Exit"
 
-
-class StartUpDisplay:
+class StartUpDisplay(MenuScreen):
     def __init__(self, interface):
+        super().__init__(self.getButtons())
         Display.createScreen()  # Initialize the pygame screen
         self.defaultInterface = interface  # The interface to be played when the "Play" option is selected
         self.freshInterface = interface  # The interface to run when "Play" or "Practice" is selected
@@ -35,67 +31,23 @@ class StartUpDisplay:
         self.tutorial = Tutorial(self.practice)  # The tutorial about how to play the game
         self.settings = Settings()  # Settings that can be changed
 
+    def getButtons(self):
+        spacing = Config.FONT_SIZE * 3
+        return [
+            Title("Anthill Search", 200),
+            MenuButton(self.doUserExperiments, "Test", spacing * 0),
+            MenuButton(self.practice, "Practice", spacing * 1),
+            MenuButton(self.startTutorial, "Tutorial", spacing * 2),
+            MenuButton(self.replay, "Replay", spacing * 3),
+            MenuButton(self.viewSettings, "Settings", spacing * 4),
+            MenuButton(self.exit, "Exit", spacing * 5)
+        ]
+
     def run(self):
         try:
-            while 1:  # Keep going till the game is over
-                Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-                self.drawStartPage()  # Draw game title and options the user can select
-                pygame.display.flip()  # Have the things that have been drawn show up
-                self.handleEvents()  # Handle any user input
+            super().run()
         except GameOver:  # End when the GameOver exception is raised
             pass
-
-    def drawStartPage(self):
-        # Write the simulation title
-        Display.writeCenterPlus(Display.screen, "Anthill Search", Config.LARGE_FONT_SIZE, -4 * Config.LARGE_FONT_SIZE)
-        # The options the user can select
-        options = [DO_USER_EXPERIMENTS,
-                   PRACTICE,
-                   TUTORIAL,
-                   REPLAY,
-                   SETTINGS,
-                   EXIT]
-        # Whether the mouse collides with a word
-        mouseIsOverAnOption = False
-        # Check each option to see if the mouse is over it
-        for i, option in enumerate(options):
-            rect = Display.writeCenterPlus(Display.screen, option, Config.FONT_SIZE * 2, Config.FONT_SIZE * 3 * i)
-            if rect.collidepoint(self.mousePos):
-                self.start(option)
-                break
-            mouseIsOverCurrentOption = rect.collidepoint(pygame.mouse.get_pos())
-            mouseIsOverAnOption = mouseIsOverAnOption or mouseIsOverCurrentOption
-            if mouseIsOverCurrentOption:
-                Display.writeCenterPlus(Display.screen, option, Config.FONT_SIZE * 2, Config.FONT_SIZE * 3 * i, BLUE)
-        if mouseIsOverAnOption:
-            # Change the cursor to be a hand
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
-        else:
-            # Change the cursor to be an arrow (same as default)
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
-
-    def handleEvents(self):
-        for event in pygame.event.get():
-            if event.type == MOUSEBUTTONUP:  # If the user clicked, update the mouse position
-                self.mousePos = pygame.mouse.get_pos()
-            elif event.type == QUIT:  # If the user pressed the x to close the game, stop the game
-                self.exit()
-
-    def start(self, option):
-        """ Start another page from the main menu """
-        if option == DO_USER_EXPERIMENTS:
-            self.doUserExperiments()
-        elif option == PRACTICE:
-            self.practice()
-        elif option == TUTORIAL:
-            self.startTutorial()
-        elif option == REPLAY:
-            self.replay()
-        elif option == SETTINGS:
-            self.viewSettings()
-        elif option == EXIT:
-            self.exit()
-        self.mousePos = [-1, -1]
 
     def doUserExperiments(self):
         """ Run a simulation for each set of settings """
@@ -111,8 +63,8 @@ class StartUpDisplay:
         currentSettings.close()
         with open(trialSetting, 'r') as trialFile, open(CONFIG_FILE_NAME, 'w') as currentSetting:
             trial = json.load(trialFile)
-            trial[FULL_CONTROL_NAME] = current[FULL_CONTROL_NAME]
-            trial[DISTRACTED_NAME] = current[DISTRACTED_NAME]
+            for setting in COPY_FROM_CONFIG:
+                trial[setting] = current[setting]
             json.dump(trial, currentSetting)
 
     def practice(self):
@@ -165,9 +117,3 @@ class StartUpDisplay:
     def viewSettings(self):
         """ Enter the settings tab """
         self.settings.run()
-
-    @staticmethod
-    def exit():
-        """ Close the pygame window and exit the program """
-        pygame.quit()
-        raise GameOver("Exiting")
