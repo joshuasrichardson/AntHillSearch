@@ -101,14 +101,11 @@ class LiveSimulation(Simulation, ABC):
             self.recorder.recordLadybugPosition(ladybug.pos)
             self.recorder.recordLadybugAngle(ladybug.angle)
             
-    # def updateRock(self, rock, agentRectList):
-    #     rock.moveForward()
-    #     agentNeighbors = self.getNeighbors(rock.getRect(), agentRectList)
-    #     rock.help(agentNeighbors)
-    #
-    #     if Config.SHOULD_RECORD and Config.RECORD_ALL:
-    #         self.recorder.recordrockPosition(rock.pos)
-    #         self.recorder.recordRockAngle(rock.angle)
+    def updateRock(self, rock, agentRectList):
+        for agent in agentRectList:
+            if agent.colliderect(rock.getRect()):
+                agentNeighbors = self.getNeighbors(rock.getRect(), agentRectList)
+                rock.obstruct(agentNeighbors)
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()

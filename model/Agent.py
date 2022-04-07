@@ -42,6 +42,7 @@ class Agent:
         self.target = list(startingPosition)  # The position the agent is going to
         self.angle = random.uniform(0, pi, 1)  # Angle the agent is moving
         self.placesToAvoid = []  # A list of points that the agent should stay away from
+        self.obstaclesToAvoid = []  # A list of obstacles the agent cannot walk over
         self.recentlySeenPredatorPositions = []
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
@@ -280,6 +281,10 @@ class Agent:
             if self.isClose(pos, Config.MIN_AVOID_DIST):
                 self.escape([pos])
             self.forgetDangerousSites(pos)
+
+    # def avoidObstacle(self, pos):
+    #     if pos is not None and len(self.getNearbyObstacleToAvoid()) == 0:
+    #         self.obstaclesToAvoid.append(pos)
 
     def escape(self, positions):
         from model.states.EscapeState import EscapeState

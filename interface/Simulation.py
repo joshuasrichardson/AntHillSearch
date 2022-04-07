@@ -124,6 +124,7 @@ class Simulation(ABC):
         self.updateAgents(agentRectList)
         self.updatePredators(agentRectList)
         self.updateLadybugs(agentRectList)
+        self.updateRocks(agentRectList)
         self.recordDisplays()
         self.save()
 
@@ -169,13 +170,13 @@ class Simulation(ABC):
     def updateLadybug(self, ladybug, agentRectList):
         pass
 
-    # def updateRocks(self, rock, agentRectList):
-    #     for rock in self.world.rockList:
-    #         self.updateRock(rock, agentRectList)
+    def updateRocks(self, agentRectList):
+        for rock in self.world.rockList:
+            self.updateRock(rock, agentRectList)
 
-    # @abstractmethod
-    # def updateRock(self, rock, agentRectList):
-    #     pass
+    @abstractmethod
+    def updateRock(self, rock, agentRectList):
+        pass
 
     def recordDisplays(self):
         if Config.SHOULD_RECORD:

@@ -8,8 +8,8 @@ class Rock:
 	def __init__(self, world, pos=None):
 		self.world = world
 		if pos is None:
-			self.pos = [np.random.randint(-MAX_SEARCH_DIST, MAX_SEARCH_DIST),
-						np.random.randint(-MAX_SEARCH_DIST, MAX_SEARCH_DIST)]  # Where the rock will be placed
+			self.pos = [world.getHubs()[0].getPosition()[0] + (np.random.randint(-MAX_SEARCH_DIST, MAX_SEARCH_DIST)),
+						world.getHubs()[0].getPosition()[1] + (np.random.randint(-MAX_SEARCH_DIST, MAX_SEARCH_DIST))]  # Where the rock will be placed
 		else:
 			self.pos = pos
 		self.rockHandle = getRockImage(self.pos)  # Image on screen representing a rock
@@ -28,3 +28,7 @@ class Rock:
 
 	def setAngle(self, angle):
 		self.angle = angle
+
+	def obstruct(self, agentList):
+		for agent in agentList:
+			agent.angle += 90
