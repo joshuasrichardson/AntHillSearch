@@ -14,14 +14,14 @@ class WorldSettings(Button, MenuScreen):
     def __init__(self, x, y):
         super().__init__("World Settings", self.showWorld, x, y)
         self.buttons = [BackButton()]
-        self.world = self.generateWorld()
+        self.world = None
         self.shouldDrawWorld = False
-        self.numDraws = 0
+        self.numDraws = 100
 
     def draw(self):
         """ Draw the button that allows the user to see all settings """
         if self.shouldDrawWorld:
-            if self.numDraws > 100:
+            if self.numDraws > 99:
                 self.generateWorld()
                 self.numDraws = 0
             WorldDisplay.drawWorldObjects(self.world, True)
@@ -38,10 +38,9 @@ class WorldSettings(Button, MenuScreen):
                            Config.SITE_QUALITIES, Config.SITE_RADII, Config.SITE_RADIUS,
                            Config.NUM_PREDATORS, Config.PRED_POSITIONS, Config.NUM_LADYBUGS,
                            Config.LADYBUG_POSITIONS)
-        WorldDisplay.initFog(self.world.getHubs())
-        x = WorldDisplay.fog.get_width() / 2
-        y = WorldDisplay.fog.get_height() / 2
-        pygame.draw.circle(WorldDisplay.fog, TRANSPARENT, [x, y], Config.MAX_SEARCH_DIST, 0)
+        x = self.world.fog.get_width() / 2
+        y = self.world.fog.get_height() / 2
+        Display.drawCircle(self.world.fog, TRANSPARENT, [x, y], Config.MAX_SEARCH_DIST, 0, False)
         for site in self.world.siteList:
             site.wasFound = True
         return self.world

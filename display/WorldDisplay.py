@@ -2,14 +2,12 @@
 import pygame
 
 from config import Config
-from Constants import SCREEN_COLOR, TRANSPARENT, FOG_COLOR, NO_MARKER_NAME, RED, BLACK
-from display import Display, AgentDisplay, SiteDisplay, FloodZoneDisplay
+from Constants import SCREEN_COLOR, NO_MARKER_NAME, RED, BLACK
+from display import Display, AgentDisplay, SiteDisplay, FloodZoneDisplay, FogDisplay
 from display.AgentDisplay import drawAgent
 from display.PredatorDisplay import drawPredator
 from display.LadybugDisplay import drawLadybug
 from display.SiteDisplay import drawSite
-
-fog = None
 
 
 def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
@@ -28,7 +26,7 @@ def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
         for site in world.siteList:
             drawSite(site, site.pos, site.getRadius(), site.quality)
     drawPredators(world)
-    drawFog()
+    FogDisplay.drawFog(world.fog)
     FloodZoneDisplay.drawFloodZone(world.floodZone)
     if not Config.DRAW_FAR_AGENTS:
         drawDangerZones(world)
@@ -87,31 +85,6 @@ def drawMarkers(world):
     for site in world.siteList:
         if site.markerName is not NO_MARKER_NAME and site.isSelected:
             SiteDisplay.drawMarker(site)
-
-
-def initFog(hubs):
-    global fog
-    w, h = Display.worldSize
-    fog = pygame.Surface((w, h))
-    fog.fill(FOG_COLOR)
-    fog.set_colorkey(TRANSPARENT)
-    for hub in hubs:
-        pos = hub.getPosition()
-        x = pos[0] - Display.worldLeft
-        y = pos[1] - Display.worldTop
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], Config.HUB_OBSERVE_DIST, 0)
-
-
-def drawFog():
-    if fog is not None:
-        Display.blitImage(Display.screen, fog, (Display.worldLeft, Display.worldTop))
-
-
-def eraseFog(pos):
-    if fog is not None:
-        x = pos[0] - Display.worldLeft
-        y = pos[1] - Display.worldTop
-        pygame.draw.circle(fog, TRANSPARENT, [x, y], 20, 0)
 
 
 def drawPotentialQuality(world, potentialQuality):

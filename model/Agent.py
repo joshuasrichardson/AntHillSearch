@@ -4,7 +4,7 @@ import Utils
 from display.Display import getDestinationMarker
 from config import Config
 from Constants import *
-from display import WorldDisplay
+from display import FogDisplay
 from display.AgentDisplay import getAgentImage
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ConvergedPhase import ConvergedPhase
@@ -157,13 +157,13 @@ class Agent:
     def clearFog(self):
         """ Erases fog rectangles from the screen where the agent has been """
         if Config.DRAW_FAR_AGENTS:
-            WorldDisplay.eraseFog(self.pos)
+            FogDisplay.eraseFog(self.world.fog, self.pos)
         elif self.isClose(self.getHub().getPosition(), Config.HUB_OBSERVE_DIST) and not Config.DRAW_FAR_AGENTS:
             for command in self.eraseFogCommands:
-                command[0](command[1])  # Execute each of the eraseFogCommands that have been appended since the last visit to the hub
+                command[0](*command[1])  # Execute each of the eraseFogCommands that have been appended since the last visit to the hub
             self.eraseFogCommands = []
         elif not Config.DRAW_FAR_AGENTS:  # If they are not by the hub
-            self.eraseFogCommands.append([WorldDisplay.eraseFog, self.pos.copy()])  # Add their current position and erase fog command to a list to be executed when they get back to the hub.
+            self.eraseFogCommands.append([FogDisplay.eraseFog, [self.world.fog, self.pos.copy()]])  # Add their current position and erase fog command to a list to be executed when they get back to the hub.
 
     def getHub(self):
         return self.hub

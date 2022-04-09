@@ -22,42 +22,42 @@ class Settings(MenuScreen):
 
     def __init__(self):
         # The rectangles that make values selectable
-        self.data = {}  # The data about the settings to be recorded to settings.json
-        self.setDataUsingConfig()  # Set the values on the screen to match the values in settings.json
+        Utils.copyJsonToConfig()  # Make sure the Config values match config.json
         self.settingsY = 90  # The y position of the word "Settings" on the screen
         self.categoryYs = []
 
         x = 200
         self.y = 100
         self.settings = [
-            PercentageSetting(CONVERGENCE_FRACTION_NAME, "Convergence Fraction", x, self.nextY(True), drawConvergenceFraction, self),
-            BooleanSetting(USE_ROUNDS_AS_DURATION_NAME, "Use Rounds as Duration", x, self.nextY(), drawRoundsAsDuration, self),
-            IntegerSetting(SIM_DURATION_NAME, "Simulation Duration", x, self.nextY(), showSimDuration, self),
-            PercentageSetting(FLOOD_ZONE_COVERAGE_NAME, "Flood Zone Coverage", x, self.nextY(), drawFloodZone, self),
-            PositionSetting(FLOOD_ZONE_CORNERS_NAME, "Flood Zone Corners", x, self.nextY(), drawFloodZone, self),
-            IntegerSetting(FONT_SIZE_NAME, "Font Size", x, self.nextY(), showFontSize, self),
-            IntegerSetting(LARGE_FONT_SIZE_NAME, "Large Font Size", x, self.nextY(), showLargeFontSize, self),
-            BooleanSetting(SHOULD_RECORD_NAME, "Should Record", x, self.nextY(), drawShouldRecord, self),
-            BooleanSetting(RECORD_ALL_NAME, "Record All", x, self.nextY(), drawShouldRecord, self),
-            BooleanSetting(FULL_CONTROL_NAME, "Full Control", x, self.nextY(), drawControls, self),
-            BooleanSetting(DISTRACTED_NAME, "Distracted", x, self.nextY(), drawDistraction, self),
-            IntegerSetting(NUM_HUBS_NAME, "Number of Hubs", x, self.nextY(True), drawNumHubs, self),
-            PositionSetting(HUB_LOCATIONS_NAME, "Hub Locations", x, self.nextY(), drawHubsPositions, self),
-            ListSetting(HUB_RADII_NAME, "Hub Radii", x, self.nextY(), drawHubsRadii, self),
-            ListSetting(HUB_AGENT_COUNTS_NAME, "Hub Agent Counts", x, self.nextY(), drawHubsCounts, self),
-            IntegerSetting(NUM_SITES_NAME, "Number of Sites", x, self.nextY(True), drawNumSites, self),
-            PositionSetting(SITE_POSITIONS_NAME, "Site Positions", x, self.nextY(), drawSitesPositions, self),
-            ListSetting(SITE_RADII_NAME, "Site Radii", x, self.nextY(), drawSitesRadii, self),
-            ListSetting(SITE_QUALITIES_NAME, "Site Qualities", x, self.nextY(), drawSitesQualities, self),
-            IntegerSetting(SITE_RADIUS_NAME, "Default Site Radius", x, self.nextY(), drawSiteRadius, self),
-            IntegerSetting(SITE_NO_CLOSER_THAN_NAME, "Site No Closer Than", x, self.nextY(), drawNoCloserThan, self),
-            IntegerSetting(SITE_NO_FARTHER_THAN_NAME, "Site No Farther Than", x, self.nextY(), drawNoFartherThan, self),
-            IntegerSetting(MAX_SEARCH_DIST_NAME, "Max Search Distance", x, self.nextY(True), drawSearchArea, self),
-            StringSetting(AGENT_IMAGE_NAME, "Agent Image", x, self.nextY(), drawAgents, self, getOtherFile),
-            IntegerSetting(NUM_PREDATORS_NAME, "Number of Predators", x, self.nextY(True), drawPredators, self),
-            PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self),
-            IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self),
-            PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self)
+            PercentageSetting(CONVERGENCE_FRACTION_NAME, "Convergence Fraction", x, self.nextY(True), drawConvergenceFraction, self.save),
+            BooleanSetting(USE_ROUNDS_AS_DURATION_NAME, "Use Rounds as Duration", x, self.nextY(), drawRoundsAsDuration, self.save),
+            IntegerSetting(SIM_DURATION_NAME, "Simulation Duration", x, self.nextY(), showSimDuration, self.save),
+            StringSetting(FLOOD_ZONE_SHAPE_NAME, "Flood Zone Shape", x, self.nextY(), drawFloodZone, self.save, getNextShape),
+            PercentageSetting(FLOOD_ZONE_COVERAGE_NAME, "Flood Zone Coverage", x, self.nextY(), drawFloodZone, self.save),
+            PositionSetting(FLOOD_ZONE_CORNERS_NAME, "Flood Zone Corners", x, self.nextY(), drawFloodZone, self.save),
+            IntegerSetting(FONT_SIZE_NAME, "Font Size", x, self.nextY(), showFontSize, self.save),
+            IntegerSetting(LARGE_FONT_SIZE_NAME, "Large Font Size", x, self.nextY(), showLargeFontSize, self.save),
+            BooleanSetting(SHOULD_RECORD_NAME, "Should Record", x, self.nextY(), drawShouldRecord, self.save),
+            BooleanSetting(RECORD_ALL_NAME, "Record All", x, self.nextY(), drawShouldRecord, self.save),
+            BooleanSetting(FULL_CONTROL_NAME, "Full Control", x, self.nextY(), drawControls, self.save),
+            BooleanSetting(DISTRACTED_NAME, "Distracted", x, self.nextY(), drawDistraction, self.save),
+            IntegerSetting(NUM_HUBS_NAME, "Number of Hubs", x, self.nextY(True), drawNumHubs, self.save),
+            PositionSetting(HUB_LOCATIONS_NAME, "Hub Locations", x, self.nextY(), drawHubsPositions, self.save),
+            ListSetting(HUB_RADII_NAME, "Hub Radii", x, self.nextY(), drawHubsRadii, self.save),
+            ListSetting(HUB_AGENT_COUNTS_NAME, "Hub Agent Counts", x, self.nextY(), drawHubsCounts, self.save),
+            IntegerSetting(NUM_SITES_NAME, "Number of Sites", x, self.nextY(True), drawNumSites, self.save),
+            PositionSetting(SITE_POSITIONS_NAME, "Site Positions", x, self.nextY(), drawSitesPositions, self.save),
+            ListSetting(SITE_RADII_NAME, "Site Radii", x, self.nextY(), drawSitesRadii, self.save),
+            ListSetting(SITE_QUALITIES_NAME, "Site Qualities", x, self.nextY(), drawSitesQualities, self.save),
+            IntegerSetting(SITE_RADIUS_NAME, "Default Site Radius", x, self.nextY(), drawSiteRadius, self.save),
+            IntegerSetting(SITE_NO_CLOSER_THAN_NAME, "Site No Closer Than", x, self.nextY(), drawNoCloserThan, self.save),
+            IntegerSetting(SITE_NO_FARTHER_THAN_NAME, "Site No Farther Than", x, self.nextY(), drawNoFartherThan, self.save),
+            IntegerSetting(MAX_SEARCH_DIST_NAME, "Max Search Distance", x, self.nextY(True), drawSearchArea, self.save),
+            StringSetting(AGENT_IMAGE_NAME, "Agent Image", x, self.nextY(), drawAgents, self.save, getOtherFile),
+            IntegerSetting(NUM_PREDATORS_NAME, "Number of Predators", x, self.nextY(True), drawPredators, self.save),
+            PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self.save),
+            IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self.save),
+            PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self.save)
         ]
 
         self.categories = [
@@ -70,9 +70,9 @@ class Settings(MenuScreen):
 
         self.worldSettings = WorldSettings(200, self.settingsY - 20)
 
-        super().__init__([Title("Settings", 90),
+        super().__init__([self.worldSettings,
+                          Title("Settings", 90),
                           BackButton(),
-                          self.worldSettings,
                           *self.settings,
                           *self.categories])
 
@@ -90,19 +90,11 @@ class Settings(MenuScreen):
         self.y += 25
         return y
 
-    def setDataUsingConfig(self):
-        """ Set the values on the screen to match the values in settings.json """
-        try:
-            with open(CONFIG_FILE_NAME, 'r') as file:
-                self.data = json.load(file)
-        except FileNotFoundError:
-            print(f"File '{CONFIG_FILE_NAME}' was not found")
-        except json.decoder.JSONDecodeError:
-            print(f"File '{CONFIG_FILE_NAME}' is empty")
-
     def save(self, key, value):
-        self.data[key] = value
+        with open(CONFIG_FILE_NAME, 'r') as file:
+            data = json.load(file)
+        data[key] = value
         with open(CONFIG_FILE_NAME, 'w') as file:
-            json.dump(self.data, file)
+            json.dump(data, file)
         Utils.copyJsonToConfig()
         self.worldSettings.generateWorld()

@@ -3,7 +3,7 @@ import json
 import numpy as np
 
 from Constants import CONFIG_FILE_NAME, CONFIG_KEYS
-from config import Config
+from config import Config  # This is important for copyJsonToConfig.
 
 
 def getAngleDiff(angle1, angle2):
