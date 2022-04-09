@@ -1,5 +1,6 @@
 import copy
 import random
+from operator import lt, gt
 
 import pygame
 from numpy import pi, square, sqrt, sin
@@ -7,41 +8,53 @@ from pygame import mask, SRCALPHA
 from shapely.geometry import Polygon
 
 import Utils
+from Constants import ANY, SHAPE_CHOICES, SECTOR, SEGMENT, RIVER, SCREEN_COLOR, FOG_COLOR, FLOOD_ZONE_COLOR
 from display import Display, FloodZoneDisplay
 from config import Config
 
 
 class FloodZone:
-    def __init__(self, hubPosition=None):
-        if hubPosition is None:
-            hubPosition = [650, 325]
+    def __init__(self):
         self.coverage = Config.FLOOD_ZONE_COVERAGE
-        self.corners = Config.FLOOD_ZONE_CORNERS
-        self.center = copy.copy(hubPosition)
+        self.corners = copy.deepcopy(Config.FLOOD_ZONE_CORNERS)
+        self.center = [Display.origWidth / 2, Display.origHeight / 2]
 
         if len(self.corners) < 3 and self.coverage > 0.0:
             self.numCorners = 32
-            self.explorableRadius = Config.MAX_SEARCH_DIST + Config.SITE_RADIUS
+            self.explorableRadius = Config.MAX_SEARCH_DIST
             self.explorableArea = pi * square(self.explorableRadius)  # The area of the circle the ants can move around in
             self.desiredArea = self.explorableArea * self.coverage  # How much area we want to cover with the flood zone in the circle
-            self.corners = self.generateCorners(random.randint(0, 3))
-            print(f"Corners: {self.corners}")
+            self.corners = self.generateCorners(Config.FLOOD_ZONE_SHAPE)
 
         for corner in self.corners:
             corner[0] -= Display.worldLeft
             corner[1] -= Display.worldTop
 
         self.surface = pygame.Surface(Display.worldSize, SRCALPHA)
-        if self.coverage > 0.0:
+        if len(self.corners) >= 3:
             FloodZoneDisplay.initFloodZoneDisplay(self.surface, self.corners)
             self.mask = mask.from_surface(self.surface, threshold=50)
 
+    def overlaps(self, rect, radius):
+        if self.coverage == 0.0:
+            return False
+        offset = Display.worldLeft - rect[0], Display.worldTop - rect[1]
+
+        surface = pygame.Surface((radius * 2, radius * 2), SRCALPHA)
+        Display.drawCircle(surface, (0, 0, 0), [rect.w / 2, rect.h / 2],
+                           rect.w / 2, adjust=False)
+        otherMask = mask.from_surface(surface, threshold=50)
+
+        return otherMask.overlap(self.mask, offset) is not None
+
     def generateCorners(self, shape):
-        if shape == 0:
+        while shape == ANY:
+            shape = random.choice(SHAPE_CHOICES)
+        if shape == SECTOR:
             return self.generateSector()
-        if shape == 1:
+        elif shape == SEGMENT:
             return self.generateSegment()
-        elif shape == 2:
+        elif shape == RIVER:
             return self.generateRiver()
         else:
             return self.generatePolygon()
@@ -137,6 +150,10 @@ class FloodZone:
             area = self.pointsToPolygonArea(positions)
         return positions
 
+    def getFullCoverage(self):
+        angleDiff = 2 * pi / self.numCorners
+        return self.getCircularPoints([], 0, angleDiff, angleDiff)
+
     @staticmethod
     def pointsToPolygonArea(points):
         x = []
@@ -150,45 +167,80 @@ class FloodZone:
         averageRadius = sqrt((self.explorableArea * self.coverage) / pi)
         irregularity = 1 - self.coverage if self.coverage > 0.5 else random.uniform(0, 1)
         spikiness = 1 - self.coverage if self.coverage > 0.5 else random.uniform(0, 1)
-        numVertices = random.randint(3, 12)
-        positions = generate_polygon(self.getCenter(), averageRadius, irregularity, spikiness, numVertices)
-        self.resizePolygon(positions)
-        # TODO: adjust the positions to all be within the search radius while still maintaining the coverage
+        minVertices = 3 if int(self.coverage * 10) < 3 else int(self.coverage * 10)
+        maxVertices = 6 if int(self.coverage * 100 / 3) < 6 else int(self.coverage * 100 / 3)
+        numVertices = random.randint(minVertices, maxVertices)
+        center = self.generateCenter()
+        positions = createPolygon(center, averageRadius, irregularity, spikiness, numVertices)
+        positions = self.resizePolygon(positions)
         return positions
 
-    def getCenter(self):
-        centerX = random.randint(-self.explorableRadius, self.explorableRadius)
-        maxY = int(sqrt(square(self.explorableRadius) - square(centerX)))
-        centerY = random.randint(-maxY, maxY)
-        return [centerX, centerY]
+    def generateCenter(self):
+        radius = int(self.explorableRadius * (1 - self.coverage))  # Cut the radius in half so that the center isn't so far out.
+        centerX = random.randint(-radius, radius)  # Center x coordinate relative to (0, 0)
+        maxY = int(sqrt(square(radius) - square(centerX)))
+        centerY = random.randint(-maxY, maxY)  # Center y coordinate relative to (0, 0)
+        return [centerX + self.center[0], centerY + self.center[1]]  # Add the center of the simulation to make the center relative to that.
 
     def resizePolygon(self, positions):
-        # TODO: Do the following till it takes up the right amount of the explorable area:
-        #  Create surface from positions
-        #  Draw that surface on a Mask
-        #  Create surface with the circle that represents the area that can be explored
-        #  Draw that surface on a Mask of the same size as the previous one
-        #  Get the area of the overlap
-        #  If it's too big, move each point in toward the center a little
-        #  If it's too small, move each point out from the center a little
+        # Create surface with the circle that represents the area that can be explored
+        explorableSurf = pygame.Surface(Display.worldSize, SRCALPHA)
+        center = [self.center[0] - Display.worldLeft, self.center[1] - Display.worldTop]
+        Display.drawCircle(explorableSurf, SCREEN_COLOR, center, self.explorableRadius, adjust=False)
+        # Convert that surface to a Mask of the same size as the previous one
+        circleMask = mask.from_surface(explorableSurf)
+        desiredAreaPixels = circleMask.overlap_area(circleMask, (0, 0)) * self.coverage
+        overlap, _ = getPolygonOverlap(positions, circleMask)
+        iterations = 0
+        compare = lt if overlap < desiredAreaPixels else gt
+        move = movePositionsOut if overlap < desiredAreaPixels else movePositionsIn
+        #  If it's too small, move each point out from the center a little; else, move them inward
+        while compare(overlap, desiredAreaPixels):
+            center = Utils.getAveragePos(positions)
+            positions = move(positions, center)
+            overlap, polySurf = getPolygonOverlap(positions, circleMask)
+            debugPolyGen(explorableSurf, polySurf)
+            iterations += 1
+            # There are a few shapes that will put this in an infinite loop, so we should just try again if it goes too long.
+            if iterations > 30:
+                return self.generatePolygon()
 
         return positions
 
-    def getFullCoverage(self):
-        angleDiff = 2 * pi / self.numCorners
-        return self.getCircularPoints([], 0, angleDiff, angleDiff)
 
-    def overlaps(self, rect, radius):
-        if self.coverage == 0.0:
-            return False
-        offset = Display.worldLeft - rect[0], Display.worldTop - rect[1]
+def debugPolyGen(explorableSurf, polySurf):
+    """ Draw the surfaces on the screen to see how generation is going """
+    Display.screen.fill(FOG_COLOR)
+    Display.blitImage(Display.screen, explorableSurf, (Display.worldLeft, Display.worldTop))
+    Display.blitImage(Display.screen, polySurf, (Display.worldLeft, Display.worldTop))
+    pygame.display.flip()
 
-        surface = pygame.Surface((radius * 2, radius * 2), SRCALPHA)
-        Display.drawCircle(surface, (0, 0, 0), [rect.w / 2, rect.h / 2],
-                           rect.w / 2, adjust=False)
-        otherMask = mask.from_surface(surface, threshold=50)
 
-        return otherMask.overlap(self.mask, offset) is not None
+def getPolygonOverlap(positions, circleMask):
+    # Draw positions on a surface
+    surface = pygame.Surface(Display.worldSize, SRCALPHA)
+    drawingPositions = [[pos[0] - Display.worldLeft, pos[1] - Display.worldTop] for pos in positions]
+    Display.drawPolygon(surface, FLOOD_ZONE_COLOR[0:3], drawingPositions, adjust=False)
+    # Convert that surface to a Mask
+    polyMask = mask.from_surface(surface)
+    # Get the area of the overlap
+    return polyMask.overlap_area(circleMask, (0, 0)), surface
+
+
+def movePositionsIn(positions, center):
+    newPositions = []
+    for pos in positions:
+        angleToCenter = Utils.getAngleFromPositions(pos, center)
+        newPositions.append(Utils.getNextPosition(pos, 10, angleToCenter))
+    return newPositions
+
+
+def movePositionsOut(positions, center):
+    newPositions = []
+    for pos in positions:
+        angleFromCenter = Utils.getAngleFromPositions(center, pos)
+        newPositions.append(Utils.getNextPosition(pos, 10, angleFromCenter))
+    return newPositions
 
 
 # The rest of this is taken from https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
@@ -197,9 +249,9 @@ import math
 from typing import List, Tuple
 
 
-def generate_polygon(center: List[float], avg_radius: float,
-                     irregularity: float, spikiness: float,
-                     num_vertices: int) -> List[List[float]]:
+def createPolygon(center: List[float], avgRadius: float,
+                  irregularity: float, spikiness: float,
+                  numVertices: int) -> List[List[float]]:
     """ Start with the center of the polygon at center, then creates the
     polygon by sampling points on a circle around the center.
     Random noise is added by varying the angular spacing between
@@ -210,7 +262,7 @@ def generate_polygon(center: List[float], avg_radius: float,
         center (Tuple[float, float]):
             a pair representing the center of the circumference used
             to generate the polygon.
-        avg_radius (float):
+        avgRadius (float):
             the average radius (distance of each generated vertex to
             the center of the circumference) used to generate points
             with a normal distribution.
@@ -220,7 +272,7 @@ def generate_polygon(center: List[float], avg_radius: float,
         spikiness (float):
             variance of the distance of each vertex to the center of
             the circumference.
-        num_vertices (int):
+        numVertices (int):
             the number of vertices of the polygon.
     Returns:
         List[Tuple[float, float]]: list of vertices, in CCW order. """
@@ -230,24 +282,24 @@ def generate_polygon(center: List[float], avg_radius: float,
     if spikiness < 0 or spikiness > 1:
         raise ValueError("Spikiness must be between 0 and 1.")
 
-    irregularity *= 2 * math.pi / num_vertices
-    spikiness *= avg_radius
-    angle_steps = random_angle_steps(num_vertices, irregularity)
+    irregularity *= 2 * math.pi / numVertices
+    spikiness *= avgRadius
+    angleSteps = randomAngleSteps(numVertices, irregularity)
 
     # now generate the points
     points = []
     angle = random.uniform(0, 2 * math.pi)
-    for i in range(num_vertices):
-        radius = clip(random.gauss(avg_radius, spikiness), 0, 2 * avg_radius)
+    for i in range(numVertices):
+        radius = clip(random.gauss(avgRadius, spikiness), 0, 2 * avgRadius)
         point = [center[0] + radius * math.cos(angle),
                  center[1] + radius * math.sin(angle)]
         points.append(point)
-        angle += angle_steps[i]
+        angle += angleSteps[i]
 
     return points
 
 
-def random_angle_steps(steps: int, irregularity: float) -> List[float]:
+def randomAngleSteps(steps: int, irregularity: float) -> List[float]:
     """ Generates the division of a circumference in random angles.
     Args:
         steps (int):

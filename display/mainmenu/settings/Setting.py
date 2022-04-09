@@ -11,11 +11,11 @@ from display.mainmenu.buttons.SelectorButton import SelectorButton
 class Setting(SelectorButton, MenuScreen):
     """ An option that can be changed in the settings tab """
 
-    def __init__(self, key, name, x, y, showUserInputVisuals, settingMenu):
-        self.settingMenu = settingMenu  # The settings menu that this setting belongs to
+    def __init__(self, key, name, x, y, showUserInputVisuals, save):
+        self.save = save  # The method to save the setting's value
         self.key = key  # A key to help read and write the data from json
         self.name = name  # A name for the setting that may include spaces
-        self.value = self.settingMenu.data[key]  # The potential value of the setting to be used in the simulation if saved
+        self.value = eval(f"Config.{self.key}")  # The potential value of the setting to be used in the simulation if saved
         self.savedValue = self.value  # The value that will be used in the simulation
         self.showUserInputVisuals = showUserInputVisuals  # The method to draw the user input on the screen
         self.userInputString = f" -> {self.value}"  # The string representation of the value provided by the user
@@ -42,7 +42,7 @@ class Setting(SelectorButton, MenuScreen):
 
     def saveValue(self):
         self.savedValue = self.value
-        self.settingMenu.save(self.key, self.savedValue)
+        self.save(self.key, self.savedValue)
         self.escape()
 
     def displayScreen(self):

@@ -16,7 +16,9 @@ FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such
 INITIAL_ZOOM = -6  # How far in or out the zoom is at the beginning
 
+FLOOD_ZONE_SHAPE = "Any"  # The shape of the flood zone if the FLOOD_ZONE_CORNERS are not set.
 FLOOD_ZONE_COVERAGE = 0.33  # The percentage of the world within MAX_SEARCH_DISTANCE of the hub that the flood zone covers
+# if the FLOOD_ZONE_CORNERS are not set.
 FLOOD_ZONE_CORNERS = []  # The positions of corners of the flood zone. If this list has more than 2 values,
 # the FLOOD_ZONE_COVERAGE variable will be ignored to have the flood zone line up with these corners.
 

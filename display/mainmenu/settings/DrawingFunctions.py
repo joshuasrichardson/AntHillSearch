@@ -4,10 +4,7 @@ import pygame
 
 from config import Config
 from config.Config import AGENT_IMAGES
-from Constants import GREEN, RED, BLUE, BORDER_COLOR, FONT_SIZE_NAME, SITE_RADIUS_NAME, \
-    HUB_LOCATIONS_NAME, SHOULD_RECORD_NAME, AGENT_IMAGE_NAME, LARGE_FONT_SIZE_NAME, SITE_NO_FARTHER_THAN_NAME, \
-    SITE_NO_CLOSER_THAN_NAME, MEDIUM_QUALITY, FULL_CONTROL_NAME, DISTRACTED_NAME, USE_ROUNDS_AS_DURATION_NAME, \
-    FLOOD_ZONE_CORNERS_NAME
+from Constants import GREEN, RED, BLUE, BORDER_COLOR, MEDIUM_QUALITY, SHAPE_CHOICES
 from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay, FloodZoneDisplay
 from model.FloodZone import FloodZone
 from model.builder.SiteBuilder import getNewSite
@@ -28,20 +25,20 @@ def showLargeFontSize(self):
 
 
 def drawHubsPositions(self):
-    drawNestPositions(self, -1)
+    drawNestPositions(self.arrayStates.isComplete2, self.value, -1)
 
 
 def drawSitesPositions(self):
-    drawNestPositions(self, MEDIUM_QUALITY)
+    drawNestPositions(self.arrayStates.isComplete2, self.value, MEDIUM_QUALITY)
 
 
-def drawNestPositions(self, quality):
-    if self.arrayStates.isComplete2:
+def drawNestPositions(isComplete, positions, quality):
+    if isComplete:
         # TODO: If the hubs are too close together, force them to be farther apart
-        for pos in self.value:
+        for pos in positions:
             drawSite(pos, Config.SITE_RADIUS, quality)
     else:
-        drawSites(self, Config.HUB_LOCATIONS, quality)
+        drawSites(Config.HUB_LOCATIONS, quality)
 
 
 def drawPredPositions(self):
@@ -69,17 +66,15 @@ def drawSiteRadius(self):
 
 
 def drawNoFartherThan(self):
-    drawArea(self, GREEN, self.value)
-    drawArea(self, RED, Config.SITE_NO_CLOSER_THAN)
+    drawArea(GREEN, self.value)
 
 
 def drawNoCloserThan(self):
-    drawArea(self, GREEN, Config.SITE_NO_FARTHER_THAN)
-    drawArea(self, RED, self.value)
+    drawArea(RED, self.value)
 
 
 def drawSearchArea(self):
-    drawArea(self, BLUE, self.value)
+    drawArea(BLUE, self.value)
 
 
 def drawConvergenceFraction(self):
@@ -113,11 +108,12 @@ def drawSite(pos, radius, quality, numAgents=0):
     potentialSite = getNewSite(1, pos[0], pos[1], radius, quality)
     potentialSite.wasFound = True
     potentialSite.agentCount = numAgents
+    potentialSite.estimatedAgentCount = numAgents
     SiteDisplay.drawSite(potentialSite, pos, radius, quality)
     del potentialSite
 
 
-def drawSites(self, positions, quality):
+def drawSites(positions, quality):
     for pos in positions:
         drawSite(pos, Config.SITE_RADIUS, quality)
 
@@ -133,11 +129,11 @@ def drawNumSites(self):
 def drawNumNests(self, quality):
     x = Display.origWidth / 2
     h = int((Display.origHeight - Config.LARGE_FONT_SIZE * 3) / (
-            2 * (Config.SITE_RADIUS + 10)))  # The number of sites that can fit in a column
+            2 * (Config.SITE_RADIUS + 30)))  # The number of sites that can fit in a column
     for i in range(self.value):
-        y = 2 * (i % h) * (Config.SITE_RADIUS + 10) + (Config.LARGE_FONT_SIZE * 3)
+        y = 2 * (i % h) * (Config.SITE_RADIUS + 30) + (Config.LARGE_FONT_SIZE * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (Config.SITE_RADIUS + 10)
+            x += 2 * (Config.SITE_RADIUS + 30)
         drawSite([x, y], Config.SITE_RADIUS, quality)
 
 
@@ -152,47 +148,45 @@ def drawSitesRadii(self):
 def drawRadii(self, quality):
     x = Display.origWidth / 2
     h = int((Display.origHeight - Config.LARGE_FONT_SIZE * 3) / (
-            2 * (Config.SITE_RADIUS + 10)))  # The number of sites that can fit in a column
+            2 * (Config.SITE_RADIUS + 30)))  # The number of sites that can fit in a column
     if not isinstance(self.value, list):
         self.value = []
     for i in range(len(self.value)):
-        y = 2 * (i % h) * (Config.SITE_RADIUS + 10) + (Config.LARGE_FONT_SIZE * 3)
+        y = 2 * (i % h) * (Config.SITE_RADIUS + 30) + (Config.LARGE_FONT_SIZE * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (Config.SITE_RADIUS + 10)
+            x += 2 * (Config.SITE_RADIUS + 30)
         drawSite([x, y], self.value[i], quality)
 
 
 def drawHubsCounts(self):
-    drawCounts(self, -1)
+    drawCounts(self.value, -1)
 
 
 def drawSitesCounts(self):
-    drawCounts(self, MEDIUM_QUALITY)
+    drawCounts(self.value, MEDIUM_QUALITY)
 
 
-def drawCounts(self, quality):
+def drawCounts(counts, quality):
     x = Display.origWidth / 2
     h = int((Display.origHeight - Config.LARGE_FONT_SIZE * 3) / (
-            2 * (Config.SITE_RADIUS + 10)))  # The number of sites that can fit in a column
-    if not isinstance(self.value, list):
-        self.value = []
-    for i in range(len(self.value)):
-        y = 2 * (i % h) * (Config.SITE_RADIUS + 10) + (Config.LARGE_FONT_SIZE * 3)
+            2 * (Config.SITE_RADIUS + 30)))  # The number of sites that can fit in a column
+    for i in range(len(counts)):
+        y = 2 * (i % h) * (Config.SITE_RADIUS + 30) + (Config.LARGE_FONT_SIZE * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (Config.SITE_RADIUS + 10)
-        drawSite([x, y], Config.SITE_RADIUS, quality, self.value[i])
+            x += 2 * (Config.SITE_RADIUS + 30)
+        drawSite([x, y], Config.SITE_RADIUS, quality, counts[i])
 
 
 def drawSitesQualities(self):
     x = Display.origWidth / 2
     h = int((Display.origHeight - Config.LARGE_FONT_SIZE * 3) / (
-            2 * (Config.SITE_RADIUS + 10)))  # The number of sites that can fit in a column
+            2 * (Config.SITE_RADIUS + 30)))  # The number of sites that can fit in a column
     if not isinstance(self.value, list):
         self.value = []
     for i in range(len(self.value)):
-        y = 2 * (i % h) * (Config.SITE_RADIUS + 10) + (Config.LARGE_FONT_SIZE * 3)
+        y = 2 * (i % h) * (Config.SITE_RADIUS + 30) + (Config.LARGE_FONT_SIZE * 3)
         if i % h == 0 and i > 0:
-            x += 2 * (Config.SITE_RADIUS + 10)
+            x += 2 * (Config.SITE_RADIUS + 30)
         drawSite([x, y], Config.SITE_RADIUS, self.value[i])
 
 
@@ -214,7 +208,15 @@ def getOtherFile():
     return AGENT_IMAGES[0]
 
 
-def drawArea(self, color, radius):
+def getNextShape():
+    numShapes = len(SHAPE_CHOICES)
+    for i in range(numShapes - 1):
+        if Config.FLOOD_ZONE_SHAPE == SHAPE_CHOICES[i % numShapes]:
+            return SHAPE_CHOICES[i + 1 % numShapes]
+    return SHAPE_CHOICES[0]
+
+
+def drawArea(color, radius):
     fadedColor = (color[0], color[1], color[2], 80)
     surf = pygame.Surface((Display.origWidth, Display.origHeight), pygame.SRCALPHA)
     Display.drawCircle(surf, fadedColor, [Display.origWidth / 2, Display.origHeight / 2], radius)
@@ -268,4 +270,8 @@ def drawRoundsAsDuration(self):
 
 
 def drawFloodZone(self):
-    FloodZoneDisplay.drawFloodZone(self.settingMenu.worldSettings.world.floodZone)
+    if not hasattr(self, 'floodZone') or self.timesDrawn > 100:
+        self.floodZone = FloodZone()
+        self.timesDrawn = 0
+    self.timesDrawn += 1
+    FloodZoneDisplay.drawFloodZone(self.floodZone)

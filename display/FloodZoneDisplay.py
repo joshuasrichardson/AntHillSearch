@@ -4,7 +4,7 @@ from display import Display
 
 def initFloodZoneDisplay(surface, corners):
     # Draw a partially transparent surface over the screen
-    return Display.drawPolygon(surface, FLOOD_ZONE_COLOR, corners, adjust=False)
+    Display.drawPolygon(surface, FLOOD_ZONE_COLOR, corners, adjust=False)
 
 
 def drawFloodZone(floodZone):

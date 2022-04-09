@@ -18,8 +18,8 @@ class RecordingPlayer(Simulation):
         self.hubAgentCounts = []
         self.delay = 0
         self.selectedReplay = selectedReplay
-        WorldDisplay.fog = None
         super().__init__()
+        Config.SHOULD_DRAW_FOG = False
         Config.SHOULD_RECORD = False
         self.realTimer = SimulationTimer(self.timeOut)
 

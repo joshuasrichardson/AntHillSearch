@@ -6,7 +6,6 @@ from abc import ABC
 from config import Config
 from ColonyExceptions import *
 from Constants import *
-from display import WorldDisplay
 from interface.Simulation import Simulation
 from model.World import World
 from model.builder import AgentBuilder
@@ -31,8 +30,6 @@ class LiveSimulation(Simulation, ABC):
                            Config.SITE_RADIUS, Config.NUM_PREDATORS, Config.PRED_POSITIONS, Config.NUM_LADYBUGS,
                            Config.LADYBUG_POSITIONS)
         self.initializeAgentList()
-        if Config.SHOULD_DRAW and Config.SHOULD_DRAW_FOG:
-            WorldDisplay.initFog(self.world.hubs)
 
         return self.world
 
@@ -77,7 +74,7 @@ class LiveSimulation(Simulation, ABC):
     def updateAgent(self, agent, agentRectList):
         if agent.getStateNumber() != DEAD:
             agent.moveForward()
-            if Config.SHOULD_DRAW:
+            if Config.SHOULD_DRAW and Config.SHOULD_DRAW_FOG:
                 agent.clearFog()
 
             agentNeighbors = self.getNeighbors(agent.getRect(), agentRectList)

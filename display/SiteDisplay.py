@@ -22,6 +22,7 @@ def drawSite(site, pos, radius, quality, blurAmount=0):
             count = site.agentCount if blurAmount == 0 else site.estimatedAgentCount
             words = f"Agents: {int(count)}" if site.isSelected else f"{int(count)}"
             img = pygame.font.SysFont('Comic Sans MS', siteFontSize).render(words, True, WORDS_COLOR).convert_alpha()
+            Display.blitImage(Display.screen, img, (pos[0] - (img.get_width() / 2), pos[1] - (radius + 2 * siteFontSize)))
             Display.addToDrawLast(Display.blitImage, [Display.screen, img, (pos[0] - (img.get_width() / 2),
                                                                             pos[1] - (radius + 2 * siteFontSize))])
             if not site.isHub():

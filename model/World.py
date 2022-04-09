@@ -1,11 +1,10 @@
-""" World class. Stores 2D positions of hub and sites """
 from numpy import random, zeros, pi, cos, sin, inf
 import time
 
 import Utils
 from config import Config
 from Constants import *
-from display import Display
+from display import Display, FogDisplay
 from model.FloodZone import FloodZone
 from model.Predator import Predator
 from model.Ladybug import Ladybug
@@ -50,12 +49,14 @@ class World:
         self.states = zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
-        self.floodZone = FloodZone(self.hubs[0].pos)
+        self.floodZone = FloodZone()
+        if Config.SHOULD_DRAW and Config.SHOULD_DRAW_FOG:
+            self.fog = FogDisplay.initFog(self.hubs)
 
     def checkHubs(self, numHubs, siteRadius):
         """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """
         if len(self.hubLocations) == 0 and numHubs == 1:
-            self.hubLocations.append([650, 325])
+            self.hubLocations.append([Display.origWidth / 2, Display.origHeight / 2])
         while len(self.hubRadii) < numHubs:
             self.hubRadii.append(siteRadius)
         t1 = time.time()
