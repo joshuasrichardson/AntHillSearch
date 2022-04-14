@@ -4,9 +4,11 @@ import os
 
 from datetime import datetime
 
+import Utils
 from config import Config
 from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME, FULL_CONTROL_NAME, DISTRACTED_NAME, \
     NUM_SITES_NAME, NUM_PREDATORS_NAME, MAX_NUM_RECORDINGS
+from display import Display
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter
@@ -249,20 +251,17 @@ class Recorder:
                       ["Settings", "Num Dead Agents"]]
         colNames = [header.title().replace('_', ' ') for header in jsonResultsData.keys() if header not in ignore]
         stdErrs = XlsxWriter.getResultsStdErrs(Config.INTERFACE_NAME, colNames, 2)
-        print(f"stdErrs: {stdErrs}")  # Make sure these are the same as the ones in the xlsx file.
         XlsxWriter.createBarCharts(Config.INTERFACE_NAME, "Summary", chartsAxes, 2, stdErrs)
 
         del results
 
     def read(self, selectedReplay=""):
         if selectedReplay == "":
-            with open(f'{getMostRecentRecording()}_RECORDING.json', 'r') as file:
-                self.data = json.load(file)
-                self.time = self.data[0]['time']
-        else:
-            with open(RESULTS_DIR + selectedReplay, 'r') as file:
-                self.data = json.load(file)
-                self.time = self.data[0]['time']
+            selectedReplay = f'{getMostRecentRecording()}_RECORDING.json'
+        with open(selectedReplay, 'r') as file:
+            self.data = json.load(file)
+        Utils.setConfig(f'{selectedReplay[0:len(selectedReplay) - 15]}_CONFIG.json')
+        Utils.copyJsonToConfig()
 
     @staticmethod
     def createCharts(configAbrv):
@@ -271,10 +270,6 @@ class Recorder:
                       ["Num Rounds", "Num Dead Agents"],
                       ["Chosen Home Qualities", "Num Arrivals"],
                       ["Chosen Home Qualities", "Num Dead Agents"]]
-        # headers = [header.title().replace('_', ' ') for header in keys if header not in ignore]
-        # for header1Index in range(len(headers)):
-        #     for header2Index in range(header1Index + 1, len(headers)):
-        #         chartsAxes.append([headers[header1Index], headers[header2Index]])
         XlsxWriter.createScatterPlots(Config.INTERFACE_NAME, f"{configAbrv}Results", chartsAxes, 2)
 
     def recordConfig(self, world):
@@ -290,10 +285,20 @@ class Recorder:
         positions = "Ran" if self.posAreRandom(configData) else "Con"  # Random or Constant
 
         # Get the actual values in simulations where these values were generated randomly
-        configData['SITE_RADII'] = f"{list(map(lambda site: site.radius, world.siteList))}"
-        configData['SITE_POSITIONS'] = f"{list(map(lambda site: site.pos, world.siteList))}"
-        configData['SITE_QUALITIES'] = f"{list(map(lambda site: site.quality, world.siteList))}"
+        configData['HUB_RADII'] = f"{list(map(lambda hub: hub.radius, world.hubs))}"
+        configData['HUB_POSITIONS'] = f"{list(map(lambda hub: hub.pos, world.hubs))}"
+        configData['SITE_RADII'] = f"{list(map(lambda site: site.radius, world.siteList[len(world.hubs):]))}"
+        configData['SITE_POSITIONS'] = f"{list(map(lambda site: site.pos, world.siteList[len(world.hubs):]))}"
+        configData['SITE_QUALITIES'] = f"{list(map(lambda site: site.quality, world.siteList[len(world.hubs):]))}"
         configData['PRED_POSITIONS'] = f"{list(map(lambda pred: pred.pos, world.predatorList))}"
+        for corner in world.floodZone.corners:
+            corner[0] += Display.worldLeft
+            corner[1] += Display.worldTop
+        configData['FLOOD_ZONE_CORNERS'] = f"{world.floodZone.corners}"
+
+        # Record the configuration to a json file for the recording player to use
+        with open(f'{self.outputFileBase}_CONFIG.json', 'w') as file:
+            json.dump(configData, file)
 
         # The first part of the name of the sheets with these settings
         configAbrv = f"{control}{distractions}{sites}{preds}{positions}"
@@ -355,8 +360,6 @@ class Recorder:
 
     def getNextPredatorPosition(self):
         self.currentPredatorPosIndex += 1
-        print(f"Predators {self.currentPredatorPosIndex}")
-        print(f"{self.predatorPositions}")
         return self.predatorPositions[self.currentPredatorPosIndex]
 
     def getNextPredatorAngle(self):
@@ -365,8 +368,6 @@ class Recorder:
 
     def getNextLadybugPosition(self):
         self.currentLadybugPosIndex += 1
-        print(f"Ladybugs {self.currentLadybugPosIndex}")
-        print(f"{self.ladybugPositions}")
         return self.ladybugPositions[self.currentLadybugPosIndex]
 
     def getNextLadybugAngle(self):

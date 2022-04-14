@@ -26,3 +26,9 @@ def eraseFog(fog, pos):
     x = pos[0] - Display.worldLeft
     y = pos[1] - Display.worldTop
     pygame.draw.circle(fog, TRANSPARENT, [x, y], 20)
+
+
+def clearExplorableArea(world):
+    x = world.fog.get_width() / 2
+    y = world.fog.get_height() / 2
+    Display.drawCircle(world.fog, TRANSPARENT, [x, y], Config.MAX_SEARCH_DIST, 0, False)

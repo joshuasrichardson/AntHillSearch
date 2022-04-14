@@ -38,7 +38,7 @@ def drawNestPositions(isComplete, positions, quality):
         for pos in positions:
             drawSite(pos, Config.SITE_RADIUS, quality)
     else:
-        drawSites(Config.HUB_LOCATIONS, quality)
+        drawSites(Config.HUB_POSITIONS, quality)
 
 
 def drawPredPositions(self):

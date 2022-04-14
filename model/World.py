@@ -21,12 +21,12 @@ class World:
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
-        self.checkHubs(numHubs, siteRadius)
         self.siteList = []  # The sites in the world
         self.siteRectList = []  # List of site rectangles
         self.sitePositions = sitePositions  # Where the sites are located
         self.siteQualities = siteQualities  # The quality of each site
         self.sitesRadii = siteRadii  # A list of the radius of each site
+        self.checkHubs(numHubs, siteRadius)
 
         self.hubsRects = []
         self.hubs = self.createHubs(numHubs)  # The agents' original homes

@@ -42,7 +42,7 @@ class Settings(MenuScreen):
             BooleanSetting(FULL_CONTROL_NAME, "Full Control", x, self.nextY(), drawControls, self.save),
             BooleanSetting(DISTRACTED_NAME, "Distracted", x, self.nextY(), drawDistraction, self.save),
             IntegerSetting(NUM_HUBS_NAME, "Number of Hubs", x, self.nextY(True), drawNumHubs, self.save),
-            PositionSetting(HUB_LOCATIONS_NAME, "Hub Locations", x, self.nextY(), drawHubsPositions, self.save),
+            PositionSetting(HUB_POSITIONS_NAME, "Hub Locations", x, self.nextY(), drawHubsPositions, self.save),
             ListSetting(HUB_RADII_NAME, "Hub Radii", x, self.nextY(), drawHubsRadii, self.save),
             ListSetting(HUB_AGENT_COUNTS_NAME, "Hub Agent Counts", x, self.nextY(), drawHubsCounts, self.save),
             IntegerSetting(NUM_SITES_NAME, "Number of Sites", x, self.nextY(True), drawNumSites, self.save),

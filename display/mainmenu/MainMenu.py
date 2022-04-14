@@ -3,6 +3,7 @@ import time
 
 import pygame.display
 
+import Utils
 from config import Config
 from ColonyExceptions import GameOver
 from Constants import TRIAL_SETTINGS, CONFIG_FILE_NAME, RESULTS_DIR, COPY_FROM_CONFIG
@@ -52,20 +53,8 @@ class StartUpDisplay(MenuScreen):
     def doUserExperiments(self):
         """ Run a simulation for each set of settings """
         for trial, trialSetting in enumerate(TRIAL_SETTINGS):
-            self.setSettings(trialSetting)
+            Utils.setConfig(trialSetting)
             self.play()
-
-    @staticmethod
-    def setSettings(trialSetting):
-        """ Copy the current trial's settings to the settings file that will be used in the simulation """
-        currentSettings = open(CONFIG_FILE_NAME, 'r')
-        current = json.load(currentSettings)
-        currentSettings.close()
-        with open(trialSetting, 'r') as trialFile, open(CONFIG_FILE_NAME, 'w') as currentSetting:
-            trial = json.load(trialFile)
-            for setting in COPY_FROM_CONFIG:
-                trial[setting] = current[setting]
-            json.dump(trial, currentSetting)
 
     def practice(self):
         interface = self.interfaceSelector.chooseInterface()
@@ -96,7 +85,7 @@ class StartUpDisplay(MenuScreen):
         if replay != "":
             try:  # If the recording exists, play it, else tell the user there is no recording
                 del self.simInterface
-                self.simInterface = RecordingPlayer(replay)
+                self.simInterface = RecordingPlayer(file_path)
                 self.simInterface.runSimulation()
                 Display.resetScreen()
             except FileNotFoundError:

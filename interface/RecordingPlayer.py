@@ -1,9 +1,10 @@
+import json
 import time
 
 from config import Config
 from model.Timer import SimulationTimer
 from Constants import *
-from display import Display, WorldDisplay
+from display import Display, FogDisplay
 from display.Graphs import SimulationGraphs
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
@@ -18,6 +19,8 @@ class RecordingPlayer(Simulation):
         self.hubAgentCounts = []
         self.delay = 0
         self.selectedReplay = selectedReplay
+        with open(CONFIG_FILE_NAME, 'r') as currentSettings:
+            self.originalConfig = json.load(currentSettings)
         super().__init__()
         Config.SHOULD_DRAW_FOG = False
         Config.SHOULD_RECORD = False
@@ -32,13 +35,13 @@ class RecordingPlayer(Simulation):
     def initializeWorld(self):
         self.recorder.read(self.selectedReplay)
         addAfter = self.initHubsAgentCounts()
-        self.world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), Config.HUB_LOCATIONS,
+        self.world = World(self.recorder.getNumHubs(), self.recorder.getNumSites(), Config.HUB_POSITIONS,
                            Config.HUB_RADII, Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS,
                            Config.SITE_QUALITIES, Config.SITE_RADII, Config.SITE_RADIUS,
                            numPredators=self.recorder.getNumPredators(), numLadybugs=self.recorder.getNumLadybugs())
         self.addAddedAgents(self.world, addAfter)
         self.initializeAgentList()
-        Config.SIM_DURATION = self.recorder.getNextTime()
+        FogDisplay.clearExplorableArea(self.world)
 
         return self.world
 
@@ -203,3 +206,10 @@ class RecordingPlayer(Simulation):
         Config.DRAW_ESTIMATES = False
         Config.SHOULD_RECORD = False
         Config.DRAW_FAR_AGENTS = True
+
+    def finish(self):
+        results = super().finish()
+        # Restore the original configuration that was overwritten when the recording was read.
+        with open(CONFIG_FILE_NAME, 'w') as configFile:
+            json.dump(self.originalConfig, configFile)
+        return results

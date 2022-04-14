@@ -23,7 +23,7 @@ FLOOD_ZONE_CORNERS = []  # The positions of corners of the flood zone. If this l
 # the FLOOD_ZONE_COVERAGE variable will be ignored to have the flood zone line up with these corners.
 
 NUM_HUBS = 1  # The number of starting homes or the number of colonies
-HUB_LOCATIONS = []  # A list of positions of where the original homes are located
+HUB_POSITIONS = []  # A list of positions of where the original homes are located
 HUB_RADII = []  # A list of the radius of the hubs
 # Having more agents slows down the interface, but overall, the behavior is pretty similar.
 # They can go to more various sites and things like that with lots of agents,
@@ -50,7 +50,7 @@ SECONDS_BETWEEN_SENDING_REQUESTS = 5  # Number of seconds between sending inform
 # Having this set to False makes the interface a little faster, but not much. However, it does prevent errors from not having the API running.
 USE_REST_API = False  # Whether the interface sends information about the hub to the rest API
 # Having this set to False makes the interface a little faster because it doesn't have to record all the time.
-SHOULD_RECORD = False  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
+SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the interface a little faster because it doesn't have to record all movements etc.
 RECORD_ALL = True
 # Having this set to False makes the interface a little faster because it doesn't have to draw all the time.

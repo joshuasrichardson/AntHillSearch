@@ -2,7 +2,7 @@ import json
 
 import numpy as np
 
-from Constants import CONFIG_FILE_NAME, CONFIG_KEYS
+from Constants import CONFIG_FILE_NAME, CONFIG_KEYS, COPY_FROM_CONFIG
 from config import Config  # This is important for copyJsonToConfig.
 
 
@@ -66,3 +66,17 @@ def copyJsonToConfig():
             print(f"Created '{CONFIG_FILE_NAME}'")
     except json.decoder.JSONDecodeError:
         print(f"File '{CONFIG_FILE_NAME}' is empty")
+
+
+def setConfig(currentConfigFileName, copy=True):
+    """ Copy the current trial's settings to the settings file that will be used in the simulation """
+    currentSettings = open(CONFIG_FILE_NAME, 'r')
+    current = json.load(currentSettings)
+    currentSettings.close()
+    with open(currentConfigFileName, 'r') as trialFile, open(CONFIG_FILE_NAME, 'w') as currentSetting:
+        trial = json.load(trialFile)
+        if copy:
+            for setting in COPY_FROM_CONFIG:
+                trial[setting] = current[setting]
+        json.dump(trial, currentSetting)
+
