@@ -1,12 +1,11 @@
 import pygame
 
 from config import Config
-from display import WorldDisplay, Display
+from display import WorldDisplay, Display, FogDisplay
 from display.mainmenu.MenuScreen import MenuScreen
 from display.mainmenu.buttons.BackButton import BackButton
 from display.mainmenu.buttons.Button import Button
 from model.World import World
-from Constants import *
 
 
 class WorldSettings(Button, MenuScreen):
@@ -33,14 +32,13 @@ class WorldSettings(Button, MenuScreen):
         Display.blitImage(Display.screen, img, self.rect.topleft, adjust=False)
 
     def generateWorld(self):
-        self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_LOCATIONS,
+        Config.SHOULD_DRAW_FOG = True
+        self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_POSITIONS,
                            Config.HUB_RADII, Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS,
                            Config.SITE_QUALITIES, Config.SITE_RADII, Config.SITE_RADIUS,
                            Config.NUM_PREDATORS, Config.PRED_POSITIONS, Config.NUM_LADYBUGS,
                            Config.LADYBUG_POSITIONS)
-        x = self.world.fog.get_width() / 2
-        y = self.world.fog.get_height() / 2
-        Display.drawCircle(self.world.fog, TRANSPARENT, [x, y], Config.MAX_SEARCH_DIST, 0, False)
+        FogDisplay.clearExplorableArea(self.world)
         for site in self.world.siteList:
             site.wasFound = True
         return self.world

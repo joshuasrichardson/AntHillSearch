@@ -25,7 +25,7 @@ class LiveSimulation(Simulation, ABC):
             raise InputError("Can't be more sites than maximum value", Config.NUM_SITES)
 
     def initializeWorld(self):
-        self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_LOCATIONS, Config.HUB_RADII,
+        self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_POSITIONS, Config.HUB_RADII,
                            Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS, Config.SITE_QUALITIES, Config.SITE_RADII,
                            Config.SITE_RADIUS, Config.NUM_PREDATORS, Config.PRED_POSITIONS, Config.NUM_LADYBUGS,
                            Config.LADYBUG_POSITIONS)
