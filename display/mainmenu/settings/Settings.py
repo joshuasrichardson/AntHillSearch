@@ -4,6 +4,7 @@ import Utils
 from Constants import *
 from display.mainmenu.buttons.BackButton import BackButton
 from display.mainmenu.MenuScreen import MenuScreen
+from display.mainmenu.buttons.Button import Button
 from display.mainmenu.buttons.Title import Title
 from display.mainmenu.settings.BooleanSetting import BooleanSetting
 from display.mainmenu.settings.DrawingFunctions import *
@@ -23,11 +24,11 @@ class Settings(MenuScreen):
     def __init__(self):
         # The rectangles that make values selectable
         Utils.copyJsonToConfig()  # Make sure the Config values match config.json
-        self.settingsY = 90  # The y position of the word "Settings" on the screen
+        self.settingsY = 200  # The y position of the word "Settings" on the screen
         self.categoryYs = []
 
         x = 200
-        self.y = 100
+        self.y = self.settingsY + 10
         self.settings = [
             PercentageSetting(CONVERGENCE_FRACTION_NAME, "Convergence Fraction", x, self.nextY(True), drawConvergenceFraction, self.save),
             BooleanSetting(USE_ROUNDS_AS_DURATION_NAME, "Use Rounds as Duration", x, self.nextY(), drawRoundsAsDuration, self.save),
@@ -61,20 +62,33 @@ class Settings(MenuScreen):
         ]
 
         self.categories = [
-            SettingCategory("General", x, self.categoryYs[0], self.settings[0:11], self.settings, self.adjustCategoryPos),
-            SettingCategory("Hubs", x, self.categoryYs[1], self.settings[11:15], self.settings[11:], self.adjustCategoryPos),
-            SettingCategory("Sites", x, self.categoryYs[2], self.settings[15:22], self.settings[15:], self.adjustCategoryPos),
-            SettingCategory("Agents", x, self.categoryYs[3], self.settings[22:24], self.settings[22:], self.adjustCategoryPos),
-            SettingCategory("Bugs", x, self.categoryYs[4], self.settings[24:], self.settings[24:], self.adjustCategoryPos)
+            SettingCategory("General", x, self.categoryYs[0], self.settings[0:12], self.settings, self.adjustCategoryPos),
+            SettingCategory("Hubs", x, self.categoryYs[1], self.settings[12:16], self.settings[12:], self.adjustCategoryPos),
+            SettingCategory("Sites", x, self.categoryYs[2], self.settings[16:23], self.settings[16:], self.adjustCategoryPos),
+            SettingCategory("Agents", x, self.categoryYs[3], self.settings[23:25], self.settings[23:], self.adjustCategoryPos),
+            SettingCategory("Bugs", x, self.categoryYs[4], self.settings[25:], self.settings[25:], self.adjustCategoryPos)
         ]
 
-        self.worldSettings = WorldSettings(200, self.settingsY - 20)
+        self.worldSettings = WorldSettings(200, self.settingsY - 40)
 
         super().__init__([self.worldSettings,
-                          Title("Settings", 90),
+                          Title("Settings", self.settingsY),
                           BackButton(),
+                          Button("Set all to default", self.setAllToDefault, 200, self.settingsY - 10),
                           *self.settings,
                           *self.categories])
+
+    def setAllToDefault(self):
+        Utils.resetConfig()
+        with open(CONFIG_FILE_NAME, 'w') as file:
+            data = {}
+            for setting in self.settings:
+                exec("from config import Config")
+                setting.value = eval(f"Config.{setting.key}")
+                setting.savedValue = setting.value
+                data[setting.key] = setting.value
+            json.dump(data, file)
+        self.worldSettings.generateWorld()
 
     def adjustCategoryPos(self, category, adjustment):
         start = self.categories.index(category) + 1
@@ -83,7 +97,7 @@ class Settings(MenuScreen):
 
     def nextY(self, newCategory=False):
         if newCategory:
-            self.y += 35
+            self.y += 20
             self.categoryYs.append(self.y)
             self.y += 30
         y = self.y
