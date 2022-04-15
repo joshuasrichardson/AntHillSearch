@@ -2,8 +2,9 @@ import json
 
 import numpy as np
 
-from Constants import CONFIG_FILE_NAME, CONFIG_KEYS, COPY_FROM_CONFIG
+from Constants import CONFIG_FILE_NAME, CONFIG_KEYS, COPY_FROM_CONFIG, SETTING_KEYS
 from config import Config  # This is important for copyJsonToConfig.
+from config.Config import *  # This is important for resetConfig.
 
 
 def getAngleDiff(angle1, angle2):
@@ -79,4 +80,12 @@ def setConfig(currentConfigFileName, copy=True):
             for setting in COPY_FROM_CONFIG:
                 trial[setting] = current[setting]
         json.dump(trial, currentSetting)
+
+
+def resetConfig():
+    for key in SETTING_KEYS:
+        try:
+            exec(f"Config.{key} = {eval(key)}")
+        except NameError:
+            exec(f"Config.{key} = \"{eval(key)}\"")\
 

@@ -187,22 +187,27 @@ class FloodZone:
         explorableSurf = pygame.Surface(Display.worldSize, SRCALPHA)
         center = [self.center[0] - Display.worldLeft, self.center[1] - Display.worldTop]
         Display.drawCircle(explorableSurf, SCREEN_COLOR, center, self.explorableRadius, adjust=False)
+
         # Convert that surface to a Mask of the same size as the previous one
         circleMask = mask.from_surface(explorableSurf)
+
+        # Calculate the number of pixels needed to cover self.coverage% of the explorable area
         desiredAreaPixels = circleMask.overlap_area(circleMask, (0, 0)) * self.coverage
-        overlap, _ = getPolygonOverlap(positions, circleMask)
-        iterations = 0
-        compare = lt if overlap < desiredAreaPixels else gt
-        move = movePositionsOut if overlap < desiredAreaPixels else movePositionsIn
+
+        # Generate a polygon that is roughly the right size and see if it is too big or too small
+        origOverlap, _ = getPolygonOverlap(positions, circleMask)
+        compare = lt if origOverlap < desiredAreaPixels else gt
+        move = movePositionsOut if origOverlap < desiredAreaPixels else movePositionsIn
+        overlap = origOverlap
+
         #  If it's too small, move each point out from the center a little; else, move them inward
         while compare(overlap, desiredAreaPixels):
             center = Utils.getAveragePos(positions)
             positions = move(positions, center)
             overlap, polySurf = getPolygonOverlap(positions, circleMask)
             debugPolyGen(explorableSurf, polySurf)
-            iterations += 1
             # There are a few shapes that will put this in an infinite loop, so we should just try again if it goes too long.
-            if iterations > 30:
+            if compare(overlap, origOverlap):
                 return self.generatePolygon()
 
         return positions
@@ -228,19 +233,11 @@ def getPolygonOverlap(positions, circleMask):
 
 
 def movePositionsIn(positions, center):
-    newPositions = []
-    for pos in positions:
-        angleToCenter = Utils.getAngleFromPositions(pos, center)
-        newPositions.append(Utils.getNextPosition(pos, 10, angleToCenter))
-    return newPositions
+    return [Utils.getNextPosition(pos, 10, Utils.getAngleFromPositions(pos, center)) for pos in positions]
 
 
 def movePositionsOut(positions, center):
-    newPositions = []
-    for pos in positions:
-        angleFromCenter = Utils.getAngleFromPositions(center, pos)
-        newPositions.append(Utils.getNextPosition(pos, 10, angleFromCenter))
-    return newPositions
+    return [Utils.getNextPosition(pos, 10, Utils.getAngleFromPositions(center, pos)) for pos in positions]
 
 
 # The rest of this is taken from https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon

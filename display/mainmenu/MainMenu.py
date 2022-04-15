@@ -1,4 +1,3 @@
-import json
 import time
 
 import pygame.display
@@ -6,7 +5,7 @@ import pygame.display
 import Utils
 from config import Config
 from ColonyExceptions import GameOver
-from Constants import TRIAL_SETTINGS, CONFIG_FILE_NAME, RESULTS_DIR, COPY_FROM_CONFIG
+from Constants import TRIAL_SETTINGS, RESULTS_DIR
 
 from display import Display
 from display.mainmenu.InterfaceSelector import InterfaceSelector
@@ -21,8 +20,8 @@ from display.mainmenu.ReplaySelector import ReplaySelector
 
 class StartUpDisplay(MenuScreen):
     def __init__(self, interface):
-        super().__init__(self.getButtons())
         Display.createScreen()  # Initialize the pygame screen
+        super().__init__(self.getButtons())
         self.defaultInterface = interface  # The interface to be played when the "Play" option is selected
         self.freshInterface = interface  # The interface to run when "Play" or "Practice" is selected
         self.interfaceSelector = InterfaceSelector()  # An object used to change the interface

@@ -8,9 +8,8 @@ CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assign
 # Not having a interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
 
-USE_ROUNDS_AS_DURATION = False
-SIM_DURATION = 120  # Time of the interface in seconds
-# TERMINAL_ROUND = SIM_DURATION  # Time of the interface in rounds
+USE_ROUNDS_AS_DURATION = True
+SIM_DURATION = 3000  # Time of the interface in seconds or rounds
 
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such
@@ -127,15 +126,15 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 
 PREDATOR_IMAGE = "resources/spider.png"  # The path of the predator image
 PREDATOR_ANGLE = pi / 2  # The initial angle the predator in the image is facing
-NUM_PREDATORS = 5  # The number of predators that go around attacking agents
+NUM_PREDATORS = 2  # The number of predators that go around attacking agents
 PRED_POSITIONS = []  # Where the predators will start. No position = random
 
 """ Ladybug default values """
 
 LADYBUG_IMAGE = "resources/ladybug.png"  # The path of the ladybug image
 LADYBUG_ANGLE = pi / 2  # The initial angle the ladybug in the image is facing
-NUM_LADYBUGS = 2  # The number of ladybugs that go around helping agents
-LADYBUG_POSITIONS = [[100, 50], [100, 200], [-50, 300], [250, 250]]  # Where the ladybugs will start. No position =
+NUM_LADYBUGS = 1  # The number of ladybugs that go around helping agents
+LADYBUG_POSITIONS = []  # Where the ladybugs will start. No position =
 # random
 
 """ Agent Transition Parameters """

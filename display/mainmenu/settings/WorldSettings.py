@@ -1,5 +1,4 @@
-import pygame
-
+from Constants import BLUE
 from config import Config
 from display import WorldDisplay, Display, FogDisplay
 from display.mainmenu.MenuScreen import MenuScreen
@@ -11,11 +10,11 @@ from model.World import World
 class WorldSettings(Button, MenuScreen):
 
     def __init__(self, x, y):
-        super().__init__("World Settings", self.showWorld, x, y)
+        super().__init__("Draw current world", self.showWorld, x, y)
         self.buttons = [BackButton()]
         self.world = None
         self.shouldDrawWorld = False
-        self.numDraws = 100
+        self.numDraws = 100  # Start at 100 to make it generate a world on the first draw
 
     def draw(self):
         """ Draw the button that allows the user to see all settings """
@@ -26,10 +25,7 @@ class WorldSettings(Button, MenuScreen):
             WorldDisplay.drawWorldObjects(self.world, True)
             Display.write(Display.screen, int(Config.SIM_DURATION), int(Config.FONT_SIZE * 1.5), Display.origWidth - 100, 50)
             self.numDraws += 1
-        img = pygame.font.SysFont('Comic Sans MS', Config.FONT_SIZE * 2)\
-            .render("Draw current world", True, self.color).convert_alpha()
-        self.rect = pygame.Rect(200, self.rect.top, img.get_width(), img.get_height())
-        Display.blitImage(Display.screen, img, self.rect.topleft, adjust=False)
+        super().draw()
 
     def generateWorld(self):
         Config.SHOULD_DRAW_FOG = True
@@ -45,3 +41,6 @@ class WorldSettings(Button, MenuScreen):
 
     def showWorld(self):
         self.shouldDrawWorld = not self.shouldDrawWorld
+
+    def changeColor(self, color):
+        super().changeColor((50, 200, 50) if self.shouldDrawWorld and color != BLUE else color)

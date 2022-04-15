@@ -11,9 +11,9 @@ from display.mainmenu.buttons.Title import Title
 class ReplaySelector(MenuScreen):
 
 	def __init__(self):
-		self.y = 50
+		self.y = Display.origHeight / 3
 		self.latestReplays = self.getLatestReplays()
-		super().__init__([Title("Select a Replay", 90), BackButton(), *self.getReplayButtons()])
+		super().__init__([Title("Select a Replay", 200), BackButton(), *self.getReplayButtons()])
 		self.option = ""
 
 	def nextY(self):
@@ -37,7 +37,7 @@ class ReplaySelector(MenuScreen):
 		""" Return buttons to display and return the most recent replays """
 		replayButtons = []
 		for replay in self.latestReplays:
-			button = SelectorButton(self.formatReplayName(replay), replay, Display.origWidth / 3, self.nextY(), self)
+			button = SelectorButton(self.formatReplayName(replay), replay, Display.origWidth * 2 / 5, self.nextY(), self)
 			replayButtons.append(button)
 		return replayButtons
 
