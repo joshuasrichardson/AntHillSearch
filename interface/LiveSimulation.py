@@ -28,7 +28,7 @@ class LiveSimulation(Simulation, ABC):
         self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_POSITIONS, Config.HUB_RADII,
                            Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS, Config.SITE_QUALITIES, Config.SITE_RADII,
                            Config.SITE_RADIUS, Config.NUM_PREDATORS, Config.PRED_POSITIONS, Config.NUM_LADYBUGS,
-                           Config.LADYBUG_POSITIONS, Config.NUM_ROCKS, Config.ROCK_POSITIONS)
+                           Config.LADYBUG_POSITIONS, Config.NUM_OBSTACLES, Config.OBSTACLE_POSITIONS)
         self.initializeAgentList()
 
         return self.world
@@ -84,28 +84,38 @@ class LiveSimulation(Simulation, ABC):
             self.recorder.recordAgentInfo(agent)
 
     def updatePredator(self, predator, agentRectList):
+        """Updates predator locations and attacks neighboring agents"""
         predator.moveForward()
         agentNeighbors = self.getNeighbors(predator.getRect(), agentRectList)
-        predator.attack(agentNeighbors)
+        if agentNeighbors is not None:
+            predator.attack(agentNeighbors)
 
         if Config.SHOULD_RECORD and Config.RECORD_ALL:
             self.recorder.recordPredatorPosition(predator.pos)
             self.recorder.recordPredatorAngle(predator.angle)
 
     def updateLadybug(self, ladybug, agentRectList):
+        """Updates ladybug locations and helps neighboring agents"""
         ladybug.moveForward()
         agentNeighbors = self.getNeighbors(ladybug.getRect(), agentRectList)
-        ladybug.help(agentNeighbors)
+        if agentNeighbors is not None:
+            ladybug.help(agentNeighbors)
 
         if Config.SHOULD_RECORD and Config.RECORD_ALL:
             self.recorder.recordLadybugPosition(ladybug.pos)
             self.recorder.recordLadybugAngle(ladybug.angle)
             
-    def updateRock(self, rock, agentRectList):
-        for agent in agentRectList:
-            if agent.colliderect(rock.getRect()):
-                agentNeighbors = self.getNeighbors(rock.getRect(), agentRectList)
-                rock.obstruct(agentNeighbors)
+    def updateObstacle(self, obstacle, agentRectList):
+        """Updates obstacles to obstruct any colliding agents"""
+        obstacle.setAgentNeighbors(self.getNeighbors(obstacle.getRect(), agentRectList))
+        if obstacle.getAgentNeighbors() is not None:  # If agent collides with obstacle
+            obstacle.obstruct()
+        if len(obstacle.getAgentNeighbors()) < len(obstacle.getOldNeighborList()):  # If agent is leaving the obstacle
+            for agent in obstacle.getOldNeighborList():
+                if obstacle.getAgentNeighbors().count(agent) == 0:  # If agent left this obstacle
+                    agent.setAngle(agent.angleBeforeObstacle)  # Set agent angle to original course
+        obstacle.setOldNeighborList(obstacle.getAgentNeighbors())
+
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()

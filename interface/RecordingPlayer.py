@@ -179,6 +179,9 @@ class RecordingPlayer(Simulation):
         ladybug.setPosition(pos[0], pos[1])
         ladybug.setAngle(self.recorder.getNextLadybugAngle())
 
+    def updateObstacle(self, obstacle, agentRectList):
+        pass
+
     def changeDelay(self, seconds):
         self.delay += seconds
 

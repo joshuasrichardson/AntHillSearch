@@ -137,10 +137,10 @@ NUM_LADYBUGS = 1  # The number of ladybugs that go around helping agents
 LADYBUG_POSITIONS = []  # Where the ladybugs will start. No position =
 # random
 
-ROCK_IMAGE = "resources/rock.jpg"  # The path of the rock image
-ROCK_ANGLE = pi / 2  # The initial angle the rock in the image is facing
-NUM_ROCKS = 4  # The number of rocks in the simulation
-ROCK_POSITIONS = [[500,300], [500,400], [500,500], [500,600]]  # Where the rocks will be placed. No position = random
+OBSTACLE_IMAGE = "resources/obstacle.jpg"  # The path of the obstacle image
+OBSTACLE_ANGLE = pi / 2  # The initial angle the obstacle in the image is facing
+NUM_OBSTACLES = 4  # The number of obstacles in the simulation
+OBSTACLE_POSITIONS = [[300,700], [300,0], [900,700], [900,0]]  # Where the obstacles will be placed. No position = random
 
 """ Agent Transition Parameters """
 # Threshold probability,

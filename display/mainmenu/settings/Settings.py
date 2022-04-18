@@ -59,8 +59,8 @@ class Settings(MenuScreen):
             PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self),
             IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self),
             PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self),
-            IntegerSetting(NUM_ROCKS_NAME, "Number of Rocks", x, self.nextY(), drawRocks, self),
-            PositionSetting(ROCK_POSITIONS_NAME, "Rock Positions", x, self.nextY(), drawRockPositions, self)
+            IntegerSetting(NUM_OBSTACLES_NAME, "Number of Obstacles", x, self.nextY(True), drawObstacles, self),
+            PositionSetting(OBSTACLE_POSITIONS_NAME, "Obstacle Positions", x, self.nextY(), drawObstaclePositions, self)
         ]
 
         self.categories = [

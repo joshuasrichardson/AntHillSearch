@@ -250,14 +250,14 @@ def drawLadybugs(self):
         pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
         drawLadybug(pos)
 
-def drawRock(pos):
-    image = RockDisplay.getRockImage([0, 0])
+def drawObstacle(pos):
+    image = ObstacleDisplay.getObstacleImage([0, 0])
     Display.blitImage(Display.screen, image, pos, False)
 
-def drawRocks(self):
+def drawObstacles(self):
     for i in range(self.value):
         pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
-        drawRock(pos)
+        drawObstacle(pos)
 
 def drawControls(self):
     if Config.FULL_CONTROL:

@@ -8,7 +8,7 @@ from display import Display, FogDisplay
 from model.FloodZone import FloodZone
 from model.Predator import Predator
 from model.Ladybug import Ladybug
-from model.Rock import Rock
+from model.Obstacle import Obstacle
 from model.builder import SiteBuilder
 
 
@@ -19,7 +19,7 @@ class World:
                  siteRadii, siteRadius=Config.SITE_RADIUS, numPredators=Config.NUM_PREDATORS,
                  predPositions=Config.PRED_POSITIONS,
                  numLadybugs=Config.NUM_LADYBUGS, ladybugPositions=Config.LADYBUG_POSITIONS,
-                 numRocks=Config.NUM_ROCKS, rockPositions=Config.ROCK_POSITIONS):
+                 numObstacles=Config.NUM_OBSTACLES, obstaclePositions=Config.OBSTACLE_POSITIONS):
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -40,7 +40,7 @@ class World:
         self.predatorList = self.generatePredators(numPredators,
                                                    predPositions)  # List of all the predators in the world
         self.ladybugList = self.generateLadybugs(numLadybugs, ladybugPositions)  # List of all the ladybugs in the world
-        self.rockList = self.generateRocks(numRocks, rockPositions)  # List of all the rocks in the world
+        self.obstacleList = self.generateObstacles(numObstacles, obstaclePositions)  # List of all the obstacles in the world
         self.paths = []  # List of all the positions the agents have been to recently
         self.agentGroups = [[], [], [], [], [], [], [], [], [],
                             []]  # Groups of agents that are selected together and assigned a number 0 - 9.
@@ -129,18 +129,18 @@ class World:
 
         return bugs
 
-    def generateRocks(self, numRocks, rockPositions):
-        rocks = []
+    def generateObstacles(self, numObstacles, obstaclePositions):
+        obstacles = []
 
-        if numRocks > len(rockPositions):
-            for i in range(len(rockPositions)):  # Create all the rocks with preset positions
-                rocks.append(Rock(self, rockPositions[i]))
-            for i in range (len(rockPositions), numRocks):  # Create all the rocks without preset positions
-                rocks.append(Rock(self))
+        if numObstacles > len(obstaclePositions):
+            for i in range(len(obstaclePositions)):  # Create all the obstacles with preset positions
+                obstacles.append(Obstacle(self, obstaclePositions[i]))
+            for i in range (len(obstaclePositions), numObstacles):  # Create all the obstacles without preset positions
+                obstacles.append(Obstacle(self))
         else:
-            for i in range(numRocks):  # Create all the rocks with preset positions
-                rocks.append(Rock(self, rockPositions[i]))
-        return rocks
+            for i in range(numObstacles):  # Create all the obstacles with preset positions
+                obstacles.append(Obstacle(self, obstaclePositions[i]))
+        return obstacles
 
     def getSiteList(self):
         return self.siteList

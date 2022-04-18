@@ -7,7 +7,7 @@ from datetime import datetime
 import Utils
 from config import Config
 from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME, FULL_CONTROL_NAME, DISTRACTED_NAME, \
-    NUM_SITES_NAME, NUM_PREDATORS_NAME, NUM_LADYBUGS_NAME, NUM_ROCKS_NAME, MAX_NUM_RECORDINGS
+    NUM_SITES_NAME, NUM_PREDATORS_NAME, NUM_LADYBUGS_NAME, NUM_OBSTACLES_NAME, MAX_NUM_RECORDINGS
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter
@@ -33,7 +33,7 @@ class Recorder:
         self.predatorAngles = []
         self.ladybugPositions = []
         self.ladybugAngles = []
-        self.rockPositions = []
+        self.obstaclePositions = []
         self.agentsToDelete = []
         self.sitePositions = []
         self.siteQualities = []
@@ -57,7 +57,7 @@ class Recorder:
         self.currentPredatorAngleIndex = -1
         self.currentLadybugPosIndex = -1
         self.currentLadybugAngleIndex = -1
-        self.currentRockPosIndex = -1
+        self.currentObstaclePosIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -105,8 +105,8 @@ class Recorder:
     def recordLadybugAngle(self, angle):
         self.ladybugAngles.append(angle)
 
-    def recordRockPosition(self, pos):
-        self.rockPositions.append(pos)
+    def recordObstaclePosition(self, pos):
+        self.obstaclePositions.append(pos)
 
     def recordSiteInfo(self, site):
         self.recordSitePosition(site.getPosition())
@@ -157,7 +157,7 @@ class Recorder:
                           'predatorAngles': self.predatorAngles,
                           'ladybugPositions': self.ladybugPositions,
                           'ladybugAngles': self.ladybugAngles,
-                          'rockPositions': self.rockPositions,
+                          'obstaclePositions': self.obstaclePositions,
                           'sitePositions': self.sitePositions,
                           'siteQualities': self.siteQualities,
                           'siteRadii': self.siteRadii,
@@ -178,7 +178,7 @@ class Recorder:
         self.predatorAngles = []
         self.ladybugPositions = []
         self.ladybugAngles = []
-        self.rockPositions = []
+        self.obstaclePositions = []
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
@@ -205,7 +205,7 @@ class Recorder:
             self.predatorAngles.clear()
             self.ladybugPositions.clear()
             self.ladybugAngles.clear()
-            self.rockPositions.clear()
+            self.obstaclePositions.clear()
             self.sitePositions.clear()
             self.siteQualities.clear()
             self.siteRadii.clear()
@@ -381,9 +381,9 @@ class Recorder:
         self.currentLadybugAngleIndex += 1
         return self.ladybugAngles[self.currentLadybugAngleIndex]
 
-    def getNextRockPosition(self):
-        self.currentRockPosIndex += 1
-        return self.rockPositions[self.currentRockPosIndex]
+    def getNextObstaclePosition(self):
+        self.currentObstaclePosIndex += 1
+        return self.obstaclePositions[self.currentObstaclePosIndex]
 
     def getNumHubs(self):
         numHubs = 0
@@ -442,11 +442,11 @@ class Recorder:
         else:
             return len(self.data[0]['ladybugPositions'])
 
-    def getNumRocks(self):
+    def getNumobstacles(self):
         if self.dataIndex >= 0:
-            return len(self.rockPositions)
+            return len(self.obstaclePositions)
         else:
-            return len(self.data[0]['rockPositions'])
+            return len(self.data[0]['obstaclePositions'])
 
     def getNumSites(self):
         if self.dataIndex >= 0:
@@ -466,8 +466,8 @@ class Recorder:
         self.currentPredatorAngleIndex = -1
         self.currentLadybugPosIndex = -1
         self.currentLadybugAngleIndex = -1
-        self.currentRockPosIndex = -1
-        self.currentRockAngleIndex = -1
+        self.currentObstaclePosIndex = -1
+        self.currentObstacleAngleIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -484,8 +484,7 @@ class Recorder:
             self.predatorAngles = self.data[self.dataIndex]['predatorAngles']
             self.ladybugPositions = self.data[self.dataIndex]['ladybugPositions']
             self.ladybugAngles = self.data[self.dataIndex]['ladybugAngles']
-            self.rockPositions = self.data[self.dataIndex]['rockPositions']
-            self.rockAngles = self.data[self.dataIndex]['rockAngles']
+            self.obstaclePositions = self.data[self.dataIndex]['obstaclePositions']
             self.sitePositions = self.data[self.dataIndex]['sitePositions']
             self.siteQualities = self.data[self.dataIndex]['siteQualities']
             self.siteRadii = self.data[self.dataIndex]['siteRadii']
