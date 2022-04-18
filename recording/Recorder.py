@@ -7,7 +7,8 @@ from datetime import datetime
 import Utils
 from config import Config
 from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME, FULL_CONTROL_NAME, DISTRACTED_NAME, \
-    NUM_SITES_NAME, NUM_PREDATORS_NAME, NUM_LADYBUGS_NAME, NUM_OBSTACLES_NAME, MAX_NUM_RECORDINGS
+    NUM_SITES_NAME, NUM_PREDATORS_NAME, MAX_NUM_RECORDINGS
+from display import Display
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter

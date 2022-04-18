@@ -3,17 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2603ab28-1830-48db-a30d-c2f403c59c4d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/Config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/Config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/InterfaceSelector.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/InterfaceSelector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/MainMenu.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/MainMenu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/ReplaySelector.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/ReplaySelector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/buttons/Button.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/buttons/Button.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/buttons/SelectorButton.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/buttons/SelectorButton.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/WorldSettings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/WorldSettings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/FloodZone.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/FloodZone.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,19 +44,16 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="FloodZone" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="AntHillSearch" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="AntHillSearch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test/model" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="SDK_HOME" value="/usr/local/bin/python3.9" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/model/FloodZone.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Colony.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -78,7 +64,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.FloodZone" />
+        <item itemvalue="Python.AntHillSearch" />
       </list>
     </recent_temporary>
   </component>
