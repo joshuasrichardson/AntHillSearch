@@ -54,11 +54,13 @@ class Settings(MenuScreen):
             IntegerSetting(SITE_NO_CLOSER_THAN_NAME, "Site No Closer Than", x, self.nextY(), drawNoCloserThan, self.save),
             IntegerSetting(SITE_NO_FARTHER_THAN_NAME, "Site No Farther Than", x, self.nextY(), drawNoFartherThan, self.save),
             IntegerSetting(MAX_SEARCH_DIST_NAME, "Max Search Distance", x, self.nextY(True), drawSearchArea, self.save),
-            StringSetting(AGENT_IMAGE_NAME, "Agent Image", x, self.nextY(), drawAgents, self.save, getOtherFile),
+            StringSetting(AGENT_IMAGE_NAME, "Agent Image", x, self.nextY(), drawAgents, self, getOtherFile),
             IntegerSetting(NUM_PREDATORS_NAME, "Number of Predators", x, self.nextY(True), drawPredators, self.save),
             PositionSetting(PRED_POSITIONS_NAME, "Predator Positions", x, self.nextY(), drawPredPositions, self.save),
             IntegerSetting(NUM_LADYBUGS_NAME, "Number of Ladybugs", x, self.nextY(), drawLadybugs, self.save),
-            PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self.save)
+            PositionSetting(LADYBUG_POSITIONS_NAME, "Ladybug Positions", x, self.nextY(), drawLadybugPositions, self.save),
+            IntegerSetting(NUM_OBSTACLES_NAME, "Number of Obstacles", x, self.nextY(True), drawObstacles, self.save),
+            PositionSetting(OBSTACLE_POSITIONS_NAME, "Obstacle Positions", x, self.nextY(), drawObstaclePositions, self.save)
         ]
 
         self.categories = [
@@ -66,7 +68,8 @@ class Settings(MenuScreen):
             SettingCategory("Hubs", x, self.categoryYs[1], self.settings[12:16], self.settings[12:], self.adjustCategoryPos),
             SettingCategory("Sites", x, self.categoryYs[2], self.settings[16:23], self.settings[16:], self.adjustCategoryPos),
             SettingCategory("Agents", x, self.categoryYs[3], self.settings[23:25], self.settings[23:], self.adjustCategoryPos),
-            SettingCategory("Bugs", x, self.categoryYs[4], self.settings[25:], self.settings[25:], self.adjustCategoryPos)
+            SettingCategory("Bugs", x, self.categoryYs[4], self.settings[25:29], self.settings[25:], self.adjustCategoryPos),
+            SettingCategory("Obstacles", x, self.categoryYs[5], self.settings[29:], self.settings[29:], self.adjustCategoryPos)
         ]
 
         self.worldSettings = WorldSettings(200, self.settingsY - 40)

@@ -29,6 +29,9 @@ class Agent:
         self.agentRect = self.agentHandle.get_rect()  # Rectangle around the agent to help track collisions
         self.agentRect.centerx = self.pos[0]  # Horizontal center of the agent
         self.agentRect.centery = self.pos[1]  # Vertical center of the agent
+        self.prevRect = self.agentHandle.get_rect()  # Rectangle around the agent at previous position
+        self.prevRect.centerx = self.pos[0]  # Horizontal center of the agent at previous position
+        self.prevRect.centery = self.pos[1]  # Vertical center of the agent at previous position
 
         self.speed = speed  # Speed the agent moves on the screen
         self.uncommittedSpeed = self.speed  # The speed of the agents outside the committed phase
@@ -42,6 +45,7 @@ class Agent:
         self.target = list(startingPosition)  # The position the agent is going to
         self.angle = random.uniform(0, pi, 1)  # Angle the agent is moving
         self.placesToAvoid = []  # A list of points that the agent should stay away from
+        # self.obstaclesToAvoid = []  # A list of obstacles the agent cannot walk over
         self.recentlySeenPredatorPositions = []
 
         self.state = None  # The current state of the agent such as AT_NEST, SEARCH, FOLLOW, etc.
@@ -71,6 +75,8 @@ class Agent:
         self.marker = None  # A marker to be drawn on the screen representing an action the agent will perform
         self.checkPoints = []  # A list of places the agent has to go to on the way to their GO destination
         self.eraseFogCommands = []  # A list of eraseFog methods and agentRects used to clear fog after an agent has returned to the hub
+
+        self.angleBeforeObstacle = None  # Agent's angle when they collide with an obstacle
 
     def setState(self, state):
         self.state = state
@@ -116,6 +122,8 @@ class Agent:
 
     def setPosition(self, x, y):
         self.prevPos = self.pos
+        self.prevRect.centerx = self.pos[0]
+        self.prevRect.centery = self.pos[1]
         self.agentRect.centerx = x
         self.agentRect.centery = y
         self.pos = list([x, y])
@@ -167,6 +175,9 @@ class Agent:
 
     def getHub(self):
         return self.hub
+
+    def getPrevRect(self):
+        return self.prevRect
 
     def getRect(self):
         return self.agentRect

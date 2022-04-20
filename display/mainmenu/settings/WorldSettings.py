@@ -28,7 +28,6 @@ class WorldSettings(Button, MenuScreen):
         super().draw()
 
     def generateWorld(self):
-        Config.SHOULD_DRAW_FOG = True
         self.world = World(Config.NUM_HUBS, Config.NUM_SITES, Config.HUB_POSITIONS,
                            Config.HUB_RADII, Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS,
                            Config.SITE_QUALITIES, Config.SITE_RADII, Config.SITE_RADIUS,

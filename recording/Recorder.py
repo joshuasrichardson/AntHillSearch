@@ -34,6 +34,7 @@ class Recorder:
         self.predatorAngles = []
         self.ladybugPositions = []
         self.ladybugAngles = []
+        self.obstaclePositions = []
         self.agentsToDelete = []
         self.sitePositions = []
         self.siteQualities = []
@@ -57,6 +58,7 @@ class Recorder:
         self.currentPredatorAngleIndex = -1
         self.currentLadybugPosIndex = -1
         self.currentLadybugAngleIndex = -1
+        self.currentObstaclePosIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -103,6 +105,9 @@ class Recorder:
 
     def recordLadybugAngle(self, angle):
         self.ladybugAngles.append(angle)
+
+    def recordObstaclePosition(self, pos):
+        self.obstaclePositions.append(pos)
 
     def recordSiteInfo(self, site):
         self.recordSitePosition(site.getPosition())
@@ -153,6 +158,7 @@ class Recorder:
                           'predatorAngles': self.predatorAngles,
                           'ladybugPositions': self.ladybugPositions,
                           'ladybugAngles': self.ladybugAngles,
+                          'obstaclePositions': self.obstaclePositions,
                           'sitePositions': self.sitePositions,
                           'siteQualities': self.siteQualities,
                           'siteRadii': self.siteRadii,
@@ -173,6 +179,7 @@ class Recorder:
         self.predatorAngles = []
         self.ladybugPositions = []
         self.ladybugAngles = []
+        self.obstaclePositions = []
         self.sitePositions = []
         self.siteQualities = []
         self.siteRadii = []
@@ -199,6 +206,7 @@ class Recorder:
             self.predatorAngles.clear()
             self.ladybugPositions.clear()
             self.ladybugAngles.clear()
+            self.obstaclePositions.clear()
             self.sitePositions.clear()
             self.siteQualities.clear()
             self.siteRadii.clear()
@@ -374,6 +382,10 @@ class Recorder:
         self.currentLadybugAngleIndex += 1
         return self.ladybugAngles[self.currentLadybugAngleIndex]
 
+    def getNextObstaclePosition(self):
+        self.currentObstaclePosIndex += 1
+        return self.obstaclePositions[self.currentObstaclePosIndex]
+
     def getNumHubs(self):
         numHubs = 0
         for quality in self.data[0]['siteQualities']:
@@ -431,6 +443,12 @@ class Recorder:
         else:
             return len(self.data[0]['ladybugPositions'])
 
+    def getNumobstacles(self):
+        if self.dataIndex >= 0:
+            return len(self.obstaclePositions)
+        else:
+            return len(self.data[0]['obstaclePositions'])
+
     def getNumSites(self):
         if self.dataIndex >= 0:
             return len(self.sitePositions)
@@ -449,6 +467,8 @@ class Recorder:
         self.currentPredatorAngleIndex = -1
         self.currentLadybugPosIndex = -1
         self.currentLadybugAngleIndex = -1
+        self.currentObstaclePosIndex = -1
+        self.currentObstacleAngleIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1
@@ -465,6 +485,7 @@ class Recorder:
             self.predatorAngles = self.data[self.dataIndex]['predatorAngles']
             self.ladybugPositions = self.data[self.dataIndex]['ladybugPositions']
             self.ladybugAngles = self.data[self.dataIndex]['ladybugAngles']
+            self.obstaclePositions = self.data[self.dataIndex]['obstaclePositions']
             self.sitePositions = self.data[self.dataIndex]['sitePositions']
             self.siteQualities = self.data[self.dataIndex]['siteQualities']
             self.siteRadii = self.data[self.dataIndex]['siteRadii']

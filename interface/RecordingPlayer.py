@@ -22,7 +22,6 @@ class RecordingPlayer(Simulation):
         with open(CONFIG_FILE_NAME, 'r') as currentSettings:
             self.originalConfig = json.load(currentSettings)
         super().__init__()
-        Config.SHOULD_DRAW_FOG = False
         Config.SHOULD_RECORD = False
         self.realTimer = SimulationTimer(self.timeOut)
 
@@ -178,6 +177,9 @@ class RecordingPlayer(Simulation):
         pos = self.recorder.getNextLadybugPosition()
         ladybug.setPosition(pos[0], pos[1])
         ladybug.setAngle(self.recorder.getNextLadybugAngle())
+
+    def updateObstacle(self, obstacle, agentRectList):
+        pass
 
     def changeDelay(self, seconds):
         self.delay += seconds
