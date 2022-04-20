@@ -131,6 +131,7 @@ class Simulation(ABC):
 
     def draw(self):
         drawWorldObjects(self.world)
+        print(f'world in draw: {self.world}')
         self.graphs.drawGraphs(self.world, self.numRounds)
         self.userControls.drawChanges()
         self.drawBorder()

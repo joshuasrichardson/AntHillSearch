@@ -24,3 +24,4 @@ setup.py
 /recording/results/user/
 /recording/results/*
 /venv/
+.idea/workspace.xml

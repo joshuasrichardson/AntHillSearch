@@ -4,6 +4,7 @@ from config import Config
 from Constants import *
 from display import Display
 from model.Predictions import Predictions
+from model.World import World
 
 
 class SimulationGraphs:
@@ -77,6 +78,7 @@ class SimulationGraphs:
     def drawGraphs(self, world, numRounds):
         self.drawStateGraph(world.states)
         self.drawPhaseGraph(world.phases)
+        print(f'world in drawGraphs: {world}')
         self.drawPredictionsGraph(world, numRounds)
         self.drawExecutedCommands()
         self.drawRemainingTime()
@@ -116,11 +118,12 @@ class SimulationGraphs:
 
     def drawPredictionsGraph(self, world, numRounds):
         """ Draw the graph showing the probability of converging to each site and the predicted time """
-        if self.shouldDrawGraphs:
+        if self.shouldDrawGraphs and isinstance(world, World):
             top = self.y - 3
             self.write("PREDICTIONS:")
 
             self.incrementY()
+            print(f'world in drawPredictions: {world}')
             self.write(f"CHANCE OF SUCCESS: {str(self.predictions.getChanceOfSuccess(world, numRounds))}%")
 
             self.incrementY()

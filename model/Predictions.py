@@ -8,6 +8,7 @@ class Predictions():
 	def getChanceOfSuccess(self, world, numRounds):
 		"""Returns an estimate of the overall probability that the agents will converge to a site
 		within the time limit"""
+		print(f'world in getChanceSuccess: {world}')
 		agentsRemaining = len(world.agentList) - world.numDeadAgents[0]
 		highestAgentCount = max(site.agentCount for site in world.siteList if
 								world.hubs.count(site) != 1) # The new site with the highest agent count
