@@ -1,6 +1,7 @@
 from Constants import BLUE
 from config import Config
-from display import WorldDisplay, Display, FogDisplay
+from display import Display
+from display.simulation import FogDisplay, WorldDisplay
 from display.mainmenu.MenuScreen import MenuScreen
 from display.mainmenu.buttons.BackButton import BackButton
 from display.mainmenu.buttons.Button import Button

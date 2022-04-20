@@ -3,12 +3,13 @@ import pygame
 
 from config import Config
 from Constants import SCREEN_COLOR, NO_MARKER_NAME, RED, BLACK
-from display import Display, AgentDisplay, SiteDisplay, FloodZoneDisplay, FogDisplay
-from display.AgentDisplay import drawAgent
-from display.PredatorDisplay import drawPredator
-from display.LadybugDisplay import drawLadybug
 from display.ObstacleDisplay import drawObstacle
-from display.SiteDisplay import drawSite
+from display import Display
+from display.simulation import AgentDisplay, FloodZoneDisplay, SiteDisplay, FogDisplay
+from display.simulation.AgentDisplay import drawAgent
+from display.simulation.PredatorDisplay import drawPredator
+from display.simulation.LadybugDisplay import drawLadybug
+from display.simulation.SiteDisplay import drawSite
 
 
 def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
@@ -60,6 +61,7 @@ def drawPredators(world):
 def drawLadybugs(world):
     for ladybug in world.ladybugList:
         drawLadybug(ladybug, Display.screen)
+
 
 def drawObstacles(world):
     for obstacle in world.obstacleList:

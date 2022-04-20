@@ -6,7 +6,8 @@ import Utils
 from config import Config
 from Constants import *
 from display import Display
-from display.WorldDisplay import drawWorldObjects
+from display.simulation.SimulationDisplay import SimulationDisplay
+from display.simulation.WorldDisplay import drawWorldObjects
 from ColonyExceptions import GameOver
 from model.Timer import SimulationTimer
 from model.builder import AgentBuilder
@@ -27,6 +28,7 @@ class Simulation(ABC):
         self.timer = SimulationTimer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents())
+        self.simulationDisplay = SimulationDisplay()
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
         self.numRounds = 0
@@ -125,6 +127,9 @@ class Simulation(ABC):
         self.updatePredators(agentRectList)
         self.updateLadybugs(agentRectList)
         self.updateObstacles(agentRectList)
+        print("before")
+        self.simulationDisplay.handleEvents()
+        print("After")
         self.recordDisplays()
         self.save()
 
@@ -133,6 +138,7 @@ class Simulation(ABC):
         self.graphs.drawGraphs(self.world)
         self.userControls.drawChanges()
         self.drawBorder()
+        self.simulationDisplay.displayScreen()
         pygame.display.flip()
 
     @staticmethod

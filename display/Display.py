@@ -5,7 +5,7 @@ import pygame
 from config import Config
 from Constants import WORDS_COLOR, GREEN, BORDER_COLOR, HOME_QUALITIES_NAME, SIM_TIMES_NAME, NUM_ARRIVALS_NAME, \
     TOTAL_NAME, NUM_DEAD_NAME, HOME_POSITIONS_NAME, NUM_ROUNDS_NAME, IN_FLOOD_ZONE_NAME
-from display import SiteDisplay
+from display.simulation import SiteDisplay
 
 screen = None
 displacementX = 0

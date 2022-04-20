@@ -1,6 +1,6 @@
 from config import Config
 from Constants import UI_CONTROL_OPTIONS
-from display.Graphs import SimulationGraphs
+from display.simulation.Graphs import SimulationGraphs
 from interface.LiveSimulation import LiveSimulation
 from user.LimitedControls import LimitedControls
 from user.UIControls import UIControls
