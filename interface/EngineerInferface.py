@@ -1,5 +1,5 @@
 from config import Config
-from display.Graphs import SimulationGraphs
+from display.simulation.Graphs import SimulationGraphs
 from interface.LiveSimulation import LiveSimulation
 
 

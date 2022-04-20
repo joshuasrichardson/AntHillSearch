@@ -6,7 +6,7 @@ from config import Config
 from Constants import BORDER_COLOR, SCREEN_COLOR, ORANGE, DEAD
 from display import Display
 from display.Display import rotateImage, drawDashedLine
-from display.SiteDisplay import drawAssignmentMarker
+from display.simulation.SiteDisplay import drawAssignmentMarker
 
 
 def drawAgent(agent, surface):

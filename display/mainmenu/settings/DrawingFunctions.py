@@ -5,7 +5,8 @@ import pygame
 from config import Config
 from config.Config import AGENT_IMAGES
 from Constants import GREEN, RED, BLUE, BORDER_COLOR, MEDIUM_QUALITY, SHAPE_CHOICES
-from display import Display, AgentDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay, FloodZoneDisplay
+from display import Display
+from display.simulation import AgentDisplay, FloodZoneDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay
 from model.FloodZone import FloodZone
 from model.builder.SiteBuilder import getNewSite
 

@@ -1,4 +1,4 @@
-from display.WorldDisplay import collidesWithEstimatedSite, collidesWithAgent
+from display.simulation.WorldDisplay import collidesWithEstimatedSite, collidesWithAgent
 from user.Controls import Controls
 
 

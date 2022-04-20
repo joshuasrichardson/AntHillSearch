@@ -1,7 +1,7 @@
 import numpy as np
 
 from config import Config
-from display.LadybugDisplay import getLadybugImage
+from display.simulation.LadybugDisplay import getLadybugImage
 
 
 class Ladybug:

@@ -3,7 +3,7 @@ from numpy import random, pi
 import Utils
 from config import Config
 from Constants import DEAD
-from display.PredatorDisplay import getPredatorImage
+from display.simulation.PredatorDisplay import getPredatorImage
 
 
 class Predator:

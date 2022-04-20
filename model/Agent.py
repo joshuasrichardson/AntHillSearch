@@ -4,8 +4,8 @@ import Utils
 from display.Display import getDestinationMarker
 from config import Config
 from Constants import *
-from display import FogDisplay
-from display.AgentDisplay import getAgentImage
+from display.simulation import FogDisplay
+from display.simulation.AgentDisplay import getAgentImage
 from model.phases.AssessPhase import AssessPhase
 from model.phases.ConvergedPhase import ConvergedPhase
 from model.phases.ExplorePhase import ExplorePhase

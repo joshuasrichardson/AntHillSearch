@@ -4,7 +4,8 @@ import time
 import Utils
 from config import Config
 from Constants import *
-from display import Display, FogDisplay
+from display import Display
+from display.simulation import FogDisplay
 from model.FloodZone import FloodZone
 from model.Predator import Predator
 from model.Ladybug import Ladybug

@@ -10,7 +10,7 @@ from config import Config
 from Constants import SCREEN_COLOR, BORDER_COLOR, AT_NEST, TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, \
     SET_STATE_NAME, GO_NAME, BLUE, DEAD, STOP_AVOID_NAME, MEDIUM_QUALITY
 from display import Display
-from display.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
+from display.simulation.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker, getAssignmentMarker
 from model.builder import AgentBuilder

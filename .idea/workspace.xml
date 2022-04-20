@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2603ab28-1830-48db-a30d-c2f403c59c4d" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/display/simulation/ChatBox.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/display/simulation/SimulationDisplay.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/display/simulation/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/config/Config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/Config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/display/mainmenu/InterfaceSelector.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/InterfaceSelector.py" afterDir="false" />
@@ -12,6 +16,34 @@
       <change beforePath="$PROJECT_DIR$/interface/RecordingPlayer.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/RecordingPlayer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/Obstacle.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Obstacle.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/World.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/World.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/AgentDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/AgentDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/Display.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/Display.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/FloodZoneDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/FloodZoneDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/FogDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/FogDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/Graphs.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/Graphs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/LadybugDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/LadybugDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/PredatorDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/PredatorDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/SiteDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/SiteDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/WorldDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/simulation/WorldDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/MenuScreen.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/MenuScreen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/buttons/Button.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/buttons/Button.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/buttons/SelectorButton.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/buttons/SelectorButton.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/DrawingFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/DrawingFunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/WorldSettings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/WorldSettings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/EngineerInferface.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/EngineerInferface.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/RecordingPlayer.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/RecordingPlayer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/Simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/Simulation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/UserInterface.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/UserInterface.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/Agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/FloodZone.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/FloodZone.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/Ladybug.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Ladybug.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/Predator.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Predator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/World.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/World.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/Controls.py" beforeDir="false" afterPath="$PROJECT_DIR$/user/Controls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/UIControls.py" beforeDir="false" afterPath="$PROJECT_DIR$/user/UIControls.py" afterDir="false" />
+>>>>>>> c6bb4f4 (Add chat box)
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +81,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\joshu\PycharmProjects\AntHillSearch\display\simulation" />
       <recent name="C:\Users\joshu\PycharmProjects\AntHillSearch\display\mainmenu\buttons" />
     </key>
   </component>

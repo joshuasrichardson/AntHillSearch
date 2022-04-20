@@ -4,8 +4,9 @@ import time
 from config import Config
 from model.Timer import SimulationTimer
 from Constants import *
-from display import Display, FogDisplay
-from display.Graphs import SimulationGraphs
+from display import Display
+from display.simulation import FogDisplay
+from display.simulation.Graphs import SimulationGraphs
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
 from model.World import World

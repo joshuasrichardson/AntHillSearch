@@ -7,8 +7,9 @@ from display import Display
 
 
 class MenuScreen:
-    def __init__(self, buttons):
+    def __init__(self, buttons, screen=None):
         self.buttons = buttons
+        self.screen = screen
 
     def run(self):
         try:
@@ -20,13 +21,18 @@ class MenuScreen:
             pass
 
     def displayScreen(self):
-        Display.screen.fill(SCREEN_COLOR)  # Fill in the background
-        for button in self.buttons:
-            button.draw()
+        try:
+            self.screen.fill(SCREEN_COLOR)  # Fill in the background
+            for button in self.buttons:
+                button.draw()
+        except AttributeError:
+            self.screen = Display.screen
+            self.displayScreen()
 
     def handleEvents(self):
         """ Handle user input """
         for event in pygame.event.get():
+            print(str(event))
             self.handleEvent(event)
 
     def handleEvent(self, event):

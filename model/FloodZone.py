@@ -9,7 +9,8 @@ from shapely.geometry import Polygon
 
 import Utils
 from Constants import ANY, SHAPE_CHOICES, SECTOR, SEGMENT, RIVER, SCREEN_COLOR, FOG_COLOR, FLOOD_ZONE_COLOR
-from display import Display, FloodZoneDisplay
+from display import Display
+from display.simulation import FloodZoneDisplay
 from config import Config
 
 
