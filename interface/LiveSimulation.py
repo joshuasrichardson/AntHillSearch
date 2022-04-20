@@ -54,6 +54,7 @@ class LiveSimulation(Simulation, ABC):
             self.world.addAgent(agent)
 
     def update(self, agentRectList):
+        print(f'numDeadAgents: {self.world.numDeadAgents}')
         super().update(agentRectList)
         self.setSitesEstimates(agentRectList)
         if Config.USE_REST_API:

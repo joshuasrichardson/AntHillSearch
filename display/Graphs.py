@@ -3,6 +3,7 @@ import pygame
 from config import Config
 from Constants import *
 from display import Display
+from model.Predictions import Predictions
 
 
 class SimulationGraphs:
@@ -47,6 +48,8 @@ class SimulationGraphs:
         self.shouldDrawGraphs = True
         self.shouldDrawStateNumbers = False
 
+        self.predictions = Predictions()
+
     def incrementY(self):
         self.y += Config.FONT_SIZE
 
@@ -71,10 +74,10 @@ class SimulationGraphs:
         Display.screen.blit(img, (box.centerx - (img.get_width() / 2),
                                   box.centery - (img.get_height() / 2)))
 
-    def drawGraphs(self, world):
+    def drawGraphs(self, world, numRounds):
         self.drawStateGraph(world.states)
         self.drawPhaseGraph(world.phases)
-        self.drawPredictionsGraph(world.siteList)
+        self.drawPredictionsGraph(world, numRounds)
         self.drawExecutedCommands()
         self.drawRemainingTime()
         self.drawPauseButton()
@@ -111,27 +114,30 @@ class SimulationGraphs:
             self.incrementY()
             self.incrementY()
 
-    def drawPredictionsGraph(self, siteList):
+    def drawPredictionsGraph(self, world, numRounds):
         """ Draw the graph showing the probability of converging to each site and the predicted time """
-        pass
-        # if self.shouldDrawGraphs:
-        #     top = self.y - 3
-        #     self.write("PREDICTIONS:")
-        #
-        #     self.incrementY()
-        #     self.write("LIKELIHOOD OF CONVERGING TO SITE:")
-        #     numFound = 0
-        #     for siteIndex, site in enumerate(siteList):
-        #         if site.wasFound or site.knowSitePosAtStart:
-        #             numFound += 1
-        #             self.incrementY()
-        #             self.write("SITE " + str(siteList[siteIndex].getPosition()) + ": " + str(siteIndex * 10) + "%")  # TODO: Insert actual prediction here
-        #
-        #     self.incrementY()
-        #     self.write("PREDICTED TIME TO COVERAGE: 59 seconds")  # TODO: Insert actual predicted time here
-        #     pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * numFound + 46), 1)
-        #     self.incrementY()
-        #     self.incrementY()
+        if self.shouldDrawGraphs:
+            top = self.y - 3
+            self.write("PREDICTIONS:")
+
+            self.incrementY()
+            self.write(f"CHANCE OF SUCCESS: {str(self.predictions.getChanceOfSuccess(world, numRounds))}%")
+
+            self.incrementY()
+            self.write("CHANCES PER SITE:")
+            numFound = 0
+            for siteIndex, site in enumerate(world.siteList):
+                if site.wasFound and siteIndex != 0:  # or site.knowSitePosAtStart:
+                    numFound += 1
+                    self.incrementY()
+                    self.write("SITE " + str(world.siteList[siteIndex].getPosition()) + ": " + str(self.predictions.getChanceOfConvergingToSite(world, siteIndex)) + "%")  # TODO: Insert actual prediction here
+
+            self.incrementY()
+            self.write(f"EST. TIME LEFT: "
+                       f"{str(self.predictions.getTimeRemainingPrediction(world, numRounds))} seconds")
+            pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 13 * numFound + 62), 1)
+            self.incrementY()
+            self.incrementY()
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):

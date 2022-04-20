@@ -51,7 +51,7 @@ class Controls:
         drawWorldObjects(self.world)
         self.graphs.drawStateGraph(self.world.states)
         self.graphs.drawPhaseGraph(self.world.phases)
-        self.graphs.drawPredictionsGraph(self.world.siteList)
+        self.graphs.drawPredictionsGraph(self.world.siteList, self.timer)
         self.graphs.drawExecutedCommands()
         self.graphs.drawRemainingTime()
         self.graphs.drawPlayButton()

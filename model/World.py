@@ -361,6 +361,9 @@ class World:
     def incrementDeadAgents(self, hubIndex):
         self.numDeadAgents[hubIndex] += 1
 
+    def getNumDeadAgents(self):
+        return self.numDeadAgents
+
     def addDangerZone(self, pos):
         dzPos = self.getNearbyDangerZone(pos)
         if dzPos is None:

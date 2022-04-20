@@ -98,6 +98,7 @@ class Simulation(ABC):
         return roundCounts
 
     def getNumRounds(self):
+        """Returns the total number of rounds elapsed in the simulation so far"""
         return self.numRounds
 
     def stopTimer(self):
@@ -130,7 +131,7 @@ class Simulation(ABC):
 
     def draw(self):
         drawWorldObjects(self.world)
-        self.graphs.drawGraphs(self.world)
+        self.graphs.drawGraphs(self.world, self.numRounds)
         self.userControls.drawChanges()
         self.drawBorder()
         pygame.display.flip()
