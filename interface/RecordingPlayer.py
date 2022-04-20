@@ -22,7 +22,6 @@ class RecordingPlayer(Simulation):
         with open(CONFIG_FILE_NAME, 'r') as currentSettings:
             self.originalConfig = json.load(currentSettings)
         super().__init__()
-        Config.SHOULD_DRAW_FOG = False
         Config.SHOULD_RECORD = False
         self.realTimer = SimulationTimer(self.timeOut)
 

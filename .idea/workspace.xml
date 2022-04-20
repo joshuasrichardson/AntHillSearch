@@ -3,6 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="2603ab28-1830-48db-a30d-c2f403c59c4d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/Config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/Config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/InterfaceSelector.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/InterfaceSelector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/display/mainmenu/settings/WorldSettings.py" beforeDir="false" afterPath="$PROJECT_DIR$/display/mainmenu/settings/WorldSettings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/LiveSimulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/LiveSimulation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface/RecordingPlayer.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface/RecordingPlayer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/Obstacle.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/Obstacle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/World.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/World.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,6 +57,9 @@
       <module name="AntHillSearch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="/usr/local/bin/python3.9" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />

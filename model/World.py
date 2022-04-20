@@ -53,7 +53,7 @@ class World:
         self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
         self.floodZone = FloodZone()
-        if Config.SHOULD_DRAW and Config.SHOULD_DRAW_FOG:
+        if Config.SHOULD_DRAW:
             self.fog = FogDisplay.initFog(self.hubs)
 
     def checkHubs(self, numHubs, siteRadius):

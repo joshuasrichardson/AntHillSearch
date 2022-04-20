@@ -74,7 +74,7 @@ class LiveSimulation(Simulation, ABC):
     def updateAgent(self, agent, agentRectList):
         if agent.getStateNumber() != DEAD:
             agent.moveForward()
-            if Config.SHOULD_DRAW and Config.SHOULD_DRAW_FOG:
+            if Config.SHOULD_DRAW:
                 agent.clearFog()
 
             agentNeighbors = self.getNeighbors(agent.getRect(), agentRectList)
@@ -87,8 +87,7 @@ class LiveSimulation(Simulation, ABC):
         """Updates predator locations and attacks neighboring agents"""
         predator.moveForward()
         agentNeighbors = self.getNeighbors(predator.getRect(), agentRectList)
-        if agentNeighbors is not None:
-            predator.attack(agentNeighbors)
+        predator.attack(agentNeighbors)
 
         if Config.SHOULD_RECORD and Config.RECORD_ALL:
             self.recorder.recordPredatorPosition(predator.pos)
@@ -98,8 +97,7 @@ class LiveSimulation(Simulation, ABC):
         """Updates ladybug locations and helps neighboring agents"""
         ladybug.moveForward()
         agentNeighbors = self.getNeighbors(ladybug.getRect(), agentRectList)
-        if agentNeighbors is not None:
-            ladybug.help(agentNeighbors)
+        ladybug.help(agentNeighbors)
 
         if Config.SHOULD_RECORD and Config.RECORD_ALL:
             self.recorder.recordLadybugPosition(ladybug.pos)
@@ -108,14 +106,14 @@ class LiveSimulation(Simulation, ABC):
     def updateObstacle(self, obstacle, agentRectList):
         """Updates obstacles to obstruct any colliding agents"""
         obstacle.setAgentNeighbors(self.getNeighbors(obstacle.getRect(), agentRectList))
-        if obstacle.getAgentNeighbors() is not None:  # If agent collides with obstacle
-            obstacle.obstruct()
-        if len(obstacle.getAgentNeighbors()) < len(obstacle.getOldNeighborList()):  # If agent is leaving the obstacle
-            for agent in obstacle.getOldNeighborList():
-                if obstacle.getAgentNeighbors().count(agent) == 0:  # If agent left this obstacle
+        obstacle.obstruct()
+        obstacleNeighbors = obstacle.getAgentNeighbors()
+        oldNeighbors = obstacle.getOldNeighborList()
+        if len(obstacleNeighbors) < len(oldNeighbors):  # If agent is leaving the obstacle
+            for agent in oldNeighbors:
+                if obstacleNeighbors.count(agent) == 0:  # If agent left this obstacle
                     agent.setAngle(agent.angleBeforeObstacle)  # Set agent angle to original course
-        obstacle.setOldNeighborList(obstacle.getAgentNeighbors())
-
+        obstacle.setOldNeighborList(obstacleNeighbors)
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()

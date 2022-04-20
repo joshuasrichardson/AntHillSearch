@@ -72,7 +72,6 @@ SITE_NO_CLOSER_THAN = 300  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_FARTHER_THAN = 800  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
-SHOULD_DRAW_FOG = True  # Whether unexplored areas will be covered in fog
 
 """ Agent parameters """
 AGENT_IMAGE = "resources/ant.png"  # The image that is displayed on the screen to represent an agent
