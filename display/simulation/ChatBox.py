@@ -1,42 +1,42 @@
-import pygame
-
-from Constants import BORDER_COLOR
+from Constants import BORDER_COLOR, SCREEN_COLOR
 from config import Config
-from display.mainmenu.MenuScreen import MenuScreen
 from display import Display
-from display.mainmenu.buttons.Button import Button
-from display.mainmenu.buttons.SelectorButton import SelectorButton
+from display.mainmenu.buttons.DragButton import DragButton
 
 
-class ChatBox(Button, MenuScreen):
+class ChatBox(DragButton):
 
     def __init__(self):
-        self.left = int(Display.origWidth * 2 / 3)
-        self.top = int(Display.origHeight * 3 / 5)
-        self.right = int(Display.origWidth * 11 / 12)
-        self.bottom = int(Display.origHeight * 17 / 20)
-        self.width = self.right - self.left
-        self.height = self.bottom - self.top
-        super().__init__("Chat Box", self.drag, self.left, self.top)
-        self.screen = pygame.Surface((self.width, self.height))
-        self.buttons = [SelectorButton("chat", "a", 10, self.height - Config.FONT_SIZE * 2, self, action=self.type, screen=self.screen)]
+        left = int(Display.origWidth * 2 / 3)
+        top = int(Display.origHeight * 3 / 5)
+        right = int(Display.origWidth * 11 / 12)
+        bottom = int(Display.origHeight * 17 / 20)
+        width = right - left
+        height = bottom - top
+        super().__init__("Chat Box", left, top, w=width, h=height)
+        self.messages = []
+        self.messagePositions = []
 
     def draw(self):
-        self.displayScreen()
+        Display.drawRect(Display.screen, SCREEN_COLOR, self.rect, adjust=False)
+        Display.drawRect(Display.screen, BORDER_COLOR, self.rect, width=3, adjust=False)
+        for i, message in enumerate(self.messages):
+            Display.write(Display.screen, message, Config.FONT_SIZE, self.messagePositions[i][0], self.messagePositions[i][1])
 
-    def type(self):
-        Display.write(Display.screen, "BUHHHHH", 20, 500, 500)
+    def update(self, pos):
+        super().update(pos)
+        if self.dragging:
+            for i in range(len(self.messagePositions)):
+                if i == 0:
+                    self.messagePositions[i] = [self.rect.x + 10, self.rect.y + 10]
+                else:
+                    prevPos = self.messagePositions[i - 1]
+                    self.messagePositions[i] = [prevPos[0], prevPos[1] + Config.FONT_SIZE * 1.5]
 
-    def displayScreen(self):
-        super().displayScreen()
-        print(str(self.rect))
-        Display.drawRect(self.screen, BORDER_COLOR, pygame.Rect(0, 0, self.right - self.left,
-                                                                self.bottom - self.top), width=3, adjust=False)
-        Display.blitImage(Display.screen, self.screen, [self.left, self.top], False)
-
-    def drag(self):
-        print("drag")
-        pos = pygame.mouse.get_pos()
-        self.rect.center = pos
-        self.left = pos[0]
-        self.top = pos[0]
+    def addMessage(self, sender, message):
+        self.messages.append(f"{sender}: {message}")
+        if len(self.messagePositions) > 0:
+            prevPos = self.messagePositions[len(self.messagePositions) - 1]
+            self.messagePositions.append([prevPos[0], prevPos[1] + Config.FONT_SIZE * 1.5])
+        else:
+            self.messagePositions.append([self.rect.x + 10, self.rect.y + 10])

@@ -86,6 +86,8 @@ WORDS_COLOR = 0, 41, 0  # Dark green
 
 BORDER_COLOR = 105, 100, 70, 255  # Dark Brown
 
+ACTIVE_COLOR = (50, 200, 50)  # Light Green
+
 FOG_COLOR = 145, 140, 112  # Grey
 
 FLOOD_ZONE_COLOR = (106, 162, 186, 100)  # Light blue, semitransparent

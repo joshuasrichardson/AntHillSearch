@@ -28,9 +28,9 @@ class Simulation(ABC):
         self.timer = SimulationTimer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
         self.graphs = self.getGraphs(self.calcNumAgents())
-        self.simulationDisplay = SimulationDisplay()
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
+        self.simulationDisplay = SimulationDisplay(self.userControls)
         self.numRounds = 0
 
     @staticmethod
@@ -106,7 +106,8 @@ class Simulation(ABC):
         self.timer.cancel()
 
     def runNextRound(self):
-        self.userControls.handleEvents()
+        # self.userControls.handleEvents()
+        self.simulationDisplay.handleEvents()
         agentRectList = self.getAgentRectList()
         self.update(agentRectList)
         Display.screen.fill(SCREEN_COLOR)
@@ -127,9 +128,6 @@ class Simulation(ABC):
         self.updatePredators(agentRectList)
         self.updateLadybugs(agentRectList)
         self.updateObstacles(agentRectList)
-        print("before")
-        self.simulationDisplay.handleEvents()
-        print("After")
         self.recordDisplays()
         self.save()
 

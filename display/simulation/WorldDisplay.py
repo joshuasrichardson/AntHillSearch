@@ -3,7 +3,7 @@ import pygame
 
 from config import Config
 from Constants import SCREEN_COLOR, NO_MARKER_NAME, RED, BLACK
-from display.ObstacleDisplay import drawObstacle
+from display.simulation.ObstacleDisplay import drawObstacle
 from display import Display
 from display.simulation import AgentDisplay, FloodZoneDisplay, SiteDisplay, FogDisplay
 from display.simulation.AgentDisplay import drawAgent

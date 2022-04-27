@@ -1,7 +1,7 @@
 import numpy as np
 
 from config.Config import MAX_SEARCH_DIST
-from display.ObstacleDisplay import getObstacleImage
+from display.simulation.ObstacleDisplay import getObstacleImage
 
 
 class Obstacle:
