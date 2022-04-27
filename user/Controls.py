@@ -78,14 +78,13 @@ class Controls:
                                          self.shouldSelectAgentSites, self.shouldCommandSiteAgents, self.shouldShowOptions,
                                          self.paused)
 
-    def handleEvents(self):
-        for event in pygame.event.get():
-            if event.type == KEYDOWN and event.key == K_p:
-                self.pause()
-            else:
-                self.handleEvent(event)
+    # def handleEvents(self):
+    #     for event in pygame.event.get():
+    #         self.handleEvent(event)
 
     def handleEvent(self, event):
+        if event.type == KEYDOWN and event.key == K_p:
+            self.pause()
         mousePos = pygame.mouse.get_pos()
         # When the screen moves, the mouse position needs to be adjusted to make up for it with some of the controls
         adjustedMousePos = Display.getReadjustedPos(mousePos[0], mousePos[1])

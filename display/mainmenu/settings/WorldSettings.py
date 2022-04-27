@@ -1,4 +1,4 @@
-from Constants import BLUE
+from Constants import BLUE, ACTIVE_COLOR
 from config import Config
 from display import Display
 from display.simulation import FogDisplay, WorldDisplay
@@ -43,4 +43,4 @@ class WorldSettings(Button, MenuScreen):
         self.shouldDrawWorld = not self.shouldDrawWorld
 
     def changeColor(self, color):
-        super().changeColor((50, 200, 50) if self.shouldDrawWorld and color != BLUE else color)
+        super().changeColor(ACTIVE_COLOR if self.shouldDrawWorld and color != BLUE else color)

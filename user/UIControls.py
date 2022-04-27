@@ -7,14 +7,14 @@ class UIControls(Controls):
     def __init__(self, timer, agentList, world, graphs):
         super().__init__(timer, agentList, world, graphs)
 
-    def handleEvents(self):
-        for agent in self.world.agentList:
-            if agent.getRect().collidelist(self.world.getHubsRects()) == -1 and agent.isSelected:
-                agent.unselect()
-                self.selectedAgents.remove(agent)
-                if agent is self.selectedAgent:
-                    self.selectedAgent = None
-        super().handleEvents()
+    # def handleEvents(self):
+    #     for agent in self.world.agentList:
+    #         if agent.getRect().collidelist(self.world.getHubsRects()) == -1 and agent.isSelected:
+    #             agent.unselect()
+    #             self.selectedAgents.remove(agent)
+    #             if agent is self.selectedAgent:
+    #                 self.selectedAgent = None
+    #     super().handleEvents()
 
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithEstimatedSite(self.world, adjustedMousePos) or \

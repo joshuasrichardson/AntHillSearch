@@ -2,7 +2,7 @@ import pygame
 from pygame import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONUP, MOUSEMOTION
 
 from ColonyExceptions import GameOver, BackException
-from Constants import SCREEN_COLOR, BLUE, WORDS_COLOR
+from Constants import SCREEN_COLOR
 from display import Display
 
 
@@ -32,7 +32,6 @@ class MenuScreen:
     def handleEvents(self):
         """ Handle user input """
         for event in pygame.event.get():
-            print(str(event))
             self.handleEvent(event)
 
     def handleEvent(self, event):
@@ -48,7 +47,7 @@ class MenuScreen:
             elif event.button == 1:
                 self.mouseButtonPressed(pygame.mouse.get_pos())
         elif event.type == MOUSEMOTION:
-            self.updateButtonColors()
+            self.updateButtons()
             self.updateCursor()
         elif event.type == KEYDOWN and event.key == K_ESCAPE:
             self.escape()
@@ -71,12 +70,10 @@ class MenuScreen:
         for button in self.buttons:
             button.adjustY(-10 * times)
 
-    def updateButtonColors(self):
+    def updateButtons(self):
+        pos = pygame.mouse.get_pos()
         for button in self.buttons:
-            if button.collides(pygame.mouse.get_pos()):
-                button.changeColor(BLUE)
-            else:
-                button.changeColor(WORDS_COLOR)
+            button.update(pos)
 
     def updateCursor(self):
         """ Change the style of the mouse """
