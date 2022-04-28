@@ -78,10 +78,6 @@ class Controls:
                                          self.shouldSelectAgentSites, self.shouldCommandSiteAgents, self.shouldShowOptions,
                                          self.paused)
 
-    # def handleEvents(self):
-    #     for event in pygame.event.get():
-    #         self.handleEvent(event)
-
     def handleEvent(self, event):
         if event.type == KEYDOWN and event.key == K_p:
             self.pause()
