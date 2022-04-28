@@ -106,7 +106,6 @@ class Simulation(ABC):
         self.timer.cancel()
 
     def runNextRound(self):
-        # self.userControls.handleEvents()
         self.simulationDisplay.handleEvents()
         agentRectList = self.getAgentRectList()
         self.update(agentRectList)

@@ -27,6 +27,12 @@ class InputButton(SelectorButton):
     def type(self, character):
         self.optionValue += character
 
+    def backspace(self):
+        self.optionValue = self.optionValue[:len(self.optionValue) - 1]
+
+    def escape(self):
+        self.typing = False
+
     def enter(self):
         self.selector.send(self.optionValue)
         self.optionValue = ""
