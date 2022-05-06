@@ -183,7 +183,7 @@ class Simulation(ABC):
 
     def recordDisplays(self):
         if Config.SHOULD_RECORD:
-            self.recorder.recordExecutedCommands(self.graphs.executedCommands)
+            self.recorder.recordExecutedCommands(self.simulationDisplay.commandHistBox.executedCommands)
             if Config.RECORD_ALL:
                 self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
                 self.recorder.recordTime(self.timer.getRemainingTime())

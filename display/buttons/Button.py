@@ -31,6 +31,12 @@ class Button:
     def collides(self, pos):
         return self.rect.collidepoint(pos)
 
+    def isOnHorizEdge(self, pos):
+        return False
+
+    def isOnVertEdge(self, pos):
+        return False
+
     def changeColor(self, color):
         self.color = color
         self.image = self.font.render(self.name, True, color).convert_alpha()

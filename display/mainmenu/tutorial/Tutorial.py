@@ -4,11 +4,11 @@ from pygame import KEYDOWN, K_RIGHT, K_LEFT
 from config import Config
 from display import Display
 from display.mainmenu.MenuScreen import MenuScreen
-from display.mainmenu.buttons.BackButton import BackButton
-from display.mainmenu.buttons.NextButton import NextButton
-from display.mainmenu.buttons.Page import Page
-from display.mainmenu.buttons.PlayButton import PlayButton
-from display.mainmenu.buttons.PrevButton import PrevButton
+from display.buttons.PlayButton import PlayButton
+from display.buttons.PrevButton import PrevButton
+from display.buttons.NextButton import NextButton
+from display.buttons.BackButton import BackButton
+from display.mainmenu.tutorial.Page import Page
 
 
 class Tutorial(MenuScreen):

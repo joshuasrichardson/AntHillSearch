@@ -97,8 +97,6 @@ class Controls:
             else:
                 if pygame.key.get_mods() & KMOD_CTRL:
                     self.zoom(event)
-                else:
-                    self.scroll(event)
         elif event.type == MOUSEBUTTONDOWN and event.button == 1:
             self.mouseDown(mousePos, adjustedMousePos)
         elif event.type == KEYDOWN:
@@ -196,12 +194,10 @@ class Controls:
         # Set the cursor image
         if self.dragSite is not None:
             self.world.setSitePosition(self.dragSite, adjustedMousePos)
-        elif self.graphs.collidesWithCommandHistBoxTop(mousePos):
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
-        elif self.collidesWithSelectable(mousePos, adjustedMousePos):
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
-        else:
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+        # elif self.collidesWithSelectable(mousePos, adjustedMousePos):
+        #     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        # else:
+        #     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos) or \
@@ -220,8 +216,11 @@ class Controls:
         if self.paused:
             self.draw()
 
+    def initSimDisp(self, disp):  # TODO: Remove this when you no longer need it
+        self.simulationDisplay = disp
+
     def addToExecutedEvents(self, eventName):
-        self.graphs.addExecutedCommand(eventName)
+        self.simulationDisplay.commandHistBox.addExecutedCommand(eventName, self.graphs.remainingTime)
 
     def mouseUp(self, mousePos, adjustedMousePos):
         self.putDownDragSite()
@@ -255,8 +254,6 @@ class Controls:
         self.selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(adjustedMousePos)]
         if len(self.selectedSites) > 0 and self.shouldSelectSites:
             self.startDrag()
-        elif self.graphs.collidesWithCommandHistBoxTop(mousePos):
-            self.shouldMoveHistBoxTop = True
         else:
             self.startSelectRect(mousePos)
 
@@ -267,12 +264,6 @@ class Controls:
                 Display.zoomIn()
             elif event.button == 5:
                 Display.zoomOut()
-
-    def scroll(self, event):
-        if event.button == 4:
-            self.graphs.scrollUp()
-        elif event.button == 5:
-            self.graphs.scrollDown()
 
     def startDrag(self):
         if Config.HUB_CAN_MOVE or not self.world.getHubs().__contains__(self.selectedSites[0]):

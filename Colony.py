@@ -13,7 +13,7 @@ sys.path.append("")
 
 import pygame
 
-from display.mainmenu.MainMenu import StartUpDisplay
+from display.mainmenu.MainMenu import MainMenu
 from interface.EngineerInferface import EngineerInterface
 from interface.LiveSimulation import *
 from interface.UserInterface import UserInterface
@@ -25,7 +25,7 @@ def main():
 
     try:
         # StartUpDisplay(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        StartUpDisplay(UserInterface).run()
+        MainMenu(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control

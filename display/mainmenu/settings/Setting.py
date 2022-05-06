@@ -4,8 +4,8 @@ from Constants import RED
 from config import Config
 from display import Display
 from display.mainmenu.MenuScreen import MenuScreen
-from display.mainmenu.buttons.BackButton import BackButton
-from display.mainmenu.buttons.SelectorButton import SelectorButton
+from display.buttons.BackButton import BackButton
+from display.buttons.SelectorButton import SelectorButton
 
 
 class Setting(SelectorButton, MenuScreen):

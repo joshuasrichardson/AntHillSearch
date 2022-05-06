@@ -2,10 +2,10 @@ import json
 
 import Utils
 from Constants import *
-from display.mainmenu.buttons.BackButton import BackButton
 from display.mainmenu.MenuScreen import MenuScreen
-from display.mainmenu.buttons.Button import Button
-from display.mainmenu.buttons.Title import Title
+from display.buttons.Title import Title
+from display.buttons.BackButton import BackButton
+from display.buttons.Button import Button
 from display.mainmenu.settings.BooleanSetting import BooleanSetting
 from display.mainmenu.settings.DrawingFunctions import *
 from display.mainmenu.settings.IntegerSetting import IntegerSetting

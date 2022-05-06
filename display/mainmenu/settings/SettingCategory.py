@@ -1,6 +1,6 @@
 from config import Config
 from display import Display
-from display.mainmenu.buttons.SelectorButton import SelectorButton
+from display.buttons.SelectorButton import SelectorButton
 
 
 class SettingCategory(SelectorButton):

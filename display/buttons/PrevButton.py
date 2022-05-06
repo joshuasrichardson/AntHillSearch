@@ -1,5 +1,5 @@
 from display import Display
-from display.mainmenu.buttons.Button import Button
+from display.buttons.Button import Button
 
 
 class PrevButton(Button):

@@ -1,5 +1,5 @@
 from ColonyExceptions import BackException
-from display.mainmenu.buttons.Button import Button
+from display.buttons.Button import Button
 
 
 class BackButton(Button):
