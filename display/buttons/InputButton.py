@@ -1,23 +1,15 @@
 from pygame import K_RETURN, K_BACKSPACE, K_ESCAPE
 
-from config import Config
-from Constants import BORDER_COLOR, ACTIVE_COLOR
-from display import Display
-from display.buttons.SelectorButton import SelectorButton
+from Constants import BORDER_COLOR, ACTIVE_COLOR, TRANSPARENT
+from display.buttons.AdjustableBox import AdjustableBox
 
 
-class InputButton(SelectorButton):
-    def __init__(self, x, y, w, h, selector):
+class InputButton(AdjustableBox):
+    def __init__(self, x, y, w, h, receiver):
+        super().__init__("Input", x, y, w, h, 2, 11, 0.4, TRANSPARENT, action=self.receiveInput)
         self.typing = False
-        super().__init__("", "", x, y, selector, action=self.receiveInput)
-        self.rect.w = w
-        self.rect.h = h
-        self.borderColor = BORDER_COLOR
-
-    def draw(self):
-        super().draw()
-        Display.drawRect(Display.screen, self.borderColor, self.rect, width=1, adjust=False)
-        Display.write(Display.screen, self.optionValue, Config.FONT_SIZE, self.rect.x + 10, self.rect.y)
+        self.paragraphs = []
+        self.receiver = receiver
 
     def changeColor(self, color):
         self.borderColor = ACTIVE_COLOR if self.typing else color
@@ -25,6 +17,8 @@ class InputButton(SelectorButton):
     def receiveInput(self):
         self.typing = True
         self.changeColor(ACTIVE_COLOR)
+        if len(self.paragraphs) == 0:
+            self.paragraphs.append("")
 
     def input(self, event):
         if self.typing:
@@ -38,16 +32,18 @@ class InputButton(SelectorButton):
                 self.type(event.unicode)
 
     def type(self, character):
-        self.optionValue += character
+        self.paragraphs[0] += character
+        self.repositionParagraphs()
 
     def backspace(self):
-        self.optionValue = self.optionValue[:len(self.optionValue) - 1]
+        self.paragraphs[0] = self.paragraphs[0][:len(self.paragraphs[0]) - 1]
 
     def escape(self):
         self.typing = False
 
     def enter(self):
-        self.selector.send(self.optionValue)
-        self.optionValue = ""
+        self.receiver.addMessage(f"User: {self.paragraphs[0]}")
+        self.paragraphs = []
+        self.clearFormat()
         self.typing = False
         self.changeColor(BORDER_COLOR)

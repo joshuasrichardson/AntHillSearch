@@ -1,5 +1,5 @@
 import pygame
-from pygame import MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYUP, K_RETURN, K_BACKSPACE, K_ESCAPE, KMOD_CTRL
+from pygame import MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYUP, KMOD_CTRL
 
 from config import Config
 from display.mainmenu.MenuScreen import MenuScreen
@@ -15,39 +15,36 @@ class SimulationDisplay(MenuScreen):
         self.userControls.initSimDisp(self)  # TODO: Take this out when we don't need it anymore
         self.chatBox = ChatBox()
         self.inputBox = InputButton(self.chatBox.rect.x + 10, self.chatBox.rect.y + self.chatBox.rect.h
-                                    - Config.FONT_SIZE * 3, self.chatBox.rect.w - 20, Config.FONT_SIZE * 2, self)
+                                    - Config.FONT_SIZE * 3.5, self.chatBox.rect.w - 20, Config.FONT_SIZE * 3, self.chatBox)
+        self.chatBox.setInput(self.inputBox)
         self.commandHistBox = CommandHistBox()
-        self.adjustables = [self.chatBox, self.commandHistBox]
-        super().__init__([self.chatBox, self.inputBox, self.commandHistBox])
+        self.adjustables = [self.inputBox, self.chatBox, self.commandHistBox]
+        # First button is handled first but drawn last
+        super().__init__([self.inputBox, self.chatBox, self.commandHistBox])
 
     def handleEvent(self, event):
         super().handleEvent(event)
         pos = pygame.mouse.get_pos()
+        buttonIsSelected = False
         if event.type == MOUSEBUTTONDOWN and event.button == 1:
             for button in self.buttons:
-                button.mouseButtonDown(pos)
+                if button.mouseButtonDown(pos):
+                    buttonIsSelected = True
+                    break  # Skip the rest if one of the buttons handles it. We only want to press one at a time.
         elif event.type == MOUSEBUTTONUP:
             if event.button == 1:
                 for button in self.buttons:
                     button.mouseButtonUp(pos)
             elif not pygame.key.get_mods() & KMOD_CTRL:
                 self.scroll(event.button, pos)
-        if event.type == KEYUP:
+        elif event.type == KEYUP:
             self.inputBox.input(event)
-        else:
+        if not self.inputBox.typing and not buttonIsSelected:
             self.userControls.handleEvent(event)
 
     def displayScreen(self):
-        self.updateInputButton()
-        for button in self.buttons:
+        for button in reversed(self.buttons):
             button.draw()
-
-    def updateInputButton(self):
-        self.inputBox.rect.centerx = self.chatBox.rect.centerx
-        self.inputBox.rect.centery = self.chatBox.rect.y + self.chatBox.rect.h - Config.FONT_SIZE * 2
-
-    def send(self, message):
-        self.chatBox.addMessage(f"User: {message}")
 
     def escape(self):
         pass
@@ -63,10 +60,12 @@ class SimulationDisplay(MenuScreen):
             for button in self.adjustables:
                 if button.rect.collidepoint(pos):
                     button.scrollUp()
+                    break  # Only scroll up on one
         elif mouseButton == 5 or mouseButton == 7:
             for button in self.adjustables:
                 if button.rect.collidepoint(pos):
                     button.scrollDown()
+                    break  # Only scroll up on one
 
     def updateCursor(self):
         isResizing = False

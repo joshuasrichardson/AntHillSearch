@@ -1,6 +1,6 @@
 from math import isclose
 
-import pygame
+from numpy import inf
 
 from Constants import SCREEN_COLOR, BORDER_COLOR, TRANSPARENT
 from config import Config
@@ -11,9 +11,9 @@ from display.buttons.Button import Button
 MIN_LEN = 20
 
 
-class MovableBox(Button):
+class AdjustableBox(Button):
 
-    def __init__(self, name, x, y, w, h, bottomPadding, spacing=0.4, bgColor=SCREEN_COLOR, action=lambda: None):
+    def __init__(self, name, x, y, w, h, topPad, bottomPad, spacing=0.4, bgColor=SCREEN_COLOR, action=lambda: None):
         super().__init__(name, action, x, y, w, h)
         self.dragging = False
         self.resizingTop = False
@@ -25,9 +25,15 @@ class MovableBox(Button):
         self.messagePositions = []
         self.bottomMargins = []
         self.dy = 0
-        self.bottomPadding = bottomPadding
+        self.topPad = topPad
+        self.bottomPad = bottomPad
         self.spacing = spacing
         self.bgColor = bgColor
+        self.borderColor = BORDER_COLOR
+        self.minL = -inf
+        self.minT = -inf
+        self.maxR = inf
+        self.maxB = inf
 
     def mouseButtonDown(self, pos):
         if self.collidesTop(pos):
@@ -40,6 +46,7 @@ class MovableBox(Button):
             self.resizingLeft = True
         if self.collides(pos) and not self.resizing():
             self.dragging = True
+        return self.dragging or self.resizing()
 
     def resizing(self):
         return self.resizingTop or self.resizingRight or self.resizingBottom or self.resizingLeft
@@ -62,26 +69,30 @@ class MovableBox(Button):
         if self.resizingLeft:
             self.setBoxLeft(pos[0])
         if self.dragging:
-            self.rect.center = pos
-            for i in range(len(self.messagePositions)):
-                if i == 0:
-                    self.messagePositions[i] = [self.rect.x + 10, self.rect.y + 10 + self.dy]
-                else:
-                    prevPos = self.messagePositions[i - 1]
-                    self.messagePositions[i] = [prevPos[0], prevPos[1] + self.bottomMargins[i - 1]]
+            self.move(pos)
+
+    def move(self, pos):
+        self.rect.center = pos
+        for i in range(len(self.messagePositions)):
+            if i == 0:
+                self.messagePositions[i] = [self.rect.x + 10, self.rect.y + self.topPad + self.dy]
+            else:
+                prevPos = self.messagePositions[i - 1]
+                self.messagePositions[i] = [prevPos[0], prevPos[1] + self.bottomMargins[i - 1]]
+        self.enforceBounds()
 
     def draw(self):
         if self.bgColor != TRANSPARENT:
             Display.drawRect(Display.screen, self.bgColor, self.rect, adjust=False)
-        Display.drawRect(Display.screen, BORDER_COLOR, self.rect, width=1, adjust=False)
+        Display.drawRect(Display.screen, self.borderColor, self.rect, width=1, adjust=False)
         for i, message in enumerate(self.lines):
-            if self.rect.top < self.messagePositions[i][1] < self.rect.bottom - self.bottomPadding:
+            if self.rect.top < self.messagePositions[i][1] < self.rect.bottom - self.bottomPad:
                 Display.write(Display.screen, message, Config.FONT_SIZE,
                               self.messagePositions[i][0], self.messagePositions[i][1])
         if len(self.messagePositions) > 0:
             if self.rect.top > self.messagePositions[0][1]:
                 self.drawScrollUpArrow()
-            if self.messagePositions[len(self.messagePositions) - 1][1] > self.rect.bottom - self.bottomPadding:
+            if self.messagePositions[len(self.messagePositions) - 1][1] > self.rect.bottom - self.bottomPad:
                 self.drawScrollDownArrow()
 
     def isOnHorizEdge(self, pos):
@@ -140,20 +151,23 @@ class MovableBox(Button):
                 prevPos = self.messagePositions[len(self.messagePositions) - 1]
                 self.messagePositions.append([prevPos[0], prevPos[1] + self.bottomMargins[len(self.bottomMargins) - 2]])
             else:
-                self.messagePositions.append([self.rect.x + 10, self.rect.y + 10])
+                self.messagePositions.append([self.rect.x + 10, self.rect.y + self.topPad])
 
     def repositionLines(self):
-        while self.messagePositions[len(self.messagePositions) - 1][1] >= self.rect.bottom - self.bottomPadding:
+        while self.messagePositions[len(self.messagePositions) - 1][1] >= self.rect.bottom - self.bottomPad:
             self.scrollDown()
 
     def repositionParagraphs(self):
-        self.lines = []
-        self.messagePositions = []
-        self.bottomMargins = []
+        self.clearFormat()
         for paragraph in self.paragraphs:
             lines = self.separateIntoLines(paragraph)
             self.spaceLines(lines)
             self.repositionLines()
+
+    def clearFormat(self):
+        self.lines = []
+        self.messagePositions = []
+        self.bottomMargins = []
 
     def scrollDown(self):
         self.messagePositions = [[pos[0], pos[1] - Config.FONT_SIZE] for pos in self.messagePositions]
@@ -177,20 +191,95 @@ class MovableBox(Button):
 
     def setBoxTop(self, top):
         if self.rect.bottom - top > MIN_LEN:
-            self.rect = pygame.Rect(self.rect.left, top, self.rect.width, self.rect.bottom - top)
+            if top < self.minT:
+                top = self.minT
+            self.rect.height = self.rect.bottom - top
+            self.rect.top = top
             self.repositionParagraphs()
 
     def setBoxRight(self, right):
         if right - self.rect.left > MIN_LEN:
-            self.rect = pygame.Rect(self.rect.left, self.rect.top, right - self.rect.left, self.rect.height)
+            if right > self.maxR:
+                right = self.maxR
+            self.rect.width = right - self.rect.left
             self.repositionParagraphs()
 
     def setBoxBottom(self, bottom):
         if bottom - self.rect.top > MIN_LEN:
-            self.rect = pygame.Rect(self.rect.left, self.rect.top, self.rect.width, bottom - self.rect.top)
+            if bottom > self.maxB:
+                bottom = self.maxB
+            self.rect.height = bottom - self.rect.top
             self.repositionParagraphs()
 
     def setBoxLeft(self, left):
         if self.rect.right - left > MIN_LEN:
-            self.rect = pygame.Rect(left, self.rect.top, self.rect.right - left, self.rect.height)
+            if left < self.minL:
+                left = self.minL
+            self.rect.width = self.rect.right - left
+            self.rect.left = left
             self.repositionParagraphs()
+
+    def setBounds(self, left, top, right, bottom):
+        self.setLBound(left)
+        self.setTBound(top)
+        self.setRBound(right)
+        self.setBBound(bottom)
+
+    def setLBound(self, left):
+        if self.maxR - left < MIN_LEN:
+            left = self.maxR - MIN_LEN
+        self.minL = int(left)
+        self.enforceLeftBound()
+
+    def setTBound(self, top):
+        if self.maxB - top < MIN_LEN:
+            top = self.maxB - MIN_LEN
+        self.minT = int(top)
+        self.enforceTopBound()
+
+    def setRBound(self, right):
+        if right - self.minL < MIN_LEN:
+            right = self.minL + MIN_LEN
+        self.maxR = int(right)
+        self.enforceRightBound()
+
+    def setBBound(self, bottom):
+        if bottom - self.minT < MIN_LEN:
+            bottom = self.minT + MIN_LEN
+        self.maxB = int(bottom)
+        self.enforceBottomBound()
+
+    def enforceBounds(self):
+        self.enforceLeftBound()
+        self.enforceTopBound()
+        self.enforceRightBound()
+        self.enforceBottomBound()
+        self.enforceWidthBound()
+        self.enforceHeightBound()
+
+    def enforceLeftBound(self):
+        if self.rect.left < self.minL:
+            self.rect.left = self.minL
+            if self.rect.right > self.maxR:
+                self.rect.width = self.maxR - self.minL
+
+    def enforceTopBound(self):
+        if self.rect.top < self.minT:
+            self.rect.top = self.minT
+
+    def enforceRightBound(self):
+        if self.rect.right > self.maxR:
+            self.rect.right = self.maxR
+            self.enforceLeftBound()
+
+    def enforceBottomBound(self):
+        if self.rect.bottom > self.maxB:
+            self.rect.bottom = self.maxB
+
+    def enforceWidthBound(self):
+        if self.rect.right - self.rect.left < MIN_LEN:
+            self.rect.width = MIN_LEN
+
+    def enforceHeightBound(self):
+        if self.rect.bottom - self.rect.top < MIN_LEN:
+            self.rect.height = MIN_LEN
