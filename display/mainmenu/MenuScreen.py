@@ -7,9 +7,8 @@ from display import Display
 
 
 class MenuScreen:
-    def __init__(self, buttons, screen=None):
+    def __init__(self, buttons):
         self.buttons = buttons
-        self.screen = screen
 
     def run(self):
         try:
@@ -21,13 +20,9 @@ class MenuScreen:
             pass
 
     def displayScreen(self):
-        try:
-            self.screen.fill(SCREEN_COLOR)  # Fill in the background
-            for button in self.buttons:
-                button.draw()
-        except AttributeError:
-            self.screen = Display.screen
-            self.displayScreen()
+        Display.screen.fill(SCREEN_COLOR)  # Fill in the background
+        for button in self.buttons:
+            button.draw()
 
     def handleEvents(self):
         """ Handle user input """

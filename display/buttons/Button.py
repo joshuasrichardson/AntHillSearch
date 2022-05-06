@@ -46,7 +46,9 @@ class Button:
         self.rect.top = self.y + self.yAdjustment
 
     def mouseButtonDown(self, pos):
-        pass
+        """ Handle the mouse down event and return whether other
+        buttons should be disabled from handling this event """
+        return False
 
     def mouseButtonUp(self, pos):
         pass
