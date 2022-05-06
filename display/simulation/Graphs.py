@@ -8,7 +8,6 @@ from display import Display
 class SimulationGraphs:
 
     def __init__(self, numAgents, controlOptions=CONTROL_OPTIONS):
-        self.executedCommands = []
         self.scrollIndex = -1
         self.pageNumber = 0
         self.remainingTime = 0
@@ -75,7 +74,6 @@ class SimulationGraphs:
         self.drawStateGraph(world.states)
         self.drawPhaseGraph(world.phases)
         self.drawPredictionsGraph(world.siteList)
-        self.drawExecutedCommands()
         self.drawRemainingTime()
         self.drawPauseButton()
         self.drawStateNumbers()
@@ -342,59 +340,6 @@ class SimulationGraphs:
         for i, option in enumerate(optionButtons):
             img = self.font.render(option, True, WORDS_COLOR).convert_alpha()
             Display.screen.blit(img, (left + 180, top + 25 + (i + 1) * (height / 16 - 5)))
-
-    def addExecutedCommand(self, command):
-        self.executedCommands.append('{:003d}'.format(int(self.remainingTime)) + ": " + command)
-        self.scrollIndex = len(self.executedCommands) - 1
-
-    def drawExecutedCommands(self):
-        if self.shouldDrawGraphs and len(self.executedCommands) > 0:
-            self.y2 = self.commandHistBox.top + 4
-            pygame.draw.rect(Display.screen, BORDER_COLOR, self.commandHistBox, 1)
-
-            if self.scrollIndex != len(self.executedCommands) - 1:
-                self.drawScrollUpArrow()
-
-            lastIndex = self.scrollIndex
-            for i in range(self.scrollIndex, -1, -1):
-                if self.y2 + 15 > self.commandHistBox.bottom:
-                    break
-                lastIndex = i
-                command = self.executedCommands[i]
-                img = self.font.render(command, True, WORDS_COLOR).convert_alpha()
-                Display.screen.blit(img, (self.x, self.y2))
-                self.y2 += 11
-
-            if lastIndex > 0:
-                self.drawScrollDownArrow()
-
-    def drawScrollUpArrow(self):
-        pygame.draw.line(Display.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.top + 10],
-                         [self.commandHistBox.right - 12, self.commandHistBox.top + 6])
-        pygame.draw.line(Display.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.top + 6],
-                         [self.commandHistBox.right - 8, self.commandHistBox.top + 10])
-
-    def drawScrollDownArrow(self):
-        pygame.draw.line(Display.screen, BORDER_COLOR, [self.commandHistBox.right - 16, self.commandHistBox.bottom - 10],
-                         [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6])
-        pygame.draw.line(Display.screen, BORDER_COLOR, [self.commandHistBox.right - 12, self.commandHistBox.bottom - 6],
-                         [self.commandHistBox.right - 8, self.commandHistBox.bottom - 10])
-
-    def collidesWithCommandHistBoxTop(self, pos):
-        return abs(pos[1] - self.commandHistBox.top) < 3 and \
-               abs(pos[0] - self.commandHistBox.centerx) <= (self.commandHistBox.width / 2)
-
-    def setHistBoxTop(self, top):
-        self.commandHistBox = pygame.Rect(self.commandHistBox.left, top, self.commandHistBox.width,
-                                          self.commandHistBox.height + self.commandHistBox.top - top)
-
-    def scrollUp(self):
-        if self.scrollIndex < len(self.executedCommands) - 1:
-            self.scrollIndex += 1
-
-    def scrollDown(self):
-        if self.scrollIndex > 0:
-            self.scrollIndex -= 1
 
     def drawPauseButton(self):
         if self.shouldDrawGraphs:

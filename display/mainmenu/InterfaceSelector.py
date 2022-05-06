@@ -1,8 +1,8 @@
 from display import Display
-from display.mainmenu.buttons.BackButton import BackButton
 from display.mainmenu.MenuScreen import MenuScreen
-from display.mainmenu.buttons.SelectorButton import SelectorButton
-from display.mainmenu.buttons.Title import Title
+from display.buttons.Title import Title
+from display.buttons.BackButton import BackButton
+from display.buttons.SelectorButton import SelectorButton
 from interface.EngineerInferface import EngineerInterface
 from interface.UserInterface import UserInterface
 

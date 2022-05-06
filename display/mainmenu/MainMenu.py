@@ -9,16 +9,16 @@ from Constants import TRIAL_SETTINGS, RESULTS_DIR
 
 from display import Display
 from display.mainmenu.InterfaceSelector import InterfaceSelector
-from display.mainmenu.buttons.MenuButton import MenuButton
+from display.buttons.MenuButton import MenuButton
 from display.mainmenu.MenuScreen import MenuScreen
-from display.mainmenu.buttons.Title import Title
+from display.buttons.Title import Title
 from display.mainmenu.settings.Settings import Settings
 from display.mainmenu.tutorial.Tutorial import Tutorial
 from interface.RecordingPlayer import RecordingPlayer
 from display.mainmenu.ReplaySelector import ReplaySelector
 
 
-class StartUpDisplay(MenuScreen):
+class MainMenu(MenuScreen):
     def __init__(self, interface):
         Display.createScreen()  # Initialize the pygame screen
         super().__init__(self.getButtons())

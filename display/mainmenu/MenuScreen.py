@@ -77,13 +77,35 @@ class MenuScreen:
 
     def updateCursor(self):
         """ Change the style of the mouse """
-        cursorStyle = pygame.SYSTEM_CURSOR_HAND if self.collidesWithSelectable(pygame.mouse.get_pos()) \
-            else pygame.SYSTEM_CURSOR_ARROW
+        pos = pygame.mouse.get_pos()
+        if self.collidesWithHorizEdge(pos):
+            if self.collidesWithVertEdge(pos):
+                cursorStyle = pygame.SYSTEM_CURSOR_SIZEALL
+            else:
+                cursorStyle = pygame.SYSTEM_CURSOR_SIZENS
+        elif self.collidesWithVertEdge(pos):
+            cursorStyle = pygame.SYSTEM_CURSOR_SIZEWE
+        elif self.collidesWithSelectable(pos):
+            cursorStyle = pygame.SYSTEM_CURSOR_HAND
+        else:
+            cursorStyle = pygame.SYSTEM_CURSOR_ARROW
         pygame.mouse.set_cursor(cursorStyle)
 
     def collidesWithSelectable(self, pos):
         for button in self.buttons:
             if button.collides(pos):
+                return True
+        return False
+
+    def collidesWithHorizEdge(self, pos):
+        for button in self.buttons:
+            if button.isOnHorizEdge(pos):
+                return True
+        return False
+
+    def collidesWithVertEdge(self, pos):
+        for button in self.buttons:
+            if button.isOnVertEdge(pos):
                 return True
         return False
 

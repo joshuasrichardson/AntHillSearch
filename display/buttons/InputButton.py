@@ -1,7 +1,9 @@
+from pygame import K_RETURN, K_BACKSPACE, K_ESCAPE
+
 from config import Config
 from Constants import BORDER_COLOR, ACTIVE_COLOR
 from display import Display
-from display.mainmenu.buttons.SelectorButton import SelectorButton
+from display.buttons.SelectorButton import SelectorButton
 
 
 class InputButton(SelectorButton):
@@ -23,6 +25,17 @@ class InputButton(SelectorButton):
     def receiveInput(self):
         self.typing = True
         self.changeColor(ACTIVE_COLOR)
+
+    def input(self, event):
+        if self.typing:
+            if event.key == K_RETURN:
+                self.enter()
+            elif event.key == K_BACKSPACE:
+                self.backspace()
+            elif event.key == K_ESCAPE:
+                self.escape()
+            else:
+                self.type(event.unicode)
 
     def type(self, character):
         self.optionValue += character
