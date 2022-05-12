@@ -35,7 +35,7 @@ class LiveSimulation(Simulation, ABC):
 
     def initializeAgentList(self):
         super().initializeAgentList()
-        self.world.request = HubInfoRequest(self.world.agentList)
+        self.world.request = HubInfoRequest(self.world.agentList, self.world.states, self.world.phases)
 
     def randomizeInitialState(self):
         self.world.randomizeState()
@@ -117,7 +117,6 @@ class LiveSimulation(Simulation, ABC):
 
     def setSitesEstimates(self, agentRectList):
         hubRects = self.world.getHubsRects()
-        self.world.request.numAtHub = 0
         for hubRect in hubRects:  # For each hub
             hubAgentsIndices = hubRect.collidelistall(agentRectList)
             try:

@@ -296,30 +296,16 @@ class World:
 
     def updateStateAndPhaseCounts(self):
         """ Counts the phase and state of each agent so they can be displayed to the user """
-        self.states = zeros((NUM_POSSIBLE_STATES,))
-        self.phases = zeros((NUM_POSSIBLE_PHASES,))
         if Config.DRAW_FAR_AGENTS:
+            for i in range(NUM_POSSIBLE_STATES):
+                self.states[i] = 0
+            for i in range(NUM_POSSIBLE_PHASES):
+                self.phases[i] = 0
             for agent in self.agentList:
                 st = agent.getStateNumber()
                 self.states[st] += 1
                 ph = agent.getPhaseNumber()
                 self.phases[ph] += 1
-        else:
-            self.states[AT_NEST] = self.request.numAtHub
-            self.states[SEARCH] = self.request.numSearch
-            self.states[CARRIED] = self.request.numCarried
-            self.states[FOLLOW] = self.request.numFollow
-            self.states[LEAD_FORWARD] = self.request.numLeadForward
-            self.states[REVERSE_TANDEM] = self.request.numReverseTandem
-            self.states[TRANSPORT] = self.request.numTransport
-            self.states[GO] = self.request.numGo
-            self.states[CONVERGED] = self.request.numConverged
-            self.states[DEAD] = self.request.numDead
-
-            self.phases[EXPLORE] = self.request.numExplore
-            self.phases[ASSESS] = self.request.numAssess
-            self.phases[CANVAS] = self.request.numCanvas
-            self.phases[COMMIT] = self.request.numCommit
 
     def updatePaths(self, agent):
         if Config.SHOULD_DRAW_PATHS and Config.DRAW_FAR_AGENTS:  # If the paths should be drawn anywhere, the world can keep track of all of them
