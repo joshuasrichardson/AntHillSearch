@@ -30,7 +30,7 @@ class Simulation(ABC):
         self.graphs = self.getGraphs(self.calcNumAgents())
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
-        self.simulationDisplay = SimulationDisplay(self.userControls)
+        self.simulationDisplay = SimulationDisplay(self.userControls, self.world)
         self.numRounds = 0
 
     @staticmethod
@@ -132,7 +132,7 @@ class Simulation(ABC):
 
     def draw(self):
         drawWorldObjects(self.world)
-        self.graphs.drawGraphs(self.world)
+        self.graphs.drawGraphs()
         self.userControls.drawChanges()
         self.drawBorder()
         self.simulationDisplay.displayScreen()

@@ -70,66 +70,10 @@ class SimulationGraphs:
         Display.screen.blit(img, (box.centerx - (img.get_width() / 2),
                                   box.centery - (img.get_height() / 2)))
 
-    def drawGraphs(self, world):
-        self.drawStateGraph(world.states)
-        self.drawPhaseGraph(world.phases)
-        self.drawPredictionsGraph(world.siteList)
+    def drawGraphs(self):
         self.drawRemainingTime()
         self.drawPauseButton()
         self.drawStateNumbers()
-
-    def drawStateGraph(self, states):
-        """ Draw the graph showing the number of agents in each state """
-        if self.shouldDrawGraphs and Config.DRAW_FAR_AGENTS:
-            self.y = GRAPHS_TOP_LEFT[1]
-            pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (
-                        Config.FONT_SIZE - 1) * len(states) + (Config.FONT_SIZE * 2.4)), 1)
-            self.write("STATES:")
-            for state, width in enumerate(states):
-                self.incrementY()
-                pygame.draw.rect(Display.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, Config.FONT_SIZE))
-                pygame.draw.rect(Display.screen, STATE_COLORS[state], pygame.Rect(self.x1, self.y + 5, width, Config.FONT_SIZE - 2))
-                self.write(STATES_LIST[state])
-            self.incrementY()
-            self.incrementY()
-            self.incrementY()
-
-    def drawPhaseGraph(self, phases):
-        """ Draw the graph showing the number of agents in each phase """
-        if self.shouldDrawGraphs and Config.DRAW_FAR_AGENTS:
-            pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, self.y - 3, self.x2 - 29, (
-                        Config.FONT_SIZE - 1) * len(phases) + (Config.FONT_SIZE * 2.1)), 1)
-            self.write("PHASES:")
-            for phase, width in enumerate(phases):
-                self.incrementY()
-                pygame.draw.rect(Display.screen, WORDS_COLOR, pygame.Rect(self.x1 - 1, self.y + 4, width + 2, Config.FONT_SIZE))
-                pygame.draw.rect(Display.screen, PHASE_COLORS[phase], pygame.Rect(self.x1, self.y + 5, width, Config.FONT_SIZE - 2))
-                self.write(PHASES_LIST[phase])
-            self.incrementY()
-            self.incrementY()
-            self.incrementY()
-
-    def drawPredictionsGraph(self, siteList):
-        """ Draw the graph showing the probability of converging to each site and the predicted time """
-        pass
-        # if self.shouldDrawGraphs:
-        #     top = self.y - 3
-        #     self.write("PREDICTIONS:")
-        #
-        #     self.incrementY()
-        #     self.write("LIKELIHOOD OF CONVERGING TO SITE:")
-        #     numFound = 0
-        #     for siteIndex, site in enumerate(siteList):
-        #         if site.wasFound or site.knowSitePosAtStart:
-        #             numFound += 1
-        #             self.incrementY()
-        #             self.write("SITE " + str(siteList[siteIndex].getPosition()) + ": " + str(siteIndex * 10) + "%")  # TODO: Insert actual prediction here
-        #
-        #     self.incrementY()
-        #     self.write("PREDICTED TIME TO COVERAGE: 59 seconds")  # TODO: Insert actual predicted time here
-        #     pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(self.x - 5, top, self.x2 - 29, 11 * numFound + 46), 1)
-        #     self.incrementY()
-        #     self.incrementY()
 
     def drawSelectionOptions(self, shouldSelectAgents, shouldSelectSites, shouldSelectSiteAgents, shouldSelectAgentSites,
                              commandSiteAgents, shouldShowOptions, paused):

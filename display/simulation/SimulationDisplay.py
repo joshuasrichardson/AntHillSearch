@@ -6,11 +6,13 @@ from display.mainmenu.MenuScreen import MenuScreen
 from display.buttons.InputButton import InputButton
 from display.simulation.ChatBox import ChatBox
 from display.simulation.CommandHistBox import CommandHistBox
+from display.simulation.PhaseGraph import PhaseGraph
+from display.simulation.StateGraph import StateGraph
 
 
 class SimulationDisplay(MenuScreen):
 
-    def __init__(self, userControls):
+    def __init__(self, userControls, world):
         self.userControls = userControls
         self.userControls.initSimDisp(self)  # TODO: Take this out when we don't need it anymore
         self.chatBox = ChatBox()
@@ -18,9 +20,11 @@ class SimulationDisplay(MenuScreen):
                                     - Config.FONT_SIZE * 3.5, self.chatBox.rect.w - 20, Config.FONT_SIZE * 3, self.chatBox)
         self.chatBox.setInput(self.inputBox)
         self.commandHistBox = CommandHistBox()
+        self.stateGraph = StateGraph(world.states)
+        self.phaseGraph = PhaseGraph(world.phases)
         self.adjustables = [self.inputBox, self.chatBox, self.commandHistBox]
         # First button is handled first but drawn last
-        super().__init__([self.inputBox, self.chatBox, self.commandHistBox])
+        super().__init__([self.inputBox, self.chatBox, self.commandHistBox, self.stateGraph, self.phaseGraph])
 
     def handleEvent(self, event):
         super().handleEvent(event)

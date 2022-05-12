@@ -7,24 +7,10 @@ class HubInfoRequest:
     """ A Request object holding information that is known from the hub.
     This request can be send to a rest API. """
 
-    def __init__(self, agentList):
-        # Agent phases count estimates
-        self.numExplore = 0
-        self.numAssess = 0
-        self.numCanvas = 0
-        self.numCommit = 0
-
-        # Agent state count estimates
-        self.numAtHub = 0
-        self.numSearch = 0
-        self.numCarried = 0
-        self.numLeadForward = 0
-        self.numFollow = 0
-        self.numReverseTandem = 0
-        self.numTransport = 0
-        self.numGo = 0
-        self.numConverged = 0
-        self.numDead = 0
+    def __init__(self, agentList, stateCounts, phaseCounts):
+        # Agent state and phase count estimates
+        self.stateCounts = stateCounts  # List of the number of agents assigned to each state
+        self.phaseCounts = phaseCounts  # List of the number of agents assigned to each phase
 
         self.agentPhases = []
         self.agentStates = []
@@ -69,67 +55,18 @@ class HubInfoRequest:
         return self.updateSiteInfo(agent)
 
     def decrementPhaseCount(self, agentIndex):
-        if self.agentPhases[agentIndex] == EXPLORE:
-            self.numExplore -= 1
-        elif self.agentPhases[agentIndex] == ASSESS:
-            self.numAssess -= 1
-        elif self.agentPhases[agentIndex] == CANVAS:
-            self.numCanvas -= 1
-        elif self.agentPhases[agentIndex] == COMMIT:
-            self.numCommit -= 1
+        phaseNumber = self.agentPhases[agentIndex]
+        self.phaseCounts[phaseNumber] -= 1
 
     def decrementStateCount(self, agentIndex):
-        if self.agentStates[agentIndex] == SEARCH:
-            self.numSearch -= 1
-        elif self.agentStates[agentIndex] == CARRIED:
-            self.numCarried -= 1
-        elif self.agentStates[agentIndex] == LEAD_FORWARD:
-            self.numLeadForward -= 1
-        elif self.agentStates[agentIndex] == FOLLOW:
-            self.numFollow -= 1
-        elif self.agentStates[agentIndex] == REVERSE_TANDEM:
-            self.numReverseTandem -= 1
-        elif self.agentStates[agentIndex] == TRANSPORT:
-            self.numTransport -= 1
-        elif self.agentStates[agentIndex] == GO:
-            self.numGo -= 1
-        elif self.agentStates[agentIndex] == CONVERGED:
-            self.numConverged -= 1
-        elif self.agentStates[agentIndex] == DEAD:
-            self.numDead -= 1
+        stateNumber = self.agentStates[agentIndex]
+        self.stateCounts[stateNumber] -= 1
 
     def incrementPhaseCount(self, agent):
-        if agent.getPhaseNumber() == EXPLORE:
-            self.numExplore += 1
-        elif agent.getPhaseNumber() == ASSESS:
-            self.numAssess += 1
-        elif agent.getPhaseNumber() == CANVAS:
-            self.numCanvas += 1
-        elif agent.getPhaseNumber() == COMMIT:
-            self.numCommit += 1
+        self.phaseCounts[agent.getPhaseNumber()] += 1
 
     def incrementStateCount(self, agent):
-        stateNum = agent.getStateNumber()
-        if stateNum == AT_NEST:
-            self.numAtHub += 1
-        elif stateNum == SEARCH:
-            self.numSearch += 1
-        elif stateNum == CARRIED:
-            self.numCarried += 1
-        elif stateNum == LEAD_FORWARD:
-            self.numLeadForward += 1
-        elif stateNum == FOLLOW:
-            self.numFollow += 1
-        elif stateNum == REVERSE_TANDEM:
-            self.numReverseTandem += 1
-        elif stateNum == TRANSPORT:
-            self.numTransport += 1
-        elif stateNum == GO:
-            self.numGo += 1
-        elif stateNum == CONVERGED:
-            self.numConverged += 1
-        elif stateNum == DEAD:
-            self.numDead += 1
+        self.stateCounts[agent.getStateNumber()] += 1
 
     def updateSiteInfo(self, agent):
         if self.siteIsNew(agent.assignedSite.pos):  # The first time a site is found, just add the current agent's estimated values
@@ -221,21 +158,21 @@ class HubInfoRequest:
         print("Simulation Status: {}".format(response.text))
 
     def hubToJson(self):
-        return {'numExplore': self.numExplore,
-                'numAssess': self.numAssess,
-                'numCanvas': self.numCanvas,
-                'numCommit': self.numCommit,
+        return {'numExplore': self.phaseCounts[EXPLORE],
+                'numAssess': self.phaseCounts[ASSESS],
+                'numCanvas': self.phaseCounts[CANVAS],
+                'numCommit': self.phaseCounts[COMMIT],
+                'numConverged': self.phaseCounts[CONVERGED],
 
-                'numAtHub': self.numAtHub,
-                'numSearch': self.numSearch,
-                'numCarried': self.numCarried,
-                'numLeadForward': self.numLeadForward,
-                'numFollow': self.numFollow,
-                'numReverseTandem': self.numReverseTandem,
-                'numTransport': self.numTransport,
-                'numGo': self.numGo,
-                'numConverged': self.numConverged,
-                'numDead': self.numDead,
+                'numAtNest': self.stateCounts[AT_NEST],
+                'numSearch': self.stateCounts[SEARCH],
+                'numCarried': self.stateCounts[CARRIED],
+                'numLeadForward': self.stateCounts[LEAD_FORWARD],
+                'numFollow': self.stateCounts[FOLLOW],
+                'numReverseTandem': self.stateCounts[REVERSE_TANDEM],
+                'numTransport': self.stateCounts[TRANSPORT],
+                'numGo': self.stateCounts[GO],
+                'numDead': self.stateCounts[DEAD],
 
                 'sitesPositions': self.sitesPositions,
                 'sitesQualities': self.sitesQualities,
