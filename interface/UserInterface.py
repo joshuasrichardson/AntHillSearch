@@ -13,15 +13,11 @@ class UserInterface(LiveSimulation):
         super().__init__()
 
     def update(self, agentRectList):
-        if Config.USE_ROUNDS_AS_DURATION:
-            self.graphs.setRemainingTime(self.getNumRounds())
-        else:
-            self.graphs.setRemainingTime(self.timer.getRemainingTime())
         super().update(agentRectList)
         self.userControls.moveScreen()
 
-    def getGraphs(self, numAgents):
-        return SimulationGraphs(numAgents, UI_CONTROL_OPTIONS)
+    def getGraphs(self):
+        return SimulationGraphs(UI_CONTROL_OPTIONS)
 
     def getControls(self):
         if Config.FULL_CONTROL:

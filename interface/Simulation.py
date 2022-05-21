@@ -27,18 +27,11 @@ class Simulation(ABC):
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.timer = SimulationTimer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
-        self.graphs = self.getGraphs(self.calcNumAgents())
+        self.graphs = self.getGraphs()
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
-        self.simulationDisplay = SimulationDisplay(self.userControls, self.world)
+        self.simulationDisplay = SimulationDisplay(self.userControls, self.world, self.timer)
         self.numRounds = 0
-
-    @staticmethod
-    def calcNumAgents():
-        total = 0
-        for num in Config.HUB_AGENT_COUNTS:
-            total += num
-        return total
 
     @abstractmethod
     def initializeWorld(self):
@@ -65,16 +58,9 @@ class Simulation(ABC):
         self.timer.start()
 
         try:
-            if Config.USE_ROUNDS_AS_DURATION:
-                while not foundNewHome and self.getNumRounds() < Config.SIM_DURATION:
-                    self.runNextRound()
-                    self.numRounds += 1
-                    foundNewHome = self.checkIfSimulationEnded()
-            else:
-                while not foundNewHome and not self.timeRanOut:
-                    self.runNextRound()
-                    self.numRounds += 1
-                    foundNewHome = self.checkIfSimulationEnded()
+            while not foundNewHome and not self.timeRanOut:
+                self.runNextRound()
+                foundNewHome = self.checkIfSimulationEnded()
 
         except GameOver as e:
             self.stopTimer()
@@ -92,15 +78,12 @@ class Simulation(ABC):
         roundCounts = []
         for i, hub in enumerate(self.world.getHubs()):
             if hub.roundCount == 0:
-                rounds = self.numRounds
+                rounds = self.timer.rounds
             else:
                 rounds = hub.roundCount
             roundCounts.append(rounds)
             print(f"Colony {i + 1} took {rounds} rounds to finish.")
         return roundCounts
-
-    def getNumRounds(self):
-        return self.numRounds
 
     def stopTimer(self):
         self.timer.cancel()
@@ -111,6 +94,7 @@ class Simulation(ABC):
         self.update(agentRectList)
         Display.screen.fill(SCREEN_COLOR)
         self.draw()
+        self.timer.nextRound()
 
     def getAgentRectList(self):
         agentRectList = []
@@ -186,7 +170,7 @@ class Simulation(ABC):
             self.recorder.recordExecutedCommands(self.simulationDisplay.commandHistBox.executedCommands)
             if Config.RECORD_ALL:
                 self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
-                self.recorder.recordTime(self.timer.getRemainingTime())
+                self.recorder.recordTime(self.timer.getRemainingTimeOrRounds())
                 self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
                 self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY,
                                                  Display.origWidth * Display.origWidth / Display.newWidth,
@@ -210,13 +194,13 @@ class Simulation(ABC):
                 self.chosenHomes[hubIndex] = self.world.siteList[hubIndex]  # the chosen home for that colony is just its hub
                 numConverged += 1  # Increment the number of colonies converged
                 self.convergeHub(hubIndex)  # Save data about the converged colony
-        return numConverged >= len(self.world.getHubs())  # If all of the colonies have converged, the simulation is over
+        return numConverged >= len(self.world.getHubs())  # If all the colonies have converged, the simulation is over
 
     def convergeHub(self, hubIndex):
         hub = self.world.getHubs()[hubIndex]
         if hub.time == 0:
             hub.time = self.timer.getRemainingTime()
-            hub.roundCount = self.numRounds
+            hub.roundCount = self.timer.rounds
 
     def timeOut(self):
         """ Method to be called when the simulation timer runs out. sets timeRanOut to True to break the main loop. """
@@ -287,11 +271,6 @@ class Simulation(ABC):
         times = []
         for i, hub in enumerate(self.world.getHubs()):
             simulationTime = round(Config.SIM_DURATION - self.timer.getRemainingTime())
-            # TODO
-            # if hub.time == 0:
-            #     simulationTime = self.timer  # Config.SIM_DURATION
-            # else:
-            #     simulationTime = self.timer  # Config.SIM_DURATION - hub.time
             times.append(simulationTime)
             print(f"Colony {i + 1} took {simulationTime} seconds to finish.")
         return times
@@ -318,7 +297,7 @@ class Simulation(ABC):
         return Display.createScreen()
 
     @abstractmethod
-    def getGraphs(self, numAgents):
+    def getGraphs(self):
         """ Gets the graphs used to display information on the screen """
         pass
 

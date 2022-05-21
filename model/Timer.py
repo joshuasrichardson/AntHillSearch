@@ -13,6 +13,7 @@ class SimulationTimer:
         self.pauseTime = 0  # The time left when the interface was paused
         self.startTime = None  # The time when the interface was started
         self.timeOut = timeOut  # A method to call when the time runs out
+        self.rounds = 0  # The number of iterations in the simulation
 
     def start(self):
         self.startTime = time.time()
@@ -23,7 +24,7 @@ class SimulationTimer:
 
     def pause(self, handleEvent, collidesWithPlayButton, moveScreen):
         startPauseTime = time.time()
-        remainingTime = self.getRemainingTime(startPauseTime)
+        remainingTime = self.getRemainingTimeOrRounds(startPauseTime)
         self.timer.cancel()
         paused = True
         while paused:
@@ -38,10 +39,21 @@ class SimulationTimer:
         self.timer = threading.Timer(remainingTime, self.timeOut)
         self.timer.start()
 
-    def getRemainingTime(self, now=None):
+    def getRemainingTimeOrRounds(self, now=None):
         """ Returns the time left in the simulation """
+        if Config.USE_ROUNDS_AS_DURATION:
+            return Config.SIM_DURATION - self.rounds
+        else:
+            return self.getRemainingTime(now)
+
+    def getRemainingTime(self, now=None):
         if now is None:
             now = time.time()
         runTime = now - self.pauseTime - self.startTime
         remainingTime = Config.SIM_DURATION - runTime
         return remainingTime
+
+    def nextRound(self):
+        self.rounds += 1
+        if self.rounds == Config.SIM_DURATION:
+            self.timeOut()

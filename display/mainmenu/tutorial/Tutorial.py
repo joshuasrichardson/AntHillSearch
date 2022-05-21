@@ -19,7 +19,7 @@ class Tutorial(MenuScreen):
         self.pages = [Page("", 0, 0, self)]
         self.pages += [Page(f"display/mainmenu/tutorial/instructions/page{page}.png", 0, page - 1, self) for page in range(1, 29)]
         self.pages += [Page("", 0, len(self.pages), self)]
-        super().__init__([*self.pages, BackButton(), PrevButton(self), NextButton(self), PlayButton(self)])
+        super().__init__([*self.pages, BackButton(), PrevButton(self), NextButton(self), PlayButton(self, canPause=False)])
 
     def drawPage(self):
         if self.pageNumber == 0:
@@ -57,6 +57,9 @@ class Tutorial(MenuScreen):
                         "Press play to do a practice round."]
         for i, instruction in enumerate(instructions):
             Display.writeCenterPlus(Display.screen, instruction, Config.FONT_SIZE * 2, Config.FONT_SIZE * 2 * i)
+
+    def shouldDrawPlayButton(self):
+        return self.pageNumber == len(self.pages) - 1
 
     def handleEvent(self, event):
         super().handleEvent(event)

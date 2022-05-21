@@ -2,15 +2,15 @@ import random
 
 import numpy as np
 import pygame
-from pygame.constants import KEYDOWN, K_p, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
+from pygame.constants import KEYDOWN, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_g, K_ESCAPE, KMOD_SHIFT, \
     KMOD_CTRL, K_BACKSPACE, K_RETURN, K_o, QUIT, KMOD_ALT, K_z, K_k, K_r, K_w
 
 from config import Config
-from Constants import SCREEN_COLOR, BORDER_COLOR, AT_NEST, TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, \
+from Constants import BORDER_COLOR, AT_NEST, TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, \
     SET_STATE_NAME, GO_NAME, BLUE, DEAD, STOP_AVOID_NAME, MEDIUM_QUALITY
 from display import Display
-from display.simulation.WorldDisplay import drawWorldObjects, collidesWithSite, collidesWithAgent, drawPotentialQuality
+from display.simulation.WorldDisplay import collidesWithSite, collidesWithAgent, drawPotentialQuality
 from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker, getAssignmentMarker
 from model.builder import AgentBuilder
@@ -42,22 +42,7 @@ class Controls:
         self.shouldSelectSiteAgents = False
         self.shouldSelectAgentSites = False
         self.shouldCommandSiteAgents = False
-        self.paused = False
         self.shouldShowOptions = False
-        self.shouldMoveHistBoxTop = False
-
-    def draw(self):
-        Display.screen.fill(SCREEN_COLOR)
-        drawWorldObjects(self.world)
-        self.graphs.drawPredictionsGraph(self.world.siteList)
-        self.graphs.drawRemainingTime()
-        self.graphs.drawPlayButton()
-        self.drawChanges()
-        Display.drawBorder()
-        Display.drawPause(Display.screen)
-        if self.shouldShowOptions:
-            self.graphs.drawOptions()
-        pygame.display.flip()
 
     def drawChanges(self):
         if len(self.selectedAgents) > 0:  # Display the number of agents that are selected by the mouse
@@ -73,16 +58,12 @@ class Controls:
             self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())  # The displayed rect and selectRect need to be different when the screen moves
         self.graphs.drawSelectionOptions(self.shouldSelectAgents, self.shouldSelectSites, self.shouldSelectSiteAgents,
                                          self.shouldSelectAgentSites, self.shouldCommandSiteAgents, self.shouldShowOptions,
-                                         self.paused)
+                                         self.simulationDisplay.pauseButton.isPaused)
 
     def handleEvent(self, event):
-        if event.type == KEYDOWN and event.key == K_p:
-            self.pause()
         mousePos = pygame.mouse.get_pos()
         # When the screen moves, the mouse position needs to be adjusted to make up for it with some of the controls
         adjustedMousePos = Display.getReadjustedPos(mousePos[0], mousePos[1])
-        if self.shouldMoveHistBoxTop:
-            self.graphs.setHistBoxTop(mousePos[1])
         if event.type == MOUSEMOTION:
             self.mouseMotion(mousePos, adjustedMousePos)
         elif event.type == MOUSEBUTTONUP:
@@ -161,15 +142,15 @@ class Controls:
                     self.unselectAll()
                     self.selectAgentGroup(key)
         self.graphs.shouldDrawStateNumbers = pygame.key.get_mods() & KMOD_ALT and len(self.selectedAgents) > 0
-        if self.paused:
-            self.draw()
+        if self.simulationDisplay.pauseButton.isPaused:
+            self.simulationDisplay.drawPausedScreen()
             if event.type == KEYDOWN and event.key == K_o:
                 self.shouldShowOptions = not self.shouldShowOptions
             if event.type == MOUSEBUTTONUP:
-                if self.graphs.collidesWithCloseButton(mousePos, self.paused):
+                if self.graphs.collidesWithCloseButton(mousePos, self.simulationDisplay.pauseButton.isPaused):
                     self.shouldShowOptions = False
-                elif self.graphs.collidesWithExitButton(mousePos, self.paused):
-                    self.paused = False
+                elif self.graphs.collidesWithExitButton(mousePos, self.simulationDisplay.pauseButton.isPaused):
+                    self.simulationDisplay.pauseButton.isPaused = False
                     self.timer.cancel()
                     raise GameOver("Game Over")
         if event.type == QUIT:
@@ -198,7 +179,7 @@ class Controls:
 
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos) or \
-                self.graphs.collidesWithAnyButton(mousePos, self.paused)
+                self.graphs.collidesWithAnyButton(mousePos, self.simulationDisplay.pauseButton.isPaused)
 
     def getNumLivingSelectedAgents(self):
         numLiving = 0
@@ -210,14 +191,14 @@ class Controls:
     def moveScreen(self):
         if not pygame.key.get_mods() & pygame.KMOD_CAPS:
             Display.moveScreen(pygame.mouse.get_pos())
-        if self.paused:
-            self.draw()
+        if self.simulationDisplay.pauseButton.isPaused:
+            self.simulationDisplay.drawPausedScreen()
 
     def initSimDisp(self, disp):  # TODO: Remove this when you no longer need it
         self.simulationDisplay = disp
 
     def addToExecutedEvents(self, eventName):
-        self.simulationDisplay.commandHistBox.addExecutedCommand(eventName, self.graphs.remainingTime)
+        self.simulationDisplay.commandHistBox.addExecutedCommand(eventName, self.simulationDisplay.timer.getRemainingTimeOrRounds())
 
     def mouseUp(self, mousePos, adjustedMousePos):
         self.putDownDragSite()
@@ -235,14 +216,12 @@ class Controls:
             self.shouldSelectSiteAgents = not self.shouldSelectSiteAgents
         elif self.graphs.collidesWithCommandSiteAgentsButton(mousePos):
             self.shouldCommandSiteAgents = not self.shouldCommandSiteAgents
-        elif self.graphs.collidesWithOptionsButton(mousePos, self.paused):
+        elif self.graphs.collidesWithOptionsButton(mousePos, self.simulationDisplay.pauseButton.isPaused):
             self.shouldShowOptions = not self.shouldShowOptions
-        elif self.graphs.collidesWithNextButton(mousePos, self.paused):
+        elif self.graphs.collidesWithNextButton(mousePos, self.simulationDisplay.pauseButton.isPaused):
             self.graphs.nextScreen()
-        elif self.graphs.collidesWithPreviousButton(mousePos, self.paused):
+        elif self.graphs.collidesWithPreviousButton(mousePos, self.simulationDisplay.pauseButton.isPaused):
             self.graphs.previousScreen()
-        elif self.graphs.collidesWithPauseButton(mousePos):
-            self.pause()
         else:
             self.select(adjustedMousePos)
         self.selectRectCorner = None
@@ -279,7 +258,6 @@ class Controls:
     def unselectAll(self):
         self.potentialQuality = 0
         self.shouldDrawQuality = False
-        self.shouldMoveHistBoxTop = False
         self.selectedAgent = None
         # Unselect all agents and sites
         for a in self.agentList:
@@ -332,7 +310,7 @@ class Controls:
                 self.selectedAgent.mainSelect()
 
     def startSelectRect(self, mousePos):
-        if not self.graphs.collidesWithAnyButton(mousePos, self.paused):
+        if not self.graphs.collidesWithAnyButton(mousePos, self.simulationDisplay.pauseButton.isPaused):
             self.selectRectCorner = mousePos
 
     def wideSelect(self, mousePos):
@@ -456,7 +434,7 @@ class Controls:
             pass
 
     def next(self):
-        if self.paused and self.shouldShowOptions:
+        if self.simulationDisplay.pauseButton.isPaused and self.shouldShowOptions:
             self.graphs.nextScreen()
         elif len(self.selectedAgents) > 1:
             self.nextAgent()
@@ -469,7 +447,7 @@ class Controls:
             self.selectedAgent.mainSelect()
 
     def previous(self):
-        if self.paused and self.shouldShowOptions:
+        if self.simulationDisplay.pauseButton.isPaused and self.shouldShowOptions:
             self.graphs.previousScreen()
         elif len(self.selectedAgents) > 1:
             self.previousAgent()
@@ -696,10 +674,3 @@ class Controls:
             site.setColor(self.potentialQuality)
         self.potentialQuality = 0
         self.shouldDrawQuality = False
-
-    def pause(self):
-        Display.drawPause(Display.screen)
-        pygame.display.flip()
-        self.paused = True
-        self.timer.pause(self.handleEvent, self.graphs.collidesWithPauseButton, self.moveScreen)
-        self.paused = False
