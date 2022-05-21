@@ -43,7 +43,6 @@ class Recorder:
         self.siteMarkerArgs = []
         self.siteMarkerNums = []
         self.time = 0
-        self.shouldDrawGraphs = False
         self.executedCommands = []
         self.screenBorder = []
 
@@ -135,9 +134,6 @@ class Recorder:
     def recordTime(self, time):
         self.time = time
 
-    def recordShouldDrawGraphs(self, draw):
-        self.shouldDrawGraphs = draw
-
     def recordExecutedCommands(self, commands):
         self.executedCommands = commands
 
@@ -166,7 +162,6 @@ class Recorder:
                           'siteMarkerArgs': self.siteMarkerArgs,
                           'siteMarkerNums': self.siteMarkerNums,
                           'time': self.time,
-                          'shouldDrawGraphs': self.shouldDrawGraphs,
                           'executedCommands': self.executedCommands,
                           'screenBorder': self.screenBorder})
         self.agentPositions = []
@@ -413,9 +408,6 @@ class Recorder:
     def getNextTime(self):
         return self.time
 
-    def getNextShouldDrawGraphs(self):
-        return self.shouldDrawGraphs
-
     def getNextExecutedCommands(self):
         return self.executedCommands
 
@@ -493,7 +485,6 @@ class Recorder:
             self.siteMarkerArgs = self.data[self.dataIndex]['siteMarkerArgs']
             self.siteMarkerNums = self.data[self.dataIndex]['siteMarkerNums']
             self.time = self.data[self.dataIndex]['time']
-            self.shouldDrawGraphs = self.data[self.dataIndex]['shouldDrawGraphs']
             self.executedCommands = self.data[self.dataIndex]['executedCommands']
             self.screenBorder = self.data[self.dataIndex]['screenBorder']
             return True

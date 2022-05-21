@@ -13,9 +13,12 @@ class NextButton(Button):
         self.caller = caller
 
     def draw(self):
-        if self.caller.pageNumber < len(self.caller.pages) - 1:
+        if self.caller.pageNumber < self.caller.getNumPages() - 1:
             super().draw()
 
     def next(self):
-        if self.caller.pageNumber < len(self.caller.pages) - 1:
+        if self.caller.pageNumber < self.caller.getNumPages() - 1:
             self.caller.pageNumber += 1
+
+    def collides(self, pos):
+        return self.caller.pageNumber < self.caller.getNumPages() - 1 and super().collides(pos)

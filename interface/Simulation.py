@@ -27,7 +27,6 @@ class Simulation(ABC):
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.timer = SimulationTimer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
-        self.graphs = self.getGraphs()
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
         self.simulationDisplay = SimulationDisplay(self.userControls, self.world, self.timer)
@@ -116,7 +115,6 @@ class Simulation(ABC):
 
     def draw(self):
         drawWorldObjects(self.world)
-        self.graphs.drawGraphs()
         self.userControls.drawChanges()
         self.drawBorder()
         self.simulationDisplay.displayScreen()
@@ -171,7 +169,6 @@ class Simulation(ABC):
             if Config.RECORD_ALL:
                 self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
                 self.recorder.recordTime(self.timer.getRemainingTimeOrRounds())
-                self.recorder.recordShouldDrawGraphs(self.graphs.shouldDrawGraphs)
                 self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY,
                                                  Display.origWidth * Display.origWidth / Display.newWidth,
                                                  Display.origHeight * Display.origHeight / Display.newHeight)
@@ -296,16 +293,11 @@ class Simulation(ABC):
         """ Gets the screen to draw the simulation on (or None if the simulation will not be drawn) """
         return Display.createScreen()
 
-    @abstractmethod
-    def getGraphs(self):
-        """ Gets the graphs used to display information on the screen """
-        pass
-
     def getControls(self):
         """ Initializes and returns an object to handle user input """
         if Config.FULL_CONTROL:
-            return Controls(self.timer, self.world.agentList, self.world, self.graphs)
-        return LimitedControls(self.timer, self.world.agentList, self.world, self.graphs)
+            return Controls(self.timer, self.world.agentList, self.world)
+        return LimitedControls(self.timer, self.world.agentList, self.world)
 
     def applyConfiguration(self):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """

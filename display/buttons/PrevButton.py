@@ -19,3 +19,6 @@ class PrevButton(Button):
     def prev(self):
         if self.caller.pageNumber > 0:
             self.caller.pageNumber -= 1
+
+    def collides(self, pos):
+        return self.caller.pageNumber > 0 and super().collides(pos)

@@ -4,8 +4,8 @@ from user.Controls import Controls
 
 class UIControls(Controls):
 
-    def __init__(self, timer, agentList, world, graphs):
-        super().__init__(timer, agentList, world, graphs)
+    def __init__(self, timer, agentList, world):
+        super().__init__(timer, agentList, world)
 
     # def handleEvents(self):
     #     for agent in self.world.agentList:
@@ -18,8 +18,7 @@ class UIControls(Controls):
 
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithEstimatedSite(self.world, adjustedMousePos) or \
-               collidesWithAgent(self.world, adjustedMousePos) and self.byAHub(adjustedMousePos) or \
-               self.graphs.collidesWithAnyButton(mousePos, self.paused)
+               collidesWithAgent(self.world, adjustedMousePos) and self.byAHub(adjustedMousePos)
 
     def startDrag(self):
         pass

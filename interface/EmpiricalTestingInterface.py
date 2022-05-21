@@ -21,9 +21,6 @@ class EmpiricalTestingInterface(LiveSimulation):
     def getScreen(self):
         return None
 
-    def getGraphs(self):
-        return None
-
     @staticmethod
     def drawBorder():
         pass
