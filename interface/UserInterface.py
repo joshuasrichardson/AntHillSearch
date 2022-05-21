@@ -1,6 +1,4 @@
 from config import Config
-from Constants import UI_CONTROL_OPTIONS
-from display.simulation.Graphs import SimulationGraphs
 from interface.LiveSimulation import LiveSimulation
 from user.LimitedControls import LimitedControls
 from user.UIControls import UIControls
@@ -15,9 +13,6 @@ class UserInterface(LiveSimulation):
     def update(self, agentRectList):
         super().update(agentRectList)
         self.userControls.moveScreen()
-
-    def getGraphs(self):
-        return SimulationGraphs(UI_CONTROL_OPTIONS)
 
     def getControls(self):
         if Config.FULL_CONTROL:

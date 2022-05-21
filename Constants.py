@@ -186,9 +186,9 @@ SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- DRAG LEFT CLICK',
                        '- DEL or /', '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
 
 CONTROL_OPTIONS = {"agentOptions": AGENT_OPTIONS,
-                   "agentOptionButtons": AGENT_OPTION_BUTTONS,
+                   "agentControls": AGENT_OPTION_BUTTONS,
                    "siteOptions": SITE_OPTIONS,
-                   "siteOptionButtons": SITE_OPTION_BUTTONS}
+                   "siteControls": SITE_OPTION_BUTTONS}
 
 UI_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 'Set Check Point', 'Move', 'Assign to Site',
                     'Avoid', 'Set State', 'Unselect']
@@ -203,9 +203,9 @@ UI_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK',
                           '- W', '- SPACE or RIGHT CLICK', '- A', '- Z', '- ALT + 0-6', '- .', '- ESC']
 
 UI_CONTROL_OPTIONS = {"agentOptions": UI_AGENT_OPTIONS,
-                      "agentOptionButtons": UI_AGENT_OPTION_BUTTONS,
+                      "agentControls": UI_AGENT_OPTION_BUTTONS,
                       "siteOptions": UI_SITE_OPTIONS,
-                      "siteOptionButtons": UI_SITE_OPTION_BUTTONS}
+                      "siteControls": UI_SITE_OPTION_BUTTONS}
 
 RECORDING_AGENT_OPTIONS = ['Select', 'Wide Select', 'Half', 'Next', 'Previous', 'Unselect']
 
@@ -216,9 +216,31 @@ RECORDING_SITE_OPTIONS = ['Select', 'Wide Select', 'Unselect']
 RECORDING_SITE_OPTION_BUTTONS = ['- LEFT CLICK', '- DRAG LEFT CLICK', '- ESC']
 
 RECORDING_CONTROL_OPTIONS = {"agentOptions": RECORDING_AGENT_OPTIONS,
-                             "agentOptionButtons": RECORDING_AGENT_OPTION_BUTTONS,
+                             "agentControls": RECORDING_AGENT_OPTION_BUTTONS,
                              "siteOptions": RECORDING_SITE_OPTIONS,
-                             "siteOptionButtons": RECORDING_SITE_OPTION_BUTTONS}
+                             "siteControls": RECORDING_SITE_OPTION_BUTTONS}
+
+OTHER_OPTIONS = ['Pause',
+                 'Zoom In',
+                 'Zoom Out',
+                 'Move Camera',
+                 'Lock Screen',
+                 'Show/Hide Graphs',
+                 'Show/Hide Options',
+                 'Enable/Disable',
+                 'Expand/Shrink History Box',
+                 'Scroll Through History']
+
+OTHER_CONTROLS = ['- P',
+                  '- CTRL + MOUSE WHEEL UP',
+                  '- CTRL + MOUSE WHEEL DOWN',
+                  '- Move MOUSE to edge of screen',
+                  '- CAPS LOCK',
+                  '- G',
+                  '- O',
+                  '- LEFT CLICK (the corresponding box on the screen)',
+                  '- DRAG LEFT CLICK',
+                  '- MOUSE WHEEL UP/DOWN']
 
 """ Json result keys """
 NUM_ROUNDS_NAME = "NUM_ROUNDS"

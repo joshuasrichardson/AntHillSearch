@@ -6,7 +6,6 @@ from model.Timer import SimulationTimer
 from Constants import *
 from display import Display
 from display.simulation import FogDisplay
-from display.simulation.Graphs import SimulationGraphs
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
 from model.World import World
@@ -191,9 +190,6 @@ class RecordingPlayer(Simulation):
 
     def getNumDeadAgents(self):
         return self.recorder.readResults()[NUM_DEAD_NAME]
-
-    def getGraphs(self):
-        return SimulationGraphs(RECORDING_CONTROL_OPTIONS)
 
     def getControls(self):
         return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs, self.changeDelay)

@@ -1,6 +1,7 @@
 import pygame
 from pygame import MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYUP, KMOD_CTRL, KEYDOWN, K_p
 
+from ColonyExceptions import GameOver
 from Constants import GRAPHS_TOP_LEFT, SCREEN_COLOR
 from config import Config
 from display import Display
@@ -9,6 +10,7 @@ from display.mainmenu.MenuScreen import MenuScreen
 from display.buttons.InputButton import InputButton
 from display.simulation.ChatBox import ChatBox
 from display.simulation.CommandHistBox import CommandHistBox
+from display.simulation.Options import Options
 from display.simulation.PhaseGraph import PhaseGraph
 from display.simulation.StateGraph import StateGraph
 from display.simulation.TimerDisplay import TimerDisplay
@@ -31,10 +33,11 @@ class SimulationDisplay(MenuScreen):
         self.stateGraph = StateGraph(world.states)
         self.phaseGraph = PhaseGraph(world.phases)
         self.pauseButton = PlayButton(self, Display.screen.get_width() - 60, GRAPHS_TOP_LEFT[1])
+        self.optionsScreen = Options(self.quit)
         self.adjustables = [self.inputBox, self.chatBox, self.commandHistBox]
         # First button is handled first but drawn last
-        super().__init__([self.inputBox, self.chatBox, self.commandHistBox, self.stateGraph, self.phaseGraph,
-                          self.pauseButton])
+        super().__init__([self.optionsScreen, self.inputBox, self.chatBox, self.commandHistBox, self.stateGraph,
+                          self.phaseGraph, self.pauseButton])
 
     def handleEvent(self, event):
         super().handleEvent(event)
@@ -70,13 +73,11 @@ class SimulationDisplay(MenuScreen):
         Display.screen.fill(SCREEN_COLOR)
         drawWorldObjects(self.world)
         self.userControls.drawChanges()
+        Display.drawPause(Display.screen)
         for button in reversed(self.buttons):
             button.draw()
         self.timerDisplay.drawRemainingTime()
         Display.drawBorder()
-        Display.drawPause(Display.screen)
-        if self.userControls.shouldShowOptions:
-            self.userControls.graphs.drawOptions()
         pygame.display.flip()
 
     def escape(self):
@@ -109,14 +110,20 @@ class SimulationDisplay(MenuScreen):
         if not isResizing:
             super().updateCursor()
 
-    def shouldDrawPlayButton(self):
+    @staticmethod
+    def shouldDrawPlayButton():
         return True
 
     def play(self):
         pass
 
     def pause(self):
-        Display.drawPause(Display.screen)
-        pygame.display.flip()
+        self.optionsScreen.hide()
         self.timer.pause(self.handleEvent, self.pauseButton.collides, self.userControls.moveScreen)
+        self.optionsScreen.clear()
         self.pauseButton.playOrPause()
+
+    def quit(self):
+        self.pauseButton.isPaused = False
+        self.timer.cancel()
+        raise GameOver("Game Over")

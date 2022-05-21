@@ -2,19 +2,19 @@ from math import isclose
 
 from numpy import inf
 
-from Constants import SCREEN_COLOR, BORDER_COLOR, TRANSPARENT
+from Constants import SCREEN_COLOR, BORDER_COLOR
 from config import Config
 from display import Display
-from display.buttons.Button import Button
+from display.buttons.Box import Box
 
 
 MIN_LEN = 20
 
 
-class AdjustableBox(Button):
+class AdjustableBox(Box):
 
     def __init__(self, name, x, y, w, h, topPad, bottomPad, spacing=0.4, bgColor=SCREEN_COLOR, action=lambda: None):
-        super().__init__(name, action, x, y, w, h)
+        super().__init__(name, action, x, y, w, h, bgColor=bgColor)
         self.dragging = False
         self.resizingTop = False
         self.resizingRight = False
@@ -28,8 +28,6 @@ class AdjustableBox(Button):
         self.topPad = topPad
         self.bottomPad = bottomPad
         self.spacing = spacing
-        self.bgColor = bgColor
-        self.borderColor = BORDER_COLOR
         self.minL = -inf
         self.minT = -inf
         self.maxR = inf
@@ -82,9 +80,7 @@ class AdjustableBox(Button):
         self.enforceBounds()
 
     def draw(self):
-        if self.bgColor != TRANSPARENT:
-            Display.drawRect(Display.screen, self.bgColor, self.rect, adjust=False)
-        Display.drawRect(Display.screen, self.borderColor, self.rect, width=1, adjust=False)
+        super().draw()
         for i, message in enumerate(self.lines):
             if self.rect.top < self.messagePositions[i][1] < self.rect.bottom - self.bottomPad:
                 Display.write(Display.screen, message, Config.FONT_SIZE,

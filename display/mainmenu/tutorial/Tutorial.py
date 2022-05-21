@@ -21,6 +21,9 @@ class Tutorial(MenuScreen):
         self.pages += [Page("", 0, len(self.pages), self)]
         super().__init__([*self.pages, BackButton(), PrevButton(self), NextButton(self), PlayButton(self, canPause=False)])
 
+    def getNumPages(self):
+        return len(self.pages)
+
     def drawPage(self):
         if self.pageNumber == 0:
             self.drawIntroPage()

@@ -4,8 +4,8 @@ from user.UIControls import UIControls
 class LimitedControls(UIControls):
     """ Controls that only allow the user to do some limited actions """
 
-    def __init__(self, timer, agentList, world, graphs):
-        super().__init__(timer, agentList, world, graphs)
+    def __init__(self, timer, agentList, world):
+        super().__init__(timer, agentList, world)
 
     def go(self, mousePos):
         """ Go is the only command the limited users can use on the agents """

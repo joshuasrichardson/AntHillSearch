@@ -1,5 +1,4 @@
 from config import Config
-from display.simulation.Graphs import SimulationGraphs
 from interface.LiveSimulation import LiveSimulation
 
 
@@ -12,9 +11,6 @@ class EngineerInterface(LiveSimulation):
     def update(self, agentRectList):
         super().update(agentRectList)
         self.userControls.moveScreen()
-
-    def getGraphs(self):
-        return SimulationGraphs()
 
     def applyConfiguration(self):
         super().applyConfiguration()
