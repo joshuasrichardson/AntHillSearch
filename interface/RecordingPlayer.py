@@ -94,10 +94,8 @@ class RecordingPlayer(Simulation):
 
     def update(self, agentRectList):
         self.slowDownOrSpeedUp()
-        self.graphs.setRemainingTime(self.recorder.getNextTime())
         self.graphs.shouldDrawGraphs = self.recorder.getNextShouldDrawGraphs()
         self.graphs.executedCommands = self.recorder.getNextExecutedCommands()
-        self.graphs.scrollIndex = len(self.recorder.executedCommands) - 1
         self.graphs.screenBorder = self.recorder.getNextScreenBorder()
         Display.addToDrawLast(self.graphs.drawScreenBorder, [])
 
@@ -194,11 +192,8 @@ class RecordingPlayer(Simulation):
     def getNumDeadAgents(self):
         return self.recorder.readResults()[NUM_DEAD_NAME]
 
-    def getGraphs(self, numAgents):
-        return SimulationGraphs(numAgents, RECORDING_CONTROL_OPTIONS)
-
-    def calcNumAgents(self):
-        return self.recorder.getNumAgents()
+    def getGraphs(self):
+        return SimulationGraphs(RECORDING_CONTROL_OPTIONS)
 
     def getControls(self):
         return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs, self.changeDelay)
