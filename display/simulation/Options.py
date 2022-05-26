@@ -24,14 +24,15 @@ class Options(Box):
         self.viewOptsButton = EnableButton("Options", self.show, False, False,
                                            Display.origWidth / 2 - (6.5 * Config.FONT_SIZE),
                                            Display.origHeight / 2 - Config.FONT_SIZE,
-                                           13 * Config.FONT_SIZE,
-                                           2 * Config.FONT_SIZE)
+                                           13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE,
+                                           canActivate=False, fontSize=int(1.5 * Config.FONT_SIZE))
 
         self.closeButton = EnableButton(" X ", self.hide, False, True,
-                                        self.rect.right - Config.FONT_SIZE * 3, self.rect.top + 10)
+                                        self.rect.right - Config.FONT_SIZE * 3, self.rect.top + 10,
+                                        canActivate=False, fontSize=int(1.5 * Config.FONT_SIZE))
 
         self.exitButton = EnableButton("  Exit Simulation  ", end, False, True, self.rect.centerx, self.rect.bottom + 10,
-                                       recenter=True)
+                                       recenter=True, fontSize=int(1.5 * Config.FONT_SIZE))
 
         self.buttons = [self.viewOptsButton, self.closeButton, Title("Options", self.rect.top),
                         NextButton(self, self.rect.right - Config.FONT_SIZE * 6, self.rect.bottom - Config.FONT_SIZE * 3),

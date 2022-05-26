@@ -6,9 +6,9 @@ from display.buttons.AdjustableBox import AdjustableBox
 class ChatBox(AdjustableBox):
 
     def __init__(self):
-        left = int(Display.origWidth * 2 / 3)
+        left = int(Display.origWidth * 3 / 4)
         top = int(Display.origHeight * 3 / 5)
-        right = int(Display.origWidth * 11 / 12)
+        right = int(Display.origWidth * 29 / 30)
         bottom = int(Display.origHeight * 17 / 20)
         width = right - left
         height = bottom - top

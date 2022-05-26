@@ -9,4 +9,4 @@ class PhaseGraph(Graph):
         for count in Config.HUB_AGENT_COUNTS:
             numAgents += count
         super().__init__("PHASES", PHASES_LIST, phaseCounts, numAgents, PHASE_COLORS, GRAPHS_TOP_LEFT[0],
-                         GRAPHS_TOP_LEFT[1] + 200)
+                         GRAPHS_TOP_LEFT[1] + 175)
