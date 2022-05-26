@@ -5,6 +5,7 @@ from ColonyExceptions import GameOver
 from Constants import GRAPHS_TOP_LEFT, SCREEN_COLOR
 from config import Config
 from display import Display
+from display.buttons.EnableButton import EnableButton
 from display.buttons.PlayButton import PlayButton
 from display.mainmenu.MenuScreen import MenuScreen
 from display.buttons.InputButton import InputButton
@@ -25,19 +26,56 @@ class SimulationDisplay(MenuScreen):
         self.timer = timer
         self.timerDisplay = TimerDisplay(timer)
         self.userControls.initSimDisp(self)  # TODO: Take this out when we don't need it anymore
+
         self.chatBox = ChatBox()
         self.inputBox = InputButton(self.chatBox.rect.x + 10, self.chatBox.rect.y + self.chatBox.rect.h
                                     - Config.FONT_SIZE * 3.5, self.chatBox.rect.w - 20, Config.FONT_SIZE * 3, self.chatBox)
         self.chatBox.setInput(self.inputBox)
+
         self.commandHistBox = CommandHistBox()
+
         self.stateGraph = StateGraph(world.states)
         self.phaseGraph = PhaseGraph(world.phases)
         self.pauseButton = PlayButton(self, Display.screen.get_width() - 60, GRAPHS_TOP_LEFT[1])
         self.optionsScreen = Options(self.quit)
+
+        self.selectAgentsButton = EnableButton(" Select Agents ", self.todo, True, True,
+                                               Display.origWidth - 3 * (14 * Config.FONT_SIZE),
+                                               Display.origHeight - (7 * Config.FONT_SIZE + 2),
+                                               13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+
+        self.selectSitesButton = EnableButton(" Select Sites ", self.todo, True, True,
+                                              Display.origWidth - 2 * (14.25 * Config.FONT_SIZE),
+                                              Display.origHeight - (7 * Config.FONT_SIZE + 2),
+                                              13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+
+        # if not Config.DRAW_FAR_AGENTS:
+        #     self.selectAgentsRect = pygame.Rect(Display.origWidth - 3 * (14 * Config.FONT_SIZE), Display.origHeight - (5 * Config.FONT_SIZE), 13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+        #     self.selectSitesRect = pygame.Rect(Display.origWidth - 2 * (14.25 * Config.FONT_SIZE), Display.origHeight - (5 * Config.FONT_SIZE), 13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+
+        self.selectAgentsSitesButton = EnableButton(" Select Agents Sites ", self.todo, False, True,
+                                                    Display.origWidth - 3 * (14 * Config.FONT_SIZE),
+                                                    Display.origHeight - (5 * Config.FONT_SIZE),
+                                                    13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+
+        self.selectSitesAgentsButton = EnableButton(" Select Sites Agents ", self.todo, False, True,
+                                                    Display.origWidth - 2 * (14.25 * Config.FONT_SIZE),
+                                                    Display.origHeight - (5 * Config.FONT_SIZE),
+                                                    13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+
+        self.commandSiteAgentsButton = EnableButton(" Command Sites Agents ", self.todo, True, True,
+                                                    Display.origWidth - (15 * Config.FONT_SIZE),
+                                                    Display.origHeight - (5 * Config.FONT_SIZE),
+                                                    13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+
         self.adjustables = [self.inputBox, self.chatBox, self.commandHistBox]
         # First button is handled first but drawn last
         super().__init__([self.optionsScreen, self.inputBox, self.chatBox, self.commandHistBox, self.stateGraph,
-                          self.phaseGraph, self.pauseButton])
+                          self.phaseGraph, self.pauseButton, self.selectAgentsButton, self.selectSitesButton,
+                          self.selectAgentsSitesButton, self.selectSitesAgentsButton, self.commandSiteAgentsButton])
+
+    def todo(self):
+        pass
 
     def handleEvent(self, event):
         super().handleEvent(event)

@@ -36,11 +36,6 @@ class Controls:
         self.oldRect = None
         self.potentialQuality = 0
         self.shouldDrawQuality = False
-        self.shouldSelectAgents = True
-        self.shouldSelectSites = True
-        self.shouldSelectSiteAgents = False
-        self.shouldSelectAgentSites = False
-        self.shouldCommandSiteAgents = False
         self.shouldShowOptions = False
 
     def drawChanges(self):
@@ -187,23 +182,13 @@ class Controls:
         if self.selectRectCorner is not None and np.abs(mousePos[0] - self.selectRectCorner[0]) > 1\
                 and np.abs(mousePos[1] - self.selectRectCorner[1]) > 1:
             self.wideSelect(mousePos)
-        # elif self.graphs.collidesWithSelectAgentsButton(mousePos):
-        #     self.shouldSelectAgents = not self.shouldSelectAgents
-        # elif self.graphs.collidesWithSelectSitesButton(mousePos):
-        #     self.shouldSelectSites = not self.shouldSelectSites
-        # elif self.graphs.collidesWithSelectAgentsSitesButton(mousePos):
-        #     self.shouldSelectAgentSites = not self.shouldSelectAgentSites
-        # elif self.graphs.collidesWithSelectSitesAgentsButton(mousePos):
-        #     self.shouldSelectSiteAgents = not self.shouldSelectSiteAgents
-        # elif self.graphs.collidesWithCommandSiteAgentsButton(mousePos):
-        #     self.shouldCommandSiteAgents = not self.shouldCommandSiteAgents
         else:
             self.select(adjustedMousePos)
         self.selectRectCorner = None
 
     def mouseDown(self, mousePos, adjustedMousePos):
         self.selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(adjustedMousePos)]
-        if len(self.selectedSites) > 0 and self.shouldSelectSites:
+        if len(self.selectedSites) > 0 and self.simulationDisplay.selectSitesButton.activated:
             self.startDrag()
         else:
             self.startSelectRect(mousePos)
@@ -260,23 +245,23 @@ class Controls:
         if len(selectedAgents) > 0:
             self.selectedAgents = []
             self.selectAgent2(selectedAgents[0])
-            if self.shouldSelectAgents:
+            if self.simulationDisplay.selectAgentsButton.activated:  # self.shouldSelectAgents:
                 self.selectedAgent.mainSelect()
 
     def selectAgent2(self, agent):
-        if self.shouldSelectAgents:
+        if self.simulationDisplay.selectAgentsButton.activated:
             self.selectedAgent = agent
             self.selectedAgent.select()
             self.selectedAgents.append(self.selectedAgent)
             self.selectedAgentIndex = len(self.selectedAgents) - 1
-        if self.shouldSelectAgentSites:
+        if self.simulationDisplay.selectAgentsSitesButton.activated:
             self.selectAgentsSite(agent)
 
     def selectSite(self, mousePos):
         selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(mousePos)]
 
         if len(selectedSites) > 0:
-            if self.shouldSelectSites:
+            if self.simulationDisplay.selectSitesButton.activated:
                 selectedSites[0].select()
                 self.selectedSites = [selectedSites[0]]
             self.selectSite2(selectedSites)
@@ -296,7 +281,7 @@ class Controls:
         rect = pygame.Rect(left, top, w, h)
         agent = self.selectAgents(rect)
         self.selectSites(rect)
-        if self.shouldSelectAgentSites:
+        if self.simulationDisplay.selectAgentsSitesButton.activated:
             self.selectAgentsSite(agent)
 
     def selectAgentGroup(self, key):
@@ -308,7 +293,7 @@ class Controls:
             if not agent.isSelected:
                 self.selectAgent2(agent)
         if len(agentGroup) >= len(self.selectedAgents) > 0:
-            if self.shouldSelectAgents:
+            if self.simulationDisplay.selectAgentsButton.activated:
                 self.selectedAgent.mainSelect()
 
     def updateAgentGroup(self, key):
@@ -349,7 +334,7 @@ class Controls:
     def selectAgents(self, rect):
         selectedAgents = [a for a in self.agentList if a.getRect().colliderect(rect) and (Config.DRAW_FAR_AGENTS or
                                                                                           a.isCloseToHub())]
-        if self.shouldSelectAgents:
+        if self.simulationDisplay.selectAgentsButton.activated:
             self.selectedAgents = selectedAgents
 
         for a in self.selectedAgents:
@@ -368,7 +353,7 @@ class Controls:
     def selectSites(self, rect):
         selectedSites = [s for s in self.world.siteList if s.siteRect.colliderect(rect) and
                          (s.wasFound or Config.DRAW_FAR_AGENTS)]
-        if self.shouldSelectSites:
+        if self.simulationDisplay.selectSitesButton.activated:
             self.selectedSites = selectedSites
 
         for s in self.selectedSites:
@@ -378,7 +363,7 @@ class Controls:
             self.selectSite2(selectedSites)
 
     def selectSite2(self, sites):
-        if self.shouldSelectSiteAgents:
+        if self.simulationDisplay.selectSitesAgentsButton.activated:
             for agent in self.agentList:
                 if not agent.isSelected and sites.__contains__(agent.assignedSite):
                     agent.select()
@@ -386,7 +371,7 @@ class Controls:
             if len(self.selectedAgents) > 0:
                 self.selectedAgent = self.selectedAgents[0]
                 self.selectedAgent.mainSelect()
-        if not self.shouldSelectSites:
+        if not self.simulationDisplay.selectSitesButton.activated:
             self.selectedSites.clear()
 
     def selectAgentsSite(self, agent):
@@ -440,7 +425,7 @@ class Controls:
             self.addToExecutedEvents(f"Added check point at {pos} for {self.getNumLivingSelectedAgents()} agents")
         for agent in self.selectedAgents:
             agent.checkPoints.append(mousePos)
-        if self.shouldCommandSiteAgents:
+        if self.simulationDisplay.commandSiteAgentsButton.activated:
             if len(self.selectedSites) > 0:
                 pos = [int(mousePos[0]), int(mousePos[1])]
                 self.addToExecutedEvents(f"Added check point at {pos} for {len(self.selectedSites)} sites")
@@ -469,7 +454,7 @@ class Controls:
             self.addToExecutedEvents(f"{self.getNumLivingSelectedAgents()} agents started avoiding {pos}")
         for a in self.selectedAgents:
             self.avoidCommand(a, pos)
-        if self.shouldCommandSiteAgents:
+        if self.simulationDisplay.commandSiteAgentsButton.activated:
             if len(self.selectedSites) > 0:
                 pos = [int(pos[0]), int(pos[1])]
                 self.addToExecutedEvents(f"{len(self.selectedSites)} sites started avoiding {pos}")
@@ -511,7 +496,7 @@ class Controls:
             agent.die()
 
     def setSelectedSitesCommand(self, command, arg, marker, markerName):
-        if self.shouldCommandSiteAgents:
+        if self.simulationDisplay.commandSiteAgentsButton.activated:
             for site in self.selectedSites:
                 if arg is not None:
                     try:
