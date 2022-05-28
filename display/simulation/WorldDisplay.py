@@ -97,8 +97,8 @@ def drawMarkers(world):
 
 def drawPotentialQuality(world, potentialQuality):
     """ Draws the value the selected sites will be set to if the user pushes Enter """
-    img = SiteDisplay.siteFontSize.render(f"Set quality: {potentialQuality}", True,
-                                          (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
+    img = pygame.font.SysFont('Comic Sans MS', SiteDisplay.siteFontSize).render(f"Set quality: {potentialQuality}", True,
+                                                                                (255 - potentialQuality, potentialQuality, 0)).convert_alpha()
     for site in world.siteList:
         if site.isSelected and not site.isHub():
             Display.blitImage(Display.screen, img, (site.getPosition()[0] - (img.get_width() / 2),

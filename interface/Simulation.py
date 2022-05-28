@@ -29,7 +29,9 @@ class Simulation(ABC):
         self.world = self.initializeWorld()  # The world that has all the sites and agents
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         self.userControls = self.getControls()
-        self.simulationDisplay = SimulationDisplay(self.userControls, self.world, self.timer)
+        # TODO: Handle the Empriical testin interface
+        if Config.INTERFACE_NAME != "Empirical_Testing":
+            self.simulationDisplay = SimulationDisplay(self.userControls, self.world, self.timer)
         self.numRounds = 0
 
     @abstractmethod
@@ -89,10 +91,9 @@ class Simulation(ABC):
 
     def runNextRound(self):
         self.simulationDisplay.handleEvents()
-        agentRectList = self.getAgentRectList()
-        self.update(agentRectList)
+        self.update(self.getAgentRectList())
         Display.screen.fill(SCREEN_COLOR)
-        self.draw()
+        self.simulationDisplay.displayScreen()
         self.timer.nextRound()
 
     def getAgentRectList(self):
@@ -112,17 +113,6 @@ class Simulation(ABC):
         self.updateObstacles(agentRectList)
         self.recordDisplays()
         self.save()
-
-    def draw(self):
-        drawWorldObjects(self.world)
-        self.userControls.drawChanges()
-        self.drawBorder()
-        self.simulationDisplay.displayScreen()
-        pygame.display.flip()
-
-    @staticmethod
-    def drawBorder():
-        Display.drawBorder()
 
     def setNextRound(self):
         pass
@@ -164,14 +154,7 @@ class Simulation(ABC):
         pass
 
     def recordDisplays(self):
-        if Config.SHOULD_RECORD:
-            self.recorder.recordExecutedCommands(self.simulationDisplay.commandHistBox.executedCommands)
-            if Config.RECORD_ALL:
-                self.recorder.recordAgentsToDelete(self.world.getDeletedAgentsIndexes())
-                self.recorder.recordTime(self.timer.getRemainingTimeOrRounds())
-                self.recorder.recordScreenBorder(Display.displacementX, Display.displacementY,
-                                                 Display.origWidth * Display.origWidth / Display.newWidth,
-                                                 Display.origHeight * Display.origHeight / Display.newHeight)
+        self.recorder.record(self)
 
     def checkIfSimulationEnded(self):
         """ Compare the number of agents at each site from each hub to the number of agents initially at each hub
@@ -296,8 +279,8 @@ class Simulation(ABC):
     def getControls(self):
         """ Initializes and returns an object to handle user input """
         if Config.FULL_CONTROL:
-            return Controls(self.timer, self.world.agentList, self.world)
-        return LimitedControls(self.timer, self.world.agentList, self.world)
+            return Controls(self.world.agentList, self.world)
+        return LimitedControls(self.world.agentList, self.world)
 
     def applyConfiguration(self):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """

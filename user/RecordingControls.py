@@ -3,8 +3,8 @@ from user.Controls import Controls
 
 class RecordingControls(Controls):
 
-    def __init__(self, timer, agentList, world, changeDelay):
-        super().__init__(timer, agentList, world)
+    def __init__(self, agentList, world, changeDelay):
+        super().__init__(agentList, world)
         self.changeDelay = changeDelay
 
     def startDrag(self):
@@ -22,22 +22,22 @@ class RecordingControls(Controls):
     def assignSelectedAgents(self, mousePos):
         pass
 
-    def speedUp(self):
+    def speedUp(self, pos):
         self.changeDelay(-0.025)
 
-    def slowDown(self):
+    def slowDown(self, pos):
         self.changeDelay(0.025)
 
-    def raiseQuality(self):
+    def raiseQuality(self, pos):
         pass
 
-    def lowerQuality(self):
+    def lowerQuality(self, pos):
         pass
 
-    def expand(self):
+    def expand(self, pos):
         pass
 
-    def shrink(self):
+    def shrink(self, pos):
         pass
 
     def createSite(self, position):
@@ -46,7 +46,7 @@ class RecordingControls(Controls):
     def createAgent(self, position):
         pass
 
-    def delete(self):
+    def delete(self, pos):
         pass
 
     def appendNumber(self, number):
@@ -58,7 +58,7 @@ class RecordingControls(Controls):
     def setSiteQuality(self):
         pass
 
-    def kill(self):
+    def kill(self, pos):
         pass
 
     def avoid(self, pos):

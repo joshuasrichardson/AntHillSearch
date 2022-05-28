@@ -8,10 +8,6 @@ class EngineerInterface(LiveSimulation):
     def __init__(self):
         super().__init__()
 
-    def update(self, agentRectList):
-        super().update(agentRectList)
-        self.userControls.moveScreen()
-
     def applyConfiguration(self):
         super().applyConfiguration()
         Config.INTERFACE_NAME = "Engineering"

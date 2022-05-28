@@ -57,6 +57,10 @@ class Options(Box):
         self.visible = False
         self.viewOptsButton.visible = True
 
+    def change(self):
+        self.visible = not self.visible
+        self.viewOptsButton.visible = not self.viewOptsButton.visible
+
     def draw(self):
         pos = pygame.mouse.get_pos()
         if self.visible:

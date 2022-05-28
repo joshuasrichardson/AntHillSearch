@@ -68,6 +68,17 @@ class Recorder:
         self.timestampString = datetime.now().strftime('%b-%d-%Y-%H-%M-%S')
         self.outputFileBase = f'{RESULTS_DIR}{self.timestampString}'
 
+    def record(self, simulation):
+        if Config.SHOULD_RECORD:
+            self.recordExecutedCommands(simulation.simulationDisplay.commandHistBox.executedCommands)
+            print(f"Config.RECORD_ALL: {Config.RECORD_ALL}")
+            if Config.RECORD_ALL:
+                self.recordAgentsToDelete(simulation.world.getDeletedAgentsIndexes())
+                self.recordTime(simulation.timer.getRemainingTimeOrRounds())
+                self.recordScreenBorder(Display.displacementX, Display.displacementY,
+                                        Display.origWidth * Display.origWidth / Display.newWidth,
+                                        Display.origHeight * Display.origHeight / Display.newHeight)
+
     def recordAgentInfo(self, agent):
         self.recordAgentPosition(agent.getPosition())
         self.recordAgentAngle(agent.getAngle())

@@ -76,11 +76,6 @@ def write(surface, words, fontSize, x, y, color=WORDS_COLOR):
     return surface.blit(img, (x, y))
 
 
-def drawPause(surface):
-    """ Writes "Paused" in the middle of the screen"""
-    writeCenter(surface, "Paused")
-
-
 def drawFinish(surface, results):
     """ Tells the user the simulation has ended and shows some of the results on the screen """
     surf = pygame.Surface((origWidth, origHeight), pygame.SRCALPHA)
@@ -392,21 +387,23 @@ def adjustScreen():
         displacementX -= 25  # Move right
 
 
-def moveScreen(mousePos):
-    global displacementX, displacementY, worldLeft, worldTop, worldRight, worldBottom
-    adjW, adjH = getUnzoomedSize(origWidth, origHeight)
-    if mousePos[0] >= origWidth - 3 and adjW - displacementX < worldRight:
-        displacementX -= 25
-        addToDrawLast(drawRightArrow, [mousePos, GREEN, False])
-    if mousePos[1] <= 3 and -displacementY > worldTop:
-        displacementY += 25
-        addToDrawLast(drawUpArrow, [mousePos, GREEN, False])
-    if mousePos[0] <= 3 and -displacementX > worldLeft:
-        displacementX += 25
-        addToDrawLast(drawLeftArrow, [mousePos, GREEN, False])
-    if mousePos[1] >= origHeight - 30 and adjH - displacementY < worldBottom:
-        displacementY -= 25
-        addToDrawLast(drawDownArrow, [mousePos, GREEN, False])
+def moveScreen():
+    if not pygame.key.get_mods() & pygame.KMOD_CAPS:
+        mousePos = pygame.mouse.get_pos()
+        global displacementX, displacementY, worldLeft, worldTop, worldRight, worldBottom
+        adjW, adjH = getUnzoomedSize(origWidth, origHeight)
+        if mousePos[0] >= origWidth - 3 and adjW - displacementX < worldRight:
+            displacementX -= 25
+            addToDrawLast(drawRightArrow, [mousePos, GREEN, False])
+        if mousePos[1] <= 3 and -displacementY > worldTop:
+            displacementY += 25
+            addToDrawLast(drawUpArrow, [mousePos, GREEN, False])
+        if mousePos[0] <= 3 and -displacementX > worldLeft:
+            displacementX += 25
+            addToDrawLast(drawLeftArrow, [mousePos, GREEN, False])
+        if mousePos[1] >= origHeight - 30 and adjH - displacementY < worldBottom:
+            displacementY -= 25
+            addToDrawLast(drawDownArrow, [mousePos, GREEN, False])
 
 
 def getAdjustedPos(origX, origY):

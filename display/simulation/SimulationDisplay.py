@@ -1,19 +1,20 @@
 import pygame
-from pygame import MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYUP, KMOD_CTRL, KEYDOWN, K_p
+from pygame import MOUSEBUTTONDOWN, MOUSEBUTTONUP, KEYUP, KMOD_CTRL, KEYDOWN, K_p, K_o
 
 from ColonyExceptions import GameOver
-from Constants import GRAPHS_TOP_LEFT, SCREEN_COLOR
+from Constants import GRAPHS_TOP_LEFT, SCREEN_COLOR, ORANGE, STATES_LIST, STATE_COLORS, PHASES_LIST, PHASE_COLORS
 from config import Config
 from display import Display
+from display.buttons.Button import Button
 from display.buttons.EnableButton import EnableButton
 from display.buttons.PlayButton import PlayButton
 from display.mainmenu.MenuScreen import MenuScreen
 from display.buttons.InputButton import InputButton
+from display.simulation.AgentGraph import AgentGraph
 from display.simulation.ChatBox import ChatBox
 from display.simulation.CommandHistBox import CommandHistBox
 from display.simulation.Options import Options
-from display.simulation.PhaseGraph import PhaseGraph
-from display.simulation.StateGraph import StateGraph
+from display.simulation.StateNumDisplay import StateNumDisplay
 from display.simulation.TimerDisplay import TimerDisplay
 from display.simulation.WorldDisplay import drawWorldObjects
 
@@ -25,6 +26,7 @@ class SimulationDisplay(MenuScreen):
         self.world = world
         self.timer = timer
         self.timerDisplay = TimerDisplay(timer)
+        self.screenBorder = []
         self.userControls.initSimDisp(self)  # TODO: Take this out when we don't need it anymore
 
         self.chatBox = ChatBox()
@@ -34,48 +36,50 @@ class SimulationDisplay(MenuScreen):
 
         self.commandHistBox = CommandHistBox()
 
-        self.stateGraph = StateGraph(world.states)
-        self.phaseGraph = PhaseGraph(world.phases)
         self.pauseButton = PlayButton(self, Display.screen.get_width() - 60, GRAPHS_TOP_LEFT[1])
         self.optionsScreen = Options(self.quit)
 
-        self.selectAgentsButton = EnableButton(" Select Agents ", self.todo, True, True,
+        self.selectAgentsButton = EnableButton(" Select Agents ", lambda: None, True, True,
                                                Display.origWidth - 3 * (14 * Config.FONT_SIZE),
                                                Display.origHeight - (7 * Config.FONT_SIZE + 2),
                                                13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
 
-        self.selectSitesButton = EnableButton(" Select Sites ", self.todo, True, True,
+        self.selectSitesButton = EnableButton(" Select Sites ", lambda: None, True, True,
                                               Display.origWidth - 2 * (14.25 * Config.FONT_SIZE),
                                               Display.origHeight - (7 * Config.FONT_SIZE + 2),
                                               13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
 
-        # if not Config.DRAW_FAR_AGENTS:
-        #     self.selectAgentsRect = pygame.Rect(Display.origWidth - 3 * (14 * Config.FONT_SIZE), Display.origHeight - (5 * Config.FONT_SIZE), 13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
-        #     self.selectSitesRect = pygame.Rect(Display.origWidth - 2 * (14.25 * Config.FONT_SIZE), Display.origHeight - (5 * Config.FONT_SIZE), 13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
-
-        self.selectAgentsSitesButton = EnableButton(" Select Agents Sites ", self.todo, False, True,
+        self.selectAgentsSitesButton = EnableButton(" Select Agents Sites ", lambda: None, False, True,
                                                     Display.origWidth - 3 * (14 * Config.FONT_SIZE),
                                                     Display.origHeight - (5 * Config.FONT_SIZE),
                                                     13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
 
-        self.selectSitesAgentsButton = EnableButton(" Select Sites Agents ", self.todo, False, True,
+        self.selectSitesAgentsButton = EnableButton(" Select Sites Agents ", lambda: None, False, True,
                                                     Display.origWidth - 2 * (14.25 * Config.FONT_SIZE),
                                                     Display.origHeight - (5 * Config.FONT_SIZE),
                                                     13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
 
-        self.commandSiteAgentsButton = EnableButton(" Command Sites Agents ", self.todo, True, True,
+        self.commandSiteAgentsButton = EnableButton(" Command Sites Agents ", lambda: None, True, True,
                                                     Display.origWidth - (15 * Config.FONT_SIZE),
                                                     Display.origHeight - (5 * Config.FONT_SIZE),
                                                     13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
 
+        border = Button("", lambda: None, 0, 0)
+        border.draw = self.drawScreenBorder
+
         self.adjustables = [self.inputBox, self.chatBox, self.commandHistBox]
         # First button is handled first but drawn last
-        super().__init__([self.optionsScreen, self.inputBox, self.chatBox, self.commandHistBox, self.stateGraph,
-                          self.phaseGraph, self.pauseButton, self.selectAgentsButton, self.selectSitesButton,
-                          self.selectAgentsSitesButton, self.selectSitesAgentsButton, self.commandSiteAgentsButton])
+        super().__init__([border, self.optionsScreen, self.inputBox, self.chatBox, self.commandHistBox,
+                          AgentGraph("STATES", STATES_LIST, world.states, STATE_COLORS, GRAPHS_TOP_LEFT[0], GRAPHS_TOP_LEFT[1]),
+                          AgentGraph("PHASES", PHASES_LIST, world.phases, PHASE_COLORS, GRAPHS_TOP_LEFT[0], GRAPHS_TOP_LEFT[1] + 175),
+                          self.pauseButton, self.selectAgentsButton, self.selectSitesButton, self.commandSiteAgentsButton,
+                          StateNumDisplay()])
 
-    def todo(self):
-        pass
+        if Config.INTERFACE_NAME == "Engineering":
+            self.buttons += [self.selectAgentsSitesButton, self.selectSitesAgentsButton]
+        else:
+            self.selectAgentsButton.rect.y = Display.origHeight - (5 * Config.FONT_SIZE)
+            self.selectSitesButton.rect.y = Display.origHeight - (5 * Config.FONT_SIZE)
 
     def handleEvent(self, event):
         super().handleEvent(event)
@@ -95,23 +99,18 @@ class SimulationDisplay(MenuScreen):
         elif event.type == KEYUP:
             self.inputBox.input(event)
         if not self.inputBox.typing and not buttonIsSelected:
-            if event.type == KEYDOWN and event.key == K_p:
-                self.pauseButton.playOrPause()
+            if event.type == KEYDOWN:
+                if event.key == K_p:
+                    self.pauseButton.playOrPause()
+                elif event.key == K_o and self.pauseButton.isPaused:
+                    self.optionsScreen.change()
             self.userControls.handleEvent(event)
 
     def displayScreen(self):
-        if self.pauseButton.isPaused:
-            self.drawPausedScreen()
-        else:
-            for button in reversed(self.buttons):
-                button.draw()
-            self.timerDisplay.drawRemainingTime()
-
-    def drawPausedScreen(self):
+        Display.moveScreen()
         Display.screen.fill(SCREEN_COLOR)
         drawWorldObjects(self.world)
         self.userControls.drawChanges()
-        Display.drawPause(Display.screen)
         for button in reversed(self.buttons):
             button.draw()
         self.timerDisplay.drawRemainingTime()
@@ -157,7 +156,7 @@ class SimulationDisplay(MenuScreen):
 
     def pause(self):
         self.optionsScreen.hide()
-        self.timer.pause(self.handleEvent, self.pauseButton.collides, self.userControls.moveScreen)
+        self.timer.pause(self.handleEvent, self.pauseButton.collides, self.displayScreen)
         self.optionsScreen.clear()
         self.pauseButton.playOrPause()
 
@@ -165,3 +164,7 @@ class SimulationDisplay(MenuScreen):
         self.pauseButton.isPaused = False
         self.timer.cancel()
         raise GameOver("Game Over")
+
+    def drawScreenBorder(self):
+        if len(self.screenBorder) > 0:
+            Display.drawRect(Display.screen, ORANGE, pygame.Rect(*self.screenBorder), 1, True)
