@@ -4,7 +4,6 @@ import time
 from config import Config
 from model.Timer import SimulationTimer
 from Constants import *
-from display import Display
 from display.simulation import FogDisplay
 from interface.Simulation import Simulation
 from ColonyExceptions import GameOver
@@ -93,13 +92,10 @@ class RecordingPlayer(Simulation):
 
     def update(self, agentRectList):
         self.slowDownOrSpeedUp()
-        self.graphs.shouldDrawGraphs = self.recorder.getNextShouldDrawGraphs()
-        self.graphs.executedCommands = self.recorder.getNextExecutedCommands()
-        self.graphs.screenBorder = self.recorder.getNextScreenBorder()
-        Display.addToDrawLast(self.graphs.drawScreenBorder, [])
+        self.simulationDisplay.commandHistBox.executedCommands = self.recorder.getNextExecutedCommands()
+        self.simulationDisplay.screenBorder = self.recorder.getNextScreenBorder()
 
         super().update(agentRectList)
-        self.userControls.moveScreen()
 
     def slowDownOrSpeedUp(self):
         if self.delay > 0:  # Slow down
@@ -192,7 +188,7 @@ class RecordingPlayer(Simulation):
         return self.recorder.readResults()[NUM_DEAD_NAME]
 
     def getControls(self):
-        return RecordingControls(self.timer, self.world.agentList, self.world, self.graphs, self.changeDelay)
+        return RecordingControls(self.world.agentList, self.world, self.changeDelay)
 
     def applyConfiguration(self):
         super().applyConfiguration()

@@ -10,14 +10,14 @@ class UserInterface(LiveSimulation):
     def __init__(self):
         super().__init__()
 
-    def update(self, agentRectList):
-        super().update(agentRectList)
-        self.userControls.moveScreen()
+    # def update(self, agentRectList):
+    #     super().update(agentRectList)
+    #     self.userControls.moveScreen()
 
     def getControls(self):
         if Config.FULL_CONTROL:
-            return UIControls(self.timer, self.world.agentList, self.world, self.graphs)
-        return LimitedControls(self.timer, self.world.agentList, self.world, self.graphs)
+            return UIControls(self.world.agentList, self.world)
+        return LimitedControls(self.world.agentList, self.world)
 
     def applyConfiguration(self):
         super().applyConfiguration()

@@ -4,43 +4,72 @@ import numpy as np
 import pygame
 from pygame.constants import KEYDOWN, MOUSEMOTION, MOUSEBUTTONUP, MOUSEBUTTONDOWN, K_SPACE, K_a, K_f, K_s, K_h, \
     K_RIGHT, K_LEFT, K_UP, K_DOWN, K_EQUALS, K_MINUS, K_c, K_x, K_DELETE, K_SLASH, K_PERIOD, K_ESCAPE, KMOD_SHIFT, \
-    KMOD_CTRL, K_BACKSPACE, K_RETURN, QUIT, KMOD_ALT, K_z, K_k, K_r, K_w
+    KMOD_CTRL, K_BACKSPACE, K_RETURN, KMOD_ALT, K_z, K_k, K_r, K_w
 
 from config import Config
-from Constants import BORDER_COLOR, AT_NEST, TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, \
+from Constants import AT_NEST, TRANSPORT, STATES_LIST, ASSIGN_NAME, NO_MARKER_NAME, \
     SET_STATE_NAME, GO_NAME, BLUE, DEAD, STOP_AVOID_NAME, MEDIUM_QUALITY
 from display import Display
 from display.simulation.WorldDisplay import collidesWithSite, collidesWithAgent, drawPotentialQuality
-from ColonyExceptions import GameOver
 from display.Display import getDestinationMarker, getAssignmentMarker
 from model.builder import AgentBuilder
 from model.phases.ExplorePhase import ExplorePhase
 from model.states.NumToStateConverter import numToState
 from model.states.SearchState import SearchState
 
+from typing import Dict
+from collections.abc import Callable
+
+from user.SelectRect import SelectRect
+
 
 class Controls:
     """ Lets the user interact with the interface """
 
-    def __init__(self, timer, agentList, world):
-        self.timer = timer
+    def __init__(self, agentList, world):
         self.agentList = agentList
         self.world = world
         self.selectedAgent = None
         self.selectedAgents = []
         self.selectedAgentIndex = 0
-        self.selectRectCorner = None
-        self.selectRect = None
+
+        self.selectRect = SelectRect()
+
         self.selectedSites = []
         self.dragSite = None
         self.oldRect = None
         self.potentialQuality = 0
         self.shouldDrawQuality = False
-        self.shouldShowOptions = False
+        self.keyCommandMap: Dict[int, Callable[list, None]] = {
+            K_SPACE: self.go,
+            K_w: self.addCheckPoint,
+            K_z: self.avoid,
+            K_r: self.removeAvoids,
+            K_a: self.assignSelectedAgents,
+            K_f: self.speedUp,
+            K_s: self.slowDown,
+            K_h: self.half,
+            K_RIGHT: self.next,
+            K_LEFT: self.previous,
+            K_UP: self.raiseQuality,
+            K_DOWN: self.lowerQuality,
+            K_EQUALS: self.expand,
+            K_MINUS: self.shrink,
+            K_c: self.createSite,
+            K_x: self.createAgent,
+            K_DELETE: self.delete,
+            K_SLASH: self.delete,
+            K_PERIOD: self.removeSiteCommands,
+            K_ESCAPE: self.unselectAll,
+            K_k: self.kill
+        }
+
+    def initSimDisp(self, disp):  # TODO: Remove this when you no longer need it
+        self.simulationDisplay = disp
 
     def drawChanges(self):
+        pos = pygame.mouse.get_pos()
         if len(self.selectedAgents) > 0:  # Display the number of agents that are selected by the mouse
-            pos = pygame.mouse.get_pos()
             Display.write(Display.screen, str(len(self.selectedAgents)), Config.FONT_SIZE,
                           pos[0] + Config.FONT_SIZE, pos[1] + Config.FONT_SIZE, BLUE)
             if len(self.selectedAgents) > 1:
@@ -48,100 +77,24 @@ class Controls:
                               Config.FONT_SIZE, Display.origWidth - 420, 4 * Config.FONT_SIZE, BLUE)
         if len(self.selectedSites) > 0 and self.shouldDrawQuality:
             drawPotentialQuality(self.world, self.potentialQuality)
-        if self.selectRectCorner is not None:
-            self.selectRect = self.drawSelectRect(pygame.mouse.get_pos())  # The displayed rect and selectRect need to be different when the screen moves
+        if self.selectRect.isSelecting(pos):
+            self.selectRect.draw(pos)  # The displayed rect and selectRect need to be different when the screen moves
 
     def handleEvent(self, event):
         mousePos = pygame.mouse.get_pos()
-        # When the screen moves, the mouse position needs to be adjusted to make up for it with some of the controls
+        # When the screen moves, the mouse position needs to be adjusted to make up for it with some controls
         adjustedMousePos = Display.getReadjustedPos(mousePos[0], mousePos[1])
         if event.type == MOUSEMOTION:
-            self.mouseMotion(mousePos, adjustedMousePos)
+            self.mouseMotion(adjustedMousePos)
         elif event.type == MOUSEBUTTONUP:
-            print(f"mousePos: {mousePos}, adjPos: {adjustedMousePos}")
-            if event.button == 1:
-                self.mouseUp(mousePos, adjustedMousePos)
-            elif event.button == 3:
-                self.go(adjustedMousePos)
-            else:
-                if pygame.key.get_mods() & KMOD_CTRL:
-                    self.zoom(event)
+            self.mouseUp(event, mousePos, adjustedMousePos)
         elif event.type == MOUSEBUTTONDOWN and event.button == 1:
             self.mouseDown(mousePos, adjustedMousePos)
         elif event.type == KEYDOWN:
-            key = event.key
-            if key == K_SPACE:
-                self.go(adjustedMousePos)
-            elif key == K_w:
-                self.addCheckPoint(adjustedMousePos)
-            elif key == K_z:
-                self.avoid(adjustedMousePos)
-            elif key == K_r:
-                self.removeAvoids(adjustedMousePos)
-            elif key == K_a:
-                self.assignSelectedAgents(adjustedMousePos)
-            elif key == K_f:
-                self.speedUp()
-            elif key == K_s:
-                self.slowDown()
-            elif key == K_h:
-                self.half()
-            elif key == K_RIGHT:
-                self.next()
-            elif key == K_LEFT:
-                self.previous()
-            elif key == K_UP:
-                self.raiseQuality()
-            elif key == K_DOWN:
-                self.lowerQuality()
-            elif key == K_EQUALS:
-                self.expand()
-            elif key == K_MINUS:
-                self.shrink()
-            elif key == K_c:
-                self.createSite(adjustedMousePos)
-            elif key == K_x:
-                self.createAgent(adjustedMousePos)
-            elif key == K_DELETE or key == K_SLASH:
-                self.delete()
-            elif key == K_PERIOD:
-                self.setSelectedSitesCommand(None, None, None, NO_MARKER_NAME)
-            elif key == K_ESCAPE:
-                self.unselectAll()
-            elif key == K_k:
-                self.kill()
-            elif len(self.selectedSites) > 0 and not pygame.key.get_mods() & KMOD_SHIFT and \
-                    not pygame.key.get_mods() & KMOD_CTRL and not pygame.key.get_mods() & KMOD_ALT:
-                if event.unicode.isnumeric():
-                    self.appendNumber(int(event.unicode))
-                elif key == K_BACKSPACE:
-                    self.deleteLastDigit()
-                elif key == K_RETURN and self.shouldDrawQuality:
-                    self.setSiteQuality()
-            else:
-                self.potentialQuality = 0
-                self.shouldDrawQuality = False
-                if pygame.key.get_mods() & KMOD_SHIFT:
-                    self.selectAgentGroup(key)
-                elif pygame.key.get_mods() & KMOD_CTRL:
-                    self.updateAgentGroup(key)
-                elif pygame.key.get_mods() & KMOD_ALT:
-                    self.setAgentsStates(key)
-                elif event.unicode.isnumeric():
-                    self.unselectAll()
-                    self.selectAgentGroup(key)
-        # self.graphs.shouldDrawStateNumbers = pygame.key.get_mods() & KMOD_ALT and len(self.selectedAgents) > 0
-        if self.simulationDisplay.pauseButton.isPaused:
-            self.simulationDisplay.drawPausedScreen()
-            # if event.type == KEYDOWN and event.key == K_o:
-            #     self.shouldShowOptions = not self.shouldShowOptions
-        if event.type == QUIT:
-            pygame.quit()
-            self.timer.cancel()
-            raise GameOver("Exiting")
+            self.keyDown(event, adjustedMousePos)
 
     def handleFinishEvents(self):
-        self.moveScreen()
+        Display.moveScreen()
         for event in pygame.event.get():
             if event.type == MOUSEBUTTONUP and pygame.key.get_mods() & KMOD_CTRL:
                 self.zoom(event)
@@ -150,10 +103,61 @@ class Controls:
                 return True
         return False
 
-    def mouseMotion(self, mousePos, adjustedMousePos):
+    def mouseMotion(self, adjustedMousePos):
         if self.dragSite is not None:
             self.world.setSitePosition(self.dragSite, adjustedMousePos)
 
+    def mouseUp(self, event, mousePos, adjustedMousePos):
+        print(f"mousePos: {mousePos}, adjPos: {adjustedMousePos}")
+        if event.button == 1:
+            self.putDownDragSite()
+            self.unselectAll(adjustedMousePos)
+            if self.selectRect.isSelecting(mousePos):
+                self.wideSelect(mousePos)
+            else:
+                self.select(adjustedMousePos)
+            self.selectRect.setCorner(None)
+        elif event.button == 3:
+            self.go(adjustedMousePos)
+        else:
+            if pygame.key.get_mods() & KMOD_CTRL:
+                self.zoom(event)
+
+    def mouseDown(self, mousePos, adjustedMousePos):
+        self.selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(adjustedMousePos)]
+        if len(self.selectedSites) > 0 and self.simulationDisplay.selectSitesButton.activated:
+            self.startDrag()
+        else:
+            self.selectRect.setCorner(mousePos)
+
+    def keyDown(self, event, adjustedMousePos):
+        key = event.key
+        try:
+            self.keyCommandMap[key](adjustedMousePos)
+        except KeyError:
+            pass
+        if len(self.selectedSites) > 0 and not pygame.key.get_mods() & KMOD_SHIFT and \
+                not pygame.key.get_mods() & KMOD_CTRL and not pygame.key.get_mods() & KMOD_ALT:
+            if event.unicode.isnumeric():
+                self.appendNumber(int(event.unicode))
+            elif key == K_BACKSPACE:
+                self.deleteLastDigit()
+            elif key == K_RETURN and self.shouldDrawQuality:
+                self.setSiteQuality()
+        else:
+            self.potentialQuality = 0
+            self.shouldDrawQuality = False
+            if pygame.key.get_mods() & KMOD_SHIFT:
+                self.selectAgentGroup(key)
+            elif pygame.key.get_mods() & KMOD_CTRL:
+                self.updateAgentGroup(key)
+            elif pygame.key.get_mods() & KMOD_ALT:
+                self.setAgentsStates(key)
+            elif event.unicode.isnumeric():
+                self.unselectAll(adjustedMousePos)
+                self.selectAgentGroup(key)
+
+# TODO: Use something like this
     def collidesWithSelectable(self, mousePos, adjustedMousePos):
         return collidesWithSite(self.world, adjustedMousePos) or collidesWithAgent(self.world, adjustedMousePos)
 
@@ -164,34 +168,8 @@ class Controls:
                 numLiving += 1
         return numLiving
 
-    def moveScreen(self):
-        if not pygame.key.get_mods() & pygame.KMOD_CAPS:
-            Display.moveScreen(pygame.mouse.get_pos())
-        if self.simulationDisplay.pauseButton.isPaused:
-            self.simulationDisplay.drawPausedScreen()
-
-    def initSimDisp(self, disp):  # TODO: Remove this when you no longer need it
-        self.simulationDisplay = disp
-
     def addToExecutedEvents(self, eventName):
         self.simulationDisplay.commandHistBox.addExecutedCommand(eventName, self.simulationDisplay.timer.getRemainingTimeOrRounds())
-
-    def mouseUp(self, mousePos, adjustedMousePos):
-        self.putDownDragSite()
-        self.unselectAll()
-        if self.selectRectCorner is not None and np.abs(mousePos[0] - self.selectRectCorner[0]) > 1\
-                and np.abs(mousePos[1] - self.selectRectCorner[1]) > 1:
-            self.wideSelect(mousePos)
-        else:
-            self.select(adjustedMousePos)
-        self.selectRectCorner = None
-
-    def mouseDown(self, mousePos, adjustedMousePos):
-        self.selectedSites = [s for s in self.world.siteList if s.siteRect.collidepoint(adjustedMousePos)]
-        if len(self.selectedSites) > 0 and self.simulationDisplay.selectSitesButton.activated:
-            self.startDrag()
-        else:
-            self.startSelectRect(mousePos)
 
     @staticmethod
     def zoom(event):
@@ -215,7 +193,7 @@ class Controls:
             self.world.hubsRects = [self.dragSite.getSiteRect() if r is self.oldRect else r for r in self.world.hubsRects]
         self.dragSite = None
 
-    def unselectAll(self):
+    def unselectAll(self, pos):
         self.potentialQuality = 0
         self.shouldDrawQuality = False
         self.selectedAgent = None
@@ -269,15 +247,11 @@ class Controls:
                 self.selectedAgent = self.selectedAgents[0]
                 self.selectedAgent.mainSelect()
 
-    def startSelectRect(self, mousePos):
-        # if not self.graphs.collidesWithAnyButton(mousePos, self.simulationDisplay.pauseButton.isPaused):
-        self.selectRectCorner = mousePos
-
     def wideSelect(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        self.selectRect = self.drawSelectRect(mousePos)
-        left, top = Display.getReadjustedPos(self.selectRect.left, self.selectRect.top)
-        w, h = Display.getUnzoomedSize(self.selectRect.w, self.selectRect.h)
+        self.selectRect.draw(mousePos)
+        left, top = Display.getReadjustedPos(self.selectRect.rect.left, self.selectRect.rect.top)
+        w, h = Display.getUnzoomedSize(self.selectRect.rect.w, self.selectRect.rect.h)
         rect = pygame.Rect(left, top, w, h)
         agent = self.selectAgents(rect)
         self.selectSites(rect)
@@ -317,19 +291,6 @@ class Controls:
         if agent.checkLeadAgent(agent, state):
             if agent.getStateNumber() != DEAD:
                 agent.setState(numToState(state, agent))
-
-    def drawSelectRect(self, mousePos):
-        if self.selectRectCorner[0] < mousePos[0]:
-            left = self.selectRectCorner[0]
-        else:
-            left = mousePos[0]
-        if self.selectRectCorner[1] < mousePos[1]:
-            top = self.selectRectCorner[1]
-        else:
-            top = mousePos[1]
-        width = np.abs(self.selectRectCorner[0] - mousePos[0])
-        height = np.abs(self.selectRectCorner[1] - mousePos[1])
-        return pygame.draw.rect(Display.screen, BORDER_COLOR, pygame.Rect(left, top, width, height), 1)
 
     def selectAgents(self, rect):
         selectedAgents = [a for a in self.agentList if a.getRect().colliderect(rect) and (Config.DRAW_FAR_AGENTS or
@@ -380,7 +341,7 @@ class Controls:
             self.selectedSites.append(agent.assignedSite)
             agent.assignedSite.select()
 
-    def half(self):
+    def half(self, pos):
         start = len(self.selectedAgents) - 1
         end = int(np.round(len(self.selectedAgents) / 2) - 1)
         try:
@@ -393,7 +354,7 @@ class Controls:
         except IndexError:
             pass
 
-    def next(self):
+    def next(self, pos):
         # if self.simulationDisplay.pauseButton.isPaused and self.shouldShowOptions:
         #     self.graphs.nextScreen()
         if len(self.selectedAgents) > 1:
@@ -406,7 +367,7 @@ class Controls:
             self.selectedAgent = self.selectedAgents[self.selectedAgentIndex % len(self.selectedAgents)]
             self.selectedAgent.mainSelect()
 
-    def previous(self):
+    def previous(self, pos):
         # if self.simulationDisplay.pauseButton.isPaused and self.shouldShowOptions:
         #     self.graphs.previousScreen()
         if len(self.selectedAgents) > 1:
@@ -490,10 +451,13 @@ class Controls:
                 agent.addToKnownSites(sitesUnderMouse[0])
                 agent.assignSite(sitesUnderMouse[0])
 
-    def kill(self):
+    def kill(self, pos):
         self.addToExecutedEvents(f"Killed {self.getNumLivingSelectedAgents()} agents")
         for agent in self.selectedAgents:
             agent.die()
+
+    def removeSiteCommands(self, pos):
+        self.setSelectedSitesCommand(None, None, None, NO_MARKER_NAME)
 
     def setSelectedSitesCommand(self, command, arg, marker, markerName):
         if self.simulationDisplay.commandSiteAgentsButton.activated:
@@ -534,36 +498,36 @@ class Controls:
 
             self.setSelectedSitesCommand(self.assignCommand, list(mousePos), marker, ASSIGN_NAME)
 
-    def speedUp(self):
+    def speedUp(self, pos):
         self.addToExecutedEvents("Sped Agents up")
         for a in self.agentList:
             a.speed *= 1.2
             a.speedCoefficient *= 1.2
 
-    def slowDown(self):
+    def slowDown(self, pos):
         self.addToExecutedEvents("Slowed Agents down")
         for a in self.agentList:
             a.speed /= 1.2
             a.speedCoefficient /= 1.2
 
-    def raiseQuality(self):
+    def raiseQuality(self, pos):
         for site in self.selectedSites:
             site.setQuality(site.getQuality() + 1)
             self.addToExecutedEvents(f"Raised site at {site.getPosition()}'s quality to {site.getQuality()}")
             site.setColor(site.getQuality())
 
-    def lowerQuality(self):
+    def lowerQuality(self, pos):
         for site in self.selectedSites:
             site.setQuality(site.getQuality() - 1)
             self.addToExecutedEvents(f"Lowered site at {site.getPosition()}'s quality to {site.getQuality()}")
             site.setColor(site.getQuality())
 
-    def expand(self):
+    def expand(self, pos):
         for site in self.selectedSites:
             site.setRadius(site.getRadius() + 1)
             self.addToExecutedEvents(f"Expanded site at {site.getPosition()}'s radius to {site.getRadius()}")
 
-    def shrink(self):
+    def shrink(self, pos):
         for site in self.selectedSites:
             site.setRadius(site.getRadius() - 1)
             self.addToExecutedEvents(f"Shrunk site at {site.getPosition()}'s radius to {site.getRadius()}")
@@ -584,7 +548,7 @@ class Controls:
         pos = [int(position[0]), int(position[1])]
         self.addToExecutedEvents(f"Created agent at {pos}")
 
-    def delete(self):
+    def delete(self, pos):
         self.deleteSelectedSites()
         self.deleteSelectedAgents()
 

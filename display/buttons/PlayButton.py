@@ -31,6 +31,7 @@ class PlayButton(Button):
         if self.caller.shouldDrawPlayButton():
             Display.drawRect(Display.screen, BORDER_COLOR, self.rect, 1, False)
             if self.isPaused or not self.canPause:  # Draw play button
+                Display.writeCenter(Display.screen, "Paused")
                 Display.drawPolygon(Display.screen, self.color, [[self.rect.left + 4, self.rect.top + 4],
                                     [self.rect.right - 4, self.rect.centery],
                                     [self.rect.left + 4, self.rect.bottom - 4]], False)

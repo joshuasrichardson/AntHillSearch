@@ -6,8 +6,9 @@ from display import Display
 from display.buttons.AdjustableBox import AdjustableBox
 
 
-class Graph(AdjustableBox):
-    def __init__(self, title, categories, counts, maxCount, colors, left, top):
+class AgentGraph(AdjustableBox):
+    def __init__(self, title, categories, counts, colors, left, top):
+        maxCount = sum(Config.HUB_AGENT_COUNTS)
         self.title = title
         self.categories = categories
         self.counts = counts

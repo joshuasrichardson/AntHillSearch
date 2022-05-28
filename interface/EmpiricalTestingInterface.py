@@ -11,19 +11,13 @@ class EmpiricalTestingInterface(LiveSimulation):
     def recordDisplays(self):
         if Config.SHOULD_RECORD:
             self.recorder.recordTime(self.timer.getRemainingTimeOrRounds())
-            self.recorder.recordShouldDrawGraphs(True)
-            self.recorder.recordExecutedCommands([])
-            self.recorder.recordScreenBorder(None, None, None, None)
 
     def runNextRound(self):
         self.update(self.getAgentRectList())
+        self.timer.nextRound()
 
     def getScreen(self):
         return None
-
-    @staticmethod
-    def drawBorder():
-        pass
 
     def applyConfiguration(self):
         super().applyConfiguration()
