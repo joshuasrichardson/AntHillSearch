@@ -1,6 +1,6 @@
 import pygame
 
-from Constants import CONTROL_OPTIONS, OTHER_OPTIONS, OTHER_CONTROLS
+from Constants import UI_CONTROL_OPTIONS, OTHER_OPTIONS, OTHER_CONTROLS
 from config import Config
 from config.Config import FONT_SIZE
 from display import Display
@@ -13,7 +13,7 @@ from display.buttons.Title import Title
 
 class Options(Box):
 
-    def __init__(self, end, controlOptions=CONTROL_OPTIONS):
+    def __init__(self, end, controlOptions=UI_CONTROL_OPTIONS):
         self.controlOptions = controlOptions
         right, bottom = Display.screen.get_size()
         super().__init__("Options", self.onClick, right / 4, bottom / 4, right / 2, bottom / 2)
@@ -86,6 +86,14 @@ class Options(Box):
     @staticmethod
     def getNumPages():
         return 2
+
+    def next(self):
+        if self.pageNumber < self.getNumPages() - 1:
+            self.pageNumber += 1
+
+    def prev(self):
+        if self.pageNumber > 0:
+            self.pageNumber -= 1
 
     def drawOptions(self):
         if self.pageNumber == 0:

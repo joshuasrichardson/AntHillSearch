@@ -7,13 +7,15 @@ from config import Config
 from display import Display
 from display.buttons.Box import Box
 
-
 MIN_LEN = 20
 
 
 class AdjustableBox(Box):
 
-    def __init__(self, name, x, y, w, h, topPad, bottomPad, spacing=0.4, bgColor=SCREEN_COLOR, action=lambda: None):
+    def __init__(self, name, x, y, w, h, topPad, bottomPad, spacing=0.4, bgColor=SCREEN_COLOR, action=None,
+                 minW=MIN_LEN, minH=MIN_LEN):
+        if action is None:
+            def action(): self.mouseButtonUp(0)
         super().__init__(name, action, x, y, w, h, bgColor=bgColor)
         self.dragging = False
         self.resizingTop = False
@@ -32,6 +34,8 @@ class AdjustableBox(Box):
         self.minT = -inf
         self.maxR = inf
         self.maxB = inf
+        self.minW = minW
+        self.minH = minH
 
     def mouseButtonDown(self, pos):
         if self.collidesTop(pos):
@@ -49,7 +53,7 @@ class AdjustableBox(Box):
     def resizing(self):
         return self.resizingTop or self.resizingRight or self.resizingBottom or self.resizingLeft
 
-    def mouseButtonUp(self, pos):
+    def mouseButtonUp(self, _):
         self.dragging = False
         self.resizingTop = False
         self.resizingRight = False
@@ -125,29 +129,32 @@ class AdjustableBox(Box):
         while not allLinesFit:
             img = self.font.render(lines[len(lines) - 1], True, self.color)
             nextLine = ""
-            while img.get_width() > self.rect.w:
+            while img.get_width() > self.rect.w * 1.4:
                 nextLine = lines[len(lines) - 1][len(lines[len(lines) - 1]) - 1] + nextLine
                 lines[len(lines) - 1] = lines[len(lines) - 1][:len(lines[len(lines) - 1]) - 1]
                 img = self.font.render(lines[len(lines) - 1], True, self.color).convert_alpha()
             lines.append(nextLine)
             img = self.font.render(lines[len(lines) - 1], True, self.color)
-            if img.get_width() <= self.rect.w:
+            if img.get_width() <= self.rect.w * 1.4:
                 allLinesFit = True
 
         return lines
 
     def spaceLines(self, lines):
-        for i, line in enumerate(lines):
-            self.lines.append(line)
-            if i == len(lines) - 1:
-                self.bottomMargins.append(Config.FONT_SIZE * self.spacing)
-            else:
-                self.bottomMargins.append(Config.FONT_SIZE)
-            if len(self.messagePositions) > 0:
-                prevPos = self.messagePositions[len(self.messagePositions) - 1]
-                self.messagePositions.append([prevPos[0], prevPos[1] + self.bottomMargins[len(self.bottomMargins) - 2]])
-            else:
-                self.messagePositions.append([self.rect.x + 10, self.rect.y + self.topPad])
+        self.lines += lines
+        for i in range(len(lines)):
+            self.spaceLine(i)
+
+    def spaceLine(self, i):
+        if i == len(self.lines) - 1:
+            self.bottomMargins.append(Config.FONT_SIZE * self.spacing)
+        else:
+            self.bottomMargins.append(Config.FONT_SIZE)
+        if len(self.messagePositions) > 0:
+            prevPos = self.messagePositions[len(self.messagePositions) - 1]
+            self.messagePositions.append([prevPos[0], prevPos[1] + self.bottomMargins[len(self.bottomMargins) - 2]])
+        else:
+            self.messagePositions.append([self.rect.x + 10, self.rect.y + self.topPad])
 
     def repositionLines(self):
         while self.messagePositions[len(self.messagePositions) - 1][1] >= self.rect.bottom - self.bottomPad:
@@ -186,7 +193,7 @@ class AdjustableBox(Box):
                          [self.rect.right - 8, self.rect.bottom - 10], width=2, adjust=False)
 
     def setBoxTop(self, top):
-        if self.rect.bottom - top > MIN_LEN:
+        if self.rect.bottom - top > self.minH:
             if top < self.minT:
                 top = self.minT
             self.rect.height = self.rect.bottom - top
@@ -194,21 +201,21 @@ class AdjustableBox(Box):
             self.repositionParagraphs()
 
     def setBoxRight(self, right):
-        if right - self.rect.left > MIN_LEN:
+        if right - self.rect.left > self.minW:
             if right > self.maxR:
                 right = self.maxR
             self.rect.width = right - self.rect.left
             self.repositionParagraphs()
 
     def setBoxBottom(self, bottom):
-        if bottom - self.rect.top > MIN_LEN:
+        if bottom - self.rect.top > self.minH:
             if bottom > self.maxB:
                 bottom = self.maxB
             self.rect.height = bottom - self.rect.top
             self.repositionParagraphs()
 
     def setBoxLeft(self, left):
-        if self.rect.right - left > MIN_LEN:
+        if self.rect.right - left > self.minW:
             if left < self.minL:
                 left = self.minL
             self.rect.width = self.rect.right - left
@@ -222,26 +229,26 @@ class AdjustableBox(Box):
         self.setBBound(bottom)
 
     def setLBound(self, left):
-        if self.maxR - left < MIN_LEN:
-            left = self.maxR - MIN_LEN
+        if self.maxR - left < self.minW:
+            left = self.maxR - self.minW
         self.minL = int(left)
         self.enforceLeftBound()
 
     def setTBound(self, top):
-        if self.maxB - top < MIN_LEN:
-            top = self.maxB - MIN_LEN
+        if self.maxB - top < self.minH:
+            top = self.maxB - self.minH
         self.minT = int(top)
         self.enforceTopBound()
 
     def setRBound(self, right):
-        if right - self.minL < MIN_LEN:
-            right = self.minL + MIN_LEN
+        if right - self.minL < self.minW:
+            right = self.minL + self.minW
         self.maxR = int(right)
         self.enforceRightBound()
 
     def setBBound(self, bottom):
-        if bottom - self.minT < MIN_LEN:
-            bottom = self.minT + MIN_LEN
+        if bottom - self.minT < self.minH:
+            bottom = self.minT + self.minH
         self.maxB = int(bottom)
         self.enforceBottomBound()
 
@@ -273,9 +280,9 @@ class AdjustableBox(Box):
             self.rect.bottom = self.maxB
 
     def enforceWidthBound(self):
-        if self.rect.right - self.rect.left < MIN_LEN:
-            self.rect.width = MIN_LEN
+        if self.rect.width < self.minW:
+            self.rect.width = self.minW
 
     def enforceHeightBound(self):
-        if self.rect.bottom - self.rect.top < MIN_LEN:
-            self.rect.height = MIN_LEN
+        if self.rect.height < self.minH:
+            self.rect.height = self.minH

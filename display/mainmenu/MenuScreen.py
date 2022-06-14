@@ -56,6 +56,7 @@ class MenuScreen:
         for button in self.buttons:
             if button.collides(pos):
                 button.action()
+            button.mouseButtonUp(pos)
 
     def scrollUp(self, times=1):
         for button in self.buttons:

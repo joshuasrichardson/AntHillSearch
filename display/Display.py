@@ -388,6 +388,7 @@ def adjustScreen():
 
 
 def moveScreen():
+    dx, dy = 0, 0
     if not pygame.key.get_mods() & pygame.KMOD_CAPS:
         mousePos = pygame.mouse.get_pos()
         global displacementX, displacementY, worldLeft, worldTop, worldRight, worldBottom
@@ -395,15 +396,20 @@ def moveScreen():
         if mousePos[0] >= origWidth - 3 and adjW - displacementX < worldRight:
             displacementX -= 25
             addToDrawLast(drawRightArrow, [mousePos, GREEN, False])
+            dx = -25
         if mousePos[1] <= 3 and -displacementY > worldTop:
             displacementY += 25
             addToDrawLast(drawUpArrow, [mousePos, GREEN, False])
+            dy = 25
         if mousePos[0] <= 3 and -displacementX > worldLeft:
             displacementX += 25
             addToDrawLast(drawLeftArrow, [mousePos, GREEN, False])
+            dx = 25
         if mousePos[1] >= origHeight - 30 and adjH - displacementY < worldBottom:
             displacementY -= 25
             addToDrawLast(drawDownArrow, [mousePos, GREEN, False])
+            dy = -25
+    return dx, dy
 
 
 def getAdjustedPos(origX, origY):
@@ -422,8 +428,8 @@ def getReadjustedPos(origX, origY):
 
 def getZoomedSize(origW, origH):
     global origWidth, origHeight, newWidth, newHeight
-    newW = int((origW / origWidth) * newWidth)
-    newH = int((origH / origHeight) * newHeight)
+    newW = round((origW / origWidth) * newWidth)
+    newH = round((origH / origHeight) * newHeight)
     return [newW, newH]
 
 

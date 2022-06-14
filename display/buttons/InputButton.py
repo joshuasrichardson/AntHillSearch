@@ -19,6 +19,7 @@ class InputButton(AdjustableBox):
         self.changeColor(ACTIVE_COLOR)
         if len(self.paragraphs) == 0:
             self.paragraphs.append("")
+        self.dragging = False
 
     def input(self, event):
         if self.typing:
@@ -36,7 +37,10 @@ class InputButton(AdjustableBox):
         self.repositionParagraphs()
 
     def backspace(self):
-        self.paragraphs[0] = self.paragraphs[0][:len(self.paragraphs[0]) - 1]
+        self.paragraphs[0] = self.paragraphs[0][:-1]
+        if len(self.lines[-1]) == 0 and len(self.lines) > 1:
+            self.lines.pop(-1)
+        self.lines[-1] = self.lines[-1][:-1]
 
     def escape(self):
         self.typing = False
@@ -47,3 +51,6 @@ class InputButton(AdjustableBox):
         self.clearFormat()
         self.typing = False
         self.changeColor(BORDER_COLOR)
+
+    def move(self, _):
+        pass

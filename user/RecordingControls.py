@@ -3,8 +3,8 @@ from user.Controls import Controls
 
 class RecordingControls(Controls):
 
-    def __init__(self, agentList, world, changeDelay):
-        super().__init__(agentList, world)
+    def __init__(self, agentList, world, selectRect, disp, changeDelay):
+        super().__init__(agentList, world, selectRect, disp)
         self.changeDelay = changeDelay
 
     def startDrag(self):

@@ -76,7 +76,7 @@ class Agent:
         self.checkPoints = []  # A list of places the agent has to go to on the way to their GO destination
         self.eraseFogCommands = []  # A list of eraseFog methods and agentRects used to clear fog after an agent has returned to the hub
 
-        self.angleBeforeObstacle = None  # Agent's angle when they collide with an obstacle
+        self.angleBeforeObstacle = 0  # Agent's angle when they collide with an obstacle
 
     def setState(self, state):
         self.state = state

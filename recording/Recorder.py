@@ -70,8 +70,7 @@ class Recorder:
 
     def record(self, simulation):
         if Config.SHOULD_RECORD:
-            self.recordExecutedCommands(simulation.simulationDisplay.commandHistBox.executedCommands)
-            print(f"Config.RECORD_ALL: {Config.RECORD_ALL}")
+            self.recordExecutedCommands(simulation.simDisp.commandHistBox.executedCommands)
             if Config.RECORD_ALL:
                 self.recordAgentsToDelete(simulation.world.getDeletedAgentsIndexes())
                 self.recordTime(simulation.timer.getRemainingTimeOrRounds())
@@ -231,11 +230,12 @@ class Recorder:
     def deleteExcessRecordings():
         # Delete old replays when there are too many, so they don't take up too much space on the computer.
         replays = [file for file in os.listdir('./recording/results/') if file.endswith('RECORDING.json')
-                   or file.endswith('RESULTS.json') or file.endswith('COMMANDS.json')]
-        if len(replays) > MAX_NUM_RECORDINGS * 3:
-            replays = replays[:len(replays) - (MAX_NUM_RECORDINGS * 3 - 1)]
+                   or file.endswith('RESULTS.json') or file.endswith('COMMANDS.json') or file.endswith('CONFIG.json')]
+        if len(replays) > MAX_NUM_RECORDINGS * 4:
+            replays = sorted(replays, key=lambda t: -os.stat(f"./recording/results/{t}").st_mtime)  # Sort by date modified (recently modified first)
+            replays = replays[MAX_NUM_RECORDINGS * 4:]  # Delete from the end of the list
             for replay in replays:
-                os.remove('./recording/results/' + replay)
+                os.remove(f"./recording/results/{replay}")
 
     def writeResults(self, results, world):
         # Create the folder with the results if it does not exist

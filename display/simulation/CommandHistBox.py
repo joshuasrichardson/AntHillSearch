@@ -13,7 +13,7 @@ class CommandHistBox(AdjustableBox):
         bottom = int(Display.origHeight * 19 / 20)
         width = right - left
         height = bottom - top
-        super().__init__("Command History Box", left, top, width, height, 4, Config.FONT_SIZE, bgColor=TRANSPARENT)
+        super().__init__("Command History Box", left, top, width, height, 4, Config.FONT_SIZE, spacing=1, bgColor=TRANSPARENT)
         self.executedCommands = []
 
     def addExecutedCommand(self, command, time):

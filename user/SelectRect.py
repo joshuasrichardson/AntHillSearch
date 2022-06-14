@@ -14,9 +14,15 @@ class SelectRect:
     def setCorner(self, mousePos):
         self.corner = mousePos
 
-    def isSelecting(self, mousePos):
+    def moveCorner(self, dx, dy):
+        self.corner[0] += dx
+        self.corner[1] += dy
+
+    def isSelecting(self, mousePos=None):
+        if mousePos is None:
+            return self.corner is not None
         return self.corner is not None and np.abs(mousePos[0] - self.corner[0]) > 1\
-                and np.abs(mousePos[1] - self.corner[1]) > 1
+            and np.abs(mousePos[1] - self.corner[1]) > 1
 
     def draw(self, mousePos):
         left = self.corner[0] if self.corner[0] < mousePos[0] else mousePos[0]

@@ -4,8 +4,8 @@ from user.Controls import Controls
 
 class UIControls(Controls):
 
-    def __init__(self, agentList, world):
-        super().__init__(agentList, world)
+    def __init__(self, agentList, world, selectRect, disp):
+        super().__init__(agentList, world, selectRect, disp)
 
     # def handleEvents(self):
     #     for agent in self.world.agentList:
