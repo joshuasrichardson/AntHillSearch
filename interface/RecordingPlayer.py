@@ -92,8 +92,8 @@ class RecordingPlayer(Simulation):
 
     def update(self, agentRectList):
         self.slowDownOrSpeedUp()
-        self.simulationDisplay.commandHistBox.executedCommands = self.recorder.getNextExecutedCommands()
-        self.simulationDisplay.screenBorder = self.recorder.getNextScreenBorder()
+        self.simDisp.commandHistBox.executedCommands = self.recorder.getNextExecutedCommands()
+        self.simDisp.screenBorder = self.recorder.getNextScreenBorder()
 
         super().update(agentRectList)
 
@@ -187,8 +187,8 @@ class RecordingPlayer(Simulation):
     def getNumDeadAgents(self):
         return self.recorder.readResults()[NUM_DEAD_NAME]
 
-    def getControls(self):
-        return RecordingControls(self.world.agentList, self.world, self.changeDelay)
+    def getControls(self, selectRect):
+        return RecordingControls(self.world.agentList, self.world, selectRect, self.simDisp, self.changeDelay)
 
     def applyConfiguration(self):
         super().applyConfiguration()

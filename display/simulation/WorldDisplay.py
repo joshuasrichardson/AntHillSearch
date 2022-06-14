@@ -12,7 +12,7 @@ from display.simulation.LadybugDisplay import drawLadybug
 from display.simulation.SiteDisplay import drawSite
 
 
-def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
+def drawWorldObjects(world, drawFarAgents=None):
     """ Draws the paths, agents, sites, markers, and fog in the world"""
     if Config.SHOULD_DRAW_PATHS:
         drawPaths(world)
@@ -20,6 +20,8 @@ def drawWorldObjects(world, drawFarAgents=Config.DRAW_FAR_AGENTS):
     drawPredators(world)
     drawLadybugs(world)
     drawObstacles(world)
+    if drawFarAgents is None:
+        drawFarAgents = Config.DRAW_FAR_AGENTS
     if not drawFarAgents:
         for site in world.siteList:
             if site.wasFound:

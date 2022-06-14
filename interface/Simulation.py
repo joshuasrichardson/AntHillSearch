@@ -6,6 +6,7 @@ import Utils
 from config import Config
 from Constants import *
 from display import Display
+from display.buttons.PlayButton import PlayButton
 from display.simulation.SimulationDisplay import SimulationDisplay
 from display.simulation.WorldDisplay import drawWorldObjects
 from ColonyExceptions import GameOver
@@ -15,6 +16,7 @@ from recording.Recorder import Recorder
 from model.states.AtNestState import AtNestState
 from user.Controls import Controls
 from user.LimitedControls import LimitedControls
+from user.SelectRect import SelectRect
 
 
 class Simulation(ABC):
@@ -28,10 +30,13 @@ class Simulation(ABC):
         self.timer = SimulationTimer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
-        self.userControls = self.getControls()
-        # TODO: Handle the Empriical testin interface
         if Config.INTERFACE_NAME != "Empirical_Testing":
-            self.simulationDisplay = SimulationDisplay(self.userControls, self.world, self.timer)
+            selectRect = SelectRect()
+            self.simDisp = SimulationDisplay(self.world, self.timer, selectRect)
+            self.userControls = self.getControls(selectRect)
+            pauseButton = PlayButton(self.userControls, Display.screen.get_width() - 60, GRAPHS_TOP_LEFT[1])
+            self.simDisp.setPauseButton(pauseButton)
+            self.userControls.setPauseButton(pauseButton)
         self.numRounds = 0
 
     @abstractmethod
@@ -90,10 +95,9 @@ class Simulation(ABC):
         self.timer.cancel()
 
     def runNextRound(self):
-        self.simulationDisplay.handleEvents()
+        self.userControls.handleEvents()
         self.update(self.getAgentRectList())
-        Display.screen.fill(SCREEN_COLOR)
-        self.simulationDisplay.displayScreen()
+        self.simDisp.displayScreen()
         self.timer.nextRound()
 
     def getAgentRectList(self):
@@ -192,6 +196,8 @@ class Simulation(ABC):
             self.write()
         self.determineChosenHomes()
         results = self.printResults()
+        self.sendResults(results)
+        self.recorder.deleteExcessRecordings()
         if Config.SHOULD_DRAW:
             self.drawFinish(results)
         return results
@@ -202,7 +208,7 @@ class Simulation(ABC):
             drawWorldObjects(self.world)
             Display.drawFinish(Display.screen, results)
             pygame.display.flip()
-            done = self.userControls.handleFinishEvents()
+            done = self.userControls.handleLastEvents()
 
     def save(self):
         pass
@@ -229,7 +235,6 @@ class Simulation(ABC):
                    NUM_DEAD_NAME: numDeaths,
                    TOTAL_NAME: self.world.initialHubAgentCounts,
                    IN_FLOOD_ZONE_NAME: self.areInFloodZone(self.chosenHomes)}
-        self.sendResults(results)
         return results
 
     def getNumDeadAgents(self):
@@ -276,11 +281,11 @@ class Simulation(ABC):
         """ Gets the screen to draw the simulation on (or None if the simulation will not be drawn) """
         return Display.createScreen()
 
-    def getControls(self):
+    def getControls(self, selectRect):
         """ Initializes and returns an object to handle user input """
         if Config.FULL_CONTROL:
-            return Controls(self.world.agentList, self.world)
-        return LimitedControls(self.world.agentList, self.world)
+            return Controls(self.world.agentList, self.world, selectRect, self.simDisp)
+        return LimitedControls(self.world.agentList, self.world, selectRect, self.simDisp)
 
     def applyConfiguration(self):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """

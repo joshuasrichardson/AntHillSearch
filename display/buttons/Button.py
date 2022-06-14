@@ -48,7 +48,7 @@ class Button:
     def mouseButtonDown(self, pos):
         """ Handle the mouse down event and return whether other
         buttons should be disabled from handling this event """
-        return False
+        return self.collides(pos)
 
     def mouseButtonUp(self, pos):
         pass

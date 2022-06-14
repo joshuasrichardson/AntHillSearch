@@ -21,3 +21,6 @@ class StateNumDisplay(Button):
                 img = self.font.render(str(i) + ": " + state, True, WORDS_COLOR).convert_alpha()
                 Display.screen.blit(img, pos)
                 pos[1] += Config.FONT_SIZE
+
+    def collides(self, pos):
+        return False
