@@ -24,51 +24,85 @@ represented by a black circle, and the other sites are
 represented by circles with different shades of red or green
 depending on their quality. The bright green sites are the best, 
 and the bright red sites are the worst. Brownish sites are 
-somewhere in the middle. Agents are represented 
-by smaller copters or ants (depending on the settings) and, when 
-they are selected, surrounded by circles with colors representing 
+somewhere in the middle. There are also bars next to each site
+that represent the quality. The fuller the bar, the higher the 
+quality. Agents are represented by smaller copters or ant images 
+(depending on the settings) and, when they are selected, 
+surrounded by circles with colors representing 
 their current phase and state.
 
 ### Phases: Levels of Commitment
 
-Agents start out in the Explore phase, where they have no 
+#### Explore
+Each agent starts out in the Explore phase, where they have no 
 knowledge of any site beside the hub. When they come to a new 
-site, they enter the Assess phase, where they initially accept 
-or reject the site. If they reject the site, they stay in the 
+site, they enter the Assess phase.
+
+#### Assess
+In the Assess phase, an agent initially accepts 
+or rejects the site. If they reject the site, they stay in the 
 Assess phase and go look for other sites. If they accept it, 
-they enter the Canvasing phase. The Canvasing phase is where 
-they start recruiting other agents to their assigned site. When 
-a quorum has met at a site, in other words if enough agents have 
-been assigned to the same site, these agents will enter the 
-Committed phase where their recruiting becomes faster.
+they enter the Canvasing phase. 
+
+#### Canvas
+The Canvasing phase is where they start recruiting other agents 
+to their assigned site. When a quorum has met at a site, 
+in other words if enough agents are
+at the same site at the same time, these agents will enter the 
+Committed phase. 
+
+#### Committed
+The agent is fully committed to their assigned site and their
+recruiting becomes faster.
+
+#### Converged
 For simulations where there is more than one hub, we added a Converged
 phase. This phase was not in the original model, but we added it
 so that the user can see which groups of agents still need to find a site.
 
+### States
+
+Agents' states include At Nest, Search, Lead Forward, Follow,
+Transport, Reverse Tandem, Carried, Escape, and Dead. 
+
+#### At Nest 
+The agent is at one of the sites (which can include the hub). 
+
+#### Search means 
+The agent is out looking for other sites to evaluate. 
+
+#### Lead Forward 
+The agent (in the Canvasing phase) starts to recruit other
+agents to their assigned site. 
+
+#### Follow 
+The agent goes with an agent in the Lead Forward or Reverse Tandem 
+state to get to another site.
+
+#### Reverse Tandem 
+The agent (in the committed phase) leads other agents from their 
+assigned site to another site they know about. 
+From there, both the leader and the follower lead more agents back
+to the site they are committed to. 
+
+#### Transport 
+The agent (in the Committed phase) picks up agents that are either 
+searching or at a nest. 
+
+#### Carried 
+The agent is picked up by another agent in the Transport state 
+and brought to the transporting agent's site to evaluate it for 
+themselves.
+
+### Other Bugs
 Predators can also be added to the simulation. When the agents come
 in contact with the predators, the predators attack them. If the agents
 get away safely, they avoid the area, if not, they die and stay there
 till the end of the simulation. Agents who come across dead agents 
-turn around and avoid coming back to that area.
+turn away and avoid coming back to that area.
 
-### States
-
-Agents' states include At Nest, Search, Lead Forward, Follow,
-Transport, Reverse Tandem, and Carried. At Nest means the agent is
-at one of the sites (which can include the hub). Search means the
-agent is out looking for other sites to evaluate. Lead Forward is 
-the state where agents in the Canvasing phase start to recruit other
-agents to their site. Follow is where the agent goes with an agent 
-in the Lead Forward or Reverse Tandem state to get to another site.
-Reverse Tandem happens in the committed phase when an agent leads
-other agents from their assigned site to another site they know about. 
-From there, both the leader and the follower lead more agents back
-to the site they are committed to. Transport also only happens in 
-the Committed phase, but with the Transport state, committed agents
-pick up agents that are either searching or at a nest, not just at
-a nest. The Carried state is where an agent is picked up by another
-agent in the Transport state and brought to the transporting agent's
-site to evaluate it for themselves.
+Lady bugs can also be added to the simulation. When an agent finds
+a lady bug, the lady bug directs it to the best quality site.
 
 ### References
 
@@ -77,11 +111,12 @@ More details about the phases and states can be found by reading
 by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R. 
 Franks. The model in this Anthill Search program is mostly based on the 
 model represented in the "Structure of the Model" section of this paper, but 
-adjustments such as the Converged phase, Go state, and Dead state have been added.
+adjustments such as the Converged phase, Go state, and Dead state have been added
+to allow for interactions with users and predators.
 
 Another useful paper about this topic is found at 
 ["Nest Site Choices in Social Insects"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/B9780128096338012620?via%3Dihub) 
-I did not find this one till after implementing the model,
+We did not find this one till after implementing the model,
 but it had useful information about when the ants decide to 
 switch from the Canvas phase to the Commit phase.
 It also contains a paragraph about factors that make a site good.
@@ -92,7 +127,10 @@ just represented by a number.
 
 In addition to the states and phases described above, many options for 
 user interaction have been added. See the "Parameters" section for 
-details about how to change the simulation's set up. See the "Controls"
+details about how to change the simulation's set up. The provided
+interfaces handle many of these parameters, allowing for a few different
+use cases, but variables such as the number of sites may need to be
+changed by the one running the program. See the "Controls"
 section for details about how to interact with the simulation while
 it is running.
 
@@ -102,18 +140,23 @@ it is running.
    directory on your computer (It should be the same directory as 
    this <code>README.md</code>).
 2. If this is your first time running the program on your machine,
-   enter <code>pip install -r requirements.txt</code>
+   enter <code>pip install -r requirements.txt</code>. This will
+   install all the necessary dependencies for running the program.
 3. (Optional) To change parameters from the default parameters, see the
    "Parameters" section below.
-4. Enter <code>python Colony.py</code> in the terminal.
-5. If desired, try using some user controls while the
-   simulation is running (see "Controls" for more details).
+4. Enter <code>python Colony.py</code> in the terminal to start up the 
+   program.
+5. If you are using the Empirical Testing interface, simply wait 
+   for the ants to find their new home. Otherwise, select "Tutorial" 
+   or  "Practice" to become familiar with how the program works.
+   1. If desired, try using some user controls while the
+      simulation is running (see "Controls" for more details).
 
 ## Parameters
 
-The parameters can have a big
-impact on the set up and behavior of the simulation. A list of the default 
-parameters and more information about them can be found in 
+The parameters can have a big impact on the setup and behavior 
+of the simulation. A list of the default parameters and more 
+information about them can be found in 
 <code>config/Config.py</code>. 
 
 There are 2 main ways to change the parameters:
@@ -139,7 +182,8 @@ a bunch of parameters.
 ## Optional Methods to Add to Colony.py
 
 
-The following methods can be added to a live colony simulation in
+The following methods can be added to a live colony simulation
+(not the RecordingPlayer interface) in
 the main function to change the initial state.
   
   
@@ -232,7 +276,7 @@ section above, but different default values apply.
 
 This interface shows about as much information as the Engineering
 Interface, but users have no control over what happens. Parameters
-have no effect on the simulation because all the information comes
+have no effect on the simulation because all the instructions come
 from the <code>recording/*date-time*_RECORDING.json</code> file.
 
 ## Controls
@@ -245,6 +289,11 @@ can be adjusted by changing statements in the
 user.Controls</code> Below is a complete list of
 all the controls available right now (There may 
 be more to come).
+
+All of these controls are available in the Engineering
+interface, but many are not available in the User
+interface or Recording interface. None are available in
+the Empirical Testing interface.
 
 ### Agent Controls
 
@@ -289,31 +338,32 @@ be more to come).
 
 - <strong>Next Agent</strong> - <code>RIGHT</code>:
   <p>When users have selected a group of agents with "Wide Select,"
-  they can see information about the next agent in the list of agents
-  by pushing the right arrow key. This action will also move the outer 
-  red circle from the current agent to the next agent so it always
-  surrounds the agent whose information appears on the left side of 
+  they can see which site one of the agents is assigned to and where
+  that agent is heading by looking at the dashed lines coming from it.
+  Using "Next" allows the user to see the next selected agent's site
+  and target instead.
   the screen.</p>
 
 - <strong>Previous Agent</strong> - <code>LEFT</code>:
   <p>When users have selected a group of agents with "Wide Select,"
-  they can see information about the previous agent in the list of agents
-  by pushing the left arrow key. This action will also move the outer 
-  red circle from the current agent to the previous agent so it always
-  surrounds the agent whose information appears on the left side of 
-  the screen.</p>
+  they can see which site one of the agents is assigned to and where
+  that agent is heading by looking at the dashed lines coming from it.
+  Using "Previous" allows the user to see the previous selected agent's 
+  site and target instead.</p>
 
 - <strong>Speed Up</strong> - <code>f</code>:
   <p>Users can cause the agents to move faster by pushing the 
-  <code>f</code> key. This is not the same as fast forwarding 
-  the simulation because the time still runs at the same speed.
-  It is just a way to make each agent move faster.</p>
+  <code>f</code> key. In live simulations, this is not the same 
+  as fast forwarding the simulation because the time still 
+  runs at the same speed. It is just a way to make each agent 
+  move faster. In recordings, it is like fast forwarding</p>
 
 - <strong>Slow Down</strong> - <code>s</code>:
   <p>Users can cause the agents to move slower by pushing the 
-  <code>s</code> key. This is not the same as slowing the whole 
-  simulation down because the time still runs at the same speed.
-  It is just a way to make each agent move slower.</p>
+  <code>s</code> key. In live simulations, this is not the same 
+  as slowing the whole simulation down because the time still
+  runs at the same speed. It is just a way to make each agent 
+  move slower. In recordings, it is slowing the whole simulation down.</p>
 
 - <strong>Set Check Point</strong> - <code>W</code>:
   <p>Users can tell agents where to go on the way to their destination
@@ -369,13 +419,12 @@ be more to come).
 
 - <strong>Select Site</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
   <p>Users can select sites by clicking on them with the mouse. 
-  The selected site's information will then show up on the side
-  of the screen, and a circle will be drawn around the site to 
-  help the user keep track of where it is. Selected sites can also
-  be moved, expanded, shrunk, deleted, or have their quality
-  increased, decreased, or set to any number between 0 and 255.
-  (see "Move Site," "Expand Site," "Shrink Site," "Delete Site,"
-  "Raise Quality," "Lower Quqlity," and "Set Quality" below).</p>
+  A circle will be drawn around the site to  help the user see 
+  where it is. Selected sites can also be moved, expanded, shrunk, 
+  deleted, or have their quality increased, decreased, or set to 
+  any number between 0 and 255. (see "Move Site," "Expand Site," 
+  "Shrink Site," "Delete Site," "Raise Quality," "Lower Quality," 
+  and "Set Quality" below).</p>
 
 - <strong>Wide Select</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, 
   <code>MOUSEBUTTONUP</code>:
@@ -384,7 +433,7 @@ be more to come).
   they want to select, and releasing the mouse button.
   When a group of sites is selected and the "Move Site," 
   "Expand Site," "Shrink Site," "Delete Site,""Raise Quality," 
-  "Lower Quqlity," or "Set Quality" command is used,
+  "Lower Quality," or "Set Quality" command is used,
   the command applies to all the selected sites.</p>
 
 - <strong>Raise Quality</strong> - <code>UP</code>:
@@ -519,23 +568,22 @@ be more to come).
   a user wants to do something like see which agents are assigned to the selected sites.</p>
 
 - <strong>Enable/Disable Site Commands</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
-  <p>Users can enable or disable site commands by clickingon the blue/gray box next 
+  <p>Users can enable or disable site commands by clicking on the blue/gray box next 
   to the words "Command Site Agents:" on the screen. When the box is blue, site commands 
   are enabled. When the box is gray, they is disabled.</p>
 
-- <strong>Show/Hide Graphs</strong> - <code>g</code>:
-  <p>Users can have the graphs on the left side of the screen appear or disappear by pressing the <code>G</code> key.</p>
+- <strong>Move Box</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, <code>MOUSEBUTTONUP</code>:
+  <p>Users can move the display boxes around the screen by clicking on them and dragging
+  them to where they want them to be.</p>
 
-- <strong>Expand/Shrink Command History Box</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, <code>MOUSEBUTTONUP</code>:
-  <p>Users can expand or shrink the box that shows a history of all the commands executed throughout the 
-  simulation by left clicking on the top of it and dragging it up or down. This will cause more or less
-  commands to be displayed.</p>
+- <strong>Expand/Shrink Box</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, <code>MOUSEBUTTONUP</code>:
+  <p>Users can expand or shrink some box-shaped displays on the screen during the 
+  simulation by left-clicking on a side or corner of it and dragging it around.</p>
 
-- <strong>Scroll Command History Box</strong> - <code>MOUSEWHEEL</code>:
-  <p>Users can view commands executed earlier by scrolling down and commands executed more recently
-  by scrolling up. When there are more executed commands that are not already displayed on the screen,
-  an arrow will be drawn on the side of the box pointing in the direction of the commands that are not
-  being displayed.</p>
+- <strong>Scroll Box</strong> - <code>MOUSEWHEEL</code>:
+  <p>Users can scroll up or down on some box displays to bring words that are off the screen onto the 
+  screen. An arrow will be drawn on the side of the box pointing in the direction of the words that 
+  are not being displayed if any.</p>
 
 - <strong>Show Next Page of Options</strong> - <code>RIGHT</code> or <code>MOUSEBUTTONDOWN</code>, <code>MOUSEBUTTONUP</code>:
   <p>Users can view the second page of options by pushing the right arrow key or clicking on "NEXT"
