@@ -21,6 +21,20 @@ class World:
                  predPositions=Config.PRED_POSITIONS,
                  numLadybugs=Config.NUM_LADYBUGS, ladybugPositions=Config.LADYBUG_POSITIONS,
                  numObstacles=Config.NUM_OBSTACLES, obstaclePositions=Config.OBSTACLE_POSITIONS):
+        """ numHubs - the number of original homes of ant colonies
+        numSites - the number of sites in the simulation, not including hubs
+        hubLocations - x, y coordinates of the center of each hub
+        hubRadii - a list of the radii for each hub
+        hubAgentCounts - the number of agents initially at each hub
+        sitePositions - the x, y coordinates for each site, not including hubs
+        siteQualities - the quality from 0 to 255 for each site, not including hubs
+        siteRadii - a list of the radii for each site, not including hubs
+        numPredators - the number of predators in the world
+        predPositions - the initial position of each predator
+        numLadybugs - the number of ladybugs in the world
+        ladybugPositions - the initial position of each ladybug
+        numObstacles - the number of obstacles in the world
+        obstaclePositions - the initial position of each obstacle """
         self.hubLocations = hubLocations  # Where the agents' original homes are located
         self.hubRadii = hubRadii  # The radii of the agent's original homes
         self.initialHubAgentCounts = hubAgentCounts  # The number of agents at the hubs at the start of the simulation
@@ -136,7 +150,7 @@ class World:
         if numObstacles > len(obstaclePositions):
             for i in range(len(obstaclePositions)):  # Create all the obstacles with preset positions
                 obstacles.append(Obstacle(self, obstaclePositions[i]))
-            for i in range (len(obstaclePositions), numObstacles):  # Create all the obstacles without preset positions
+            for i in range(len(obstaclePositions), numObstacles):  # Create all the obstacles without preset positions
                 obstacles.append(Obstacle(self))
         else:
             for i in range(numObstacles):  # Create all the obstacles with preset positions

@@ -5,6 +5,7 @@ from display.buttons.AdjustableBox import AdjustableBox
 
 
 class CommandHistBox(AdjustableBox):
+    """ A box that displays the commands that the user has executed and when they were executed. """
 
     def __init__(self):
         left = 20  # TODO: Don't hardcode these values

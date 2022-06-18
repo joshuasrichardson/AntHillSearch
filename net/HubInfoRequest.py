@@ -4,10 +4,12 @@ from Constants import *
 
 
 class HubInfoRequest:
-    """ A Request object holding information that is known from the hub.
-    This request can be send to a rest API. """
+    """ A Request object holding information that is known from the hub. """
 
     def __init__(self, agentList, stateCounts, phaseCounts):
+        """ agentList - a list of all the agents in the colony
+        stateCounts - a list of the number of agents in each state
+        phaseCounts - a list of the number of agents in each phase """
         # Agent state and phase count estimates
         self.stateCounts = stateCounts  # List of the number of agents assigned to each state
         self.phaseCounts = phaseCounts  # List of the number of agents assigned to each phase

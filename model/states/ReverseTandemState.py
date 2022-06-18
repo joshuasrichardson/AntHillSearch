@@ -8,6 +8,7 @@ class ReverseTandemState(RecruitState):
      recruit and then leads agent to the site they are committed to """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = REVERSE_TANDEM
 

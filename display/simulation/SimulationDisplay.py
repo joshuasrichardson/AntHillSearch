@@ -20,8 +20,13 @@ from display.simulation.WorldDisplay import drawWorldObjects, drawPotentialQuali
 
 
 class SimulationDisplay(MenuScreen):
+    """ The screen used to draw the world, objects in the world, and buttons and boxes the user interacts with. This
+     screen also handles some events related to the buttons and boxes. """
 
     def __init__(self, world, timer, selectRect):
+        """ world - the world to be displayed
+        timer - the timer to be displayed
+        selectRect - the rectangle to be displayed that selects agents and sites """
         self.world = world
         self.timer = timer
         self.selectRect = selectRect
@@ -134,14 +139,7 @@ class SimulationDisplay(MenuScreen):
     def displayScreen(self):
         Display.screen.fill(SCREEN_COLOR)
         drawWorldObjects(self.world)
-        self.drawChanges()
-        for button in reversed(self.buttons):
-            button.draw()
-        self.timerDisplay.drawRemainingTime()
-        Display.drawBorder()
-        pygame.display.flip()
 
-    def drawChanges(self):
         pos = pygame.mouse.get_pos()
         if self.numSelectedAgents > 0:  # Display the number of agents that are selected by the mouse
             Display.write(Display.screen, f"{self.numSelectedAgents}", Config.FONT_SIZE,
@@ -153,6 +151,12 @@ class SimulationDisplay(MenuScreen):
             drawPotentialQuality(self.world, self.potentialQuality)
         if self.selectRect.isSelecting(pos):
             self.selectRect.draw(pos)  # The displayed rect and selectRect need to be different when the screen moves
+
+        for button in reversed(self.buttons):
+            button.draw()
+        self.timerDisplay.drawRemainingTime()
+        Display.drawBorder()
+        pygame.display.flip()
 
     def escape(self):
         pass

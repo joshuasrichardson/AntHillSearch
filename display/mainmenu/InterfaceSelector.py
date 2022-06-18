@@ -8,6 +8,7 @@ from interface.UserInterface import UserInterface
 
 
 class InterfaceSelector(MenuScreen):
+    """ The screen where the user chooses which interface to run for their practice simulation """
 
     def __init__(self):
         title = Title("Select an Interface", 200)

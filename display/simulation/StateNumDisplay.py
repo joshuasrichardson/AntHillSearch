@@ -8,6 +8,7 @@ from display.buttons.Button import Button
 
 
 class StateNumDisplay(Button):
+    """ A display used to show the possible states and their corresponding numbers when the user holds down ALT """
 
     def __init__(self):
         super().__init__("State Numbers", lambda: None, 0, 0, fontSize=Config.FONT_SIZE)

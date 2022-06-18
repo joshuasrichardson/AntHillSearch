@@ -1,1 +1,1 @@
-{"numRounds": [277, 668], "simulationTimes": [9.901344299316406, 20], "chosenHomesQualities": [250, 80], "chosenHomesPositions": [[1300, 700], [450, 150]], "numArrivals": [93, 15], "numDeadAgents": [0, 0], "totalNumAgents": [100, 36]}
+{"NUM_ROUNDS": [326], "SIM_TIMES": [20], "CHOSEN_HOME_QUALITIES": [255], "CHOSEN_HOME_POSITIONS": [[-100, -100]], "NUM_ARRIVALS": [83], "NUM_DEAD_AGENTS": [0], "TOTAL_AGENTS": [100], "IN_FLOOD_ZONE": [false]}

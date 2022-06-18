@@ -6,8 +6,14 @@ from display.buttons.Button import Button
 
 
 class PlayButton(Button):
+    """ A button used to play, pause, or resume the simulation """
 
     def __init__(self, caller, x=-1, y=-1, canPause=True):
+        """ caller - the screen that owns this button, the simulation will rely on this caller to implement play,
+                     pause, and shouldDisplayPlayButton methods
+        x - the horizontal position of the left side of the button; 3/4 of the way across the screen if left at -1
+        y - the vertical position of the top side of the button; 3/4 of the way down the screen if left at -1
+        canPause - whether this play button can turn into a pause button """
         if x == -1:
             x = Display.origWidth * 1 / 2 - 8
         if y == -1:
@@ -29,9 +35,11 @@ class PlayButton(Button):
 
     def draw(self):
         if self.caller.shouldDrawPlayButton():
-            Display.drawRect(Display.screen, BORDER_COLOR, self.rect, 1, False)
+            Display.drawRect(Display.screen, BORDER_COLOR, self.rect, 1, False)  # Draw border of button
             if self.isPaused or not self.canPause:  # Draw play button
-                Display.writeCenter(Display.screen, "Paused")
+                if self.canPause:
+                    Display.writeCenter(Display.screen, "Paused")
+                # Draw play button
                 Display.drawPolygon(Display.screen, self.color, [[self.rect.left + 4, self.rect.top + 4],
                                     [self.rect.right - 4, self.rect.centery],
                                     [self.rect.left + 4, self.rect.bottom - 4]], False)

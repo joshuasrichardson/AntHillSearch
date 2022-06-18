@@ -1,3 +1,4 @@
+""" Functions used to draw the fog of war (where the agents have not yet visited) """
 import pygame
 
 from Constants import TRANSPARENT, FOG_COLOR

@@ -9,7 +9,13 @@ from Constants import AVOID_NAME, STOP_AVOID_NAME, GO_NAME, NO_MARKER_NAME
 
 class Site:
     """ Represents possible sites for agents to move to, including their old home """
+
     def __init__(self, numHubs, pos, radius, quality, numAgents=0):
+        """ numHubs - the number of original homes in the simulation, so the site can keep track of where the ants assigned to it came from
+        pos - the x, y coordinates of the center of the site
+        radius - the distance from the center of the site to any part of the edge of the site
+        quality - a number from 0 to 255 representing how desirable a site is (or -1 to represent that it's a hub).
+        numAgents - the number of agents initially assigned to this site; default is 0 """
         self.quality = self.setQuality(quality)  # The quality of a site on a scale of 0 - 255
         self.color = self.setColor(self.quality)  # The color of the site, representing its quality
 

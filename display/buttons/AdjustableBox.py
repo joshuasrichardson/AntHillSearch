@@ -11,9 +11,22 @@ MIN_LEN = 20
 
 
 class AdjustableBox(Box):
+    """ A box that can be moved around, resized, and written on. """
 
     def __init__(self, name, x, y, w, h, topPad, bottomPad, spacing=0.4, bgColor=SCREEN_COLOR, action=None,
                  minW=MIN_LEN, minH=MIN_LEN):
+        """ name - the name of the box doesn't necessarily show up anywhere, but it can be used in debugging
+         x - the left position of the box
+         y - the right position of the box
+         w - the width of the box
+         h - the height of the box
+         topPad - how much space to leave between the top of the box and the first words
+         bottomPad - how much space to leave between the bottom of the box and the last words
+         spacing - how much space to put between each line of words in the box
+         bgColor - the background color of the box
+         action - an action that is executed when the box is clicked
+         minW - the smallest the width can be adjusted to
+         minH - the smallest the height of the box can be adjusted to """
         if action is None:
             def action(): self.mouseButtonUp(0)
         super().__init__(name, action, x, y, w, h, bgColor=bgColor)

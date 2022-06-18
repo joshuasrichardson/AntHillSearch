@@ -46,7 +46,7 @@ class SimulationTest(unittest.TestCase):
         try:
             self.set_up_recording()
             time.sleep(1)  # Make sure that the recording has enough time to record before this starts
-            RecordingPlayer().runSimulation()  # Starts the interface
+            RecordingPlayer("test/test_RECORDING.json").runSimulation()  # Starts the interface
         except Exception as err:
             self.fail(f"Recording Player failed with exception: {err}, {type(err)}")
 

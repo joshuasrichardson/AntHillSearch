@@ -19,7 +19,11 @@ from display.mainmenu.ReplaySelector import ReplaySelector
 
 
 class MainMenu(MenuScreen):
+    """ The menu the appears when the program starts up, allowing the user to choose among doing the test trials,
+     practicing, running through a tutorial, viewing replays, changing settings, and exiting. """
+
     def __init__(self, interface):
+        """ interface - the default interface used to run the test trials """
         Display.createScreen()  # Initialize the pygame screen
         super().__init__(self.getButtons())
         self.defaultInterface = interface  # The interface to be played when the "Play" option is selected
@@ -35,12 +39,12 @@ class MainMenu(MenuScreen):
         spacing = Config.FONT_SIZE * 3
         return [
             Title("Anthill Search", 200),
-            MenuButton(self.doUserExperiments, "Test", spacing * 0),
-            MenuButton(self.practice, "Practice", spacing * 1),
-            MenuButton(self.startTutorial, "Tutorial", spacing * 2),
-            MenuButton(self.replay, "Replay", spacing * 3),
-            MenuButton(self.viewSettings, "Settings", spacing * 4),
-            MenuButton(self.exit, "Exit", spacing * 5)
+            MenuButton("Test", self.doUserExperiments, spacing * 0),
+            MenuButton("Practice", self.practice, spacing * 1),
+            MenuButton("Tutorial", self.startTutorial, spacing * 2),
+            MenuButton("Replay", self.replay, spacing * 3),
+            MenuButton("Settings", self.viewSettings, spacing * 4),
+            MenuButton("Exit", self.exit, spacing * 5)
         ]
 
     def run(self):

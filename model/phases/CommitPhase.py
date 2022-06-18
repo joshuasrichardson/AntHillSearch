@@ -3,8 +3,8 @@ from model.phases.Phase import Phase
 
 
 class CommitPhase(Phase):
-    """ The phase where agents have met the quorum at their assigned site and are
-    completely dedicated to it"""
+    """ The phase where the agent has met the quorum at their assigned site and is
+    completely dedicated to it. """
 
     def getNumber(self):
         return COMMIT

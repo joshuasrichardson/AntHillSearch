@@ -3,8 +3,12 @@ from display.buttons.Button import Button
 
 
 class PrevButton(Button):
+    """ A button used to navigate to the previous screen of a paged menu """
 
     def __init__(self, caller, x=-1, y=-1):
+        """ caller - the screen that owns this button, that will be moved to the previous screen when PREV is clicked
+        x - the horizontal position of the left side of the button; 1/4 of the way across the screen if left at -1
+        y - the vertical position of the top side of the button; 3/4 of the way down the screen if left at -1 """
         if x == -1:
             x = Display.origWidth * 1 / 4
         if y == -1:

@@ -1,4 +1,4 @@
-""" Methods related to the agents' display """
+""" Functions used to display an agent and markers belonging to them """
 import numpy as np
 import pygame
 

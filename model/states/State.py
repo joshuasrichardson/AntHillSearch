@@ -8,6 +8,7 @@ class State(ABC):
     """ An abstract base class for the states the agents can be in """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         self.agent = agent
 
     def setState(self, state, target):

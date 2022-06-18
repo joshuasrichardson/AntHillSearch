@@ -12,7 +12,7 @@ from user.RecordingControls import RecordingControls
 
 
 class RecordingPlayer(Simulation):
-    """ Runs the colony interface for a previously recorded interface using the data stored in recording.txt """
+    """ Runs the colony simulation for a previously recorded simulation using the data stored in recording.txt """
 
     def __init__(self, selectedReplay):
         self.hubAgentCounts = []

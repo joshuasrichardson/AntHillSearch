@@ -5,7 +5,9 @@ from user.UIControls import UIControls
 
 
 class UserInterface(LiveSimulation):
-    """ A class to run the interface for ants finding their new home after the old one broke """
+    """ A class to run the simulation for ants finding their new home after the old one broke.
+     This interface gives the user the perspective of only knowing what could be known from the hub.
+     For example, none of the site or agent positions are known, until agents come back and report them. """
 
     def __init__(self):
         super().__init__()

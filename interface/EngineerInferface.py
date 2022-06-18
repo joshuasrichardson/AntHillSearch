@@ -3,7 +3,8 @@ from interface.LiveSimulation import LiveSimulation
 
 
 class EngineerInterface(LiveSimulation):
-    """ A class to run the simulation for ants finding their new home after the old one broke """
+    """ A class to run the simulation for ants finding their new home after the old one broke.
+     This interface allows the user to see as much as possible about what is going on in the simulation. """
 
     def __init__(self):
         super().__init__()

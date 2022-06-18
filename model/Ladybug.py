@@ -5,7 +5,13 @@ from display.simulation.LadybugDisplay import getLadybugImage
 
 
 class Ladybug:
+    """ Ladybugs are friendly to the agents. When an agent comes in contact with them, they tell it where it can
+    find a great-quality site. """
+
     def __init__(self, site, world, pos=None):
+        """ site - the site the ladybug knows about
+        world - the world the ladybug lives in
+        pos - the initial position of the ladybug on the screen """
         self.world = world
         if pos is None:
             pos = site.getPosition()

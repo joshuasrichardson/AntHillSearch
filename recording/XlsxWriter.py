@@ -1,3 +1,4 @@
+""" Functions for converting json files and objects to an Excel xlsx file """
 import json
 import os
 from datetime import datetime

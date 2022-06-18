@@ -5,7 +5,14 @@ from display.buttons.AdjustableBox import AdjustableBox
 
 
 class InputButton(AdjustableBox):
+    """ A button to receive input from the user and pass it on to another object when the user sends it """
+
     def __init__(self, x, y, w, h, receiver):
+        """ x - the left position of the box
+         y - the right position of the box
+         w - the width of the box
+         h - the height of the box
+         receiver - the object that will receive the input when self.enter() is called """
         super().__init__("Input", x, y, w, h, 2, 11, 0.4, TRANSPARENT, action=self.receiveInput)
         self.typing = False
         self.paragraphs = []

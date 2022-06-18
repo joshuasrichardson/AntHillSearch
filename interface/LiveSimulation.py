@@ -13,7 +13,8 @@ from net.HubInfoRequest import HubInfoRequest
 
 
 class LiveSimulation(Simulation, ABC):
-    """ A class to run the interface for ants finding their new home after the old one broke """
+    """ A class to run the interface for ants finding their new home after the old one broke.
+     This simulation is live (as opposed to a recording player). """
 
     def __init__(self):
         super().__init__()

@@ -8,6 +8,7 @@ class CarriedState(State):
     """ State where an agent is being carried by a transporting committed agent toward that agent's site """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = CARRIED
 

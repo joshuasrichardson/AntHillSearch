@@ -12,13 +12,16 @@ from display.mainmenu.tutorial.Page import Page
 
 
 class Tutorial(MenuScreen):
+    """ A menu screen that displays the pages of the tutorial and allows the user to run a practice round at the end
+    of the tutorial """
 
     def __init__(self, play):
+        """ play - the function used to play a practice round of the simulation """
         self.play = play
         self.pageNumber = 0
-        self.pages = [Page("", 0, 0, self)]
-        self.pages += [Page(f"display/mainmenu/tutorial/instructions/page{page}.png", 0, page - 1, self) for page in range(1, 29)]
-        self.pages += [Page("", 0, len(self.pages), self)]
+        self.pages = [Page("", 0, self)]
+        self.pages += [Page(f"display/mainmenu/tutorial/instructions/page{page}.png", page, self) for page in range(1, 29)]
+        self.pages += [Page("", len(self.pages), self)]
         super().__init__([*self.pages, BackButton(), PrevButton(self), NextButton(self), PlayButton(self, canPause=False)])
 
     def getNumPages(self):

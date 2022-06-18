@@ -9,6 +9,7 @@ from display.buttons.SelectorButton import SelectorButton
 
 
 class ReplaySelector(MenuScreen):
+	""" The screen that allows the user to choose which of the most recent replays they would like to view """
 
 	def __init__(self):
 		self.y = Display.origHeight / 3

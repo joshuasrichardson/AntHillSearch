@@ -20,7 +20,8 @@ from user.SelectRect import SelectRect
 
 
 class Simulation(ABC):
-    """ Runs most of the colony interface but leaves some details to classes that inherit this class """
+    """ An abstract class to run the simulation for ants finding their new home after the old one broke.
+    Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
     def __init__(self):
         self.applyConfiguration()  # update all the settings with the configuration file.

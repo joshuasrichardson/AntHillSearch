@@ -9,6 +9,7 @@ class SimulationTimer:
     """ A class to keep track of the time remaining in the colony interface """
 
     def __init__(self, timeOut):
+        """ timeOut - a function to be called when the time runs out """
         self.timer = threading.Timer(Config.SIM_DURATION, timeOut)  # A timer to help keep track of how much time is left in the interface
         self.pauseTime = 0  # The time left when the interface was paused
         self.startTime = None  # The time when the interface was started

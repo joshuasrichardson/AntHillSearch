@@ -18,6 +18,13 @@ class Agent:
     phases and states"""
 
     def __init__(self, world, startingAssignment, startingPosition, speed, decisiveness, navSkills, estAccuracy):
+        """ world - the world the agent lives in
+        startingAssignment - the hub or site the agent will start out assigned to
+        startingPosition - x, y coordinates of the position where the agent starts
+        speed - proportional to how far the agent moves each iteration
+        decisiveness - proportional to how quickly the agent can judge sites
+        navSkills - inversely proportional to how easily the agent gets lost
+        estAccuracy - proportional to how closely the agent can estimate the quality of a site """
         self.world = world  # The colony the agent lives in
         self.hub = self.world.getClosestHub(startingPosition)
 

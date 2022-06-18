@@ -8,8 +8,10 @@ from model.states.NumToStateConverter import numToState
 
 
 class EscapeState(State):
+    """ The state where the agent is trying to get away from something dangerous """
 
     def __init__(self, agent, prevStateNum, enemyPositions):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = ESCAPE
         self.prevStateNum = prevStateNum
