@@ -19,7 +19,8 @@ from display.mainmenu.settings.WorldSettings import WorldSettings
 
 class Settings(MenuScreen):
     """ A tab accessible from the main menu that allows the user to change certain settings for the simulation.
-    Not all settings are able to be changed here. See Constants.py for more settings. """
+    Settings are changed by clicking on them, typing a new value, and pressing enter. Click anywhere to cancel.
+    Not all settings can be changed here. See Config.py and Constants.py for more settings. """
 
     def __init__(self):
         # The rectangles that make values selectable

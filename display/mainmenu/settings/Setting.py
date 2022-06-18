@@ -12,6 +12,12 @@ class Setting(SelectorButton, MenuScreen):
     """ An option that can be changed in the settings tab """
 
     def __init__(self, key, name, x, y, showUserInputVisuals, save):
+        """ key - the name of the option in the Config.py file, also the key of the data written in config.json
+         name - the name of the setting as displayed in the Settings tab of the simulation
+         x - the horizontal position of the left side of the button
+         y - the vertical position of the top side of the button
+         showUserInputVisuals - a function used to display the effects of changing the value of this setting
+         save - the method used to save this value when it is updated """
         self.save = save  # The method to save the setting's value
         self.key = key  # A key to help read and write the data from json
         self.name = name  # A name for the setting that may include spaces

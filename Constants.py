@@ -1,4 +1,4 @@
-""" Global constants used in swarm simulation program """
+""" Global constants used in anthill search simulation program """
 
 RESULTS_DIR = "recording/results/"  # The directory that stores the results
 MAX_NUM_RECORDINGS = 15
@@ -225,7 +225,6 @@ OTHER_OPTIONS = ['Pause',
                  'Zoom Out',
                  'Move Camera',
                  'Lock Screen',
-                 'Show/Hide Graphs',
                  'Show/Hide Options',
                  'Enable/Disable',
                  'Expand/Shrink History Box',
@@ -236,7 +235,6 @@ OTHER_CONTROLS = ['- P',
                   '- CTRL + MOUSE WHEEL DOWN',
                   '- Move MOUSE to edge of screen',
                   '- CAPS LOCK',
-                  '- G',
                   '- O',
                   '- LEFT CLICK (the corresponding box on the screen)',
                   '- DRAG LEFT CLICK',

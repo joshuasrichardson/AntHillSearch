@@ -7,10 +7,16 @@ from display import Display
 
 
 class MenuScreen:
+    """ A generic screen for the simulation. Displays the screen and handles some events. Also
+    contains a list of buttons that it can select when the user clicks on them. """
+
     def __init__(self, buttons):
+        """ buttons - the buttons to be managed by this screen """
         self.buttons = buttons
 
     def run(self):
+        """ Starts a loop that displays the screen and handles user input until the user goes back to a previous
+         screen or exits the program """
         try:
             while True:
                 self.displayScreen()

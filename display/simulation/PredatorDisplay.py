@@ -1,3 +1,4 @@
+""" Functions used to display a predator """
 import numpy as np
 import pygame
 

@@ -4,7 +4,10 @@ from display import Display
 
 
 class TimerDisplay:
+    """ A display used to show how much time is left in the simulation """
+
     def __init__(self, timer):
+        """ timer - the time with the time to be displayed """
         self.timer = timer
 
     def drawRemainingTime(self):

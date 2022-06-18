@@ -4,6 +4,7 @@ from recording import XlsxWriter
 
 
 class XlsxWriterTest(unittest.TestCase):
+    """ Tests to make sure that json objects can safely be converted to xlsx files """
 
     def test_jsonToXlsx(self):
         jsonData = {"NUM_AGENTS": 10,
@@ -46,4 +47,3 @@ class XlsxWriterTest(unittest.TestCase):
         columnNameY = "Num Dead Agents"
         columnNameRow = 2
         XlsxWriter.createScatterPlot(workbookName, sheetName, columnNameX, columnNameY, columnNameRow, 3)
-

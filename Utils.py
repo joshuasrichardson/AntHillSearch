@@ -87,5 +87,4 @@ def resetConfig():
         try:
             exec(f"Config.{key} = {eval(key)}")
         except NameError:
-            exec(f"Config.{key} = \"{eval(key)}\"")\
-
+            exec(f"Config.{key} = \"{eval(key)}\"")

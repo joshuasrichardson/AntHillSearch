@@ -5,6 +5,10 @@ class LimitedControls(UIControls):
     """ Controls that only allow the user to do some limited actions """
 
     def __init__(self, agentList, world, selectRect, disp):
+        """ agentList - a list of all the agents in the simulation
+        world - the world with objects for the user to interact with
+        selectRect - the rectangle used to select agents and sites
+        disp - the display for the simulation that handles drawing things on the screen """
         super().__init__(agentList, world, selectRect, disp)
 
     def go(self, mousePos):

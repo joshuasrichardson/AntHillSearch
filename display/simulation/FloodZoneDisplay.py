@@ -1,3 +1,4 @@
+""" Functions used to draw the flood zone """
 from Constants import FLOOD_ZONE_COLOR
 from display import Display
 

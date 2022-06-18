@@ -446,7 +446,7 @@ class Recorder:
         else:
             return len(self.data[0]['ladybugPositions'])
 
-    def getNumobstacles(self):
+    def getNumObstacles(self):
         if self.dataIndex >= 0:
             return len(self.obstaclePositions)
         else:
@@ -471,7 +471,6 @@ class Recorder:
         self.currentLadybugPosIndex = -1
         self.currentLadybugAngleIndex = -1
         self.currentObstaclePosIndex = -1
-        self.currentObstacleAngleIndex = -1
         self.currentSitePosIndex = -1
         self.currentQualityIndex = -1
         self.currentRadiusIndex = -1

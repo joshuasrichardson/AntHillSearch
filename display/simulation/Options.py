@@ -12,8 +12,12 @@ from display.buttons.Title import Title
 
 
 class Options(Box):
+    """ A box that can be displayed while the simulation is paused, that displays options about how the user can
+    interact with the simulation """
 
     def __init__(self, end, controlOptions=UI_CONTROL_OPTIONS):
+        """ end - a function used to end the current simulation and bring the user out to the main menu or somewhere
+        controlOptions - the set of options that are available to the user based on their current interface """
         self.controlOptions = controlOptions
         right, bottom = Display.screen.get_size()
         super().__init__("Options", self.onClick, right / 4, bottom / 4, right / 2, bottom / 2)

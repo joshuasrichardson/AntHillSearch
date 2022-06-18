@@ -7,6 +7,7 @@ class DeadState(State):
      end of the simulation """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = DEAD
 

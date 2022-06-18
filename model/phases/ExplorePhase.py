@@ -3,7 +3,7 @@ from model.phases.Phase import Phase
 
 
 class ExplorePhase(Phase):
-    """ The phase where agents start looking for a new site and haven't yet come into contact with any """
+    """ The phase where the agent starts looking for a new site and hasn't yet come into contact with any """
 
     def getNumber(self):
         return EXPLORE

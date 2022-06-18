@@ -7,7 +7,13 @@ from display.simulation.PredatorDisplay import getPredatorImage
 
 
 class Predator:
+    """ The enemy of an agent. When an agent comes in contact with a predator, the predator tries to kill it.
+    If successful, the agent dies; else, the agent avoids the area where it saw the predator. """
+
     def __init__(self, site, world, pos=None):
+        """ site - the site the predator is blocking
+        world - the world the predator is terrorizing
+        pos - the predator's initial position on the screen """
         self.site = site  # The site the predator will be terrorizing.
         self.world = world
         if pos is None:

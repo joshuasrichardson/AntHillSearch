@@ -1,3 +1,5 @@
+""" Functions used to generate a new site with randomized attributes that fall within the ranges specified in
+ Config.py """
 import numpy as np
 
 from config import Config

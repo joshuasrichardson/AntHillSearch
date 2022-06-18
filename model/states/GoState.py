@@ -8,6 +8,7 @@ class GoState(State):
     pushes the space bar """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = GO
         self.destination = agent.target

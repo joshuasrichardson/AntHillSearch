@@ -14,6 +14,7 @@ class AtNestState(State):
     a nest they are recruiting to """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = AT_NEST
 

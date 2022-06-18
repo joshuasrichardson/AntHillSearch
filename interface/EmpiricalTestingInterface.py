@@ -3,7 +3,8 @@ from interface.LiveSimulation import LiveSimulation
 
 
 class EmpiricalTestingInterface(LiveSimulation):
-    """ A class to run the interface for ants finding their new home after the old one broke """
+    """ A class to run the simulation for ants finding their new home after the old one broke without drawing
+     anything on the screen. The results are simply printed out at the end of each simulation """
 
     def __init__(self):
         super().__init__()

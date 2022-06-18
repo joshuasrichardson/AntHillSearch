@@ -1,3 +1,5 @@
+""" Functions used to generate a new agent with randomized attributes that fall within the ranges specified in
+ Config.py """
 import random
 
 from config import Config

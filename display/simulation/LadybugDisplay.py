@@ -1,3 +1,4 @@
+""" Functions used to draw lady bugs """
 import numpy as np
 import pygame
 
@@ -6,7 +7,7 @@ from display.Display import rotateImage
 
 
 def getLadybugImage(pos):
-    """Loads, adjusts the size, and returns the image representing a ladybug """
+    """ Loads, adjusts the size, and returns the image representing a ladybug """
     ladybug = pygame.image.load(Config.LADYBUG_IMAGE)
     if Config.SHOULD_DRAW:
         ladybug = ladybug.convert_alpha()

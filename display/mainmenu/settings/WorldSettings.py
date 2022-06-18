@@ -9,8 +9,12 @@ from model.World import World
 
 
 class WorldSettings(Button, MenuScreen):
+    """ A button used to display what the simulation world might look like with the current settings. The world will
+    be regenerated every few seconds, randomizing values that can be randomized. """
 
     def __init__(self, x, y):
+        """ x - the horizontal position of the left side of the button
+         y - the vertical position of the top side of the button """
         super().__init__("Draw current world", self.showWorld, x, y)
         self.buttons = [BackButton()]
         self.world = None

@@ -1,3 +1,5 @@
+""" Functions used to display what certain parts of the simulation will look like if the related value is updated """
+
 import math
 
 import pygame
@@ -6,7 +8,8 @@ from config import Config
 from config.Config import AGENT_IMAGES
 from Constants import GREEN, RED, BLUE, BORDER_COLOR, MEDIUM_QUALITY, SHAPE_CHOICES
 from display import Display
-from display.simulation import AgentDisplay, FloodZoneDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay
+from display.simulation import AgentDisplay, FloodZoneDisplay, SiteDisplay, PredatorDisplay, LadybugDisplay, \
+    ObstacleDisplay
 from model.FloodZone import FloodZone
 from model.builder.SiteBuilder import getNewSite
 
@@ -53,13 +56,14 @@ def drawLadybugPositions(self):
         for pos in self.value:
             drawLadybug(pos)
 
+
 def drawObstaclePositions(self):
     if self.arrayStates.isComplete2:
         for pos in self.value:
             drawObstacle(pos)
 
 
-def drawShouldRecord(self):
+def drawShouldRecord(_):
     if Config.SHOULD_RECORD:
         Display.drawCircle(Display.screen, (220, 0, 0), [15, 15], 10, width=1, adjust=False)
         Display.drawLine(Display.screen, (220, 0, 0), [4, 24], [25, 5], adjust=False)
@@ -196,7 +200,7 @@ def drawSitesQualities(self):
         drawSite([x, y], Config.SITE_RADIUS, self.value[i])
 
 
-def drawAgents(self):
+def drawAgents(_):
     for i, imgFile in enumerate(AGENT_IMAGES):
         pos = [Display.origWidth / 2 + i * 30, Display.origHeight / 2]
         Config.AGENT_IMAGE = imgFile
@@ -251,16 +255,19 @@ def drawLadybugs(self):
         pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
         drawLadybug(pos)
 
+
 def drawObstacle(pos):
     image = ObstacleDisplay.getObstacleImage([0, 0])
     Display.blitImage(Display.screen, image, pos, False)
+
 
 def drawObstacles(self):
     for i in range(self.value):
         pos = [Display.origWidth / 2 + i * 50, Display.origHeight / 2]
         drawObstacle(pos)
 
-def drawControls(self):
+
+def drawControls(_):
     if Config.FULL_CONTROL:
         controls = ["Go"]
     else:
@@ -269,18 +276,16 @@ def drawControls(self):
         Display.writeCenterPlus(Display.screen, control, int(Config.FONT_SIZE * 1.5), i * Config.FONT_SIZE * 1.5)
 
 
-def drawDistraction(self):
+def drawDistraction(_):
     if Config.DISTRACTED:
-        pass
-    else:
-        pass
+        pass  # TODO: Draw the chat box
 
 
-def drawRoundsAsDuration(self):
+def drawRoundsAsDuration(_):
     if Config.USE_ROUNDS_AS_DURATION:
-        pass
+        pass  # TODO: Draw the time as rounds and maybe some way to indicate that it is fast
     else:
-        pass
+        pass  # TODO: Draw the time as seconds and maybe some way to indicate that it is seconds
 
 
 def drawFloodZone(self):

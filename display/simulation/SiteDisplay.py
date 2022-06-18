@@ -1,4 +1,4 @@
-""" Settings and methods related to the sites' display """
+""" Settings and functions for drawing sites and their markers """
 import pygame
 
 from config import Config

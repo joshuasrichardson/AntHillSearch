@@ -7,8 +7,21 @@ from display.buttons.Box import Box
 
 
 class EnableButton(Box):
+    """ A button used to enable or disable a feature during the simulation """
+
     def __init__(self, name, action, activated, visible, x, y, w=0, h=0, recenter=False, canActivate=True,
                  fontSize=Config.FONT_SIZE):
+        """ name - the name of the button; may show up in the middle of the button if self.draw() isn't overridden
+         action - an action that is executed when the box is clicked
+         activated - whether the button is enabled/activated
+         visible - whether the button shows up on the screen
+         x - the left position of the box
+         y - the right position of the box
+         w - the width of the box
+         h - the height of the box
+         recenter - whether to make the x the center (as opposed to the left)
+         canActivate - whether the self.enableOrDisable() action does anything or only passes the activation on to the
+                       child """
         self.childAction = action
         super().__init__(name, self.enableOrDisable, x, y, w, h, bgColor=WORDS_COLOR if activated else SCREEN_COLOR,
                          fontSize=fontSize)

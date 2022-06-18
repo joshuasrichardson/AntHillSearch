@@ -12,6 +12,7 @@ class RecruitState(State):
     """ Abstract state where agents recruit other agents to come to their assigned site """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
 
     def changeState(self, neighborList) -> None:

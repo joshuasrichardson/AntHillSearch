@@ -5,7 +5,11 @@ from display.simulation.ObstacleDisplay import getObstacleImage
 
 
 class Obstacle:
+    """ Harmless rocks that get in the way of agents while they walk around the world """
+
     def __init__(self, world, pos=None):
+        """ world - the world where the obstacle is located
+        pos - the x, y coordinates on the screen where the top left corner of the obstacle is """
         self.world = world
         if pos is None:
             self.pos = [world.getHubs()[0].getPosition()[0] + (np.random.randint(-MAX_SEARCH_DIST, MAX_SEARCH_DIST)),

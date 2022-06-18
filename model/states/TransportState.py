@@ -7,6 +7,7 @@ class TransportState(RecruitState):
     to carry it to the site the agent is committed to """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = TRANSPORT
 

@@ -10,6 +10,7 @@ class SearchState(State):
     """ State where agents look around the world for better sites """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = SEARCH
         self.collides = False

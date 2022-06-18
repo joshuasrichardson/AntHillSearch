@@ -4,10 +4,12 @@ from display.buttons.Button import Button
 
 
 class Title(Button):
+    """ An object used to display a title """
 
-    def __init__(self, words, y):
-        super().__init__(words, lambda: None, 0, y)
-        self.words = words
+    def __init__(self, name, y):
+        """ name - the name of title
+        y - the top vertical position of the title """
+        super().__init__(name, lambda: None, 0, y)
 
     def draw(self):
-        Display.writeCenterPlus(Display.screen, self.words, Config.LARGE_FONT_SIZE, -Display.origHeight / 2 + self.rect.top)
+        Display.writeCenterPlus(Display.screen, self.name, Config.LARGE_FONT_SIZE, -Display.origHeight / 2 + self.rect.top)

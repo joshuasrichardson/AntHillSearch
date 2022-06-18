@@ -1,3 +1,7 @@
+""" The default values for configurations. Many of these values can be overridden
+ by the config.json file, by selecting a certain interface, or by changing the
+ configuration in the Settings tab while the program is running. """
+
 from numpy import sin, pi
 
 INTERFACE_NAME = "Engineering"

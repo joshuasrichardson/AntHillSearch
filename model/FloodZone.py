@@ -15,6 +15,11 @@ from config import Config
 
 
 class FloodZone:
+    """ A semi-transparent shape on the screen indicating where floods are likely to occur. Agents do not know about
+    this, but users do. It is the user's responsibility to make sure that the agents do not end up at a site that is
+    in the flood zone. The flood zone can be generated in various shapes, including sector, segment, river, and
+    polygon. """
+
     def __init__(self):
         self.coverage = Config.FLOOD_ZONE_COVERAGE
         self.corners = copy.deepcopy(Config.FLOOD_ZONE_CORNERS)

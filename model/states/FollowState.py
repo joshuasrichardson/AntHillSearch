@@ -8,6 +8,7 @@ class FollowState(State):
     the other agent's assigned site or toward the site they are going to recruit from """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = FOLLOW
 

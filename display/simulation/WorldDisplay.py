@@ -1,4 +1,4 @@
-""" Methods related to the world's display """
+""" Functions used to draw the world """
 import pygame
 
 from config import Config

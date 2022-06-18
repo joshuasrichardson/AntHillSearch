@@ -3,7 +3,7 @@ from model.phases.Phase import Phase
 
 
 class AssessPhase(Phase):
-    """ The phase where agents have found a site and are trying to determine whether they should
+    """ The phase where the agent has found a site and are trying to determine whether they should
     accept it or not """
 
     def getNumber(self):

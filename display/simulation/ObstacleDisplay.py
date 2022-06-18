@@ -1,3 +1,4 @@
+""" Functions used to draw obstacles """
 import numpy as np
 import pygame
 
@@ -6,7 +7,7 @@ from display.Display import rotateImage
 
 
 def getObstacleImage(pos):
-    """Loads, adjusts the size, and returns the image representing a obstacle"""
+    """Loads, adjusts the size, and returns the image representing an obstacle"""
     obstacle = pygame.image.load(Config.OBSTACLE_IMAGE)
     if Config.SHOULD_DRAW:
         obstacle = obstacle.convert_alpha()
@@ -19,4 +20,4 @@ def getObstacleImage(pos):
 
 def drawObstacle(obstacle, surface):
     w, h = obstacle.obstacleHandle.get_size()
-    rotateImage(surface, obstacle.obstacleHandle, obstacle.pos, [w / 2, h / 2], (np.pi))
+    rotateImage(surface, obstacle.obstacleHandle, obstacle.pos, [w / 2, h / 2], np.pi)

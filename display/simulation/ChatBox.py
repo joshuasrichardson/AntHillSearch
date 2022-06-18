@@ -5,6 +5,8 @@ from display.buttons.AdjustableBox import AdjustableBox
 
 
 class ChatBox(AdjustableBox):
+    """ A box used to receive messages from the computer for the user and from the user to the computer. This can
+    be used to distract the user as well as to gauge their level of situational awareness """
 
     def __init__(self):
         left = int(Display.origWidth * 3 / 4)

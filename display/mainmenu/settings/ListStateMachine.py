@@ -1,6 +1,9 @@
-class ArrayStateMachine:
+class ListStateMachine:
+    """ An object used to help make sure that only correct input is added to an array """
 
     def __init__(self, depth):
+        """ depth - the depth of the array; for example, [1, 2, 3] would have a depth of 1, but [[1, 2], [3, 4]]
+                    would have a depth of 2. Depth must be 1 or 2. If it is not 1, it will be set to 2 """
         self.array = []
         self.array2D = []
         self.string = ' -> '  # A String representation of the value of the array
@@ -112,7 +115,7 @@ class ArrayStateMachine:
             self.back = self.back1_1
         return self.string
 
-    def complete(self, value):
+    def complete(self, _):
         """ State where the closing bracket has been typed in """
         return self.string
 

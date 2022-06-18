@@ -6,6 +6,8 @@ from display import Display
 
 
 class SelectRect:
+    """ A rectangle that can be used to select a group of objects by pressing the mouse button,
+    moving the mouse, and releasing the mouse button """
 
     def __init__(self):
         self.rect = None

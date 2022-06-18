@@ -7,7 +7,15 @@ from display.buttons.AdjustableBox import AdjustableBox
 
 
 class AgentGraph(AdjustableBox):
+    """ A graph that shows how many of the agents are in each category """
+
     def __init__(self, title, categories, counts, colors, left, top):
+        """ title - the title of the graph
+        categories - the names of the possible categories an agent could be in
+        counts - the number of agents in each category
+        colors - colors associated with each category; this will be drawn on the bars that represent the counts
+        left - the leftmost position of the graph
+        top - the top position of the graph """
         maxCount = sum(Config.HUB_AGENT_COUNTS)
         self.title = title
         self.categories = categories

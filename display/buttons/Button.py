@@ -6,8 +6,17 @@ from display import Display
 
 
 class Button:
+    """ A generic button to be drawn on the screen and connected to an action that will be executed when the
+     button is selected """
 
-    def __init__(self, name, action, x, y, w=0, h=0, fontSize=int(Config.FONT_SIZE * 1.5), screen=None):
+    def __init__(self, name, action, x, y, w=0, h=0, fontSize=int(Config.FONT_SIZE * 1.5)):
+        """ name - the name of the button; may show up in the middle of the button if self.draw() isn't overridden
+         action - an action that is executed when the box is clicked
+         x - the left position of the box
+         y - the right position of the box
+         w - the width of the box
+         h - the height of the box
+         fontSize - size of the words to be written in the box """
         self.name = name
         self.font = pygame.font.SysFont('Comic Sans MS', fontSize)
         self.image = self.font.render(self.name, True, WORDS_COLOR).convert_alpha()
@@ -19,14 +28,9 @@ class Button:
         self.x = x
         self.y = y
         self.yAdjustment = 0
-        self.screen = screen
 
     def draw(self):
-        try:
-            Display.blitImage(self.screen, self.image, self.rect.topleft, False)
-        except AttributeError:
-            self.screen = Display.screen
-            self.draw()
+        Display.blitImage(Display.screen, self.image, self.rect.topleft, False)
 
     def collides(self, pos):
         return self.rect.collidepoint(pos)

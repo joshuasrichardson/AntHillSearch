@@ -7,6 +7,7 @@ class LeadForwardState(RecruitState):
     """ State where an agent goes to known sites and starts recruiting other agents to a better site it found """
 
     def __init__(self, agent):
+        """ agent - the agent that is in this state """
         super().__init__(agent)
         self.stateNumber = LEAD_FORWARD
 
