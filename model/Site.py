@@ -158,6 +158,11 @@ class Site:
     def getEstSiteRect(self):
         return self.estimatedSiteRect
 
+    def collides(self, pos):
+        if Config.INTERFACE_NAME == "User":
+            return self.estimatedSiteRect is not None and self.estimatedSiteRect.collidepoint(pos)
+        return self.siteRect.collidepoint(pos)
+
     def incrementCount(self, hubIndex):
         self.agentCount += 1
         self.agentCounts[hubIndex] += 1
