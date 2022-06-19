@@ -10,7 +10,7 @@ class CommandHistBox(AdjustableBox):
     def __init__(self):
         left = 20  # TODO: Don't hardcode these values
         top = int(Display.origHeight * 4 / 5)
-        right = 400
+        right = 410
         bottom = int(Display.origHeight * 19 / 20)
         width = right - left
         height = bottom - top
@@ -18,4 +18,6 @@ class CommandHistBox(AdjustableBox):
         self.executedCommands = []
 
     def addExecutedCommand(self, command, time):
-        self.addMessage('{:003d}'.format(int(time)) + ": " + command)
+        command = '{:003d}'.format(int(time)) + ": " + command
+        self.addMessage(command)
+        self.executedCommands.append(command)

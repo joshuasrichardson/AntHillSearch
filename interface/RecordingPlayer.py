@@ -92,7 +92,9 @@ class RecordingPlayer(Simulation):
 
     def update(self, agentRectList):
         self.slowDownOrSpeedUp()
-        self.simDisp.commandHistBox.executedCommands = self.recorder.getNextExecutedCommands()
+        self.simDisp.commandHistBox.executedCommands.clear()
+        for command in self.recorder.getNextExecutedCommands():
+            self.simDisp.commandHistBox.addMessage(command)
         self.simDisp.screenBorder = self.recorder.getNextScreenBorder()
 
         super().update(agentRectList)

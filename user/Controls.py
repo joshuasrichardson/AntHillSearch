@@ -118,7 +118,7 @@ class Controls:
             if agent.getRect().collidepoint(pos):
                 return True
         for site in self.world.siteList:
-            if site.getSiteRect().collidepoint(pos):
+            if site.collides(pos):
                 return True
         return False
 
@@ -370,6 +370,7 @@ class Controls:
                     end += 1
         except IndexError:
             pass
+        self.simDisp.numSelectedAgents = len(self.selectedAgents)
 
     def next(self, _):
         if self.simDisp.pauseButton.isPaused and self.simDisp.optionsScreen.visible:
