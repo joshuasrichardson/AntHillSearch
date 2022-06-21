@@ -23,16 +23,14 @@ from collections.abc import Callable
 class Controls:
     """ Lets the user interact with the interface """
 
-    def __init__(self, agentList, world, selectRect, disp):
+    def __init__(self, agentList, world, disp):
         """ agentList - a list of all the agents in the simulation
         world - the world with objects for the user to interact with
         selectRect - the rectangle used to select agents and sites
         disp - the display for the simulation that handles drawing things on the screen """
         self.simDisp = disp
-        self.pauseButton = None
 
         self.world = world
-        self.selectRect = selectRect
 
         self.agentList = agentList
         self.selectedAgent = None
@@ -70,17 +68,14 @@ class Controls:
             K_ESCAPE: self.unselectAll,
         }
 
-    def setPauseButton(self, button):
-        self.pauseButton = button
-
     def setPotentialQuality(self, quality):
         self.potentialQuality = quality
         self.simDisp.potentialQuality = quality
 
     def handleEvents(self):
         dx, dy = Display.getZoomedSize(*Display.moveScreen())
-        if self.selectRect.isSelecting([dx, dy]) and (dx != 0 or dy != 0):
-            self.selectRect.moveCorner(dx, dy)
+        if self.simDisp.selectRect.isSelecting([dx, dy]) and (dx != 0 or dy != 0):
+            self.simDisp.selectRect.moveCorner(dx, dy)
         for event in pygame.event.get():
             self.handleEvent(event)
 
@@ -127,11 +122,11 @@ class Controls:
         if event.button == 1:
             self.putDownDragSite()
             self.unselectAll(adjustedMousePos)
-            if self.selectRect.isSelecting(mousePos):
+            if self.simDisp.selectRect.isSelecting(mousePos):
                 self.wideSelect(mousePos)
             else:
                 self.select(adjustedMousePos)
-            self.selectRect.setCorner(None)
+            self.simDisp.selectRect.setCorner(None)
         elif event.button == 3:
             self.go(adjustedMousePos)
         elif pygame.key.get_mods() & KMOD_CTRL:
@@ -143,7 +138,7 @@ class Controls:
         if len(self.selectedSites) > 0 and self.simDisp.selectSitesButton.activated:
             self.startDrag()
         else:
-            self.selectRect.setCorner(list(mousePos))
+            self.simDisp.selectRect.setCorner(list(mousePos))
 
     def keyDown(self, event, adjustedMousePos):
         key = event.key
@@ -264,9 +259,9 @@ class Controls:
 
     def wideSelect(self, mousePos):
         # get a list of all objects that are under the mouse cursor
-        self.selectRect.draw(mousePos)
-        left, top = Display.getReadjustedPos(self.selectRect.rect.left, self.selectRect.rect.top)
-        w, h = Display.getUnzoomedSize(self.selectRect.rect.w, self.selectRect.rect.h)
+        self.simDisp.selectRect.draw(mousePos)
+        left, top = Display.getReadjustedPos(self.simDisp.selectRect.rect.left, self.simDisp.selectRect.rect.top)
+        w, h = Display.getUnzoomedSize(self.simDisp.selectRect.rect.w, self.simDisp.selectRect.rect.h)
         rect = pygame.Rect(left, top, w, h)
         agent = self.selectAgents(rect)
         self.selectSites(rect)
@@ -623,7 +618,7 @@ class Controls:
         return True
 
     def playOrPause(self, _):
-        self.pauseButton.playOrPause()
+        self.simDisp.pauseButton.playOrPause()
 
     def play(self):
         pass
@@ -635,5 +630,5 @@ class Controls:
         self.simDisp.pauseButton.playOrPause()
 
     def options(self, _):
-        if self.pauseButton.isPaused:
+        if self.simDisp.pauseButton.isPaused:
             self.simDisp.optionsScreen.change()

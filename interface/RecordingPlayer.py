@@ -2,7 +2,7 @@ import json
 import time
 
 from config import Config
-from model.Timer import SimulationTimer
+from model.Timer import Timer
 from Constants import *
 from display.simulation import FogDisplay
 from interface.Simulation import Simulation
@@ -22,7 +22,7 @@ class RecordingPlayer(Simulation):
             self.originalConfig = json.load(currentSettings)
         super().__init__()
         Config.SHOULD_RECORD = False
-        self.realTimer = SimulationTimer(self.timeOut)
+        self.realTimer = Timer(self.timeOut)
 
     def initializeAgentList(self):
         self.world.initialHubAgentCounts = self.hubAgentCounts
@@ -189,8 +189,8 @@ class RecordingPlayer(Simulation):
     def getNumDeadAgents(self):
         return self.recorder.readResults()[NUM_DEAD_NAME]
 
-    def getControls(self, selectRect):
-        return RecordingControls(self.world.agentList, self.world, selectRect, self.simDisp, self.changeDelay)
+    def getControls(self):
+        return RecordingControls(self.world.agentList, self.world, self.simDisp, self.changeDelay)
 
     def applyConfiguration(self):
         super().applyConfiguration()

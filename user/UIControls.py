@@ -3,8 +3,8 @@ from user.Controls import Controls
 
 class UIControls(Controls):
 
-    def __init__(self, agentList, world, selectRect, disp):
-        super().__init__(agentList, world, selectRect, disp)
+    def __init__(self, agentList, world, disp):
+        super().__init__(agentList, world, disp)
 
     def handleEvents(self):
         for agent in self.selectedAgents:

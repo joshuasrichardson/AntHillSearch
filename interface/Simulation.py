@@ -10,13 +10,12 @@ from display.buttons.PlayButton import PlayButton
 from display.simulation.SimulationDisplay import SimulationDisplay
 from display.simulation.WorldDisplay import drawWorldObjects
 from ColonyExceptions import GameOver
-from model.Timer import SimulationTimer
+from model.Timer import Timer
 from model.builder import AgentBuilder
 from recording.Recorder import Recorder
 from model.states.AtNestState import AtNestState
 from user.Controls import Controls
 from user.LimitedControls import LimitedControls
-from user.SelectRect import SelectRect
 
 
 class Simulation(ABC):
@@ -28,16 +27,14 @@ class Simulation(ABC):
         Display.screen = self.getScreen()  # Set up the screen.
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         self.timeRanOut = False  # Whether there is no more time left in the interface
-        self.timer = SimulationTimer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
+        self.timer = Timer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
         if Config.INTERFACE_NAME != "Empirical_Testing":
-            selectRect = SelectRect()
-            self.simDisp = SimulationDisplay(self.world, self.timer, selectRect)
-            self.userControls = self.getControls(selectRect)
+            self.simDisp = SimulationDisplay(self.world, self.timer)
+            self.userControls = self.getControls()
             pauseButton = PlayButton(self.userControls, Display.screen.get_width() - 60, GRAPHS_TOP_LEFT[1])
             self.simDisp.setPauseButton(pauseButton)
-            self.userControls.setPauseButton(pauseButton)
         self.numRounds = 0
 
     @abstractmethod
@@ -282,11 +279,11 @@ class Simulation(ABC):
         """ Gets the screen to draw the simulation on (or None if the simulation will not be drawn) """
         return Display.createScreen()
 
-    def getControls(self, selectRect):
+    def getControls(self):
         """ Initializes and returns an object to handle user input """
         if Config.FULL_CONTROL:
-            return Controls(self.world.agentList, self.world, selectRect, self.simDisp)
-        return LimitedControls(self.world.agentList, self.world, selectRect, self.simDisp)
+            return Controls(self.world.agentList, self.world, self.simDisp)
+        return LimitedControls(self.world.agentList, self.world, self.simDisp)
 
     def applyConfiguration(self):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """

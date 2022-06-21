@@ -12,10 +12,10 @@ class UserInterface(LiveSimulation):
     def __init__(self):
         super().__init__()
 
-    def getControls(self, selectRect):
+    def getControls(self):
         if Config.FULL_CONTROL:
-            return UIControls(self.world.agentList, self.world, selectRect, self.simDisp)
-        return LimitedControls(self.world.agentList, self.world, selectRect, self.simDisp)
+            return UIControls(self.world.agentList, self.world, self.simDisp)
+        return LimitedControls(self.world.agentList, self.world, self.simDisp)
 
     def applyConfiguration(self):
         super().applyConfiguration()

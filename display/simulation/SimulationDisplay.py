@@ -17,19 +17,20 @@ from display.simulation.Options import Options
 from display.simulation.StateNumDisplay import StateNumDisplay
 from display.simulation.TimerDisplay import TimerDisplay
 from display.simulation.WorldDisplay import drawWorldObjects, drawPotentialQuality
+from user.SelectRect import SelectRect
 
 
 class SimulationDisplay(MenuScreen):
     """ The screen used to draw the world, objects in the world, and buttons and boxes the user interacts with. This
      screen also handles some events related to the buttons and boxes. """
 
-    def __init__(self, world, timer, selectRect):
+    def __init__(self, world, timer):
         """ world - the world to be displayed
         timer - the timer to be displayed
         selectRect - the rectangle to be displayed that selects agents and sites """
         self.world = world
         self.timer = timer
-        self.selectRect = selectRect
+        self.selectRect = SelectRect()
         self.timerDisplay = TimerDisplay(timer)
         self.screenBorder = []
         self.potentialQuality = 0

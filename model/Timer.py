@@ -5,7 +5,7 @@ import pygame
 from config import Config
 
 
-class SimulationTimer:
+class Timer:
     """ A class to keep track of the time remaining in the colony interface """
 
     def __init__(self, timeOut):
