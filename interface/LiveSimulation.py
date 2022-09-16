@@ -6,6 +6,7 @@ from abc import ABC
 from config import Config
 from ColonyExceptions import *
 from Constants import *
+from config.Config import SHOULD_RECORD
 from interface.Simulation import Simulation
 from model.World import World
 from model.builder import AgentBuilder
@@ -72,7 +73,7 @@ class LiveSimulation(Simulation, ABC):
             agentNeighbors.append(self.world.agentList[i])
         return agentNeighbors
 
-    def updateAgent(self, agent, agentId, agentRectList):
+    def updateAgent(self, agent, agentRectList):
         if agent.getStateNumber() != DEAD:
             agent.moveForward()
             if Config.SHOULD_DRAW:
@@ -82,7 +83,7 @@ class LiveSimulation(Simulation, ABC):
             agent.doStateActions(agentNeighbors)
 
         if Config.SHOULD_RECORD and Config.RECORD_ALL:
-            self.recorder.recordAgentInfo(agent, agentId)
+            self.recorder.recordAgentInfo(agent)
 
     def updatePredator(self, predator, agentRectList):
         """Updates predator locations and attacks neighboring agents"""
@@ -135,12 +136,17 @@ class LiveSimulation(Simulation, ABC):
                 sites[siteIndex].wasFound = True
                 # If the site's estimates were not reported before the agent got assigned to another site, report them here.
                 if sites[siteIndex].estimatedPosition is None and not sites[siteIndex].isHub():
+                    if SHOULD_RECORD and agent.newReport:
+                        self.recorder.recordAgentEstimates(agent, agentIndex)
                     sites[siteIndex].setEstimates(agent.estimateSitePosition(sites[siteIndex]),
                                                   agent.estimateQuality(sites[siteIndex]),
                                                   sites[siteIndex].estimatedAgentCount,
                                                   agent.estimateRadius(sites[siteIndex]))
         try:
             estimates = self.world.request.addAgentToHubInfo(agent, agentIndex)
+            if SHOULD_RECORD and agent.newReport:
+                agent.newReport = False
+                self.recorder.recordAgentEstimates(agent, agentIndex)
             agent.assignedSite.setEstimates(*estimates)
             agent.assignedSite.updateBlur()
         except AttributeError:

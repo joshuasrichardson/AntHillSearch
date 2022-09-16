@@ -79,13 +79,12 @@ class Recorder:
                                         Display.origWidth * Display.origWidth / Display.newWidth,
                                         Display.origHeight * Display.origHeight / Display.newHeight)
 
-    def recordAgentInfo(self, agent, agentId):
+    def recordAgentInfo(self, agent):
         self.recordAgentPosition(agent.getPosition())
         self.recordAgentAngle(agent.getAngle())
         self.recordState(agent.getStateNumber())
         self.recordPhase(agent.getPhaseNumber())
         self.recordAssignment(agent.getAssignedSiteIndex())
-        self.recordAgentEstimates(agent, agentId)
 
     def recordAgentPosition(self, pos):
         self.agentPositions.append(pos)
@@ -106,7 +105,7 @@ class Recorder:
         self.agentEstimates.append({
             "agentId": agentId,
             "sitePosition:": [int(i) for i in agent.estimatedSitePosition],
-            "quality": agent.estimatedQuality,
+            "quality": int(agent.estimatedQuality),
             # "agentCount": int(agent.estimatedAgentCount), # TODO: Actually estimate the count. It seems to be 100 always.
             "radius": int(agent.estimatedRadius),
         })

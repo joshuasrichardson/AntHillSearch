@@ -65,6 +65,7 @@ class Agent:
         self.estimatedRadius = self.getHub().getRadius()  # The agent's estimate of the radius of their assigned site
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
         self.prevReportedSite = startingAssignment  # The site the agent was assigned to last time they were at the hub
+        self.newReport = True  # Whether the agent has new estimates to report
 
         self.siteInRangeIndex = self.getHubIndex()
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
@@ -223,12 +224,16 @@ class Agent:
         """ Returns an estimate of a site quality that is within estimationAccuracy units from the actual quality """
         if site.quality == -1:
             return -1
+        self.newReport = True
+        print("NEW estimateQuality")
         return site.getQuality() + (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
 
     def estimateRadius(self, site):
         """ Returns an estimate of a site radius that is within estimationAccuracy/4 pixels from the actual radius """
         if site.quality == -1:
             return site.getRadius()
+        self.newReport = True
+        print("NEW estimateRadius")
         estimate = site.getRadius() + ((self.estimationAccuracy / 4) if random.randint(0, 2) == 1 else (-(self.estimationAccuracy / 4)))
         if estimate <= 0:  # Main radius cannot be negative or zero.
             estimate = 1
@@ -276,6 +281,8 @@ class Agent:
         if site is self.getHub():
             estimatedSitePosition = self.getHub().getPosition()
         else:
+            self.newReport = True
+            print("NEW estimateSitePosition")
             estimatedSitePosition = site.getPosition().copy()
             estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
             estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
@@ -283,11 +290,15 @@ class Agent:
 
     def estimateSitePositionMoreAccurately(self):
         """ Returns an estimate of a site position that is closer than the agent's last estimate """
-        sitePos = self.assignedSite.getPosition()
-        if self.estimatedSitePosition[0] != sitePos[0]:
-            self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + sitePos[0]) / 2
-        if self.estimatedSitePosition[1] != sitePos[1]:
-            self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
+        if not self.newReport:
+            if self.assignedSite is not self.getHub():
+                self.newReport = True
+                print(f"NEW estimateSitePositionMoreAccurately {self.assignedSite.pos}")
+            sitePos = self.assignedSite.getPosition()
+            if self.estimatedSitePosition[0] != sitePos[0]:
+                self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + sitePos[0]) / 2
+            if self.estimatedSitePosition[1] != sitePos[1]:
+                self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
 
     def avoid(self, pos):
         if pos is not None and len(self.getNearbyPlaceToAvoid()) == 0:
