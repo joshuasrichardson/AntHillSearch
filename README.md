@@ -12,50 +12,55 @@
 ## Introduction
 
 This program is a simulation of how ants find a new home
-after their previous home has been destroyed. Agents (the 
+after their previous home has been destroyed. Agents (the
 ants who search for a new home) go through various
 levels of commitment (referred to as phases) as well as various
-states on their way to reaching their new home. Their goal is 
-to converge to the site with the highest quality (to solve the 
+states on their way to reaching their new home. Their goal is
+to converge to the site with the highest quality (to solve the
 best of N problem).
 
-In the simulation, the hub (the agents' original home) is 
-represented by a black circle, and the other sites are 
+In the simulation, the hub (the agents' original home) is
+represented by a black circle, and the other sites are
 represented by circles with different shades of red or green
-depending on their quality. The bright green sites are the best, 
-and the bright red sites are the worst. Brownish sites are 
+depending on their quality. The bright green sites are the best,
+and the bright red sites are the worst. Brownish sites are
 somewhere in the middle. There are also bars next to each site
-that represent the quality. The fuller the bar, the higher the 
-quality. Agents are represented by smaller copters or ant images 
-(depending on the settings) and, when they are selected, 
-surrounded by circles with colors representing 
+that represent the quality. The fuller the bar, the higher the
+quality. Agents are represented by smaller copters or ant images
+(depending on the settings) and, when they are selected,
+surrounded by circles with colors representing
 their current phase and state.
 
 ### Phases: Levels of Commitment
 
 #### Explore
-Each agent starts out in the Explore phase, where they have no 
-knowledge of any site beside the hub. When they come to a new 
+
+Each agent starts out in the Explore phase, where they have no
+knowledge of any site beside the hub. When they come to a new
 site, they enter the Assess phase.
 
 #### Assess
-In the Assess phase, an agent initially accepts 
-or rejects the site. If they reject the site, they stay in the 
-Assess phase and go look for other sites. If they accept it, 
-they enter the Canvasing phase. 
+
+In the Assess phase, an agent initially accepts
+or rejects the site. If they reject the site, they stay in the
+Assess phase and go look for other sites. If they accept it,
+they enter the Canvasing phase.
 
 #### Canvas
-The Canvasing phase is where they start recruiting other agents 
-to their assigned site. When a quorum has met at a site, 
+
+The Canvasing phase is where they start recruiting other agents
+to their assigned site. When a quorum has met at a site,
 in other words if enough agents are
-at the same site at the same time, these agents will enter the 
-Committed phase. 
+at the same site at the same time, these agents will enter the
+Committed phase.
 
 #### Committed
+
 The agent is fully committed to their assigned site and their
 recruiting becomes faster.
 
 #### Converged
+
 For simulations where there is more than one hub, we added a Converged
 phase. This phase was not in the original model, but we added it
 so that the user can see which groups of agents still need to find a site.
@@ -63,42 +68,50 @@ so that the user can see which groups of agents still need to find a site.
 ### States
 
 Agents' states include At Nest, Search, Lead Forward, Follow,
-Transport, Reverse Tandem, Carried, Escape, and Dead. 
+Transport, Reverse Tandem, Carried, Escape, and Dead.
 
-#### At Nest 
-The agent is at one of the sites (which can include the hub). 
+#### At Nest
 
-#### Search means 
-The agent is out looking for other sites to evaluate. 
+The agent is at one of the sites (which can include the hub).
 
-#### Lead Forward 
+#### Search
+
+The agent is out looking for other sites to evaluate.
+
+#### Lead Forward
+
 The agent (in the Canvasing phase) starts to recruit other
-agents to their assigned site. 
+agents to their assigned site.
 
-#### Follow 
-The agent goes with an agent in the Lead Forward or Reverse Tandem 
+#### Follow
+
+The agent goes with an agent in the Lead Forward or Reverse Tandem
 state to get to another site.
 
-#### Reverse Tandem 
-The agent (in the committed phase) leads other agents from their 
-assigned site to another site they know about. 
+#### Reverse Tandem
+
+The agent (in the committed phase) leads other agents from their
+assigned site to another site they know about.
 From there, both the leader and the follower lead more agents back
-to the site they are committed to. 
+to the site they are committed to.
 
-#### Transport 
-The agent (in the Committed phase) picks up agents that are either 
-searching or at a nest. 
+#### Transport
 
-#### Carried 
-The agent is picked up by another agent in the Transport state 
-and brought to the transporting agent's site to evaluate it for 
+The agent (in the Committed phase) picks up agents that are either
+searching or at a nest.
+
+#### Carried
+
+The agent is picked up by another agent in the Transport state
+and brought to the transporting agent's site to evaluate it for
 themselves.
 
 ### Other Bugs
+
 Predators can also be added to the simulation. When the agents come
 in contact with the predators, the predators attack them. If the agents
 get away safely, they avoid the area, if not, they die and stay there
-till the end of the simulation. Agents who come across dead agents 
+till the end of the simulation. Agents who come across dead agents
 turn away and avoid coming back to that area.
 
 Lady bugs can also be added to the simulation. When an agent finds
@@ -107,26 +120,26 @@ a lady bug, the lady bug directs it to the best quality site.
 ### References
 
 More details about the phases and states can be found by reading
-["An agent-based model of collective nest choice by the ant Temnothorax albipennis"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/S0003347205002332) 
-by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R. 
-Franks. The model in this Anthill Search program is mostly based on the 
-model represented in the "Structure of the Model" section of this paper, but 
+["An agent-based model of collective nest choice by the ant Temnothorax albipennis"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/S0003347205002332)
+by Stephen C. Pratt, David J. T. Sumpter, Eamonn B. Mallon, and Nigel R.
+Franks. The model in this Anthill Search program is mostly based on the
+model represented in the "Structure of the Model" section of this paper, but
 adjustments such as the Converged phase, Go state, and Dead state have been added
 to allow for interactions with users and predators.
 
-Another useful paper about this topic is found at 
-["Nest Site Choices in Social Insects"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/B9780128096338012620?via%3Dihub) 
+Another useful paper about this topic is found at
+["Nest Site Choices in Social Insects"](https://www-sciencedirect-com.erl.lib.byu.edu/science/article/pii/B9780128096338012620?via%3Dihub)
 We did not find this one till after implementing the model,
-but it had useful information about when the ants decide to 
+but it had useful information about when the ants decide to
 switch from the Canvas phase to the Commit phase.
 It also contains a paragraph about factors that make a site good.
-We could implement these in the future, but for now, the quality is 
+We could implement these in the future, but for now, the quality is
 just represented by a number.
 
 ### Additional Information
 
-In addition to the states and phases described above, many options for 
-user interaction have been added. See the "Parameters" section for 
+In addition to the states and phases described above, many options for
+user interaction have been added. See the "Parameters" section for
 details about how to change the simulation's set up. The provided
 interfaces handle many of these parameters, allowing for a few different
 use cases, but variables such as the number of sites may need to be
@@ -137,81 +150,72 @@ it is running.
 ## Running the Program
 
 1. Using the terminal, navigate to the <code>AntHillSearch/</code>
-   directory on your computer (It should be the same directory as 
+   directory on your computer (It should be the same directory as
    this <code>README.md</code>).
 2. If this is your first time running the program on your machine,
    enter <code>pip install -r requirements.txt</code>. This will
    install all the necessary dependencies for running the program.
 3. (Optional) To change parameters from the default parameters, see the
    "Parameters" section below.
-4. Enter <code>python Colony.py</code> in the terminal to start up the 
+4. Enter <code>python Colony.py</code> in the terminal to start up the
    program.
-5. If you are using the Empirical Testing interface, simply wait 
-   for the ants to find their new home. Otherwise, select "Tutorial" 
-   or  "Practice" to become familiar with how the program works.
+5. If you are using the Empirical Testing interface, simply wait
+   for the ants to find their new home. Otherwise, select "Tutorial"
+   or "Practice" to become familiar with how the program works.
    1. If desired, try using some user controls while the
       simulation is running (see "Controls" for more details).
 
 ## Parameters
 
-The parameters can have a big impact on the setup and behavior 
-of the simulation. A list of the default parameters and more 
-information about them can be found in 
-<code>config/Config.py</code>. 
+The parameters can have a big impact on the setup and behavior
+of the simulation. A list of the default parameters and more
+information about them can be found in
+<code>config/Config.py</code>.
 
 There are 2 main ways to change the parameters:
 
-1. While the program is running, select the Settings tab from 
-   the main menu, select the option to be changed, type the 
+1. While the program is running, select the Settings tab from
+   the main menu, select the option to be changed, type the
    desired values, and press enter.
-   Note that this method can only change certain parameters, 
+   Note that this method can only change certain parameters,
    but it will override the method below.
-   
-2. Change the values in <code>config/config.json</code>. 
+2. Change the values in <code>config/config.json</code>.
    For a complete list of parameters that can be changed here,
    refer to <code>Constants.py</code>'s <code>CONFIG_KEYS</code>
 
-Important methods and their parameters to know about are listed 
+Important methods and their parameters to know about are listed
 below.
 
-Using the interfaces mentioned in the "Interfaces" Section below 
+Using the interfaces mentioned in the "Interfaces" Section below
 is an easy way to change the way the simulation runs without changing
 a bunch of parameters.
 
-
 ## Optional Methods to Add to Colony.py
-
 
 The following methods can be added to a live colony simulation
 (not the RecordingPlayer interface) in
 the main function to change the initial state.
-  
-  
+
 ### <code>LiveSimulation.randomizeInitialState()</code>
 
 Assigns each agent in the simulation a random site and position to start from.
 
-This method has no parameters. Also, note that it cannot be called with the 
+This method has no parameters. Also, note that it cannot be called with the
 RecordingPlayer.
-
 
 ### <code>LiveSimulation.addAgents()</code>
 
-Adds agents to the simulation (in addition to the <code>numAgents</code> specified in 
-the constructor). These agents can be given specific starting states, phases, 
+Adds agents to the simulation (in addition to the <code>numAgents</code> specified in
+the constructor). These agents can be given specific starting states, phases,
 locations, and assignments.
 
-- <code>numAgents</code> (required): Integer to set the number of agents to create with 
+- <code>numAgents</code> (required): Integer to set the number of agents to create with
   the specified state, phase, assignedSite, and startingPosition.
-  
 - <code>state</code> (required): State that the agents start in.
-  
 - <code>phase</code> (required): Integer to set the phase that the agents start in.
-  
-- <code>assignedSiteIndex</code> (required): Integer that sets the agents' assigned 
+- <code>assignedSiteIndex</code> (required): Integer that sets the agents' assigned
   site to the nth site in the site list.
-  
-- <code>startingPosition</code>: Ordered pair that sets where the agents start in 
+- <code>startingPosition</code>: Ordered pair that sets where the agents start in
   the simulation.
 
 Note that this method can not be used with the RecordingPlayer.
@@ -221,8 +225,8 @@ Note that this method can not be used with the RecordingPlayer.
 There are currently 4 different interfaces available as listed below.
 
 For a more game-like simulation, you can make a <code>StartUpDisplay</code>
-object and pass an interface into the constructor (either <code>UserInterface</code> 
-or <code>EngineerInterface</code>). To play this one, call <code>run()</code> 
+object and pass an interface into the constructor (either <code>UserInterface</code>
+or <code>EngineerInterface</code>). To play this one, call <code>run()</code>
 on the <code>StartUpDisplay</code> object.
 
 ### EngineerInterface
@@ -232,44 +236,44 @@ there is a choice between drawing something and not drawing it,
 this interface usually draws it. It also provides accurate info
 about where agents are and site values. This interface also
 allows more user controls than the other interfaces. All parameters
-can still be manually set by the user as is shown for the 
+can still be manually set by the user as is shown for the
 LiveSimulation in the "Parameters" section above, but different
 default values apply.
 
-This interface is good for testing new functionality and more 
+This interface is good for testing new functionality and more
 clearly seeing how the simulation works.
 
 ### UserInterface
 
-This interface does not show as much information as the Engineering 
-Interface. Agents and their paths are only drawn when they are close 
+This interface does not show as much information as the Engineering
+Interface. Agents and their paths are only drawn when they are close
 to the hub, and the sites drawn only reflect what the agents that have
 returned to the hub have estimated about them. This interface allows
-some user controls, but they are limited to what can be done from the 
-hub. All parameters can still be manually set by the user as is shown 
-for the LiveSimulation in the "Parameters" section above, but 
+some user controls, but they are limited to what can be done from the
+hub. All parameters can still be manually set by the user as is shown
+for the LiveSimulation in the "Parameters" section above, but
 different default values apply.
 
-This interface is good if you want the user to have the perspective of 
+This interface is good if you want the user to have the perspective of
 a leader at the hub.
 
 ### EmpiricalTestingInterface
 
-This interface is good for collecting results quickly without user 
-interactions. It is about 3.29 times faster than the 
+This interface is good for collecting results quickly without user
+interactions. It is about 3.29 times faster than the
 <code>UserInterface</code>. (You can multiply the duration by 3.29
 to figure out how long the same simulation would have taken if it had
 been run in the <code>UserInterface</code>.)
 
 This interface is the one that shows the least information. Nothing
-is drawn on the screen, and the user has no control over what happens. 
-The most important information is simply reported at the end of the 
+is drawn on the screen, and the user has no control over what happens.
+The most important information is simply reported at the end of the
 simulation. This information is not the complete accurate information in
 the Engineer Interface; it is what is known from the hub like in the
 User Interface. With nothing being drawn, this interface is faster than
 the others and allows users to run more simulations in a shorter time
 to gather empirical data. All parameters can still be manually set
-by the user as is shown for the LiveSimulation in the "Parameters" 
+by the user as is shown for the LiveSimulation in the "Parameters"
 section above, but different default values apply.
 
 ### RecordingPlayer
@@ -277,17 +281,17 @@ section above, but different default values apply.
 This interface shows about as much information as the Engineering
 Interface, but users have no control over what happens. Parameters
 have no effect on the simulation because all the instructions come
-from the <code>recording/*date-time*_RECORDING.json</code> file.
+from the <code>recording/_date-time_\_RECORDING.json</code> file.
 
 ## Controls
 
-The controls allow a user to interact with the 
+The controls allow a user to interact with the
 simulation by doing things such as telling agents
 where to go, creating sites, pausing, etc. These
-can be adjusted by changing statements in the 
+can be adjusted by changing statements in the
 <code>handleEvent</code> method found in <code>
 user.Controls</code> Below is a complete list of
-all the controls available right now (There may 
+all the controls available right now (There may
 be more to come).
 
 All of these controls are available in the Engineering
@@ -304,8 +308,7 @@ the Empirical Testing interface.
   to go, assigned to a site, told to avoid an area, killed, or deleted 
   (see "Move Agent," "Assign Agent to Site," "Delete Agent," "Avoid Area,"
   and "Kill Agent" below).</p>
-  
-- <strong>Wide Select</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, 
+- <strong>Wide Select</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>,
   <code>MOUSEBUTTONUP</code>:
   <p>Users can select a group of agents by clicking
   somewhere with the mouse, sliding the mouse over the 
@@ -320,7 +323,6 @@ the Empirical Testing interface.
   <p>Users can set the selected agents to be a group that can 
   easily be selected again later (see "Select Agent Group" below)
   by holding down the <code>CTRL</code> key and pushing a number key.</p>
-  
 - <strong>Select Agent Group</strong> - <code>0-9</code>:
   <p>Users can select a set group of agents (see "Set Agent Group" above)
   by pressing the corresponding number key. This does not work if
@@ -426,7 +428,7 @@ the Empirical Testing interface.
   "Shrink Site," "Delete Site," "Raise Quality," "Lower Quality," 
   and "Set Quality" below).</p>
 
-- <strong>Wide Select</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, 
+- <strong>Wide Select</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>,
   <code>MOUSEBUTTONUP</code>:
   <p>Users can select a group of sites by clicking
   somewhere with the mouse, sliding the mouse over the sites 
@@ -477,7 +479,7 @@ the Empirical Testing interface.
   <p>Users can decrease the size of the selected sites by pressing the 
   <code>-</code> key.</p>
 
-- <strong>Move Site</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>, 
+- <strong>Move Site</strong> - <code>MOUSEBUTTONDOWN</code>, <code>MOUSEMOTION</code>,
   <code>MOUSEBUTTONUP</code>:
   <p>Users can move sites by clicking them with the mouse, dragging 
   them to a new location, and releasing the mouse button.</p>
@@ -516,18 +518,15 @@ the Empirical Testing interface.
   However, agents who are told to go somewhere (see "Move Agent" above) will
   not start moving until the simulation resumes.</p>
 
-- <strong>Zoom In</strong> - <code>CTRL</code> +  <code>MOUSEWHEEL</code>:
+- <strong>Zoom In</strong> - <code>CTRL</code> + <code>MOUSEWHEEL</code>:
   <p>Users can zoom in by holding down <code>CTRL</code> and scrolling up on the 
   mouse. If they have a mouse pad, zooming in works on that too.</p>
-  
-- <strong>Zoom Out</strong> - <code>CTRL</code> +  <code>MOUSEWHEEL</code>:
+- <strong>Zoom Out</strong> - <code>CTRL</code> + <code>MOUSEWHEEL</code>:
   <p>Users can zoom out by holding down <code>CTRL</code> and scrolling down on the 
   mouse. If they have a mouse pad, zooming out works on that too.</p>
-  
 - <strong>Move Camera</strong> - <code>MOUSEMOTION</code>:
   <p>Users can move the view of the camera by moving the mouse to the edge of the screen
   in the direction they want the camera to move.</p>
-  
 - <strong>Lock Screen</strong> - <code>CAPS</code>:
   <p>Users can lock the screen so that the screen cannot be moved or zoomed by pressing the 
   <code>CAPS LOCK</code> key. The screen can be unlocked the same way.</p>

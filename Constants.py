@@ -1,6 +1,7 @@
 """ Global constants used in anthill search simulation program """
 
 RESULTS_DIR = "recording/results/"  # The directory that stores the results
+RESULTS_FILE_ENDINGS = ('RECORDING.json', 'RESULTS.json', 'COMMANDS.json', 'CONFIG.json', "ESTIMATES.json")
 MAX_NUM_RECORDINGS = 15
 
 CONVERGENCE_FRACTION_NAME = "CONVERGENCE_FRACTION"

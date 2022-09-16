@@ -72,7 +72,7 @@ class LiveSimulation(Simulation, ABC):
             agentNeighbors.append(self.world.agentList[i])
         return agentNeighbors
 
-    def updateAgent(self, agent, agentRectList):
+    def updateAgent(self, agent, agentId, agentRectList):
         if agent.getStateNumber() != DEAD:
             agent.moveForward()
             if Config.SHOULD_DRAW:
@@ -82,7 +82,7 @@ class LiveSimulation(Simulation, ABC):
             agent.doStateActions(agentNeighbors)
 
         if Config.SHOULD_RECORD and Config.RECORD_ALL:
-            self.recorder.recordAgentInfo(agent)
+            self.recorder.recordAgentInfo(agent, agentId)
 
     def updatePredator(self, predator, agentRectList):
         """Updates predator locations and attacks neighboring agents"""

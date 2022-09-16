@@ -7,7 +7,7 @@ from datetime import datetime
 import Utils
 from config import Config
 from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME, FULL_CONTROL_NAME, DISTRACTED_NAME, \
-    NUM_SITES_NAME, NUM_PREDATORS_NAME, MAX_NUM_RECORDINGS
+    NUM_SITES_NAME, NUM_PREDATORS_NAME, MAX_NUM_RECORDINGS, RESULTS_FILE_ENDINGS
 from display import Display
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
@@ -30,6 +30,7 @@ class Recorder:
         self.agentStates = []
         self.agentPhases = []
         self.agentAssignments = []
+        self.agentEstimates = []
         self.predatorPositions = []
         self.predatorAngles = []
         self.ladybugPositions = []
@@ -78,12 +79,13 @@ class Recorder:
                                         Display.origWidth * Display.origWidth / Display.newWidth,
                                         Display.origHeight * Display.origHeight / Display.newHeight)
 
-    def recordAgentInfo(self, agent):
+    def recordAgentInfo(self, agent, agentId):
         self.recordAgentPosition(agent.getPosition())
         self.recordAgentAngle(agent.getAngle())
         self.recordState(agent.getStateNumber())
         self.recordPhase(agent.getPhaseNumber())
         self.recordAssignment(agent.getAssignedSiteIndex())
+        self.recordAgentEstimates(agent, agentId)
 
     def recordAgentPosition(self, pos):
         self.agentPositions.append(pos)
@@ -99,6 +101,15 @@ class Recorder:
 
     def recordAssignment(self, siteIndex):
         self.agentAssignments.append(siteIndex)
+
+    def recordAgentEstimates(self, agent, agentId):
+        self.agentEstimates.append({
+            "agentId": agentId,
+            "sitePosition:": [int(i) for i in agent.estimatedSitePosition],
+            "quality": agent.estimatedQuality,
+            # "agentCount": int(agent.estimatedAgentCount), # TODO: Actually estimate the count. It seems to be 100 always.
+            "radius": int(agent.estimatedRadius),
+        })
 
     def recordAgentsToDelete(self, agentIndex):
         self.agentsToDelete = agentIndex
@@ -226,14 +237,18 @@ class Recorder:
 
         self.executedCommands.clear()
 
+        with open(f'{self.outputFileBase}_ESTIMATES.json', 'w') as file:
+            json.dump({'agentEstimates': self.agentEstimates}, file)
+
+        self.agentEstimates.clear()
+
     @staticmethod
     def deleteExcessRecordings():
         # Delete old replays when there are too many, so they don't take up too much space on the computer.
-        replays = [file for file in os.listdir('./recording/results/') if file.endswith('RECORDING.json')
-                   or file.endswith('RESULTS.json') or file.endswith('COMMANDS.json') or file.endswith('CONFIG.json')]
-        if len(replays) > MAX_NUM_RECORDINGS * 4:
+        replays = [file for file in os.listdir('./recording/results/') if file.endswith(RESULTS_FILE_ENDINGS)]
+        if len(replays) > MAX_NUM_RECORDINGS * len(RESULTS_FILE_ENDINGS):
             replays = sorted(replays, key=lambda t: -os.stat(f"./recording/results/{t}").st_mtime)  # Sort by date modified (recently modified first)
-            replays = replays[MAX_NUM_RECORDINGS * 4:]  # Delete from the end of the list
+            replays = replays[MAX_NUM_RECORDINGS * len(RESULTS_FILE_ENDINGS):]  # Delete from the end of the list
             for replay in replays:
                 os.remove(f"./recording/results/{replay}")
 

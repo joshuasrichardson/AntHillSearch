@@ -151,7 +151,7 @@ class RecordingPlayer(Simulation):
             agentRectList.pop(agentIndex)
             self.world.removeAgent(self.world.agentList[agentIndex])
 
-    def updateAgent(self, agent, agentRectList):
+    def updateAgent(self, agent, agentId, agentRectList):
         agent.setState(self.recorder.getNextState(agent))
         agent.setPhase(self.recorder.getNextPhase())
         pos = self.recorder.getNextAgentPosition()

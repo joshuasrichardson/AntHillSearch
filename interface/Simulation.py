@@ -123,12 +123,12 @@ class Simulation(ABC):
         pass
 
     def updateAgents(self, agentRectList):
-        for agent in self.world.agentList:
-            self.updateAgent(agent, agentRectList)
+        for i, agent in enumerate(self.world.agentList):
+            self.updateAgent(agent, i, agentRectList)
             self.world.updatePaths(agent)
 
     @abstractmethod
-    def updateAgent(self, agent, agentRectList):
+    def updateAgent(self, agent, agentId, agentRectList):
         pass
 
     def updatePredators(self, agentRectList):
