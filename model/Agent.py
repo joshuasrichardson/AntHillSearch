@@ -225,7 +225,6 @@ class Agent:
         if site.quality == -1:
             return -1
         self.newReport = True
-        print("NEW estimateQuality")
         return site.getQuality() + (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
 
     def estimateRadius(self, site):
@@ -233,7 +232,6 @@ class Agent:
         if site.quality == -1:
             return site.getRadius()
         self.newReport = True
-        print("NEW estimateRadius")
         estimate = site.getRadius() + ((self.estimationAccuracy / 4) if random.randint(0, 2) == 1 else (-(self.estimationAccuracy / 4)))
         if estimate <= 0:  # Main radius cannot be negative or zero.
             estimate = 1
@@ -282,7 +280,6 @@ class Agent:
             estimatedSitePosition = self.getHub().getPosition()
         else:
             self.newReport = True
-            print("NEW estimateSitePosition")
             estimatedSitePosition = site.getPosition().copy()
             estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
             estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
@@ -293,7 +290,6 @@ class Agent:
         if not self.newReport:
             if self.assignedSite is not self.getHub():
                 self.newReport = True
-                print(f"NEW estimateSitePositionMoreAccurately {self.assignedSite.pos}")
             sitePos = self.assignedSite.getPosition()
             if self.estimatedSitePosition[0] != sitePos[0]:
                 self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + sitePos[0]) / 2
@@ -407,6 +403,16 @@ class Agent:
     def shouldFollow():
         """ Returns whether the agent should follow a canvasing or committed agent """
         return random.exponential() > Config.FOLLOW_THRESHOLD
+
+    @staticmethod
+    def shouldFollowDance():
+        """ Returns whether the agent should go to the site of a dancing agent """
+        return random.exponential() > Config.FOLLOW_DANCE_THRESHOLD
+
+    @staticmethod
+    def doneRecruiting():
+        """ Returns whether the agent is ready to stop recruiting and rest """
+        return random.exponential() > Config.LEAD_THRESHOLD
 
     def shouldGetLost(self):
         """ Returns whether the agent will lose their way """

@@ -12,10 +12,12 @@ from display.simulation.WorldDisplay import drawWorldObjects
 from ColonyExceptions import GameOver
 from model.Timer import Timer
 from model.builder import AgentBuilder
+from model.states.simplified.Rest import RestState
 from recording.Recorder import Recorder
 from model.states.AtNestState import AtNestState
 from user.Controls import Controls
 from user.LimitedControls import LimitedControls
+from user.NoControls import NoControls
 
 
 class Simulation(ABC):
@@ -30,6 +32,7 @@ class Simulation(ABC):
         self.timer = Timer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
+        self.initialState = RestState if SIMPLIFY_STATES else AtNestState
         if Config.INTERFACE_NAME != "Empirical_Testing":
             self.simDisp = SimulationDisplay(self.world, self.timer)
             self.userControls = self.getControls()
@@ -42,12 +45,14 @@ class Simulation(ABC):
         pass
 
     def initializeAgentList(self):
+        self.initialState = RestState if SIMPLIFY_STATES else AtNestState
+        print(f"Initial state: {self.initialState}")
         for hubIndex, count in enumerate(self.world.initialHubAgentCounts):
             if hubIndex >= len(self.world.getHubs()):
                 break
             for i in range(count):
                 agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[hubIndex])
-                agent.setState(AtNestState(agent))
+                agent.setState(self.initialState(agent))
                 self.world.agentList.append(agent)
                 self.world.agentGroups[i % 10].append(agent)
 
@@ -281,6 +286,8 @@ class Simulation(ABC):
 
     def getControls(self):
         """ Initializes and returns an object to handle user input """
+        if SIMPLIFY_STATES:
+            return NoControls(self.world.agentList, self.world, self.simDisp)
         if Config.FULL_CONTROL:
             return Controls(self.world.agentList, self.world, self.simDisp)
         return LimitedControls(self.world.agentList, self.world, self.simDisp)

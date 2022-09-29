@@ -1,6 +1,6 @@
 from pygame import K_RETURN, K_BACKSPACE, K_ESCAPE
 
-from Constants import BORDER_COLOR, ACTIVE_COLOR, TRANSPARENT
+from Constants import BORDER_COLOR, ACTIVE_COLOR, TRANSPARENT, SIMPLIFY_STATES
 from display.buttons.AdjustableBox import AdjustableBox
 
 
@@ -17,6 +17,7 @@ class InputButton(AdjustableBox):
         self.typing = False
         self.paragraphs = []
         self.receiver = receiver
+        self.shouldDraw = not SIMPLIFY_STATES
 
     def changeColor(self, color):
         self.borderColor = ACTIVE_COLOR if self.typing else color

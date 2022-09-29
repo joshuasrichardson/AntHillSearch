@@ -49,6 +49,7 @@ class AdjustableBox(Box):
         self.maxB = inf
         self.minW = minW
         self.minH = minH
+        self.shouldDraw = True
 
     def mouseButtonDown(self, pos):
         if self.collidesTop(pos):
@@ -97,6 +98,8 @@ class AdjustableBox(Box):
         self.enforceBounds()
 
     def draw(self):
+        if not self.shouldDraw:
+            return
         super().draw()
         for i, message in enumerate(self.lines):
             if self.rect.top < self.messagePositions[i][1] < self.rect.bottom - self.bottomPad:

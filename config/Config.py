@@ -172,6 +172,8 @@ GET_LOST_THRESHOLD = 5  # Influences the likelihood that an agent will get lost 
 
 FOLLOW_THRESHOLD = 1  # Influences the likelihood that an agent will start following another agent
 
+FOLLOW_DANCE_THRESHOLD = 6  # Influences the likelihood that an agent will start following another agent
+
 # If this is too low (like 3), then the canvasing and committed agents don't stay in the AT_NEST phase much
 LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruiting (LEAD_FORWARD or REVERSE_TANDEM)
 
