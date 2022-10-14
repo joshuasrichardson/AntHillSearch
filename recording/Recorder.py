@@ -329,7 +329,8 @@ class Recorder:
             json.dump(configData, file)
 
         # The first part of the name of the sheets with these settings
-        configAbrv = f"{control}{distractions}{sites}{preds}{positions}"
+        configAbrv = f"{control}{distractions}{sites}{preds}{positions}" if Config.RESULTS_FILE_NAME is None \
+            else Config.RESULTS_FILE_NAME
 
         XlsxWriter.jsonToXlsx(configData, Config.INTERFACE_NAME, f"{configAbrv}Config",
                               "FFBE8C", "FFEAD9", "FFDBBF", sep=False)

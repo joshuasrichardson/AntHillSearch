@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\recording\results\emp_testing\all-results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

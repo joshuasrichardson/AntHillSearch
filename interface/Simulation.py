@@ -46,7 +46,6 @@ class Simulation(ABC):
 
     def initializeAgentList(self):
         self.initialState = RestState if SIMPLIFY_STATES else AtNestState
-        print(f"Initial state: {self.initialState}")
         for hubIndex, count in enumerate(self.world.initialHubAgentCounts):
             if hubIndex >= len(self.world.getHubs()):
                 break

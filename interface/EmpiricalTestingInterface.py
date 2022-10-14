@@ -6,8 +6,9 @@ class EmpiricalTestingInterface(LiveSimulation):
     """ A class to run the simulation for ants finding their new home after the old one broke without drawing
      anything on the screen. The results are simply printed out at the end of each simulation """
 
-    def __init__(self):
+    def __init__(self, resultsFileName=None):
         super().__init__()
+        Config.RESULTS_FILE_NAME = resultsFileName
 
     def recordDisplays(self):
         if Config.SHOULD_RECORD:
