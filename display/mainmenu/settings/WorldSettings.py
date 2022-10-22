@@ -37,7 +37,7 @@ class WorldSettings(Button, MenuScreen):
                            Config.HUB_RADII, Config.HUB_AGENT_COUNTS, Config.SITE_POSITIONS,
                            Config.SITE_QUALITIES, Config.SITE_RADII, Config.SITE_RADIUS,
                            Config.NUM_PREDATORS, Config.PRED_POSITIONS, Config.NUM_LADYBUGS,
-                           Config.LADYBUG_POSITIONS)
+                           Config.LADYBUG_POSITIONS, Config.NUM_OBSTACLES, Config.OBSTACLE_POSITIONS)
         FogDisplay.clearExplorableArea(self.world)
         for site in self.world.siteList:
             site.wasFound = True

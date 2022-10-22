@@ -14,7 +14,7 @@ CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assign
 # Shorter durations increase the likeliness that the colony will be split.
 
 USE_ROUNDS_AS_DURATION = True
-SIM_DURATION = 3000  # Time of the interface in seconds or rounds
+SIM_DURATION = 5000  # Time of the interface in seconds or rounds
 
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such
@@ -144,7 +144,7 @@ LADYBUG_POSITIONS = []  # Where the ladybugs will start. No position =
 OBSTACLE_IMAGE = "resources/obstacle.jpg"  # The path of the obstacle image
 OBSTACLE_ANGLE = pi / 2  # The initial angle the obstacle in the image is facing
 NUM_OBSTACLES = 4  # The number of obstacles in the simulation
-OBSTACLE_POSITIONS = [[300,700], [300,0], [900,700], [900,0]]  # Where the obstacles will be placed. No position = random
+OBSTACLE_POSITIONS = [[300, 700], [300, 0], [900, 700], [900, 0]]  # Where the obstacles will be placed. No position = random
 
 """ Agent Transition Parameters """
 # Threshold probability,
