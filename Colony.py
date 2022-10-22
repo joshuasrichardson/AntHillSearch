@@ -101,7 +101,7 @@ def runEmpiricalTestingInterface(numSimulations=1, resultsFileName=None, useConf
 def iterateConfigurations(resultsFileName):
     # 30 * 3 * 3 * 4 * 20 = 21,600 simulations
     simsPerSetting = 1
-    numAgentss = [200, 400, 800]
+    numAgentss = [50, 100, 200]
     numSitess = [2, 3, 4]
     sitesDistances = [50, 100, 200, 300]
     qualitiess2 = [[0, 128], [0, 255], [128, 255], [50, 160], [50, 250], [160, 250],

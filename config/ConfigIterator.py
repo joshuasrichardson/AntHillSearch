@@ -95,6 +95,8 @@ class ConfigIterator:
             Setting("SITE_QUALITIES", qualities)
         ]
 
+        # print(f"{settings[0]}, {settings[1]}, {settings[2]}, {settings[3]}")
+
         setKeysValues(settings)
 
         return settings
