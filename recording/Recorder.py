@@ -12,6 +12,7 @@ from display import Display
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter
+from recording.MongoDBWriter import MongoDBWriter
 
 
 def getMostRecentRecording():
@@ -68,6 +69,8 @@ class Recorder:
 
         self.timestampString = datetime.now().strftime('%b-%d-%Y-%H-%M-%S')
         self.outputFileBase = f'{RESULTS_DIR}{self.timestampString}'
+
+        self.mongoWriter = MongoDBWriter()
 
     def record(self, simulation):
         if Config.SHOULD_RECORD:
@@ -252,6 +255,10 @@ class Recorder:
                 os.remove(f"./recording/results/{replay}")
 
     def writeResults(self, results, world):
+        self.mongoWriter.insert(results, world)
+        if Config.ONLY_USE_MONGODB:
+            return
+
         # Create the folder with the results if it does not exist
         if not os.path.exists(RESULTS_DIR):
             os.makedirs(RESULTS_DIR)
