@@ -13,6 +13,7 @@ from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter
 from recording.MongoDBWriter import MongoDBWriter
+from recording import CsvWriter
 
 
 def getMostRecentRecording():
@@ -255,7 +256,8 @@ class Recorder:
                 os.remove(f"./recording/results/{replay}")
 
     def writeResults(self, results, world):
-        self.mongoWriter.insert(results, world)
+        # self.mongoWriter.insert(results, world)
+        CsvWriter.insert(results, world)
         if Config.ONLY_USE_MONGODB:
             return
 
@@ -326,10 +328,10 @@ class Recorder:
         configData['SITE_POSITIONS'] = f"{list(map(lambda site: site.pos, world.siteList[len(world.hubs):]))}"
         configData['SITE_QUALITIES'] = f"{list(map(lambda site: site.quality, world.siteList[len(world.hubs):]))}"
         configData['PRED_POSITIONS'] = f"{list(map(lambda pred: pred.pos, world.predatorList))}"
-        for corner in world.floodZone.corners:
-            corner[0] += Display.worldLeft
-            corner[1] += Display.worldTop
-        configData['FLOOD_ZONE_CORNERS'] = f"{world.floodZone.corners}"
+        # for corner in world.floodZone.corners:
+        #     corner[0] += Display.worldLeft
+        #     corner[1] += Display.worldTop
+        # configData['FLOOD_ZONE_CORNERS'] = f"{world.floodZone.corners}"
 
         # Record the configuration to a json file for the recording player to use
         with open(f'{self.outputFileBase}_CONFIG.json', 'w') as file:

@@ -24,8 +24,8 @@ class Simulation(ABC):
     """ An abstract class to run the simulation for ants finding their new home after the old one broke.
     Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
-    def __init__(self):
-        self.applyConfiguration()  # update all the settings with the configuration file.
+    def __init__(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
+        self.applyConfiguration(numAgents, numSites, sitePositions, siteQualities)  # update all the settings with the configuration file.
         Display.screen = self.getScreen()  # Set up the screen.
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         self.timeRanOut = False  # Whether there is no more time left in the interface
@@ -236,7 +236,7 @@ class Simulation(ABC):
                    NUM_ARRIVALS_NAME: numArrivals,
                    NUM_DEAD_NAME: numDeaths,
                    TOTAL_NAME: self.world.initialHubAgentCounts,
-                   IN_FLOOD_ZONE_NAME: self.areInFloodZone(self.chosenHomes)}
+                   IN_FLOOD_ZONE_NAME: False}#self.areInFloodZone(self.chosenHomes)}
         return results
 
     def getNumDeadAgents(self):
@@ -291,6 +291,6 @@ class Simulation(ABC):
             return Controls(self.world.agentList, self.world, self.simDisp)
         return LimitedControls(self.world.agentList, self.world, self.simDisp)
 
-    def applyConfiguration(self):
+    def applyConfiguration(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """
         Utils.copyJsonToConfig()

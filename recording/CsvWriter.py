@@ -30,6 +30,7 @@ def jsonObjectToCsv(json_data, out_file_name, should_separate=True):
     file_path = f'{path}/{out_file_name}'
     file_exists = os.path.exists(file_path)
     data_file = open(file_path, 'a', newline='')
+    print(file_path)
 
     csv_writer = csv.writer(data_file)
     if not file_exists:  # If we just created the file, we need to add the headers
@@ -64,3 +65,17 @@ def separateIntoRows(values):
             for row in rows:
                 row.append(value)
     return rows
+
+def insert(results, world):
+    configData = {}
+    configData['HUB_RADII'] = f"{list(map(lambda hub: hub.radius, world.hubs))}"
+    configData['HUB_POSITIONS'] = f"{list(map(lambda hub: hub.pos, world.hubs))}"
+    configData['SITE_RADII'] = f"{list(map(lambda site: site.radius, world.siteList[len(world.hubs):]))}"
+    configData['SITE_POSITIONS'] = f"{list(map(lambda site: site.pos, world.siteList[len(world.hubs):]))}"
+    configData['SITE_QUALITIES'] = f"{list(map(lambda site: site.quality, world.siteList[len(world.hubs):]))}"
+    configData['PRED_POSITIONS'] = f"{list(map(lambda pred: pred.pos, world.predatorList))}"
+
+    mydict = {"config": configData,
+                "results": results}
+
+    jsonObjectToCsv(mydict, "antConfigsAndResults", should_separate=False)

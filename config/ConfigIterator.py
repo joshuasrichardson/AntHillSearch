@@ -97,7 +97,7 @@ class ConfigIterator:
 
         # print(f"{settings[0]}, {settings[1]}, {settings[2]}, {settings[3]}")
 
-        setKeysValues(settings)
+        # setKeysValues(settings)
 
         return settings
 

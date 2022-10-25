@@ -22,6 +22,7 @@ from interface.LiveSimulation import *
 from interface.UserInterface import UserInterface
 from interface.RecordingPlayer import RecordingPlayer
 from interface.EmpiricalTestingInterface import EmpiricalTestingInterface
+from joblib import Parallel, delayed    # noqa : F401
 
 
 def main():
@@ -98,6 +99,12 @@ def runEmpiricalTestingInterface(numSimulations=1, resultsFileName=None, useConf
         raise GameOver("Simulations canceled by user")
 
 
+def test_loop(i, resultsFileName, c):
+    print(f"Simulation {i + 1}:")
+    colony = EmpiricalTestingInterface(resultsFileName, c[0].value, c[1].value, c[2].value, c[3].value)
+    colony.runSimulation()
+
+
 def iterateConfigurations(resultsFileName):
     # 30 * 3 * 3 * 4 * 20 = 21,600 simulations
     simsPerSetting = 30
@@ -119,10 +126,13 @@ def iterateConfigurations(resultsFileName):
 
     configIter = iter(ConfigIterator(simsPerSetting, numAgentss, numSitess, sitesDistances, qualitiess2, qualitiess3, qualitiess4))
 
-    for i, _ in enumerate(configIter):
-        print(f"Simulation {i + 1}:")
-        colony = EmpiricalTestingInterface(resultsFileName)
-        colony.runSimulation()
+    Parallel(
+        n_jobs=2)(delayed(test_loop)(i, resultsFileName, c) for (i, c) in enumerate(configIter))
+
+    # for i, c in enumerate(configIter):
+    #     print(f"Simulation {i + 1}:")
+    #     colony = EmpiricalTestingInterface(resultsFileName, c[0].value, c[1].value, c[2].value, c[3].value)
+    #     colony.runSimulation()
 
 
 main()

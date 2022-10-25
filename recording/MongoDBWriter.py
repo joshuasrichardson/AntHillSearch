@@ -4,6 +4,7 @@ import pymongo
 
 from Constants import CONFIG_FILE_NAME
 from recording import MongoDBURL
+# import MongoDBURL
 
 
 class MongoDBWriter:
@@ -37,3 +38,10 @@ class MongoDBWriter:
 # doc = a.find({})
 # for x in doc:
 #     print(x)
+
+# client = pymongo.MongoClient(MongoDBURL.getUrl())
+# print('Connected OK!', dir(client))
+# print(client.list_database_names())
+# db = client.test
+# collection = db.empirical_testing
+# collection.insert_one({"value": 1})

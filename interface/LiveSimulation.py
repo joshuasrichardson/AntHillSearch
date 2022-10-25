@@ -17,8 +17,8 @@ class LiveSimulation(Simulation, ABC):
     """ A class to run the interface for ants finding their new home after the old one broke.
      This simulation is live (as opposed to a recording player). """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
+        super().__init__(numAgents, numSites, sitePositions, siteQualities)
         self.previousSendTime = datetime.datetime.now()
 
         if Config.SIM_DURATION < 0 or Config.SIM_DURATION > MAX_TIME:
