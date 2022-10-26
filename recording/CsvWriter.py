@@ -30,7 +30,6 @@ def jsonObjectToCsv(json_data, out_file_name, should_separate=True):
     file_path = f'{path}/{out_file_name}'
     file_exists = os.path.exists(file_path)
     data_file = open(file_path, 'a', newline='')
-    print(file_path)
 
     csv_writer = csv.writer(data_file)
     if not file_exists:  # If we just created the file, we need to add the headers
@@ -66,16 +65,18 @@ def separateIntoRows(values):
                 row.append(value)
     return rows
 
+
 def insert(results, world):
-    configData = {}
-    configData['HUB_RADII'] = f"{list(map(lambda hub: hub.radius, world.hubs))}"
-    configData['HUB_POSITIONS'] = f"{list(map(lambda hub: hub.pos, world.hubs))}"
-    configData['SITE_RADII'] = f"{list(map(lambda site: site.radius, world.siteList[len(world.hubs):]))}"
-    configData['SITE_POSITIONS'] = f"{list(map(lambda site: site.pos, world.siteList[len(world.hubs):]))}"
-    configData['SITE_QUALITIES'] = f"{list(map(lambda site: site.quality, world.siteList[len(world.hubs):]))}"
-    configData['PRED_POSITIONS'] = f"{list(map(lambda pred: pred.pos, world.predatorList))}"
+    # prepend with config or results to match the mongodb csv files' format
+    dictionary = {
+        "config.NUM_SITES": len(world.siteList) - len(world.hubs),
+        "config.SITE_POSITIONS": f"{list(map(lambda site: site.pos, world.siteList[len(world.hubs):]))}",
+        'config.SITE_QUALITIES': f"{list(map(lambda site: site.quality, world.siteList[len(world.hubs):]))}",
+        'results.NUM_ROUNDS': results["NUM_ROUNDS"],
+        'results.CHOSEN_HOME_QUALITIES': results["CHOSEN_HOME_QUALITIES"],
+        'results.CHOSEN_HOME_POSITIONS': results["CHOSEN_HOME_POSITIONS"],
+        'results.NUM_ARRIVALS': results["NUM_ARRIVALS"],
+        'results.TOTAL_AGENTS': results["TOTAL_AGENTS"]
+    }
 
-    mydict = {"config": configData,
-                "results": results}
-
-    jsonObjectToCsv(mydict, "antConfigsAndResults", should_separate=False)
+    jsonObjectToCsv(dictionary, "antSimulations", should_separate=False)

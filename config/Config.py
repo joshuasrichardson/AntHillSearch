@@ -22,7 +22,7 @@ LARGE_FONT_SIZE = 40  # The font size for titles and such
 INITIAL_ZOOM = -6  # How far in or out the zoom is at the beginning
 
 FLOOD_ZONE_SHAPE = "Any"  # The shape of the flood zone if the FLOOD_ZONE_CORNERS are not set.
-FLOOD_ZONE_COVERAGE = 0.33  # The percentage of the world within MAX_SEARCH_DISTANCE of the hub that the flood zone covers
+FLOOD_ZONE_COVERAGE = 0  # The percentage of the world within MAX_SEARCH_DISTANCE of the hub that the flood zone covers
 # if the FLOOD_ZONE_CORNERS are not set.
 FLOOD_ZONE_CORNERS = []  # The positions of corners of the flood zone. If this list has more than 2 values,
 # the FLOOD_ZONE_COVERAGE variable will be ignored to have the flood zone line up with these corners.
@@ -57,7 +57,7 @@ USE_REST_API = False  # Whether the interface sends information about the hub to
 # Having this set to False makes the interface a little faster because it doesn't have to record all the time.
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the interface a little faster because it doesn't have to record all movements etc.
-RECORD_ALL = True
+RECORD_ALL = False
 # Having this set to False makes the interface a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the interface is drawn on the screen
 # Having this false makes the interface faster because the paths do not have to be drawn on the screen so much.

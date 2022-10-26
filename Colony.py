@@ -99,9 +99,13 @@ def runEmpiricalTestingInterface(numSimulations=1, resultsFileName=None, useConf
         raise GameOver("Simulations canceled by user")
 
 
-def test_loop(i, resultsFileName, c):
+def test_loop(i, resultsFileName, setting):
     print(f"Simulation {i + 1}:")
-    colony = EmpiricalTestingInterface(resultsFileName, c[0].value, c[1].value, c[2].value, c[3].value)
+    colony = EmpiricalTestingInterface(resultsFileName,
+                                       setting[0].value,
+                                       setting[1].value,
+                                       setting[2].value,
+                                       setting[3].value)
     colony.runSimulation()
 
 
@@ -124,15 +128,10 @@ def iterateConfigurations(resultsFileName):
                    [76, 109, 205, 150], [127, 128, 120, 129], [0, 0, 0, 0], [0, 12, 25, 36], [47, 59, 135, 155],
                    [9, 122, 225, 0], [254, 128, 255, 144], [0, 8, 255, 44], [120, 128, 255, 200], [0, 128, 195, 207]]
 
-    configIter = iter(ConfigIterator(simsPerSetting, numAgentss, numSitess, sitesDistances, qualitiess2, qualitiess3, qualitiess4))
+    configIter = iter(ConfigIterator(simsPerSetting, numAgentss, numSitess, sitesDistances,
+                                     qualitiess2, qualitiess3, qualitiess4))
 
-    Parallel(
-        n_jobs=2)(delayed(test_loop)(i, resultsFileName, c) for (i, c) in enumerate(configIter))
-
-    # for i, c in enumerate(configIter):
-    #     print(f"Simulation {i + 1}:")
-    #     colony = EmpiricalTestingInterface(resultsFileName, c[0].value, c[1].value, c[2].value, c[3].value)
-    #     colony.runSimulation()
+    Parallel(n_jobs=16)(delayed(test_loop)(i, resultsFileName, c) for (i, c) in enumerate(configIter))
 
 
 main()
