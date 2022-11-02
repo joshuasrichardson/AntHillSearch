@@ -253,12 +253,15 @@ class Recorder:
             replays = sorted(replays, key=lambda t: -os.stat(f"./recording/results/{t}").st_mtime)  # Sort by date modified (recently modified first)
             replays = replays[MAX_NUM_RECORDINGS * len(RESULTS_FILE_ENDINGS):]  # Delete from the end of the list
             for replay in replays:
-                os.remove(f"./recording/results/{replay}")
+                try:
+                    os.remove(f"./recording/results/{replay}")
+                except FileNotFoundError:
+                    pass
 
     def writeResults(self, results, world):
         # self.mongoWriter.insert(results, world)
         CsvWriter.insert(results, world)
-        if Config.ONLY_USE_MONGODB:
+        if Config.ONLY_RECORD_LAST:
             return
 
         # Create the folder with the results if it does not exist

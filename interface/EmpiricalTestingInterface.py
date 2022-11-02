@@ -14,6 +14,10 @@ class EmpiricalTestingInterface(LiveSimulation):
         if Config.SHOULD_RECORD:
             self.recorder.recordTime(self.timer.getRemainingTimeOrRounds())
 
+    def save(self):
+        if not Config.ONLY_RECORD_LAST:
+            super().save()
+
     def runNextRound(self):
         self.update(self.getAgentRectList())
         self.timer.nextRound()

@@ -180,7 +180,8 @@ class LiveSimulation(Simulation, ABC):
             self.recorder.save()
 
     def write(self):
-        self.recorder.write()
+        if not Config.ONLY_RECORD_LAST:
+            self.recorder.write()
 
     def sendResults(self, results):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there,

@@ -5,7 +5,7 @@
 from numpy import sin, pi
 
 RESULTS_FILE_NAME = None
-ONLY_USE_MONGODB = True
+ONLY_RECORD_LAST = True
 INTERFACE_NAME = "Engineering"
 FULL_CONTROL = True  # Whether the user can access all the controls in the interface.
 DISTRACTED = False  # Whether the user is distracted
