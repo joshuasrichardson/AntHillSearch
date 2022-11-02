@@ -79,4 +79,4 @@ def insert(results, world):
         'results.TOTAL_AGENTS': results["TOTAL_AGENTS"]
     }
 
-    jsonObjectToCsv(dictionary, "antSimulations", should_separate=False)
+    jsonObjectToCsv(dictionary, Config.RESULTS_FILE_NAME, should_separate=False)

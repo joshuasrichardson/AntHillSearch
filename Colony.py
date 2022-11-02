@@ -30,15 +30,15 @@ def main():
     try:
         # startTime = time.perf_counter()
         # MainMenu(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
-        MainMenu(UserInterface).run()
+        # MainMenu(UserInterface).run()
 
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
 
-        # numSimulations = 1
-        # resultsFileName = "antPredictions"
-        # runEmpiricalTestingInterface(numSimulations, resultsFileName, True)  # The interface that does not draw and is faster than the others.
+        numSimulations = 1
+        resultsFileName = "antPredictions_11_1"
+        runEmpiricalTestingInterface(numSimulations, resultsFileName, True)  # The interface that does not draw and is faster than the others.
 
         # endTime = time.perf_counter()
         # print(f"Total time: {int((endTime - startTime) / 60)}:{(endTime - startTime) % 60}")
@@ -95,7 +95,8 @@ def runEmpiricalTestingInterface(numSimulations=1, resultsFileName=None, useConf
         print(f"Deaths: {deaths}")
         print(f"Total Agents: {totals}")
     except KeyboardInterrupt:
-        colony.timer.cancel()
+        if colony is not None:
+            colony.timer.cancel()
         raise GameOver("Simulations canceled by user")
 
 
@@ -112,9 +113,9 @@ def test_loop(i, resultsFileName, setting):
 def iterateConfigurations(resultsFileName):
     # 30 * 3 * 3 * 4 * 20 = 21,600 simulations
     simsPerSetting = 30
-    numAgentss = [50, 100, 200]
+    numAgentss = [50, 100, 150, 200]
     numSitess = [2, 3, 4]
-    sitesDistances = [50, 100, 200, 300]
+    sitesDistances = [100, 200, 300]
     qualitiess2 = [[0, 128], [0, 255], [128, 255], [50, 160], [50, 250], [160, 250],
                    [129, 128], [10, 12], [255, 245], [180, 255], [190, 245], [70, 133],
                    [110, 128], [90, 248], [140, 228], [0, 0], [255, 255], [100, 175],
