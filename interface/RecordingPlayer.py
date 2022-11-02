@@ -192,7 +192,7 @@ class RecordingPlayer(Simulation):
     def getControls(self):
         return RecordingControls(self.world.agentList, self.world, self.simDisp, self.changeDelay)
 
-    def applyConfiguration(self):
+    def applyConfiguration(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
         super().applyConfiguration()
         Config.INTERFACE_NAME = "Recording"
         Config.DRAW_ESTIMATES = False

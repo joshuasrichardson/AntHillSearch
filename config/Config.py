@@ -131,21 +131,21 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 
 PREDATOR_IMAGE = "resources/spider.png"  # The path of the predator image
 PREDATOR_ANGLE = pi / 2  # The initial angle the predator in the image is facing
-NUM_PREDATORS = 2  # The number of predators that go around attacking agents
+NUM_PREDATORS = 0  # The number of predators that go around attacking agents
 PRED_POSITIONS = []  # Where the predators will start. No position = random
 
 """ Ladybug default values """
 
 LADYBUG_IMAGE = "resources/ladybug.png"  # The path of the ladybug image
 LADYBUG_ANGLE = pi / 2  # The initial angle the ladybug in the image is facing
-NUM_LADYBUGS = 1  # The number of ladybugs that go around helping agents
+NUM_LADYBUGS = 0  # The number of ladybugs that go around helping agents
 LADYBUG_POSITIONS = []  # Where the ladybugs will start. No position =
 # random
 
 OBSTACLE_IMAGE = "resources/obstacle.jpg"  # The path of the obstacle image
 OBSTACLE_ANGLE = pi / 2  # The initial angle the obstacle in the image is facing
-NUM_OBSTACLES = 4  # The number of obstacles in the simulation
-OBSTACLE_POSITIONS = [[300, 700], [300, 0], [900, 700], [900, 0]]  # Where the obstacles will be placed. No position = random
+NUM_OBSTACLES = 0  # The number of obstacles in the simulation
+OBSTACLE_POSITIONS = []  # Where the obstacles will be placed. No position = random
 
 """ Agent Transition Parameters """
 # Threshold probability,

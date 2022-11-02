@@ -67,7 +67,7 @@ class World:
         self.states = zeros((NUM_POSSIBLE_STATES,))  # List of the number of agents assigned to each state
         self.phases = zeros((NUM_POSSIBLE_PHASES,))  # List of the number of agents assigned to each phase
 
-        # self.floodZone = FloodZone()
+        self.floodZone = FloodZone()
         if Config.SHOULD_DRAW:
             self.fog = FogDisplay.initFog(self.hubs)
 

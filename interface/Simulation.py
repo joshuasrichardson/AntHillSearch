@@ -236,7 +236,7 @@ class Simulation(ABC):
                    NUM_ARRIVALS_NAME: numArrivals,
                    NUM_DEAD_NAME: numDeaths,
                    TOTAL_NAME: self.world.initialHubAgentCounts,
-                   IN_FLOOD_ZONE_NAME: False}#self.areInFloodZone(self.chosenHomes)}
+                   IN_FLOOD_ZONE_NAME: self.areInFloodZone(self.chosenHomes)}
         return results
 
     def getNumDeadAgents(self):

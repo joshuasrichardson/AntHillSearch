@@ -328,10 +328,10 @@ class Recorder:
         configData['SITE_POSITIONS'] = f"{list(map(lambda site: site.pos, world.siteList[len(world.hubs):]))}"
         configData['SITE_QUALITIES'] = f"{list(map(lambda site: site.quality, world.siteList[len(world.hubs):]))}"
         configData['PRED_POSITIONS'] = f"{list(map(lambda pred: pred.pos, world.predatorList))}"
-        # for corner in world.floodZone.corners:
-        #     corner[0] += Display.worldLeft
-        #     corner[1] += Display.worldTop
-        # configData['FLOOD_ZONE_CORNERS'] = f"{world.floodZone.corners}"
+        for corner in world.floodZone.corners:
+            corner[0] += Display.worldLeft
+            corner[1] += Display.worldTop
+        configData['FLOOD_ZONE_CORNERS'] = f"{world.floodZone.corners}"
 
         # Record the configuration to a json file for the recording player to use
         with open(f'{self.outputFileBase}_CONFIG.json', 'w') as file:
