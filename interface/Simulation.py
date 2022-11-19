@@ -190,7 +190,7 @@ class Simulation(ABC):
 
     def timeOut(self):
         """ Method to be called when the simulation timer runs out. sets timeRanOut to True to break the main loop. """
-        print("The simulation time has run out.")
+        # print("The simulation time has run out.")
         self.timeRanOut = True
 
     def finish(self):
@@ -247,11 +247,11 @@ class Simulation(ABC):
         numDead = self.getNumDeadAgents()
         for i in range(len(self.chosenHomes)):
             numArrived.append(self.chosenHomes[i].agentCounts[i])
-            print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
-                  f"colony {i + 1} made it to the new home.")
-        for hubIndex in range(len(self.world.hubs)):
-            print(f"{numDead[hubIndex]}/"
-                  f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex + 1} died.")
+            # print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
+            #       f"colony {i + 1} made it to the new home.")
+        # for hubIndex in range(len(self.world.hubs)):
+        #     print(f"{numDead[hubIndex]}/"
+        #           f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex + 1} died.")
         return numArrived, numDead
 
     def printTimeResults(self):
@@ -264,10 +264,10 @@ class Simulation(ABC):
 
     def printHomeQualities(self):
         qualities = []
-        print("Their homes are ranked: ")
+        # print("Their homes are ranked: ")
         for i, home in enumerate(self.chosenHomes):
             qualities.append(home.getQuality())
-            print(f"Colony {i + 1}: {home.getQuality()}/255.")
+            # print(f"Colony {i + 1}: {home.getQuality()}/255.")
         return qualities
 
     def areInFloodZone(self, sites):

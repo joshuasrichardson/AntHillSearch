@@ -64,7 +64,7 @@ CONFIG_KEYS = SETTING_KEYS + ["SECONDS_BETWEEN_SENDING_REQUESTS", "INITIAL_ZOOM"
 
 COPY_FROM_CONFIG = [FULL_CONTROL_NAME, DISTRACTED_NAME]
 
-MAX_TIME = 5000  # Maximum allowed duration in seconds
+MAX_TIME = 25000  # Maximum allowed duration in seconds
 MAX_NUM_SITES = 30  # Maximum number of possible sites
 MEDIUM_QUALITY = 128  # Middle of the possible site qualities
 

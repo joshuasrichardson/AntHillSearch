@@ -37,7 +37,7 @@ def main():
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
 
         numSimulations = 1
-        resultsFileName = "antPredictions_11_19"
+        resultsFileName = "antPredictions_11_19_long"
         runEmpiricalTestingInterface(numSimulations, resultsFileName, True)  # The interface that does not draw and is faster than the others.
 
         # endTime = time.perf_counter()
