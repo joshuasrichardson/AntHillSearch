@@ -9,9 +9,9 @@ ONLY_RECORD_LAST = True
 INTERFACE_NAME = "Engineering"
 FULL_CONTROL = True  # Whether the user can access all the controls in the interface.
 DISTRACTED = False  # Whether the user is distracted
-# The lower the convergence fraction is, the faster the interface goes because lower fractions require less agents to go to a site
+# The lower the convergence fraction is, the faster the interface goes because lower fractions require fewer agents to go to a site
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
-# Not having a interface duration leads to all agents eventually ending up at the same nest.
+# Not having an interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
 
 USE_ROUNDS_AS_DURATION = True
@@ -76,7 +76,7 @@ SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 300  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_FARTHER_THAN = 800  # How far away from hub can a default site be?
+SITE_NO_FARTHER_THAN = 300  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 
 """ Agent parameters """

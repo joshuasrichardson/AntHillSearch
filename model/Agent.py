@@ -50,7 +50,7 @@ class Agent:
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.target = list(startingPosition)  # The position the agent is going to
-        self.angle = random.uniform(0, pi, 1)  # Angle the agent is moving
+        self.angle = random.uniform(0, 2 * pi)  # Angle the agent is moving
         self.placesToAvoid = []  # A list of points that the agent should stay away from
         # self.obstaclesToAvoid = []  # A list of obstacles the agent cannot walk over
         self.recentlySeenPredatorPositions = []
@@ -84,7 +84,7 @@ class Agent:
         self.checkPoints = []  # A list of places the agent has to go to on the way to their GO destination
         self.eraseFogCommands = []  # A list of eraseFog methods and agentRects used to clear fog after an agent has returned to the hub
 
-        self.angleBeforeObstacle = 0  # Agent's angle when they collide with an obstacle
+        self.angleBeforeObstacle = self.angle  # Agent's angle when they collide with an obstacle
 
     def setState(self, state):
         self.state = state

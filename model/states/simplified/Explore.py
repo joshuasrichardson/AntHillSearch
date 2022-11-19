@@ -1,5 +1,5 @@
-import Utils
 from Constants import *
+from config.Config import PROB_ER, PROB_EA
 from model.states.State import State
 from numpy import pi, random
 
@@ -31,21 +31,32 @@ class ExploreState(State):
         self.collides = len(neighborList) > 1 and not self.agent.isCloseToASite()
         self.agent.marker = None
 
-        # If agent finds a site within range then assess it
+        # If agent finds a site within range then maybe assess it
         if self.agent.siteInRangeIndex != -1:
-            self.agent.addToKnownSites(self.agent.world.siteList[self.agent.siteInRangeIndex])
-            # If the site is better than the one they were assessing, they assess it instead.
-            if self.agent.estimateQuality(self.agent.world.siteList[self.agent.siteInRangeIndex]) > self.agent.estimatedQuality\
-                    and self.agent.world.siteList[self.agent.siteInRangeIndex] is not self.agent.getHub():
-                self.agent.assignSite(self.agent.world.siteList[self.agent.siteInRangeIndex])
-                agentToSiteAngle = Utils.getAngleFromPositions(self.agent.getPosition(), self.agent.getAssignedSitePosition())
-                if abs(Utils.getAngleDiff(self.agent.getAngle(), agentToSiteAngle)) < 90:
+            # print(f"site: {self.agent.siteInRangeIndex}")
+            site = self.agent.world.siteList[self.agent.siteInRangeIndex]
+            if not site.isHub():
+                site.wasFound = True
+                d = len(neighborList)  # number of agents assigned to the site
+                qual = site.getQuality() / 255  # quality of site. quality is between 0 and 1
+                deg_factor = 1.0
+                qual_factor = self.agent.world.getNumAgents() / 5.0
+                X = deg_factor * (d + 1.0) / self.agent.world.getNumSites() + qual_factor * qual
+                explore_to_assess = PROB_EA * self.agent.world.getNumSites() / 4.0 * X / self.agent.world.getNumAgents()
+                explore_to_assess *= 10
+
+                if random.uniform(0, 1) < explore_to_assess:
                     from model.states.simplified.Assess import AssessState
-                    self.setState(AssessState(self.agent), self.agent.getAssignedSitePosition())
-        elif self.agent.shouldReturnToNest():
+                    self.agent.assignSite(site)
+                    self.setState(AssessState(self.agent), site.getPosition())
+                    return
+
+        if random.uniform(0, 1) < PROB_ER:
             from model.states.simplified.Rest import RestState
             self.setState(RestState(self.agent), self.agent.getHub().getPosition())
-        elif self.agent.isTooFarAway(self.agent.getHub()):
+            return
+
+        if self.agent.isTooFarAway(self.agent.getHub()):
             self.goBackTowardSite(self.agent.getHub())
 
     def goBackTowardSite(self, site):

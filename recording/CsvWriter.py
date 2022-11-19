@@ -79,4 +79,5 @@ def insert(results, world):
         'results.TOTAL_AGENTS': results["TOTAL_AGENTS"]
     }
 
-    jsonObjectToCsv(dictionary, Config.RESULTS_FILE_NAME, should_separate=False)
+    if Config.RESULTS_FILE_NAME is not None:
+        jsonObjectToCsv(dictionary, Config.RESULTS_FILE_NAME, should_separate=False)

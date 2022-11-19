@@ -1,8 +1,9 @@
-from config import Config
+import random
+
 from Constants import *
+from config.Config import PROB_AD
 from model.states.State import State
 from model.states.simplified.Dance import DanceState
-from model.states.simplified.Explore import ExploreState
 
 
 class AssessState(State):
@@ -16,8 +17,8 @@ class AssessState(State):
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.getAssignedSitePosition())
 
-        if self.agent.isDoneAssessing():
-            self.acceptOrReject()
+        if random.uniform(0, 1) < PROB_AD:
+            self.recruit()
             return
 
         # Let the agent's estimated quality of the site get closer to the actual quality as they spend time at the site.
@@ -25,17 +26,6 @@ class AssessState(State):
             self.agent.estimatedQuality = round(self.agent.estimatedQuality - 0.1, 1)
         else:
             self.agent.estimatedQuality = round(self.agent.estimatedQuality + 0.1, 1)
-
-        # If the site moves, they might not know where it is
-        if self.agent.siteInRangeIndex != -1 and self.agent.world.siteList[self.agent.siteInRangeIndex] is self.agent.assignedSite:
-            self.agent.estimateSitePositionMoreAccurately()
-
-    def acceptOrReject(self):
-        # If they determine the site is good enough after they've been there long enough,
-        if self.agent.estimatedQuality > Config.MIN_ACCEPT_VALUE:
-            self.recruit()
-        else:
-            self.setState(ExploreState(self.agent), None)
 
     def recruit(self):
         self.setState(DanceState(self.agent), self.agent.getHub().getPosition())

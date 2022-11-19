@@ -32,13 +32,13 @@ def main():
         # MainMenu(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
         # MainMenu(UserInterface).run()
 
-        # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
+        runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
 
-        numSimulations = 1
-        resultsFileName = "antPredictions_11_1"
-        runEmpiricalTestingInterface(numSimulations, resultsFileName, True)  # The interface that does not draw and is faster than the others.
+        # numSimulations = 1
+        # resultsFileName = "antPredictions_11_1"
+        # runEmpiricalTestingInterface(numSimulations, resultsFileName, True)  # The interface that does not draw and is faster than the others.
 
         # endTime = time.perf_counter()
         # print(f"Total time: {int((endTime - startTime) / 60)}:{(endTime - startTime) % 60}")

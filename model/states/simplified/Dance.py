@@ -1,8 +1,11 @@
+import random
+
+import numpy as np
 from pygame import Rect
 
 from Constants import *
+from config.Config import PROB_DA
 from model.states.State import State
-from model.states.simplified.Rest import RestState
 
 
 class DanceState(State):
@@ -16,12 +19,25 @@ class DanceState(State):
 
     def changeState(self, neighborList) -> None:
         self.setState(self, self.agent.getHub().getPosition())
-        if self.agent.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there.
-            if self.arrivedAtOrPassedSite(self.agent.getHub().getPosition()):  # If agent finds the old site, (or maybe this works with accidentally running into a site on the way)
-                self.agent.goingToRecruit = False  # The agent is now going to head back to the new site
-            return
-        elif self.agent.doneRecruiting():
+
+        base = 5.0
+        pwr = -1.0
+        qual = self.agent.assignedSite.getQuality() / 255
+        dance_to_rest = np.power(base, pwr * qual)
+        dance_to_rest /= 4
+        if random.uniform(0, 1) < dance_to_rest:
+            from model.states.simplified.Rest import RestState
             self.setState(RestState(self.agent), self.agent.getHub().getPosition())
+            return
+
+        if random.uniform(0, 1) < PROB_DA:
+            from model.states.simplified.Rest import AssessState
+            self.setState(AssessState(self.agent), self.agent.getAssignedSitePosition())
+            return
+
+        if self.agent.goingToRecruit:  # if they are on the way to go recruit someone, they keep going until they get there.
+            if self.arrivedAtOrPassedSite(self.agent.getHub().getPosition()):  # If agent finds the old site
+                self.agent.goingToRecruit = False  # The agent is now going to head back to the new site
 
     def arrivedAtOrPassedSite(self, sitePos):
         if self.agent.getRect().collidepoint(sitePos):
