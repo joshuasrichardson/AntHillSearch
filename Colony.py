@@ -110,10 +110,15 @@ def test_loop(i, resultsFileName, setting):
     colony.runSimulation()
 
 
+def test_test_loop(i, resultsFileName, setting):
+    print(f"Simulation {i + 1}:")
+    print(f"{setting[0].value}, {setting[1].value}, {setting[2].value}, {setting[3].value}")
+
+
 def iterateConfigurations(resultsFileName):
     # 30 * 10 * 4 * 3 * 3 * 20 = 216,000 simulations
     simsPerSetting = 30
-    simsPerPosition = 10
+    simsPerPos = 10
     numAgentss = [50, 100, 150, 200]
     numSitess = [2, 3, 4]
     sitesDistances = [100, 200, 300]
@@ -133,6 +138,8 @@ def iterateConfigurations(resultsFileName):
     configIter = iter(ConfigIterator(simsPerSetting, simsPerPos, numAgentss, numSitess, sitesDistances,
                                      qualitiess2, qualitiess3, qualitiess4))
 
+    # for (i, c) in enumerate(configIter):
+    #     test_test_loop(i, resultsFileName, c)
     Parallel(n_jobs=16)(delayed(test_loop)(i, resultsFileName, c) for (i, c) in enumerate(configIter))
 
 

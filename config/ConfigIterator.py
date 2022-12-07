@@ -29,20 +29,11 @@ def generatePositions(numSites, distance):
     return positions
 
 
-def setKeysValues(settings):
-    with open(CONFIG_FILE_NAME, 'r') as file:
-        data = json.load(file)
-    for setting in settings:
-        data[setting.key] = setting.value
-    with open(CONFIG_FILE_NAME, 'w') as file:
-        json.dump(data, file)
-    Utils.copyJsonToConfig()
-
-
 class ConfigIterator:
     def __init__(self, simsPerSetting, simsPerPos, numAgentss, numSitess, distances, *qualitiess):
+        self.settings = None
         self.simsPerSetting = simsPerSetting
-	self.simsPerPos = simsPerPos
+        self.simsPerPos = simsPerPos
         self.numAgentss = numAgentss
         self.numSitess = numSitess
         self.distances = distances
@@ -58,8 +49,8 @@ class ConfigIterator:
                 raise Exception(f"Length of qualities ({len(qualitiess[i][0])}) must match the number of sites ({numSites})")
 
     def __iter__(self):
+        self.posIndex = 1
         self.simIndex = 0
-	self.posIndex = 0
         self.numAgentsIndex = 0
         self.numSitesIndex = 0
         self.distanceIndex = 0
@@ -67,10 +58,14 @@ class ConfigIterator:
         return self
 
     def __next__(self):
+        if self.posIndex < self.simsPerPos and self.qualitiesIndex >= 0:
+            self.posIndex += 1
+            return self.settings
+        self.posIndex = 1
+
         self.qualitiesIndex += 1
         if self.qualitiesIndex == self.maxQualitiesIndex:
             self.qualitiesIndex = 0
-	    self.posIndex
             self.distanceIndex += 1
             if self.distanceIndex == self.maxDistanceIndex:
                 self.distanceIndex = 0
@@ -91,41 +86,13 @@ class ConfigIterator:
         distance = self.distances[self.distanceIndex]
         qualities = self.qualitiess[self.numSitesIndex][self.qualitiesIndex]
 
-        settings = [
+        self.settings = [
             Setting("HUB_AGENT_COUNTS", [numAgents]),
             Setting("NUM_SITES", numSites),
             Setting("SITE_POSITIONS", generatePositions(numSites, distance)),
             Setting("SITE_QUALITIES", qualities)
         ]
 
-        # print(f"{settings[0]}, {settings[1]}, {settings[2]}, {settings[3]}")
-
-        # setKeysValues(settings)
-
-        return settings
-
-
-# simsPerSetting = 30
-# numAgentss = [50, 100, 200]
-# numSitess = [2, 3, 4]
-# sitesDistances = [50, 100, 200, 300]
-# qualitiess2 = [[0, 128], [0, 128], [0, 128], [0, 128], [0, 128], [0, 128],
-#                [0, 128], [0, 128], [0, 128], [0, 128], [0, 128], [0, 128],
-#                [0, 128], [0, 128], [0, 128], [0, 128], [0, 128], [0, 128],
-#                [0, 128], [0, 128]]
-# qualitiess3 = [[0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255],
-#                [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255],
-#                [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255], [0, 128, 255],
-#                [0, 128, 255], [0, 128, 255]]
-# qualitiess4 = [[0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255],
-#                [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255],
-#                [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255], [0, 128, 255, 255],
-#                [0, 128, 255, 255], [0, 128, 255, 255]]
-#
-# configIter = iter(ConfigIterator(simsPerSetting, numAgentss, numSitess, sitesDistances, qualitiess2, qualitiess3, qualitiess4))
-#
-# for ind, conf in enumerate(configIter):
-#     print(ind + 1)
-#     # print(conf)
+        return self.settings
 
 
