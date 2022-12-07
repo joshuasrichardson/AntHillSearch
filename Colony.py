@@ -37,7 +37,7 @@ def main():
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
 
         numSimulations = 1
-        resultsFileName = "antPredictions_11_19_long"
+        resultsFileName = "antPredictions_12_07"
         runEmpiricalTestingInterface(numSimulations, resultsFileName, True)  # The interface that does not draw and is faster than the others.
 
         # endTime = time.perf_counter()
@@ -111,8 +111,9 @@ def test_loop(i, resultsFileName, setting):
 
 
 def iterateConfigurations(resultsFileName):
-    # 30 * 3 * 3 * 4 * 20 = 21,600 simulations
+    # 30 * 10 * 4 * 3 * 3 * 20 = 216,000 simulations
     simsPerSetting = 30
+    simsPerPosition = 10
     numAgentss = [50, 100, 150, 200]
     numSitess = [2, 3, 4]
     sitesDistances = [100, 200, 300]
@@ -129,7 +130,7 @@ def iterateConfigurations(resultsFileName):
                    [76, 109, 205, 150], [127, 128, 120, 129], [0, 0, 0, 0], [0, 12, 25, 36], [47, 59, 135, 155],
                    [9, 122, 225, 0], [254, 128, 255, 144], [0, 8, 255, 44], [120, 128, 255, 200], [0, 128, 195, 207]]
 
-    configIter = iter(ConfigIterator(simsPerSetting, numAgentss, numSitess, sitesDistances,
+    configIter = iter(ConfigIterator(simsPerSetting, simsPerPos, numAgentss, numSitess, sitesDistances,
                                      qualitiess2, qualitiess3, qualitiess4))
 
     Parallel(n_jobs=16)(delayed(test_loop)(i, resultsFileName, c) for (i, c) in enumerate(configIter))

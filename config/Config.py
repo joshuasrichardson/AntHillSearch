@@ -15,7 +15,7 @@ CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assign
 # Shorter durations increase the likeliness that the colony will be split.
 
 USE_ROUNDS_AS_DURATION = True
-SIM_DURATION = 5000  # Time of the interface in seconds or rounds
+SIM_DURATION = 25000  # Time of the interface in seconds or rounds
 
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such

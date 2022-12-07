@@ -40,8 +40,9 @@ def setKeysValues(settings):
 
 
 class ConfigIterator:
-    def __init__(self, simsPerSetting, numAgentss, numSitess, distances, *qualitiess):
+    def __init__(self, simsPerSetting, simsPerPos, numAgentss, numSitess, distances, *qualitiess):
         self.simsPerSetting = simsPerSetting
+	self.simsPerPos = simsPerPos
         self.numAgentss = numAgentss
         self.numSitess = numSitess
         self.distances = distances
@@ -58,6 +59,7 @@ class ConfigIterator:
 
     def __iter__(self):
         self.simIndex = 0
+	self.posIndex = 0
         self.numAgentsIndex = 0
         self.numSitesIndex = 0
         self.distanceIndex = 0
@@ -68,6 +70,7 @@ class ConfigIterator:
         self.qualitiesIndex += 1
         if self.qualitiesIndex == self.maxQualitiesIndex:
             self.qualitiesIndex = 0
+	    self.posIndex
             self.distanceIndex += 1
             if self.distanceIndex == self.maxDistanceIndex:
                 self.distanceIndex = 0
