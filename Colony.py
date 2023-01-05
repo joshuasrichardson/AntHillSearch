@@ -29,13 +29,17 @@ def main():
 
     try:
         # startTime = time.perf_counter()
+
+        # Use one of the following 2 lines to play the simulation with a game-like main menu
         # MainMenu(EngineerInterface).run()  # Start up display makes it look more like a game. Comes with a main menu.
         # MainMenu(UserInterface).run()
 
+        # Use one of the following 3 lines to run one simulation with the given interface
         # runSimWithInterface(EngineerInterface())  # The interface that shows lots of information about the interface and gives lots of control over what happens
         # runSimWithInterface(UserInterface())  # The interface that only shows what is known from the hub and has limited control
         # runSimWithInterface(RecordingPlayer())  # The interface with almost no control that simply plays a recording from the recording.json file
 
+        # Use the next three lines for empirical testing (numSimulations doesn't do anything if the 3rd parameter is True)
         numSimulations = 1
         resultsFileName = "antPredictions_12_07"
         runEmpiricalTestingInterface(numSimulations, resultsFileName, True)  # The interface that does not draw and is faster than the others.

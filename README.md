@@ -67,44 +67,90 @@ so that the user can see which groups of agents still need to find a site.
 
 ### States
 
-Agents' states include At Nest, Search, Lead Forward, Follow,
-Transport, Reverse Tandem, Carried, Escape, and Dead.
+#### Original States
 
-#### At Nest
+Agents' states include At Nest, Search, Lead Forward, Follow,
+Transport, Reverse Tandem, Carried, Escape, Go, and Dead. These
+states use phases.
+
+Use these by setting <code>Constants.SIMPLIFY_STATES</code>
+to <code>False</code>
+
+##### At Nest
 
 The agent is at one of the sites (which can include the hub).
 
-#### Search
+##### Search
 
 The agent is out looking for other sites to evaluate.
 
-#### Lead Forward
+##### Lead Forward
 
 The agent (in the Canvasing phase) starts to recruit other
 agents to their assigned site.
 
-#### Follow
+##### Follow
 
 The agent goes with an agent in the Lead Forward or Reverse Tandem
 state to get to another site.
 
-#### Reverse Tandem
+##### Reverse Tandem
 
 The agent (in the committed phase) leads other agents from their
 assigned site to another site they know about.
 From there, both the leader and the follower lead more agents back
 to the site they are committed to.
 
-#### Transport
+##### Transport
 
 The agent (in the Committed phase) picks up agents that are either
 searching or at a nest.
 
-#### Carried
+##### Carried
 
 The agent is picked up by another agent in the Transport state
 and brought to the transporting agent's site to evaluate it for
 themselves.
+
+##### Escape
+
+The agent saw a dead agent or a predator and is running away
+from where they saw it.
+
+##### Go
+
+The agent is going where the user sent them.
+
+##### Dead
+
+The agent will not move again for the rest of the simulation.
+
+
+#### Simplified States (4-State State Machine)
+
+Agents' states include Rest, Explore, Assess, and Dance. These
+states do not use phases.
+
+Use these by setting <code>Constants.SIMPLIFY_STATES</code>
+to <code>True</code>
+
+##### Rest
+
+The agent is at the hub doing nothing.
+
+##### Explore
+
+The agent is out looking for other sites to evaluate.
+
+##### Assess
+
+The agent has found a site and is evaluating how good it is.
+
+##### Dance
+
+The agent has found a site that they like and are back at the 
+hub recommending it to other agents.
+
 
 ### Other Bugs
 
@@ -157,9 +203,12 @@ it is running.
    install all the necessary dependencies for running the program.
 3. (Optional) To change parameters from the default parameters, see the
    "Parameters" section below.
-4. Enter <code>python Colony.py</code> in the terminal to start up the
+4. (Optional) To change which interface you want to run, see the comments
+   in <code>Colony.py</code>'s <code>main</code> method. (Learn more about
+   interfaces in the "Interface" section of this document).
+5. Enter <code>python Colony.py</code> in the terminal to start up the
    program.
-5. If you are using the Empirical Testing interface, simply wait
+6. If you are using the Empirical Testing interface, simply wait
    for the ants to find their new home. Otherwise, select "Tutorial"
    or "Practice" to become familiar with how the program works.
    1. If desired, try using some user controls while the
@@ -182,6 +231,10 @@ There are 2 main ways to change the parameters:
 2. Change the values in <code>config/config.json</code>.
    For a complete list of parameters that can be changed here,
    refer to <code>Constants.py</code>'s <code>CONFIG_KEYS</code>
+
+Some other parameters such as <code>SIMPLIFY_STATES</code> must
+be changed directly in the code. These can generally be found in
+<code>Constants.py</code> or <code>config/Config.py</code>.
 
 Important methods and their parameters to know about are listed
 below.
@@ -260,10 +313,9 @@ a leader at the hub.
 ### EmpiricalTestingInterface
 
 This interface is good for collecting results quickly without user
-interactions. It is about 3.29 times faster than the
-<code>UserInterface</code>. (You can multiply the duration by 3.29
-to figure out how long the same simulation would have taken if it had
-been run in the <code>UserInterface</code>.)
+interactions. It is many times faster than the
+<code>UserInterface</code> because it doesn't draw the screen, and
+it can run 16 simulations concurrently.
 
 This interface is the one that shows the least information. Nothing
 is drawn on the screen, and the user has no control over what happens.
