@@ -68,3 +68,6 @@ class RecordingControls(Controls):
 
     def avoid(self, pos):
         pass
+
+    def addCheckPoint(self, mousePos):
+        pass

@@ -6,6 +6,7 @@ from abc import ABC
 from config import Config
 from ColonyExceptions import *
 from Constants import *
+from config.Config import SHOULD_RECORD
 from interface.Simulation import Simulation
 from model.World import World
 from model.builder import AgentBuilder
@@ -16,8 +17,8 @@ class LiveSimulation(Simulation, ABC):
     """ A class to run the interface for ants finding their new home after the old one broke.
      This simulation is live (as opposed to a recording player). """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
+        super().__init__(numAgents, numSites, sitePositions, siteQualities)
         self.previousSendTime = datetime.datetime.now()
 
         if Config.SIM_DURATION < 0 or Config.SIM_DURATION > MAX_TIME:
@@ -135,12 +136,17 @@ class LiveSimulation(Simulation, ABC):
                 sites[siteIndex].wasFound = True
                 # If the site's estimates were not reported before the agent got assigned to another site, report them here.
                 if sites[siteIndex].estimatedPosition is None and not sites[siteIndex].isHub():
+                    if SHOULD_RECORD and agent.newReport:
+                        self.recorder.recordAgentEstimates(agent, agentIndex)
                     sites[siteIndex].setEstimates(agent.estimateSitePosition(sites[siteIndex]),
                                                   agent.estimateQuality(sites[siteIndex]),
                                                   sites[siteIndex].estimatedAgentCount,
                                                   agent.estimateRadius(sites[siteIndex]))
         try:
             estimates = self.world.request.addAgentToHubInfo(agent, agentIndex)
+            if SHOULD_RECORD and agent.newReport:
+                agent.newReport = False
+                self.recorder.recordAgentEstimates(agent, agentIndex)
             agent.assignedSite.setEstimates(*estimates)
             agent.assignedSite.updateBlur()
         except AttributeError:
@@ -149,7 +155,7 @@ class LiveSimulation(Simulation, ABC):
 
     @staticmethod
     def updateSiteAgentCountEst(agent):
-        if agent.prevReportedSite is not agent.assignedSite:
+        if agent.prevReportedSite is not None and agent.prevReportedSite is not agent.assignedSite:
             agent.prevReportedSite.estimatedAgentCount -= 1
             if agent.assignedSite is not None:
                 agent.assignedSite.estimatedAgentCount += 1
@@ -174,7 +180,8 @@ class LiveSimulation(Simulation, ABC):
             self.recorder.save()
 
     def write(self):
-        self.recorder.write()
+        if not Config.ONLY_RECORD_LAST:
+            self.recorder.write()
 
     def sendResults(self, results):
         """ Tells the rest API which site the agents ended up at and how long it took them to get there,

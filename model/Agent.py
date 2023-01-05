@@ -50,7 +50,7 @@ class Agent:
         self.speedCoefficient = 1  # The number multiplied my the agent's original speed to get its current speed
 
         self.target = list(startingPosition)  # The position the agent is going to
-        self.angle = random.uniform(0, pi, 1)  # Angle the agent is moving
+        self.angle = random.uniform(0, 2 * pi)  # Angle the agent is moving
         self.placesToAvoid = []  # A list of points that the agent should stay away from
         # self.obstaclesToAvoid = []  # A list of obstacles the agent cannot walk over
         self.recentlySeenPredatorPositions = []
@@ -65,6 +65,7 @@ class Agent:
         self.estimatedRadius = self.getHub().getRadius()  # The agent's estimate of the radius of their assigned site
         self.estimatedSitePosition = self.assignedSite.getPosition()  # An estimate of where the agent thinks their site is
         self.prevReportedSite = startingAssignment  # The site the agent was assigned to last time they were at the hub
+        self.newReport = True  # Whether the agent has new estimates to report
 
         self.siteInRangeIndex = self.getHubIndex()
         self.knownSites = [self.getHub()]  # A list of sites that the agent has been to before
@@ -83,7 +84,7 @@ class Agent:
         self.checkPoints = []  # A list of places the agent has to go to on the way to their GO destination
         self.eraseFogCommands = []  # A list of eraseFog methods and agentRects used to clear fog after an agent has returned to the hub
 
-        self.angleBeforeObstacle = 0  # Agent's angle when they collide with an obstacle
+        self.angleBeforeObstacle = self.angle  # Agent's angle when they collide with an obstacle
 
     def setState(self, state):
         self.state = state
@@ -223,12 +224,14 @@ class Agent:
         """ Returns an estimate of a site quality that is within estimationAccuracy units from the actual quality """
         if site.quality == -1:
             return -1
+        self.newReport = True
         return site.getQuality() + (self.estimationAccuracy if random.randint(0, 2) == 1 else -self.estimationAccuracy)
 
     def estimateRadius(self, site):
         """ Returns an estimate of a site radius that is within estimationAccuracy/4 pixels from the actual radius """
         if site.quality == -1:
             return site.getRadius()
+        self.newReport = True
         estimate = site.getRadius() + ((self.estimationAccuracy / 4) if random.randint(0, 2) == 1 else (-(self.estimationAccuracy / 4)))
         if estimate <= 0:  # Main radius cannot be negative or zero.
             estimate = 1
@@ -276,6 +279,7 @@ class Agent:
         if site is self.getHub():
             estimatedSitePosition = self.getHub().getPosition()
         else:
+            self.newReport = True
             estimatedSitePosition = site.getPosition().copy()
             estimatedSitePosition[0] = site.getPosition()[0] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
             estimatedSitePosition[1] = site.getPosition()[1] + random.randint(int(-20 / self.navigationSkills), int(20 / self.navigationSkills))
@@ -283,11 +287,14 @@ class Agent:
 
     def estimateSitePositionMoreAccurately(self):
         """ Returns an estimate of a site position that is closer than the agent's last estimate """
-        sitePos = self.assignedSite.getPosition()
-        if self.estimatedSitePosition[0] != sitePos[0]:
-            self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + sitePos[0]) / 2
-        if self.estimatedSitePosition[1] != sitePos[1]:
-            self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
+        if not self.newReport:
+            if self.assignedSite is not self.getHub():
+                self.newReport = True
+            sitePos = self.assignedSite.getPosition()
+            if self.estimatedSitePosition[0] != sitePos[0]:
+                self.estimatedSitePosition[0] = (self.estimatedSitePosition[0] + sitePos[0]) / 2
+            if self.estimatedSitePosition[1] != sitePos[1]:
+                self.estimatedSitePosition[1] = (self.estimatedSitePosition[1] + sitePos[1]) / 2
 
     def avoid(self, pos):
         if pos is not None and len(self.getNearbyPlaceToAvoid()) == 0:
@@ -396,6 +403,16 @@ class Agent:
     def shouldFollow():
         """ Returns whether the agent should follow a canvasing or committed agent """
         return random.exponential() > Config.FOLLOW_THRESHOLD
+
+    @staticmethod
+    def shouldFollowDance():
+        """ Returns whether the agent should go to the site of a dancing agent """
+        return random.exponential() > Config.FOLLOW_DANCE_THRESHOLD
+
+    @staticmethod
+    def doneRecruiting():
+        """ Returns whether the agent is ready to stop recruiting and rest """
+        return random.exponential() > Config.LEAD_THRESHOLD
 
     def shouldGetLost(self):
         """ Returns whether the agent will lose their way """

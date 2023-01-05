@@ -17,7 +17,7 @@ class UserInterface(LiveSimulation):
             return UIControls(self.world.agentList, self.world, self.simDisp)
         return LimitedControls(self.world.agentList, self.world, self.simDisp)
 
-    def applyConfiguration(self):
+    def applyConfiguration(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
         super().applyConfiguration()
         Config.INTERFACE_NAME = "User"
         Config.DRAW_ESTIMATES = True

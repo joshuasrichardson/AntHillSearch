@@ -12,24 +12,27 @@ from display.simulation.WorldDisplay import drawWorldObjects
 from ColonyExceptions import GameOver
 from model.Timer import Timer
 from model.builder import AgentBuilder
+from model.states.simplified.Rest import RestState
 from recording.Recorder import Recorder
 from model.states.AtNestState import AtNestState
 from user.Controls import Controls
 from user.LimitedControls import LimitedControls
+from user.NoControls import NoControls
 
 
 class Simulation(ABC):
     """ An abstract class to run the simulation for ants finding their new home after the old one broke.
     Runs most of the colony simulation but leaves some details to classes that inherit this class """
 
-    def __init__(self):
-        self.applyConfiguration()  # update all the settings with the configuration file.
+    def __init__(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
+        self.applyConfiguration(numAgents, numSites, sitePositions, siteQualities)  # update all the settings with the configuration file.
         Display.screen = self.getScreen()  # Set up the screen.
         self.recorder = Recorder()  # The recorder that either records a live interface or plays a recorded interface
         self.timeRanOut = False  # Whether there is no more time left in the interface
         self.timer = Timer(self.timeOut)  # A timer to handle keeping track of when the interface is paused or ends
         self.world = self.initializeWorld()  # The world that has all the sites and agents
         self.chosenHomes = self.initChosenHomes()  # The site that most of the agents are assigned to when the interface ends
+        self.initialState = RestState if SIMPLIFY_STATES else AtNestState
         if Config.INTERFACE_NAME != "Empirical_Testing":
             self.simDisp = SimulationDisplay(self.world, self.timer)
             self.userControls = self.getControls()
@@ -42,12 +45,13 @@ class Simulation(ABC):
         pass
 
     def initializeAgentList(self):
+        self.initialState = RestState if SIMPLIFY_STATES else AtNestState
         for hubIndex, count in enumerate(self.world.initialHubAgentCounts):
             if hubIndex >= len(self.world.getHubs()):
                 break
             for i in range(count):
                 agent = AgentBuilder.getNewAgent(self.world, self.world.getHubs()[hubIndex])
-                agent.setState(AtNestState(agent))
+                agent.setState(self.initialState(agent))
                 self.world.agentList.append(agent)
                 self.world.agentGroups[i % 10].append(agent)
 
@@ -123,7 +127,7 @@ class Simulation(ABC):
         pass
 
     def updateAgents(self, agentRectList):
-        for agent in self.world.agentList:
+        for i, agent in enumerate(self.world.agentList):
             self.updateAgent(agent, agentRectList)
             self.world.updatePaths(agent)
 
@@ -186,7 +190,7 @@ class Simulation(ABC):
 
     def timeOut(self):
         """ Method to be called when the simulation timer runs out. sets timeRanOut to True to break the main loop. """
-        print("The simulation time has run out.")
+        # print("The simulation time has run out.")
         self.timeRanOut = True
 
     def finish(self):
@@ -243,11 +247,11 @@ class Simulation(ABC):
         numDead = self.getNumDeadAgents()
         for i in range(len(self.chosenHomes)):
             numArrived.append(self.chosenHomes[i].agentCounts[i])
-            print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
-                  f"colony {i + 1} made it to the new home.")
-        for hubIndex in range(len(self.world.hubs)):
-            print(f"{numDead[hubIndex]}/"
-                  f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex + 1} died.")
+            # print(f"{self.chosenHomes[i].agentCounts[i]}/{self.world.initialHubAgentCounts[i]} agents from "
+            #       f"colony {i + 1} made it to the new home.")
+        # for hubIndex in range(len(self.world.hubs)):
+        #     print(f"{numDead[hubIndex]}/"
+        #           f"{self.world.initialHubAgentCounts[hubIndex]} agents from colony {hubIndex + 1} died.")
         return numArrived, numDead
 
     def printTimeResults(self):
@@ -260,10 +264,10 @@ class Simulation(ABC):
 
     def printHomeQualities(self):
         qualities = []
-        print("Their homes are ranked: ")
+        # print("Their homes are ranked: ")
         for i, home in enumerate(self.chosenHomes):
             qualities.append(home.getQuality())
-            print(f"Colony {i + 1}: {home.getQuality()}/255.")
+            # print(f"Colony {i + 1}: {home.getQuality()}/255.")
         return qualities
 
     def areInFloodZone(self, sites):
@@ -281,10 +285,12 @@ class Simulation(ABC):
 
     def getControls(self):
         """ Initializes and returns an object to handle user input """
+        if SIMPLIFY_STATES:
+            return NoControls(self.world.agentList, self.world, self.simDisp)
         if Config.FULL_CONTROL:
             return Controls(self.world.agentList, self.world, self.simDisp)
         return LimitedControls(self.world.agentList, self.world, self.simDisp)
 
-    def applyConfiguration(self):
+    def applyConfiguration(self, numAgents=None, numSites=None, sitePositions=None, siteQualities=None):
         """ Sets the simulation values to match the values in {CONFIG_FILE_NAME} """
         Utils.copyJsonToConfig()

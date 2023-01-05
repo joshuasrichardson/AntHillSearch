@@ -24,6 +24,8 @@ class AgentGraph(AdjustableBox):
         super().__init__(title, left, top, maxCount + 110, (len(counts) + 2) * Config.FONT_SIZE, 0, 0)
 
     def draw(self):
+        if len(self.categories) == 0:
+            return
         super().draw()
         Display.write(Display.screen, self.title, Config.FONT_SIZE, self.rect.left + 3, self.rect.top)
 

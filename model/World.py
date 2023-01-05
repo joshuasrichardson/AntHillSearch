@@ -71,6 +71,12 @@ class World:
         if Config.SHOULD_DRAW:
             self.fog = FogDisplay.initFog(self.hubs)
 
+    def getNumSites(self):
+        return len(self.siteList) - len(self.hubs)
+
+    def getNumAgents(self):
+        return len(self.agentList)
+
     def checkHubs(self, numHubs, siteRadius):
         """ Ensure that hubs have all necessary attributes. If they aren't preassigned, assign them randomly. """
         if len(self.hubLocations) == 0 and numHubs == 1:

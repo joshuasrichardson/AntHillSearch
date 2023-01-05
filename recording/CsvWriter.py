@@ -64,3 +64,20 @@ def separateIntoRows(values):
             for row in rows:
                 row.append(value)
     return rows
+
+
+def insert(results, world):
+    # prepend with config or results to match the mongodb csv files' format
+    dictionary = {
+        "config.NUM_SITES": len(world.siteList) - len(world.hubs),
+        "config.SITE_POSITIONS": f"{list(map(lambda site: site.pos, world.siteList[len(world.hubs):]))}",
+        'config.SITE_QUALITIES': f"{list(map(lambda site: site.quality, world.siteList[len(world.hubs):]))}",
+        'results.NUM_ROUNDS': results["NUM_ROUNDS"],
+        'results.CHOSEN_HOME_QUALITIES': results["CHOSEN_HOME_QUALITIES"],
+        'results.CHOSEN_HOME_POSITIONS': results["CHOSEN_HOME_POSITIONS"],
+        'results.NUM_ARRIVALS': results["NUM_ARRIVALS"],
+        'results.TOTAL_AGENTS': results["TOTAL_AGENTS"]
+    }
+
+    if Config.RESULTS_FILE_NAME is not None:
+        jsonObjectToCsv(dictionary, Config.RESULTS_FILE_NAME, should_separate=False)

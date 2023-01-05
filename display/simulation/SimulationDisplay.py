@@ -3,7 +3,7 @@ from pygame import MOUSEBUTTONDOWN, KEYUP, KMOD_CTRL
 
 from ColonyExceptions import GameOver
 from Constants import GRAPHS_TOP_LEFT, SCREEN_COLOR, ORANGE, STATES_LIST, STATE_COLORS, PHASES_LIST, PHASE_COLORS, BLUE, \
-    CONTROL_OPTIONS, RECORDING_CONTROL_OPTIONS
+    CONTROL_OPTIONS, RECORDING_CONTROL_OPTIONS, SIMPLIFY_STATES
 from config import Config
 from display import Display
 from display.buttons.Button import Button
@@ -70,10 +70,11 @@ class SimulationDisplay(MenuScreen):
                                                     Display.origHeight - (5 * Config.FONT_SIZE),
                                                     13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
 
-        self.commandSiteAgentsButton = EnableButton(" Command Sites Agents ", lambda: None, True, True,
-                                                    Display.origWidth - (15 * Config.FONT_SIZE),
-                                                    Display.origHeight - (5 * Config.FONT_SIZE),
-                                                    13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
+        self.commandSiteAgentsButton = Button("", lambda: None, 0, 0) if SIMPLIFY_STATES else EnableButton(
+            " Command Sites Agents ", lambda: None, True, True,
+            Display.origWidth - (15 * Config.FONT_SIZE),
+            Display.origHeight - (5 * Config.FONT_SIZE),
+            13 * Config.FONT_SIZE, 2 * Config.FONT_SIZE)
 
         border = Button("", lambda: None, 0, 0)
         border.draw = self.drawScreenBorder

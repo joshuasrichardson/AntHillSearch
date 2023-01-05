@@ -7,11 +7,13 @@ from datetime import datetime
 import Utils
 from config import Config
 from Constants import RESULTS_DIR, NUM_ROUNDS_NAME, CONFIG_FILE_NAME, FULL_CONTROL_NAME, DISTRACTED_NAME, \
-    NUM_SITES_NAME, NUM_PREDATORS_NAME, MAX_NUM_RECORDINGS
+    NUM_SITES_NAME, NUM_PREDATORS_NAME, MAX_NUM_RECORDINGS, RESULTS_FILE_ENDINGS
 from display import Display
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter
+from recording.MongoDBWriter import MongoDBWriter
+from recording import CsvWriter
 
 
 def getMostRecentRecording():
@@ -30,6 +32,7 @@ class Recorder:
         self.agentStates = []
         self.agentPhases = []
         self.agentAssignments = []
+        self.agentEstimates = []
         self.predatorPositions = []
         self.predatorAngles = []
         self.ladybugPositions = []
@@ -68,6 +71,8 @@ class Recorder:
         self.timestampString = datetime.now().strftime('%b-%d-%Y-%H-%M-%S')
         self.outputFileBase = f'{RESULTS_DIR}{self.timestampString}'
 
+        self.mongoWriter = MongoDBWriter()
+
     def record(self, simulation):
         if Config.SHOULD_RECORD:
             self.recordExecutedCommands(simulation.simDisp.commandHistBox.executedCommands)
@@ -99,6 +104,15 @@ class Recorder:
 
     def recordAssignment(self, siteIndex):
         self.agentAssignments.append(siteIndex)
+
+    def recordAgentEstimates(self, agent, agentId):
+        self.agentEstimates.append({
+            "agentId": agentId,
+            "sitePosition:": [int(i) for i in agent.estimatedSitePosition],
+            "quality": int(agent.estimatedQuality),
+            # "agentCount": int(agent.estimatedAgentCount), # TODO: Actually estimate the count. It seems to be 100 always.
+            "radius": int(agent.estimatedRadius),
+        })
 
     def recordAgentsToDelete(self, agentIndex):
         self.agentsToDelete = agentIndex
@@ -226,18 +240,30 @@ class Recorder:
 
         self.executedCommands.clear()
 
+        with open(f'{self.outputFileBase}_ESTIMATES.json', 'w') as file:
+            json.dump({'agentEstimates': self.agentEstimates}, file)
+
+        self.agentEstimates.clear()
+
     @staticmethod
     def deleteExcessRecordings():
         # Delete old replays when there are too many, so they don't take up too much space on the computer.
-        replays = [file for file in os.listdir('./recording/results/') if file.endswith('RECORDING.json')
-                   or file.endswith('RESULTS.json') or file.endswith('COMMANDS.json') or file.endswith('CONFIG.json')]
-        if len(replays) > MAX_NUM_RECORDINGS * 4:
+        replays = [file for file in os.listdir('./recording/results/') if file.endswith(RESULTS_FILE_ENDINGS)]
+        if len(replays) > MAX_NUM_RECORDINGS * len(RESULTS_FILE_ENDINGS):
             replays = sorted(replays, key=lambda t: -os.stat(f"./recording/results/{t}").st_mtime)  # Sort by date modified (recently modified first)
-            replays = replays[MAX_NUM_RECORDINGS * 4:]  # Delete from the end of the list
+            replays = replays[MAX_NUM_RECORDINGS * len(RESULTS_FILE_ENDINGS):]  # Delete from the end of the list
             for replay in replays:
-                os.remove(f"./recording/results/{replay}")
+                try:
+                    os.remove(f"./recording/results/{replay}")
+                except FileNotFoundError:
+                    pass
 
     def writeResults(self, results, world):
+        # self.mongoWriter.insert(results, world)
+        CsvWriter.insert(results, world)
+        if Config.ONLY_RECORD_LAST:
+            return
+
         # Create the folder with the results if it does not exist
         if not os.path.exists(RESULTS_DIR):
             os.makedirs(RESULTS_DIR)
@@ -315,7 +341,8 @@ class Recorder:
             json.dump(configData, file)
 
         # The first part of the name of the sheets with these settings
-        configAbrv = f"{control}{distractions}{sites}{preds}{positions}"
+        configAbrv = f"{control}{distractions}{sites}{preds}{positions}" if Config.RESULTS_FILE_NAME is None \
+            else Config.RESULTS_FILE_NAME
 
         XlsxWriter.jsonToXlsx(configData, Config.INTERFACE_NAME, f"{configAbrv}Config",
                               "FFBE8C", "FFEAD9", "FFDBBF", sep=False)

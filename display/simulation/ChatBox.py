@@ -1,4 +1,4 @@
-from Constants import BORDER_COLOR
+from Constants import BORDER_COLOR, SIMPLIFY_STATES
 from config import Config
 from display import Display
 from display.buttons.AdjustableBox import AdjustableBox
@@ -17,6 +17,7 @@ class ChatBox(AdjustableBox):
         height = bottom - top
         super().__init__("Chat Box", left, top, width, height, 8, Config.FONT_SIZE * 4, 1.5, minW=60, minH=60)
         self.inputBox = None
+        self.shouldDraw = not SIMPLIFY_STATES
 
     def setInput(self, inputBox):
         self.inputBox = inputBox

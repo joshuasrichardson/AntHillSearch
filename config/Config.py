@@ -4,23 +4,25 @@
 
 from numpy import sin, pi
 
+RESULTS_FILE_NAME = None
+ONLY_RECORD_LAST = True
 INTERFACE_NAME = "Engineering"
 FULL_CONTROL = True  # Whether the user can access all the controls in the interface.
 DISTRACTED = False  # Whether the user is distracted
-# The lower the convergence fraction is, the faster the interface goes because lower fractions require less agents to go to a site
+# The lower the convergence fraction is, the faster the interface goes because lower fractions require fewer agents to go to a site
 CONVERGENCE_FRACTION = 0.80  # The fraction of the agents that need to be assigned to a site before they are considered converged to that site
-# Not having a interface duration leads to all agents eventually ending up at the same nest.
+# Not having an interface duration leads to all agents eventually ending up at the same nest.
 # Shorter durations increase the likeliness that the colony will be split.
 
 USE_ROUNDS_AS_DURATION = True
-SIM_DURATION = 3000  # Time of the interface in seconds or rounds
+SIM_DURATION = 25000  # Time of the interface in seconds or rounds
 
 FONT_SIZE = 13  # The font size of most words in the simulation
 LARGE_FONT_SIZE = 40  # The font size for titles and such
 INITIAL_ZOOM = -6  # How far in or out the zoom is at the beginning
 
 FLOOD_ZONE_SHAPE = "Any"  # The shape of the flood zone if the FLOOD_ZONE_CORNERS are not set.
-FLOOD_ZONE_COVERAGE = 0.33  # The percentage of the world within MAX_SEARCH_DISTANCE of the hub that the flood zone covers
+FLOOD_ZONE_COVERAGE = 0  # The percentage of the world within MAX_SEARCH_DISTANCE of the hub that the flood zone covers
 # if the FLOOD_ZONE_CORNERS are not set.
 FLOOD_ZONE_CORNERS = []  # The positions of corners of the flood zone. If this list has more than 2 values,
 # the FLOOD_ZONE_COVERAGE variable will be ignored to have the flood zone line up with these corners.
@@ -55,7 +57,7 @@ USE_REST_API = False  # Whether the interface sends information about the hub to
 # Having this set to False makes the interface a little faster because it doesn't have to record all the time.
 SHOULD_RECORD = True  # Whether the agents' positions, states, phases, and assigned sites will be recorded to be played again later.
 # Having this set to False makes the interface a little faster because it doesn't have to record all movements etc.
-RECORD_ALL = True
+RECORD_ALL = False
 # Having this set to False makes the interface a little faster because it doesn't have to draw all the time.
 SHOULD_DRAW = True  # Whether the interface is drawn on the screen
 # Having this false makes the interface faster because the paths do not have to be drawn on the screen so much.
@@ -74,7 +76,7 @@ SITE_RADIUS = 30  # The default radius of the sites.
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
 SITE_NO_CLOSER_THAN = 300  # How close to hub can a default site be?
 # Having closer sites makes everything go faster because they can find sites much sooner, and they can find sites from other sites easier.
-SITE_NO_FARTHER_THAN = 800  # How far away from hub can a default site be?
+SITE_NO_FARTHER_THAN = 400  # How far away from hub can a default site be?
 INITIAL_BLUR = 8  # How blurry the sites are when they are found
 
 """ Agent parameters """
@@ -129,21 +131,21 @@ MAX_QUALITY_MISJUDGMENT = 50  # How far off agents' estimatedQuality can be from
 
 PREDATOR_IMAGE = "resources/spider.png"  # The path of the predator image
 PREDATOR_ANGLE = pi / 2  # The initial angle the predator in the image is facing
-NUM_PREDATORS = 2  # The number of predators that go around attacking agents
+NUM_PREDATORS = 0  # The number of predators that go around attacking agents
 PRED_POSITIONS = []  # Where the predators will start. No position = random
 
 """ Ladybug default values """
 
 LADYBUG_IMAGE = "resources/ladybug.png"  # The path of the ladybug image
 LADYBUG_ANGLE = pi / 2  # The initial angle the ladybug in the image is facing
-NUM_LADYBUGS = 1  # The number of ladybugs that go around helping agents
+NUM_LADYBUGS = 0  # The number of ladybugs that go around helping agents
 LADYBUG_POSITIONS = []  # Where the ladybugs will start. No position =
 # random
 
 OBSTACLE_IMAGE = "resources/obstacle.jpg"  # The path of the obstacle image
 OBSTACLE_ANGLE = pi / 2  # The initial angle the obstacle in the image is facing
-NUM_OBSTACLES = 4  # The number of obstacles in the simulation
-OBSTACLE_POSITIONS = [[300,700], [300,0], [900,700], [900,0]]  # Where the obstacles will be placed. No position = random
+NUM_OBSTACLES = 0  # The number of obstacles in the simulation
+OBSTACLE_POSITIONS = []  # Where the obstacles will be placed. No position = random
 
 """ Agent Transition Parameters """
 # Threshold probability,
@@ -172,6 +174,8 @@ GET_LOST_THRESHOLD = 5  # Influences the likelihood that an agent will get lost 
 
 FOLLOW_THRESHOLD = 1  # Influences the likelihood that an agent will start following another agent
 
+FOLLOW_DANCE_THRESHOLD = 6  # Influences the likelihood that an agent will start following another agent
+
 # If this is too low (like 3), then the canvasing and committed agents don't stay in the AT_NEST phase much
 LEAD_THRESHOLD = 4  # Influences the likelihood that an agent will start recruiting (LEAD_FORWARD or REVERSE_TANDEM)
 
@@ -183,5 +187,15 @@ QUORUM_DIVIDEND = 7  # numAgents/QUORUM_DIVIDEND agents need to be at a site bef
 KILL_THRESHOLD = 2  # # Influences the likelihood that a predator will kill an agent
 
 HELP_THRESHOLD = 1  # Influences the likelihood that a ladybug will help an agent
+
+
+PROB_RA = 0.05
+PROB_RE = 0.02
+PROB_EA = 0.05
+PROB_AD = 0.05
+PROB_DA = 0.05
+PROB_ER = 0.005
+PROB_DR = 0.05
+
 
 NUM_REPLAYS = 10
