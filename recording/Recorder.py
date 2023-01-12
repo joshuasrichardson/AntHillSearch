@@ -12,7 +12,6 @@ from display import Display
 from model.phases.NumToPhaseConverter import numToPhase
 from model.states.NumToStateConverter import numToState
 from recording import XlsxWriter
-from recording.MongoDBWriter import MongoDBWriter
 from recording import CsvWriter
 
 
@@ -70,8 +69,6 @@ class Recorder:
 
         self.timestampString = datetime.now().strftime('%b-%d-%Y-%H-%M-%S')
         self.outputFileBase = f'{RESULTS_DIR}{self.timestampString}'
-
-        self.mongoWriter = MongoDBWriter()
 
     def record(self, simulation):
         if Config.SHOULD_RECORD:
@@ -259,7 +256,6 @@ class Recorder:
                     pass
 
     def writeResults(self, results, world):
-        # self.mongoWriter.insert(results, world)
         CsvWriter.insert(results, world)
         if Config.ONLY_RECORD_LAST:
             return
